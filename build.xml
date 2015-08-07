@@ -1,0 +1,181 @@
+<project name="Diacamma2" default="all" basedir=".">
+	<property environment="env" />
+	<property name="test.instance" value="test" />
+	<property name="core.path" value="${basedir}/../lct-core" />
+
+	<available file="/usr/local/bin/coverage2" property="python2.present" />
+	<available file="/usr/local/bin/coverage3" property="python3.present" />
+
+	<target name="all">
+		<antcall target="clear" />
+		<antcall target="init" />
+		<antcall target="pylint" />
+		<antcall target="add_instance" />
+		<antcall target="i18n" />
+		<antcall target="package" />
+		<antcall target="tests" />
+		<antcall target="del_instance" />
+	</target>
+
+	<target name="clear">
+		<delete dir="dist" />
+		<delete dir="${test.instance}" />
+		<delete file="manage_${test.instance}.py" />
+		<delete file="coverage2.xml" />
+		<delete file="coverage3.xml" />
+		<delete file="junit_py0.xml" />
+		<delete file="junit_py2.xml" />
+		<delete file="junit_py3.xml" />
+		<delete file="pylint.txt" />
+		<delete file="MANIFEST" />
+		<delete>
+			<fileset dir="." includes="**/*.pyc" />
+		</delete>
+		<delete dir="syndic/__pycache__" />
+	</target>
+
+	<target name="init">
+		<exec executable="git" outputproperty="build.hnum" failifexecutionfails="false" errorproperty="">
+			<arg value="describe" />
+			<arg value="--tags" />
+			<arg value="--always" />
+			<arg value="HEAD" />
+		</exec>
+		<exec executable="python" outputproperty="build.num" failifexecutionfails="false" errorproperty="">
+			<arg value="-c" />
+			<arg value="print(int('${build.hnum}', 16))" />
+		</exec>
+		<tstamp>
+			<format property="build.time" pattern="yyMMddhh" unit="hour" />
+		</tstamp>
+		<property name="projet.version.build" value="${build.time}" />
+		<echo message="${projet.version.build}" file="diacamma/syndic/build" append="false" />
+	</target>
+
+	<target name="pylint">
+		<exec executable="pylint">
+			<arg line="--rcfile=./rcfile" />
+			<arg line="--msg-template='{path}:{line}: [{msg_id}({symbol}), {obj}] {msg}'" />
+			<arg line="--reports=y" />
+			<arg line="diacamma" />
+			<redirector output="pylint.txt" />
+		</exec>
+		<exec executable="sed">
+			<arg line="/Report/,$d" />
+			<arg line="pylint.txt" />
+		</exec>
+		<exec executable="grep">
+			<arg line="'Your code has been rated'" />
+			<arg line="pylint.txt" />
+		</exec>
+	</target>
+
+	<target name="i18n_comp">
+		<echo message="-- extract ${sub_path} --" />
+		<exec executable="python" dir="./${sub_path}">
+			<env key="PYTHONPATH" value="${core.path}:${env.PYTHONPATH}" />
+			<arg value="${basedir}/manage_${test.instance}.py" />
+			<arg value="makemessages" />
+			<arg value="-l" />
+			<arg value="fr" />
+			<arg value="-l" />
+			<arg value="en" />
+		</exec>
+
+		<echo message="-- compile ${sub_path} --" />
+		<exec executable="python" dir="./${sub_path}">
+			<env key="PYTHONPATH" value="${core.path}:${env.PYTHONPATH}" />
+			<arg value="${basedir}/manage_${test.instance}.py" />
+			<arg value="compilemessages" />
+		</exec>
+	</target>
+
+	<target name="i18n">
+		<antcall target="i18n_comp">
+			<param name="sub_path" value="diacamma/syndic" />
+		</antcall>
+	</target>
+
+	<target name="add_instance">
+		<exec executable="python3">
+			<env key="PYTHONPATH" value="${basedir}:${core.path}:$PYTHONPATH" />
+			<arg value="${core.path}/lucterios/install/lucterios_admin.py" />
+			<arg value="add" />
+			<arg value="--name=${test.instance}" />
+			<arg value="--module=lucterios.dummy" />
+			<arg value="--appli=diacamma.syndic" />
+			<arg value="--instance_path=${basedir}" />
+		</exec>
+	</target>
+
+	<target name="del_instance">
+		<exec executable="python3">
+			<env key="PYTHONPATH" value="${basedir}:${core.path}:${env.PYTHONPATH}" />
+			<arg value="${core.path}/lucterios/install/lucterios_admin.py" />
+			<arg value="delete" />
+			<arg value="--name=${test.instance}" />
+			<arg value="--instance_path=${basedir}" />
+		</exec>
+	</target>
+
+	<target name="test">
+		<echo message="-- test with ${testversion} --" />
+		<delete file=".converage" />
+		<delete file="converage.xml" />
+		<delete file="${testversion}.xml" />
+		<exec executable="${testversion}">
+			<arg value="erase" />
+		</exec>
+		<exec executable="${testversion}">
+			<env key="PYTHONPATH" value="${core.path}:${env.PYTHONPATH}" />
+			<arg value="run" />
+			<arg value="--source=diacamma"/>
+			<arg value="--omit=${core.path}/lucterios/install/*" />
+			<arg value="--include=${core.path}/lucterios/CORE/*.py,${core.path}/lucterios/framework/*.py" />
+			<arg value="./manage_${test.instance}.py" />
+			<arg value="test"/>
+			<arg value="diacamma.syndic" />
+		</exec>
+		<exec executable="${testversion}">
+			<arg value="report" />
+		</exec>
+		<exec executable="${testversion}">
+			<arg value="xml" />
+		</exec>
+		<move file="coverage.xml" tofile="${testversion}.xml" />
+		<replaceregexp file="${testversion}.xml" match='name="\..*\.workspace\.lct-core\.lucterios' replace='name="lucterios' byline="true" />
+		<replace file="${testversion}.xml" token='filename="diacamma' value='filename="${basedir}/diacamma' />
+		<replaceregexp file="${testversion}.xml" match="&lt;source&gt;.*&lt;/source&gt;" replace="&lt;source&gt;/&lt;/source&gt;" byline="true" />
+	</target>
+
+	<target name="test_py2" if="python2.present">
+		<echo message='&lt;testsuite errors="0" failures="0" name="null test" skips="0" tests="0" time="0"&gt;&lt;/testsuite&gt;' file="junit_py2.xml" append="false" />
+		<antcall target="test">
+			<param name="testversion" value="coverage2" />
+		</antcall>
+		<replace file="junit_py2.xml" token="diacamma." value="diacamma-py2." />
+	</target>
+
+	<target name="test_py3" if="python3.present">
+		<echo message='&lt;testsuite errors="0" failures="0" name="null test" skips="0" tests="0" time="0"&gt;&lt;/testsuite&gt;' file="junit_py3.xml" append="false" />
+		<antcall target="test">
+			<param name="testversion" value="coverage3" />
+		</antcall>
+		<replace file="junit_py3.xml" token="diacamma." value="diacamma-py3." />
+	</target>
+
+	<target name="tests">
+		<antcall target="test_py2" />
+		<antcall target="test_py3" />
+	</target>
+
+	<target name="package">
+		<delete file="MANIFEST" />
+		<exec executable="python3">
+			<arg value="setup.py" />
+			<arg value="sdist" />
+		</exec>
+		<delete dir="diacamma_syndic.egg-info" />
+	</target>
+
+</project>
