@@ -59,5 +59,5 @@ setup(
     },
     install_requires=["lucterios >=2.0b0,<=2.0b999999999999999", \
                       "lucterios-contacts >=2.0b0,<=2.0b999999999999999", \
-                      "diacamma-accounting >=2.0b0,<=2.0b999999999999999"],
+                      "diacamma-financial >=2.0b0,<=2.0b999999999999999"],
 )
