@@ -26,6 +26,7 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import unicode_literals
 from os.path import dirname, join, isfile
 
+
 def get_build():
     file_name = join(dirname(__file__), 'build')
     if isfile(file_name):
@@ -35,9 +36,11 @@ def get_build():
 
 __version__ = "2.0.1." + get_build()
 
+
 def __title__():
     from django.utils.translation import ugettext_lazy as _
     return _("Diacamma syndic")
+
 
 def link():
     return ["lucterios.contacts", "diacamma.accounting"]

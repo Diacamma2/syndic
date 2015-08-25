@@ -55,9 +55,9 @@ setup(
     # Packages
     packages=["diacamma", "diacamma.syndic"],
     package_data={
-       "diacamma.syndic":['build', 'logo.gif', 'locale/*/*/*', 'help/*'],
+        "diacamma.syndic": ['build', 'logo.gif', 'locale/*/*/*', 'help/*'],
     },
-    install_requires=["lucterios >=2.0b0,<=2.0b999999999999999", \
-                      "lucterios-contacts >=2.0b0,<=2.0b999999999999999", \
+    install_requires=["lucterios >=2.0b0,<=2.0b999999999999999",
+                      "lucterios-contacts >=2.0b0,<=2.0b999999999999999",
                       "diacamma-financial >=2.0b0,<=2.0b999999999999999"],
 )

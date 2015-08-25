@@ -27,6 +27,7 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from os.path import join, dirname
 import diacamma.syndic
 
+
 def get_subtitle():
     try:
         from django.apps.registry import apps
