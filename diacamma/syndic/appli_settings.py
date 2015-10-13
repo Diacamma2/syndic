@@ -25,7 +25,7 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import unicode_literals
 from django.utils.translation import ugettext_lazy as _, ugettext
 from os.path import join, dirname
-import diacamma.asso
+import diacamma.syndic
 
 
 def get_subtitle():
@@ -37,8 +37,8 @@ def get_subtitle():
     except LookupError:
         return ugettext("Condominium application")
 
-APPLIS_NAME = diacamma.asso.__title__()
-APPLIS_VERSION = diacamma.asso.__version__
+APPLIS_NAME = diacamma.syndic.__title__()
+APPLIS_VERSION = diacamma.syndic.__version__
 APPLI_EMAIL = "support@sd-libre.fr"
 APPLIS_LOGO_NAME = join(dirname(__file__), "logo.gif")
 APPLIS_COPYRIGHT = _("(c) GPL Licence")
