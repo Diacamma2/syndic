@@ -1,0 +1,130 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2015-10-23 21:21+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: __init__.py:42
+msgid "Diacamma condominium"
+msgstr "Diacamma condominium"
+
+#: migrations/0001_initial.py:14
+msgid "condominium-frenquency"
+msgstr "frequency"
+
+#: migrations/0001_initial.py:15
+msgid "condominium-frenquency.0"
+msgstr "annual"
+
+#: migrations/0001_initial.py:16
+msgid "condominium-frenquency.1"
+msgstr "quaterly"
+
+#: migrations/0001_initial.py:16
+msgid "condominium-frenquency.2"
+msgstr "monthly"
+
+#: migrations/0001_initial.py:23
+msgid "condominium-default-owner-account"
+msgstr "default owner account"
+
+#: models.py:40
+msgid "name"
+msgstr "name"
+
+#: models.py:41
+msgid "budget"
+msgstr "budget"
+
+#: models.py:43
+msgid "revenue account"
+msgstr "revenue account"
+
+#: models.py:45
+msgid "cost accounting"
+msgstr "cost accounting"
+
+#: models.py:77 models.py:104 views.py:48
+msgid "set"
+msgstr "set"
+
+#: models.py:78
+msgid "sets"
+msgstr "sets"
+
+#: models.py:88
+msgid "total"
+msgstr "total"
+
+#: models.py:98 models.py:106 views.py:57
+msgid "owner"
+msgstr "owner"
+
+#: models.py:99
+msgid "owners"
+msgstr "owners"
+
+#: models.py:107
+msgid "value"
+msgstr "value"
+
+#: models.py:115
+msgid "ratio"
+msgstr "ratio"
+
+#: views.py:39
+msgid "condominium"
+msgstr "condominium"
+
+#: views.py:39
+msgid "Manage of condominium"
+msgstr "Manage of condominium"
+
+#: views.py:43
+msgid "Manage of set"
+msgstr "Manage of set"
+
+#: views.py:72
+msgid "Add set"
+msgstr "Add set"
+
+#: views.py:73
+msgid "Modify set"
+msgstr "Modify set"
+
+#: views.py:83
+msgid "Show set"
+msgstr "Show set"
+
+#: views.py:92
+msgid "Delete set"
+msgstr "Delete set"
+
+#: views.py:101
+msgid "Modify partition"
+msgstr "Modify partition"
+
+#: views.py:110
+msgid "Add owner"
+msgstr "Add owner"
+
+#: views.py:120
+msgid "Delete owner"
+msgstr "Delete owner"
+
+#: views.py:129
+msgid "Show owner"
+msgstr "Show owner"
