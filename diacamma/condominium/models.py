@@ -28,12 +28,13 @@ from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.utils.translation import ugettext_lazy as _
 
-from lucterios.framework.models import LucteriosModel
+from lucterios.framework.models import LucteriosModel, get_value_converted
 
 from diacamma.accounting.models import CostAccounting
 from django.utils import six
 from diacamma.payoff.models import Supporting
-from django.db.models.aggregates import Sum
+from django.db.models.aggregates import Sum, Max
+from diacamma.accounting.tools import format_devise, currency_round
 
 
 class Set(LucteriosModel):
@@ -85,7 +86,16 @@ class Owner(Supporting):
     
     @classmethod
     def get_default_fields(cls):
-        return ["third",(_('total'), 'third.total')]
+        return ["third", (_('initial state'), 'total_initial'), (_('total call for funds'), 'total_call'), (_('total payoff'), 'total_payed'), (_('total estimate'), 'total_estimate'), (_('total'), 'third.total')]
+
+    @classmethod
+    def get_edit_fields(cls):
+        return ["third"]
+
+    @classmethod
+    def get_show_fields(cls):
+        return ["third", ((_('initial state'), 'total_initial'),), ((_('total call for funds'), 'total_call'),),
+                ((_('total estimate'), 'total_estimate'), (_('total'), 'third.total')), 'partition_set', 'callfunds_set']
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         is_new = self.id is None
@@ -94,6 +104,30 @@ class Owner(Supporting):
             for setitem in Set.objects.all():
                 Partition.objects.create(set=setitem, owner=self)
 
+    @property
+    def total_call(self):
+        return format_devise(0, 5)
+
+    def get_total_initial(self):
+        return 0
+
+    @property
+    def total_initial(self):
+        return format_devise(self.get_total_initial(), 5)
+    
+    @property
+    def total_estimate(self):
+        return format_devise(self.get_total(), 5)
+
+    def get_total(self):
+        return 0
+        
+    def get_max_payoff(self):
+        return 1000000
+
+    def payoff_is_revenu(self):
+        return True
+    
     class Meta(object):
         verbose_name = _('owner')
         verbose_name_plural = _('owners')
@@ -112,7 +146,7 @@ class Partition(LucteriosModel):
     
     @classmethod
     def get_default_fields(cls):
-        return ["owner", "value", (_("ratio"), 'ratio')]
+        return ["set", "owner", "value", (_("ratio"), 'ratio')]
 
     @classmethod
     def get_edit_fields(cls):
@@ -121,10 +155,110 @@ class Partition(LucteriosModel):
     def get_ratio(self):
         total = self.set.total_part
         if abs(total) < 0.01:
-            return 0
+            return 0.0
         else:
-            return 100 * self.value / total
+            return float(100 * self.value / total)
     
     @property
     def ratio(self):
         return "%.1f %%" % self.get_ratio()
+    
+    class Meta(object):
+        verbose_name = _('partition')
+        verbose_name_plural = _('partitions')
+
+
+class CallFunds(LucteriosModel):
+    owner = models.ForeignKey(
+        Owner, verbose_name=_('owner'), null=True, db_index=True, on_delete=models.PROTECT)
+    num = models.IntegerField(verbose_name=_('numeros'), null=True)
+    date = models.DateField(verbose_name=_('date'), null=False)
+    comment = models.TextField(_('comment'), null=True, default="")
+    status = models.IntegerField(verbose_name=_('status'),
+                                 choices=((0, _('building')), (1, _('valid')), (2, _('ended'))), null=False, default=0, db_index=True)
+
+    def __str__(self):
+        return "%s - %s" % (self.num, get_value_converted(self.date))
+
+    @classmethod
+    def get_default_fields(cls):
+        return ["num", "date", "owner", "comment", (_('total'), 'total')]
+
+    @classmethod
+    def get_edit_fields(cls):
+        return ["status", "date", "comment"]
+
+    @classmethod
+    def get_show_fields(cls):
+        return ["num", "owner", "calldetail_set", "comment", ("status", (_('total'), 'total'))]
+    
+    def get_total(self):
+        val = 0
+        for calldetail in self.calldetail_set.all():
+            val += currency_round(calldetail.price)
+        return val
+    
+    @property
+    def total(self):
+        return format_devise(self.get_total(), 5)
+    
+    def valid(self):
+        if self.status == 0:
+            val = CallFunds.objects.exclude(status=0).aggregate(Max('num'))
+            if val['num__max'] is None:
+                new_num = 1
+            else:
+                new_num = val['num__max'] + 1
+            calls_by_owner = {}
+            for owner in Owner.objects.all():
+                calls_by_owner[owner.id] = CallFunds.objects.create(num=new_num, date=self.date, owner=owner, comment=self.comment, status=1)     
+            for calldetail in self.calldetail_set.all():
+                amount = float(calldetail.price)
+                new_detail = None 
+                for part in calldetail.set.partition_set.all():
+                    if part.value > 0.001:
+                        new_detail = CallDetail.objects.create(set=calldetail.set, designation=calldetail.designation)
+                        new_detail.callfunds = calls_by_owner[part.owner.id]
+                        new_detail.price = float(calldetail.price) * part.get_ratio()
+                        amount -= new_detail.price 
+                        new_detail.save()
+                if abs(amount) > 0.0001:
+                    new_detail.price += amount
+                    new_detail.save()
+                for new_call in calls_by_owner.values():
+                    if new_call.get_total() < 0.0001:
+                        new_call.delete()
+            self.delete()    
+
+    def close(self):
+        return
+    
+    class Meta(object):
+        verbose_name = _('call of funds')
+        verbose_name_plural = _('calls of funds')
+
+
+class CallDetail(LucteriosModel):
+    callfunds = models.ForeignKey(
+        CallFunds, verbose_name=_('call of funds'), null=True, default=None, db_index=True, on_delete=models.CASCADE)
+    set = models.ForeignKey(
+        Set, verbose_name=_('set'), null=False, db_index=True, on_delete=models.PROTECT)
+    designation = models.TextField(verbose_name=_('designation'))
+    price = models.DecimalField(verbose_name=_('price'), max_digits=10, decimal_places=3, default=0.0, validators=[
+        MinValueValidator(0.0), MaxValueValidator(9999999.999)])
+
+    @classmethod
+    def get_default_fields(cls):
+        return ["set", "designation", (_('price'), 'price_txt')]
+
+    @classmethod
+    def get_edit_fields(cls):
+        return ["set", "designation", "price"]
+    
+    @property
+    def price_txt(self):
+        return format_devise(self.price, 5)
+    
+    class Meta(object):
+        verbose_name = _('detail of call')
+        verbose_name_plural = _('details of call')

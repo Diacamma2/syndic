@@ -34,8 +34,6 @@ from lucterios.framework.tools import FORMTYPE_NOMODAL, ActionsManage, MenuManag
 
 from diacamma.condominium.models import Set, Partition, Owner
 from lucterios.framework.xfercomponents import XferCompLabelForm, XferCompImage
-from lucterios.framework.xfergraphic import XferContainerAcknowledge
-from diacamma.accounting.views import ThirdShow
 
 MenuManage.add_sub("condominium", "core.general", "diacamma.condominium/images/condominium.png",
                    _("condominium"), _("Manage of condominium"), 30)
@@ -124,13 +122,8 @@ class OwnerDel(XferDelete):
 
 @ActionsManage.affect('Owner', 'show')
 @MenuManage.describ('condominium.change_set')
-class OwneShow(XferContainerAcknowledge):
+class OwneShow(XferShowEditor):
     icon = "set.png"
     model = Owner
     field_id = 'owner'
     caption = _("Show owner")
-    
-    def fillresponse(self):
-        self.redirect_action(
-            ThirdShow.get_action("", ""), {'params': {"third": self.item.third_id}})
-

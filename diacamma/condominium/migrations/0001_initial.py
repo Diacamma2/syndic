@@ -39,9 +39,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('supporting_ptr', models.OneToOneField(primary_key=True, serialize=False, to='payoff.Supporting', auto_created=True, parent_link=True)),
             ],
-            options={
-                'abstract': False,
-            },
+            options={'verbose_name_plural': 'owners', 'verbose_name': 'owner'},
             bases=('payoff.supporting',),
         ),
         migrations.CreateModel(
@@ -66,9 +64,46 @@ class Migration(migrations.Migration):
                 ('owner', models.ForeignKey(to='condominium.Owner', on_delete=django.db.models.deletion.PROTECT, verbose_name='owner')),
                 ('set', models.ForeignKey(to='condominium.Set', on_delete=django.db.models.deletion.PROTECT, verbose_name='set')),
             ],
+            options={'verbose_name_plural': 'partitions', 'verbose_name': 'partition'},
+        ),
+        migrations.CreateModel(
+            name='CallFunds',
+            fields=[
+                ('id', models.AutoField(primary_key=True, auto_created=True, serialize=False, verbose_name='ID')),
+                ('num', models.IntegerField(null=True, verbose_name='numeros')),
+                ('date', models.DateField(verbose_name='date')),
+                ('comment', models.TextField(null=True, verbose_name='comment', default='')),
+                ('status', models.IntegerField(db_index=True, choices=[(0, 'building'), (1, 'valid'), (2, 'ended')], verbose_name='status', default=0)),
+                ('owner',models.ForeignKey(verbose_name='owner', null=True, to='condominium.Owner')),
+            ],
             options={
-                'abstract': False,
+                'verbose_name': 'call of funds',
+                'verbose_name_plural': 'calls of funds',
             },
         ),
+        migrations.CreateModel(
+            name='CallDetail',
+            fields=[
+                ('id', models.AutoField(primary_key=True, auto_created=True, serialize=False, verbose_name='ID')),
+                ('designation', models.TextField(verbose_name='designation')),
+                ('price', models.DecimalField(max_digits=10, validators=[django.core.validators.MinValueValidator(0.0), django.core.validators.MaxValueValidator(9999999.999)], verbose_name='price', default=0.0, decimal_places=3)),
+                ('callfunds', models.ForeignKey(null=True, default=None, verbose_name='call of funds', to='condominium.CallFunds', on_delete=django.db.models.deletion.PROTECT)),
+                ('set', models.ForeignKey(verbose_name='set', to='condominium.Set')),
+            ],
+            options={
+                'verbose_name': 'detail of call',
+                'verbose_name_plural': 'details of call',
+            },
+        ),
+        migrations.AlterField(
+            model_name='partition',
+            name='owner',
+            field=models.ForeignKey(to='condominium.Owner', verbose_name='owner'),
+        ),
+        migrations.AlterField(
+            model_name='partition',
+            name='set',
+            field=models.ForeignKey(to='condominium.Set', verbose_name='set'),
+        ),                  
         migrations.RunPython(initial_values),
     ]
