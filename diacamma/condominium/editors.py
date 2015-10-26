@@ -43,14 +43,14 @@ class SetEditor(LucteriosEditor):
         xfer.get_components('budget').prec = currency_decimal
         xfer.get_components(
             'revenue_account').mask = current_system_account().get_revenue_mask()
-            
+
     def show(self, xfer):
         partition = xfer.get_components('partition')
         partition.delete_header('set')
 
 
 class OwnerEditor(SupportingEditor):
-    
+
     def show(self, xfer):
         third = xfer.get_components('third')
         third.colspan -= 1
@@ -64,7 +64,8 @@ class OwnerEditor(SupportingEditor):
         partition.delete_header('owner')
         callfunds = xfer.get_components('callfunds')
         callfunds.actions = []
-        callfunds.add_actions(xfer, action_list=[('show', _("Edit"), "images/show.png", SELECT_SINGLE)])
+        callfunds.add_actions(
+            xfer, action_list=[('show', _("Edit"), "images/show.png", SELECT_SINGLE)])
         SupportingEditor.show(self, xfer)
 
 
@@ -72,7 +73,7 @@ class PartitionEditor(LucteriosEditor):
 
     def edit(self, xfer):
         xfer.change_to_readonly('set')
-        xfer.change_to_readonly('owner')        
+        xfer.change_to_readonly('owner')
 
 
 class CallFundsEditor(LucteriosEditor):

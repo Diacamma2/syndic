@@ -41,8 +41,9 @@ class CallFundsList(XferListEditor):
                        {'modal': FORMTYPE_REFRESH, 'close': CLOSE_NO})
         self.add_component(edt)
         self.filter = Q(status=status_filter)
-        if status_filter>0:
-            self.action_grid = [('show', _("Edit"), "images/show.png", SELECT_SINGLE)]
+        if status_filter > 0:
+            self.action_grid = [
+                ('show', _("Edit"), "images/show.png", SELECT_SINGLE)]
 
 
 @ActionsManage.affect('CallFunds', 'modify', 'add')
@@ -53,6 +54,7 @@ class CallFundsAddModify(XferAddEditor):
     field_id = 'callfunds'
     caption_add = _("Add call of funds")
     caption_modify = _("Modify call of funds")
+
 
 @ActionsManage.affect('CallFunds', 'show')
 @MenuManage.describ('condominium.change_callfunds')
@@ -83,6 +85,7 @@ class CallFundsDel(XferDelete):
     field_id = 'callfunds'
     caption = _("Delete call of funds")
 
+
 @ActionsManage.affect('CallFunds', 'valid')
 @MenuManage.describ('condominium.add_callfunds')
 class CallFundsValid(XferContainerAcknowledge):
@@ -94,6 +97,7 @@ class CallFundsValid(XferContainerAcknowledge):
     def fillresponse(self):
         if (self.item.status == 0) and self.confirme(_("Do you want validate this call of funds?")):
             self.item.valid()
+
 
 @ActionsManage.affect('CallFunds', 'close')
 @MenuManage.describ('condominium.add_callfunds')
@@ -134,6 +138,7 @@ class CallDetailAddModify(XferAddEditor):
     field_id = 'calldetail'
     caption_add = _("Add detail of call")
     caption_modify = _("Modify detail of call")
+
 
 @ActionsManage.affect('CallDetail', 'delete')
 @MenuManage.describ('condominium.delete_callfunds')

@@ -57,11 +57,12 @@ class SetList(XferListEditor):
         lbl.set_value_as_title(_("owner"))
         lbl.set_location(1, row + 1)
         self.add_component(lbl)
-        self.fill_grid(self.get_max_row(), Owner, "owner", Owner.objects.all())        
+        self.fill_grid(self.get_max_row(), Owner, "owner", Owner.objects.all())
 
     def fillresponse(self):
         XferListEditor.fillresponse(self)
         self.fillownerlist()
+
 
 @ActionsManage.affect('Set', 'modify', 'add')
 @MenuManage.describ('condominium.add_set')

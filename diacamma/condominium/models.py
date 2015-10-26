@@ -47,7 +47,7 @@ class Set(LucteriosModel):
 
     def __str__(self):
         return self.name
-    
+
     @classmethod
     def get_default_fields(cls):
         return ["name", "budget", "revenue_account", 'cost_accounting', 'partition_set']
@@ -61,7 +61,8 @@ class Set(LucteriosModel):
         return ["name", "budget", "revenue_account", 'cost_accounting', 'partition_set']
 
     def _do_insert(self, manager, using, fields, update_pk, raw):
-        new_id = LucteriosModel._do_insert(self, manager, using, fields, update_pk, raw)
+        new_id = LucteriosModel._do_insert(
+            self, manager, using, fields, update_pk, raw)
         for owner in Owner.objects.all():
             Partition.objects.create(set_id=new_id, owner=owner)
         return new_id
@@ -73,7 +74,7 @@ class Set(LucteriosModel):
             return total['sum']
         else:
             return 0
-                 
+
     class Meta(object):
         verbose_name = _('set')
         verbose_name_plural = _('sets')
@@ -83,7 +84,7 @@ class Owner(Supporting):
 
     def __str__(self):
         return six.text_type(self.third)
-    
+
     @classmethod
     def get_default_fields(cls):
         return ["third", (_('initial state'), 'total_initial'), (_('total call for funds'), 'total_call'), (_('total payoff'), 'total_payed'), (_('total estimate'), 'total_estimate'), (_('total'), 'third.total')]
@@ -99,7 +100,8 @@ class Owner(Supporting):
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         is_new = self.id is None
-        Supporting.save(self, force_insert=force_insert, force_update=force_update, using=using, update_fields=update_fields)
+        Supporting.save(self, force_insert=force_insert,
+                        force_update=force_update, using=using, update_fields=update_fields)
         if is_new:
             for setitem in Set.objects.all():
                 Partition.objects.create(set=setitem, owner=self)
@@ -114,25 +116,25 @@ class Owner(Supporting):
     @property
     def total_initial(self):
         return format_devise(self.get_total_initial(), 5)
-    
+
     @property
     def total_estimate(self):
         return format_devise(self.get_total(), 5)
 
     def get_total(self):
         return 0
-        
+
     def get_max_payoff(self):
         return 1000000
 
     def payoff_is_revenu(self):
         return True
-    
+
     class Meta(object):
         verbose_name = _('owner')
         verbose_name_plural = _('owners')
 
-    
+
 class Partition(LucteriosModel):
     set = models.ForeignKey(
         Set, verbose_name=_('set'), null=False, db_index=True, on_delete=models.CASCADE)
@@ -143,7 +145,7 @@ class Partition(LucteriosModel):
 
     def __str__(self):
         return "%s : %s" % (self.owner, self.ratio)
-    
+
     @classmethod
     def get_default_fields(cls):
         return ["set", "owner", "value", (_("ratio"), 'ratio')]
@@ -158,11 +160,11 @@ class Partition(LucteriosModel):
             return 0.0
         else:
             return float(100 * self.value / total)
-    
+
     @property
     def ratio(self):
         return "%.1f %%" % self.get_ratio()
-    
+
     class Meta(object):
         verbose_name = _('partition')
         verbose_name_plural = _('partitions')
@@ -191,17 +193,17 @@ class CallFunds(LucteriosModel):
     @classmethod
     def get_show_fields(cls):
         return ["num", "owner", "calldetail_set", "comment", ("status", (_('total'), 'total'))]
-    
+
     def get_total(self):
         val = 0
         for calldetail in self.calldetail_set.all():
             val += currency_round(calldetail.price)
         return val
-    
+
     @property
     def total(self):
         return format_devise(self.get_total(), 5)
-    
+
     def valid(self):
         if self.status == 0:
             val = CallFunds.objects.exclude(status=0).aggregate(Max('num'))
@@ -211,16 +213,19 @@ class CallFunds(LucteriosModel):
                 new_num = val['num__max'] + 1
             calls_by_owner = {}
             for owner in Owner.objects.all():
-                calls_by_owner[owner.id] = CallFunds.objects.create(num=new_num, date=self.date, owner=owner, comment=self.comment, status=1)     
+                calls_by_owner[owner.id] = CallFunds.objects.create(
+                    num=new_num, date=self.date, owner=owner, comment=self.comment, status=1)
             for calldetail in self.calldetail_set.all():
                 amount = float(calldetail.price)
-                new_detail = None 
+                new_detail = None
                 for part in calldetail.set.partition_set.all():
                     if part.value > 0.001:
-                        new_detail = CallDetail.objects.create(set=calldetail.set, designation=calldetail.designation)
+                        new_detail = CallDetail.objects.create(
+                            set=calldetail.set, designation=calldetail.designation)
                         new_detail.callfunds = calls_by_owner[part.owner.id]
-                        new_detail.price = float(calldetail.price) * part.get_ratio()
-                        amount -= new_detail.price 
+                        new_detail.price = float(
+                            calldetail.price) * part.get_ratio()
+                        amount -= new_detail.price
                         new_detail.save()
                 if abs(amount) > 0.0001:
                     new_detail.price += amount
@@ -228,11 +233,11 @@ class CallFunds(LucteriosModel):
                 for new_call in calls_by_owner.values():
                     if new_call.get_total() < 0.0001:
                         new_call.delete()
-            self.delete()    
+            self.delete()
 
     def close(self):
         return
-    
+
     class Meta(object):
         verbose_name = _('call of funds')
         verbose_name_plural = _('calls of funds')
@@ -254,11 +259,11 @@ class CallDetail(LucteriosModel):
     @classmethod
     def get_edit_fields(cls):
         return ["set", "designation", "price"]
-    
+
     @property
     def price_txt(self):
         return format_devise(self.price, 5)
-    
+
     class Meta(object):
         verbose_name = _('detail of call')
         verbose_name_plural = _('details of call')
