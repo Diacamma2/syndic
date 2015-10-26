@@ -41,7 +41,7 @@ MenuManage.add_sub("condominium", "core.general", "diacamma.condominium/images/c
 
 @ActionsManage.affect('Set', 'list')
 @MenuManage.describ('condominium.change_set', FORMTYPE_NOMODAL, 'condominium', _('Manage of set'))
-class SetList(XferListEditor):
+class SetOwnerList(XferListEditor):
     icon = "set.png"
     model = Set
     field_id = 'set'

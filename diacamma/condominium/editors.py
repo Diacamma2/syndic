@@ -31,9 +31,11 @@ from lucterios.CORE.parameters import Params
 
 from diacamma.accounting.tools import current_system_account
 from diacamma.payoff.editors import SupportingEditor
-from lucterios.framework.xfercomponents import XferCompButton
+from lucterios.framework.xfercomponents import XferCompButton, XferCompLabelForm,\
+    XferCompSelect
 from lucterios.framework.tools import ActionsManage, FORMTYPE_MODAL, CLOSE_NO,\
     SELECT_SINGLE
+from diacamma.accounting.models import Third, AccountThird
 
 
 class SetEditor(LucteriosEditor):
@@ -50,6 +52,27 @@ class SetEditor(LucteriosEditor):
 
 
 class OwnerEditor(SupportingEditor):
+
+    def before_save(self, xfer):
+        accounts = self.item.third.accountthird_set.filter(
+            code__regex=current_system_account().get_societary_mask())
+        if len(accounts) == 0:
+            AccountThird.objects.create(
+                third=self.item.third, code=Params.getvalue("condominium-default-owner-account"))
+        return SupportingEditor.before_save(self, xfer)
+
+    def edit(self, xfer):
+        lbl = XferCompLabelForm('lbl_third')
+        lbl.set_location(1, 0)
+        lbl.set_value_as_name(_('third'))
+        xfer.add_component(lbl)
+
+        sel = XferCompSelect('third')
+        sel.needed = True
+        sel.set_location(2, 0)
+        sel.set_select_query(
+            Third.objects.filter(supporting__owner__isnull=True))
+        xfer.add_component(sel)
 
     def show(self, xfer):
         third = xfer.get_components('third')

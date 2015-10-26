@@ -50,7 +50,7 @@ class Set(LucteriosModel):
 
     @classmethod
     def get_default_fields(cls):
-        return ["name", "budget", "revenue_account", 'cost_accounting', 'partition_set']
+        return ["name", (_('budget'), "budget_txt"), "revenue_account", 'cost_accounting', 'partition_set']
 
     @classmethod
     def get_edit_fields(cls):
@@ -58,7 +58,7 @@ class Set(LucteriosModel):
 
     @classmethod
     def get_show_fields(cls):
-        return ["name", "budget", "revenue_account", 'cost_accounting', 'partition_set']
+        return [("name", (_('budget'), "budget_txt")), ("revenue_account", 'cost_accounting'), 'partition_set', ((_('partition sum'), 'total_part'),)]
 
     def _do_insert(self, manager, using, fields, update_pk, raw):
         new_id = LucteriosModel._do_insert(
@@ -66,6 +66,10 @@ class Set(LucteriosModel):
         for owner in Owner.objects.all():
             Partition.objects.create(set_id=new_id, owner=owner)
         return new_id
+
+    @property
+    def budget_txt(self):
+        return format_devise(self.budget, 5)
 
     @property
     def total_part(self):
@@ -91,7 +95,7 @@ class Owner(Supporting):
 
     @classmethod
     def get_edit_fields(cls):
-        return ["third"]
+        return []
 
     @classmethod
     def get_show_fields(cls):
