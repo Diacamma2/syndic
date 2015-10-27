@@ -30,7 +30,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from lucterios.framework.models import LucteriosModel, get_value_converted
 
-from diacamma.accounting.models import CostAccounting
+from diacamma.accounting.models import CostAccounting, EntryAccount
 from django.utils import six
 from diacamma.payoff.models import Supporting
 from django.db.models.aggregates import Sum, Max
@@ -227,20 +227,22 @@ class CallFunds(LucteriosModel):
                         new_detail = CallDetail.objects.create(
                             set=calldetail.set, designation=calldetail.designation)
                         new_detail.callfunds = calls_by_owner[part.owner.id]
-                        new_detail.price = float(
-                            calldetail.price) * part.get_ratio()
+                        new_detail.price = currency_round(float(
+                            calldetail.price) * part.get_ratio() / 100.0)
                         amount -= new_detail.price
                         new_detail.save()
                 if abs(amount) > 0.0001:
                     new_detail.price += amount
                     new_detail.save()
-                for new_call in calls_by_owner.values():
-                    if new_call.get_total() < 0.0001:
-                        new_call.delete()
+            for new_call in calls_by_owner.values():
+                if new_call.get_total() < 0.0001:
+                    new_call.delete()
             self.delete()
 
     def close(self):
-        return
+        if self.status == 1:
+            self.status = 2
+            self.save()
 
     class Meta(object):
         verbose_name = _('call of funds')
@@ -271,3 +273,85 @@ class CallDetail(LucteriosModel):
     class Meta(object):
         verbose_name = _('detail of call')
         verbose_name_plural = _('details of call')
+
+
+class Expense(Supporting):
+    num = models.IntegerField(verbose_name=_('numeros'), null=True)
+    date = models.DateField(verbose_name=_('date'), null=False)
+    comment = models.TextField(_('comment'), null=True, default="")
+    expensetype = models.IntegerField(verbose_name=_('expense type'),
+                                      choices=((0, _('expense')), (1, _('asset of expense'))), null=False, default=0, db_index=True)
+    status = models.IntegerField(verbose_name=_('status'),
+                                 choices=((0, _('building')), (1, _('valid')), (2, _('ended'))), null=False, default=0, db_index=True)
+    entry = models.ForeignKey(
+        EntryAccount, verbose_name=_('entry'), null=True, default=None, db_index=True, on_delete=models.PROTECT)
+
+    def __str__(self):
+        return "%s - %s" % (self.num, get_value_converted(self.date))
+
+    @classmethod
+    def get_default_fields(cls):
+        return ["num", "date", "third", "comment", (_('total'), 'total')]
+
+    @classmethod
+    def get_edit_fields(cls):
+        return ["status", "date", "comment"]
+
+    @classmethod
+    def get_show_fields(cls):
+        return ["num", "third", "expensetype", "expensedetail_set", "comment", ("status", (_('total'), 'total'))]
+
+    def get_total(self):
+        val = 0
+        for expensedetail in self.expensedetail_set.all():
+            val += currency_round(expensedetail.price)
+        return val
+
+    def payoff_is_revenu(self):
+        return self.expensetype == 1
+
+    @property
+    def total(self):
+        return format_devise(self.get_total(), 5)
+
+    def valid(self):
+        if self.status == 0:
+            self.status = 1
+            self.save()
+
+    def close(self):
+        if self.status == 1:
+            self.status = 2
+            self.save()
+
+    class Meta(object):
+        verbose_name = _('expense')
+        verbose_name_plural = _('expenses')
+
+
+class ExpenseDetail(LucteriosModel):
+    expense = models.ForeignKey(
+        Expense, verbose_name=_('expense'), null=True, default=None, db_index=True, on_delete=models.CASCADE)
+    set = models.ForeignKey(
+        Set, verbose_name=_('set'), null=False, db_index=True, on_delete=models.PROTECT)
+    designation = models.TextField(verbose_name=_('designation'))
+    expense_account = models.CharField(
+        verbose_name=_('account'), max_length=50)
+    price = models.DecimalField(verbose_name=_('price'), max_digits=10, decimal_places=3, default=0.0, validators=[
+        MinValueValidator(0.0), MaxValueValidator(9999999.999)])
+
+    @classmethod
+    def get_default_fields(cls):
+        return ["set", "designation", "expense_account", (_('price'), 'price_txt')]
+
+    @classmethod
+    def get_edit_fields(cls):
+        return ["set", "designation", "expense_account", "price"]
+
+    @property
+    def price_txt(self):
+        return format_devise(self.price, 5)
+
+    class Meta(object):
+        verbose_name = _('detail of expense')
+        verbose_name_plural = _('details of expense')

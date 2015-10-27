@@ -34,8 +34,9 @@ from diacamma.payoff.editors import SupportingEditor
 from lucterios.framework.xfercomponents import XferCompButton, XferCompLabelForm,\
     XferCompSelect
 from lucterios.framework.tools import ActionsManage, FORMTYPE_MODAL, CLOSE_NO,\
-    SELECT_SINGLE
+    SELECT_SINGLE, FORMTYPE_REFRESH
 from diacamma.accounting.models import Third, AccountThird
+from diacamma.condominium.models import Set
 
 
 class SetEditor(LucteriosEditor):
@@ -108,3 +109,26 @@ class CallFundsEditor(LucteriosEditor):
         if self.item.status > 0:
             calldetail = xfer.get_components('calldetail')
             calldetail.actions = []
+
+
+class CallDetailEditor(LucteriosEditor):
+
+    def edit(self, xfer):
+        set_comp = xfer.get_components('set')
+        set_comp.set_action(
+            xfer.request, xfer.get_action(), {'close': CLOSE_NO, 'modal': FORMTYPE_REFRESH})
+        freq = Params.getvalue("condominium-frequency")
+        xfer.get_components('price').prec = Params.getvalue(
+            "accounting-devise-prec")
+        set_comp.get_reponse_xml()
+        current_set = Set.objects.get(id=set_comp.value)
+        if freq == 1:
+            xfer.get_components('price').value = current_set.budget / 4
+        elif freq == 2:
+            xfer.get_components('price').value = current_set.budget / 12
+        else:
+            xfer.get_components('price').value = current_set.budget
+
+
+class ExpenseEditor(SupportingEditor):
+    pass

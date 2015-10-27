@@ -11,10 +11,10 @@ from lucterios.CORE.models import Parameter
 
 def initial_values(*args):
     param = Parameter.objects.create(
-        name='condominium-frenquency', typeparam=4)
-    param.title = _("condominium-frenquency")
-    param.param_titles = (_("condominium-frenquency.0"),
-                          _("condominium-frenquency.1"), _("condominium-frenquency.2"))
+        name='condominium-frequency', typeparam=4)
+    param.title = _("condominium-frequency")
+    param.param_titles = (_("condominium-frequency.0"),
+                          _("condominium-frequency.1"), _("condominium-frequency.2"))
     param.args = "{'Enum':3}"
     param.value = '0'
     param.save()
@@ -126,6 +126,53 @@ class Migration(migrations.Migration):
             model_name='partition',
             name='set',
             field=models.ForeignKey(to='condominium.Set', verbose_name='set'),
+        ),
+        migrations.AlterField(
+            model_name='calldetail',
+            name='callfunds',
+            field=models.ForeignKey(verbose_name='call of funds', null=True, default=None, to='condominium.CallFunds'),
+        ),
+        migrations.AlterField(
+            model_name='calldetail',
+            name='set',
+            field=models.ForeignKey(verbose_name='set', on_delete=django.db.models.deletion.PROTECT, to='condominium.Set'),
+        ),
+        migrations.AlterField(
+            model_name='callfunds',
+            name='owner',
+            field=models.ForeignKey(verbose_name='owner', on_delete=django.db.models.deletion.PROTECT, null=True, to='condominium.Owner'),
+        ),
+        migrations.CreateModel(
+            name='Expense',
+            fields=[
+                ('supporting_ptr', models.OneToOneField(serialize=False, primary_key=True, parent_link=True, auto_created=True, to='payoff.Supporting')),
+                ('num', models.IntegerField(verbose_name='numeros', null=True)),
+                ('date', models.DateField(verbose_name='date')),
+                ('comment', models.TextField(verbose_name='comment', default='', null=True)),
+                ('expensetype', models.IntegerField(verbose_name='expense type', default=0, db_index=True, choices=[(0, 'expense'), (1, 'asset of expense')])),
+                ('status', models.IntegerField(verbose_name='status', default=0, db_index=True, choices=[(0, 'building'), (1, 'valid'), (2, 'ended')])),
+                ('entry', models.ForeignKey(verbose_name='entry', on_delete=django.db.models.deletion.PROTECT, null=True, default=None, to='accounting.EntryAccount')),
+            ],
+            options={
+                'verbose_name': 'expense',
+                'verbose_name_plural': 'expenses',
+            },
+            bases=('payoff.supporting',),
+        ),
+        migrations.CreateModel(
+            name='ExpenseDetail',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('designation', models.TextField(verbose_name='designation')),
+                ('expense_account', models.CharField(verbose_name='account', max_length=50)),
+                ('price', models.DecimalField(verbose_name='price', default=0.0, max_digits=10, validators=[django.core.validators.MinValueValidator(0.0), django.core.validators.MaxValueValidator(9999999.999)], decimal_places=3)),
+                ('expense', models.ForeignKey(verbose_name='expense', null=True, default=None, to='condominium.Expense')),
+                ('set', models.ForeignKey(verbose_name='set', on_delete=django.db.models.deletion.PROTECT, to='condominium.Set')),
+            ],
+            options={
+                'verbose_name': 'detail of expense',
+                'verbose_name_plural': 'details of expense',
+            },
         ),
         migrations.RunPython(initial_values),
     ]

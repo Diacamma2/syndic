@@ -30,10 +30,32 @@ from lucterios.framework.xferadvance import XferListEditor
 from lucterios.framework.xferadvance import XferAddEditor
 from lucterios.framework.xferadvance import XferShowEditor
 from lucterios.framework.xferadvance import XferDelete
-from lucterios.framework.tools import FORMTYPE_NOMODAL, ActionsManage, MenuManage
+from lucterios.framework.tools import FORMTYPE_NOMODAL, ActionsManage, MenuManage,\
+    FORMTYPE_MODAL
 
 from diacamma.condominium.models import Set, Partition, Owner
-from lucterios.framework.xfercomponents import XferCompLabelForm, XferCompImage
+from lucterios.framework.xfercomponents import XferCompLabelForm, XferCompImage,\
+    XferCompButton
+from lucterios.framework.xfergraphic import XferContainerCustom
+from lucterios.CORE.parameters import Params
+from lucterios.CORE.views import ParamEdit
+
+
+@MenuManage.describ('CORE.change_parameter', FORMTYPE_MODAL, 'contact.conf', _('Management of parameters of condominium'))
+class CondominiumConf(XferContainerCustom):
+    icon = "condominium.png"
+    caption = _("Condominium configuration")
+
+    def fillresponse(self):
+        param_lists = [
+            'condominium-frequency', 'condominium-default-owner-account']
+        Params.fill(self, param_lists, 1, 1)
+        btn = XferCompButton('editparam')
+        btn.set_location(1, self.get_max_row() + 1, 2, 1)
+        btn.set_action(self.request, ParamEdit.get_action(
+            _('Modify'), 'images/edit.png'), {'close': 0, 'params': {'params': param_lists}})
+        self.add_component(btn)
+
 
 MenuManage.add_sub("condominium", "core.general", "diacamma.condominium/images/condominium.png",
                    _("condominium"), _("Manage of condominium"), 30)

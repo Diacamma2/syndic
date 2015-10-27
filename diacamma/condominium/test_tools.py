@@ -1,0 +1,44 @@
+# -*- coding: utf-8 -*-
+'''
+diacamma.condominium test_tools package
+
+@author: Laurent GAY
+@organization: sd-libre.fr
+@contact: info@sd-libre.fr
+@copyright: 2015 sd-libre.fr
+@license: This file is part of Lucterios.
+
+Lucterios is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Lucterios is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
+'''
+
+from __future__ import unicode_literals
+from diacamma.condominium.models import Set, Owner, Partition
+from lucterios.CORE.models import Parameter
+
+
+def default_setowner():
+    Parameter.change_value('condominium-frequency', '1')
+    set1 = Set.objects.create(
+        name="AAA", budget=1000, revenue_account='704', cost_accounting_id=2)
+    set2 = Set.objects.create(
+        name="BBB", budget=100, revenue_account='704', cost_accounting_id=0)
+    owner1 = Owner.objects.create(third_id=4)
+    owner2 = Owner.objects.create(third_id=5)
+    owner3 = Owner.objects.create(third_id=7)
+    Partition.objects.create(set=set1, owner=owner1, value=45.0)
+    Partition.objects.create(set=set1, owner=owner2, value=35.0)
+    Partition.objects.create(set=set1, owner=owner3, value=20.0)
+    Partition.objects.create(set=set2, owner=owner1, value=75.0)
+    Partition.objects.create(set=set2, owner=owner2, value=0.0)
+    Partition.objects.create(set=set2, owner=owner3, value=25.0)

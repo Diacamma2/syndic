@@ -26,7 +26,7 @@ class CallFundsList(XferListEditor):
     caption = _("calls of funds")
 
     def fillresponse_header(self):
-        status_filter = self.getparam('status_filter', 0)
+        status_filter = self.getparam('status_filter', 1)
         lbl = XferCompLabelForm('lbl_filter')
         lbl.set_value_as_name(_('Filter by type'))
         lbl.set_location(0, 3)
@@ -109,7 +109,7 @@ class CallFundsClose(XferContainerAcknowledge):
 
     def fillresponse(self):
         if (self.item.status == 1) and self.confirme(_("Do you want close '%s'?") % self.item):
-            self.item.valid()
+            self.item.close()
 
 
 @ActionsManage.affect('CallFunds', 'printcall')
@@ -119,15 +119,6 @@ class CallFundsPrint(XferPrintReporting):
     model = CallFunds
     field_id = 'callfunds'
     caption = _("Print call of funds")
-
-
-@ActionsManage.affect('CallFunds', 'close')
-@MenuManage.describ('condominium.change_callfunds')
-class CallFundsClose(XferContainerAcknowledge):
-    icon = "callfunds.png"
-    model = CallFunds
-    field_id = 'callfunds'
-    caption = _("Close call of funds")
 
 
 @ActionsManage.affect('CallDetail', 'edit', 'add')
