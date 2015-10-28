@@ -1,2 +1,4 @@
 recursive-include diacamma/syndic *
 recursive-exclude diacamma/syndic/__pycache__ *
+recursive-include diacamma/condominium *
+recursive-exclude diacamma/condominium/__pycache__ *
