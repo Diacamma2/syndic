@@ -131,4 +131,26 @@ class CallDetailEditor(LucteriosEditor):
 
 
 class ExpenseEditor(SupportingEditor):
-    pass
+
+    def show(self, xfer):
+        if self.item.status == 0:
+            third = xfer.get_components('third')
+            third.colspan -= 2
+            btn = XferCompButton('change_third')
+            btn.set_location(third.col + third.colspan, third.row)
+            modal_name = xfer.item.__class__.__name__
+            btn.set_action(xfer.request, ActionsManage.get_act_changed(modal_name, 'third', _('change'), ''),
+                           {'modal': FORMTYPE_MODAL, 'close': CLOSE_NO})
+            xfer.add_component(btn)
+
+            if self.item.third is not None:
+                btn = XferCompButton('show_third')
+                btn.set_location(third.col + third.colspan + 1, third.row)
+                btn.set_action(xfer.request, ActionsManage.get_act_changed('Third', 'show', _('show'), ''),
+                               {'modal': FORMTYPE_MODAL, 'close': CLOSE_NO, 'params': {'third': self.item.third.id}})
+                xfer.add_component(btn)
+        else:
+            details = xfer.get_components('expensedetail')
+            details.actions = []
+            if self.item.bill_type != 0:
+                SupportingEditor.show(self, xfer)

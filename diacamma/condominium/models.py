@@ -295,7 +295,7 @@ class Expense(Supporting):
 
     @classmethod
     def get_edit_fields(cls):
-        return ["status", "date", "comment"]
+        return ["status", 'expensetype', "date", "comment"]
 
     @classmethod
     def get_show_fields(cls):
