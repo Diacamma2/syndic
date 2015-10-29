@@ -150,7 +150,7 @@ class SetOwnerTest(LucteriosTest):
         self.assert_xml_equal(
             'COMPONENTS/GRID[@name="owner"]/RECORD[1]/VALUE[@name="total_estimate"]', '0.00€')
         self.assert_xml_equal(
-            'COMPONENTS/GRID[@name="owner"]/RECORD[1]/VALUE[@name="third.total"]', '0.00€')
+            'COMPONENTS/GRID[@name="owner"]/RECORD[1]/VALUE[@name="total_real"]', '0.00€')
 
         self.factory.xfer = ThirdShow()
         self.call('/diacamma.accounting/thirdShow', {"third": 4}, False)

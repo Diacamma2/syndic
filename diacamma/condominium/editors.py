@@ -25,19 +25,19 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import unicode_literals
 
 from django.utils.translation import ugettext_lazy as _
+from django.utils import six
 
 from lucterios.framework.editors import LucteriosEditor
 from lucterios.CORE.parameters import Params
-
-from diacamma.accounting.tools import current_system_account
-from diacamma.payoff.editors import SupportingEditor
 from lucterios.framework.xfercomponents import XferCompButton, XferCompLabelForm,\
     XferCompSelect
 from lucterios.framework.tools import ActionsManage, FORMTYPE_MODAL, CLOSE_NO,\
     SELECT_SINGLE, FORMTYPE_REFRESH
+
+from diacamma.accounting.tools import current_system_account
 from diacamma.accounting.models import Third, AccountThird, FiscalYear
+from diacamma.payoff.editors import SupportingEditor
 from diacamma.condominium.models import Set
-from django.utils import six
 
 
 class SetEditor(LucteriosEditor):
@@ -92,6 +92,12 @@ class OwnerEditor(SupportingEditor):
         callfunds.add_actions(
             xfer, action_list=[('show', _("Edit"), "images/show.png", SELECT_SINGLE)])
         SupportingEditor.show(self, xfer)
+        xfer.remove_component('lbl_total_rest_topay')
+        xfer.remove_component('total_rest_topay')
+        xfer.move_components('lbl_total_estimate', 0, 5)
+        xfer.move_components('total_estimate', 0, 5)
+        xfer.move_components('lbl_total_real', 0, 5)
+        xfer.move_components('total_real', 0, 5)
 
 
 class PartitionEditor(LucteriosEditor):

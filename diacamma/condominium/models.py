@@ -23,21 +23,23 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from __future__ import unicode_literals
+import datetime
 
 from django.db import models
+from django.db.models import Q
+from django.db.models.aggregates import Sum, Max
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.utils.translation import ugettext_lazy as _
+from django.utils import six
 
 from lucterios.framework.models import LucteriosModel, get_value_converted
+from lucterios.framework.error import LucteriosException, IMPORTANT, GRAVE
 
 from diacamma.accounting.models import CostAccounting, EntryAccount, Journal,\
     ChartsAccount, EntryLineAccount, FiscalYear
-from django.utils import six
-from diacamma.payoff.models import Supporting
-from django.db.models.aggregates import Sum, Max
 from diacamma.accounting.tools import format_devise, currency_round,\
     current_system_account
-from lucterios.framework.error import LucteriosException, IMPORTANT, GRAVE
+from diacamma.payoff.models import Supporting
 
 
 class Set(LucteriosModel):
@@ -89,12 +91,27 @@ class Set(LucteriosModel):
 
 class Owner(Supporting):
 
+    def __init__(self, *args, **kwargs):
+        Supporting.__init__(self, *args, **kwargs)
+        self.date_begin = None
+        self.date_end = None
+
+    def set_dates(self, begin_date=None, end_date=None):
+        if begin_date is None:
+            self.date_begin = six.text_type(FiscalYear.get_current().begin)
+        else:
+            self.date_begin = begin_date
+        if end_date is None:
+            self.date_end = six.text_type(datetime.date.today())
+        else:
+            self.date_end = end_date
+
     def __str__(self):
         return six.text_type(self.third)
 
     @classmethod
     def get_default_fields(cls):
-        return ["third", (_('initial state'), 'total_initial'), (_('total call for funds'), 'total_call'), (_('total payoff'), 'total_payed'), (_('total estimate'), 'total_estimate'), (_('total'), 'third.total')]
+        return ["third", (_('initial state'), 'total_initial'), (_('total call for funds'), 'total_call'), (_('total payoff'), 'total_payed'), (_('total estimate'), 'total_estimate'), (_('total real'), 'total_real')]
 
     @classmethod
     def get_edit_fields(cls):
@@ -102,8 +119,7 @@ class Owner(Supporting):
 
     @classmethod
     def get_show_fields(cls):
-        return ["third", ((_('initial state'), 'total_initial'),), ((_('total call for funds'), 'total_call'),),
-                ((_('total estimate'), 'total_estimate'), (_('total'), 'third.total')), 'partition_set', 'callfunds_set']
+        return ["third", 'partition_set', ((_('initial state'), 'total_initial'),), 'callfunds_set', ((_('total call for funds'), 'total_call'),), ((_('total estimate'), 'total_estimate'), (_('total real'), 'total_real'))]
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         is_new = self.id is None
@@ -114,11 +130,27 @@ class Owner(Supporting):
                 Partition.objects.create(set=setitem, owner=self)
 
     @property
+    def callfunds_query(self):
+        return Q(date__gte=self.date_begin) & Q(date__lte=self.date_end)
+
+    @property
+    def payoff_query(self):
+        return Q(date__gte=self.date_begin) & Q(date__lte=self.date_end)
+
+    def get_total_call(self):
+        val = 0
+        for callfunds in self.callfunds_set.filter(self.callfunds_query):
+            val += currency_round(callfunds.get_total())
+        return val
+
+    @property
     def total_call(self):
-        return format_devise(0, 5)
+        return format_devise(self.get_total_call(), 5)
 
     def get_total_initial(self):
-        return 0
+        if self.date_begin is None:
+            self.set_dates()
+        return self.third.get_total(self.date_begin)
 
     @property
     def total_initial(self):
@@ -129,7 +161,11 @@ class Owner(Supporting):
         return format_devise(self.get_total(), 5)
 
     def get_total(self):
-        return 0
+        return self.get_total_initial() - self.get_total_call() + self.get_total_payed()
+
+    @property
+    def total_real(self):
+        return format_devise(self.third.get_total(self.date_end), 5)
 
     def get_max_payoff(self):
         return 1000000

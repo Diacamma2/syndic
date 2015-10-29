@@ -31,11 +31,11 @@ from lucterios.framework.xferadvance import XferAddEditor
 from lucterios.framework.xferadvance import XferShowEditor
 from lucterios.framework.xferadvance import XferDelete
 from lucterios.framework.tools import FORMTYPE_NOMODAL, ActionsManage, MenuManage,\
-    FORMTYPE_MODAL
+    FORMTYPE_MODAL, CLOSE_NO, FORMTYPE_REFRESH
 
 from diacamma.condominium.models import Set, Partition, Owner
 from lucterios.framework.xfercomponents import XferCompLabelForm, XferCompImage,\
-    XferCompButton
+    XferCompButton, XferCompDate
 from lucterios.framework.xfergraphic import XferContainerCustom
 from lucterios.CORE.parameters import Params
 from lucterios.CORE.views import ParamEdit
@@ -150,3 +150,30 @@ class OwneShow(XferShowEditor):
     model = Owner
     field_id = 'owner'
     caption = _("Show owner")
+
+    def fillresponse(self, begin_date, end_date):
+        self.item.set_dates(begin_date, end_date)
+        lbl = XferCompLabelForm('lbl_begin_date')
+        lbl.set_value_as_name(_('initial date'))
+        lbl.set_location(1, 0)
+        self.add_component(lbl)
+        date_init = XferCompDate("begin_date")
+        date_init.set_needed(True)
+        date_init.set_value(self.item.date_begin)
+        date_init.set_location(2, 0)
+        date_init.set_action(
+            self.request, self.get_action(), {'close': CLOSE_NO, 'modal': FORMTYPE_REFRESH})
+        self.add_component(date_init)
+        lbl = XferCompLabelForm('lbl_end_date')
+        lbl.set_value_as_name(_('current date'))
+        lbl.set_location(3, 0)
+        self.add_component(lbl)
+        date_end = XferCompDate("end_date")
+        date_end.set_needed(True)
+        date_end.set_value(self.item.date_end)
+        date_end.set_location(4, 0)
+        date_end.set_action(
+            self.request, self.get_action(), {'close': CLOSE_NO, 'modal': FORMTYPE_REFRESH})
+        self.add_component(date_end)
+
+        XferShowEditor.fillresponse(self)
