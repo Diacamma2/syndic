@@ -31,7 +31,7 @@ from lucterios.framework.xferadvance import XferAddEditor
 from lucterios.framework.xferadvance import XferShowEditor
 from lucterios.framework.xferadvance import XferDelete
 from lucterios.framework.tools import FORMTYPE_NOMODAL, ActionsManage, MenuManage,\
-    FORMTYPE_MODAL, CLOSE_NO, FORMTYPE_REFRESH
+    FORMTYPE_MODAL, CLOSE_NO, FORMTYPE_REFRESH, WrapAction
 
 from diacamma.condominium.models import Set, Partition, Owner
 from lucterios.framework.xfercomponents import XferCompLabelForm, XferCompImage,\
@@ -39,6 +39,7 @@ from lucterios.framework.xfercomponents import XferCompLabelForm, XferCompImage,
 from lucterios.framework.xfergraphic import XferContainerCustom
 from lucterios.CORE.parameters import Params
 from lucterios.CORE.views import ParamEdit
+from lucterios.CORE.xferprint import XferPrintAction
 
 
 @MenuManage.describ('CORE.change_parameter', FORMTYPE_MODAL, 'contact.conf', _('Management of parameters of condominium'))
@@ -84,6 +85,19 @@ class SetOwnerList(XferListEditor):
     def fillresponse(self):
         XferListEditor.fillresponse(self)
         self.fillownerlist()
+        self.add_action(SetOwnerPrint.get_action(
+            _("Print"), "images/print.png"), {'close': CLOSE_NO, 'params': {'classname': self.__class__.__name__}})
+        self.add_action(WrapAction(_('Close'), 'images/close.png'), {})
+
+
+@MenuManage.describ('condominium.change_set')
+class SetOwnerPrint(XferPrintAction):
+    caption = _("Print set & owner")
+    icon = "set.png"
+    model = Set
+    field_id = 'set'
+    action_class = SetOwnerList
+    with_text_export = True
 
 
 @ActionsManage.affect('Set', 'modify', 'add')
@@ -135,7 +149,7 @@ class OwnerAddModify(XferAddEditor):
 
 
 @ActionsManage.affect('Owner', 'delete')
-@MenuManage.describ('condominium.delete_set')
+@MenuManage.describ('condominium.delete_owner')
 class OwnerDel(XferDelete):
     icon = "set.png"
     model = Owner
@@ -144,7 +158,7 @@ class OwnerDel(XferDelete):
 
 
 @ActionsManage.affect('Owner', 'show')
-@MenuManage.describ('condominium.change_set')
+@MenuManage.describ('condominium.change_owner')
 class OwneShow(XferShowEditor):
     icon = "set.png"
     model = Owner
@@ -175,5 +189,17 @@ class OwneShow(XferShowEditor):
         date_end.set_action(
             self.request, self.get_action(), {'close': CLOSE_NO, 'modal': FORMTYPE_REFRESH})
         self.add_component(date_end)
-
         XferShowEditor.fillresponse(self)
+        self.add_action(OwnerPrint.get_action(
+            _("Print"), "images/print.png"), {'close': CLOSE_NO, 'params': {'classname': self.__class__.__name__}})
+        self.add_action(WrapAction(_('Close'), 'images/close.png'), {})
+
+
+@MenuManage.describ('condominium.change_owner')
+class OwnerPrint(XferPrintAction):
+    caption = _("Print owner")
+    icon = "owner.png"
+    model = Owner
+    field_id = 'owner'
+    action_class = OwneShow
+    with_text_export = True
