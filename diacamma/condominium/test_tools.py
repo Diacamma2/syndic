@@ -25,17 +25,27 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import unicode_literals
 from diacamma.condominium.models import Set, Owner, Partition
 from lucterios.CORE.models import Parameter
+from diacamma.accounting.test_tools import create_account
+from diacamma.accounting.models import FiscalYear
 
 
 def default_setowner():
+    create_account(['455'], 0, FiscalYear.get_current())
+    create_account(['704'], 3, FiscalYear.get_current())
     Parameter.change_value('condominium-frequency', '1')
     set1 = Set.objects.create(
         name="AAA", budget=1000, revenue_account='704', cost_accounting_id=2)
     set2 = Set.objects.create(
         name="BBB", budget=100, revenue_account='704', cost_accounting_id=0)
     owner1 = Owner.objects.create(third_id=4)
+    owner1.editor.before_save(None)
+    owner1.save()
     owner2 = Owner.objects.create(third_id=5)
+    owner2.editor.before_save(None)
+    owner2.save()
     owner3 = Owner.objects.create(third_id=7)
+    owner3.editor.before_save(None)
+    owner3.save()
     Partition.objects.create(set=set1, owner=owner1, value=45.0)
     Partition.objects.create(set=set1, owner=owner2, value=35.0)
     Partition.objects.create(set=set1, owner=owner3, value=20.0)

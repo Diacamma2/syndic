@@ -30,11 +30,14 @@ from django.utils.translation import ugettext_lazy as _
 
 from lucterios.framework.models import LucteriosModel, get_value_converted
 
-from diacamma.accounting.models import CostAccounting, EntryAccount
+from diacamma.accounting.models import CostAccounting, EntryAccount, Journal,\
+    ChartsAccount, EntryLineAccount, FiscalYear
 from django.utils import six
 from diacamma.payoff.models import Supporting
 from django.db.models.aggregates import Sum, Max
-from diacamma.accounting.tools import format_devise, currency_round
+from diacamma.accounting.tools import format_devise, currency_round,\
+    current_system_account
+from lucterios.framework.error import LucteriosException, IMPORTANT, GRAVE
 
 
 class Set(LucteriosModel):
@@ -239,6 +242,11 @@ class CallFunds(LucteriosModel):
                     new_call.delete()
             self.delete()
 
+    def can_delete(self):
+        if self.status != 0:
+            return _('"%s" cannot be deleted!') % six.text_type(self)
+        return ''
+
     def close(self):
         if self.status == 1:
             self.status = 2
@@ -310,19 +318,122 @@ class Expense(Supporting):
     def payoff_is_revenu(self):
         return self.expensetype == 1
 
+    def can_delete(self):
+        if self.status != 0:
+            return _('"%s" cannot be deleted!') % six.text_type(self)
+        return ''
+
     @property
     def total(self):
         return format_devise(self.get_total(), 5)
 
     def valid(self):
         if self.status == 0:
+            if self.expensetype == 0:
+                is_asset = 1
+            else:
+                is_asset = -1
+            fiscal_year = FiscalYear.get_current()
+            self.generate_expense_entry(is_asset, fiscal_year)
+            self.generate_revenue_entry(is_asset, fiscal_year)
             self.status = 1
             self.save()
+
+    def generate_revenue_entry(self, is_asset, fiscal_year):
+        detail_sums = {}
+        for detail in self.expensedetail_set.all():
+            cost_accounting = detail.set.cost_accounting_id
+            if cost_accounting == 0:
+                cost_accounting = None
+            if cost_accounting not in detail_sums.keys():
+                detail_sums[cost_accounting] = [{}, {}]
+            detail_account = ChartsAccount.get_account(
+                detail.set.revenue_account, fiscal_year)
+            if detail_account is None:
+                raise LucteriosException(
+                    IMPORTANT, _("code account %s unknown!") % detail.set.revenue_account)
+            if detail_account.id not in detail_sums[cost_accounting][0].keys():
+                detail_sums[cost_accounting][0][detail_account.id] = 0
+            if detail.set.id not in detail_sums[cost_accounting][1].keys():
+                detail_sums[cost_accounting][1][detail.set.id] = 0
+            detail_sums[cost_accounting][0][
+                detail_account.id] += currency_round(detail.price)
+            detail_sums[cost_accounting][1][
+                detail.set.id] += currency_round(detail.price)
+        for cost_accounting, detail_sum in detail_sums.items():
+            new_entry = EntryAccount.objects.create(
+                year=fiscal_year, date_value=self.date, designation=self.__str__(),
+                journal=Journal.objects.get(id=3), costaccounting_id=cost_accounting)
+            for detail_accountid, price in detail_sum[0].items():
+                EntryLineAccount.objects.create(
+                    account_id=detail_accountid, amount=is_asset * price, entry=new_entry)
+            for setid, price in detail_sum[1].items():
+                last_line = None
+                total = 0
+                for part in Partition.objects.filter(set_id=setid).order_by('value'):
+                    amount = currency_round(price * part.get_ratio() / 100.0)
+                    if amount > 0.0001:
+                        third_account = self.get_third_account(
+                            current_system_account().get_societary_mask(), fiscal_year, part.owner.third)
+                        last_line = EntryLineAccount.objects.create(
+                            account=third_account, amount=is_asset * amount, entry=new_entry, third=part.owner.third)
+                        total += amount
+                if (last_line is not None) and (abs(price - total) > 0.0001):
+                    last_line.amount += is_asset * (price - total)
+                    last_line.save()
+            no_change, debit_rest, credit_rest = new_entry.serial_control(
+                new_entry.get_serial())
+            if not no_change or (abs(debit_rest) > 0.001) or (abs(credit_rest) > 0.001):
+                raise LucteriosException(GRAVE, _("Error in accounting generator!") +
+                                         "{[br/]} no_change=%s debit_rest=%.3f credit_rest=%.3f" % (no_change, debit_rest, credit_rest))
+
+    def generate_expense_entry(self, is_asset, fiscal_year):
+        third_account = self.get_third_account(
+            current_system_account().get_provider_mask(), fiscal_year)
+        detail_sums = {}
+        for detail in self.expensedetail_set.all():
+            cost_accounting = detail.set.cost_accounting_id
+            if cost_accounting == 0:
+                cost_accounting = None
+            if cost_accounting not in detail_sums.keys():
+                detail_sums[cost_accounting] = {}
+            detail_account = ChartsAccount.get_account(
+                detail.expense_account, fiscal_year)
+            if detail_account is None:
+                raise LucteriosException(
+                    IMPORTANT, _("code account %s unknown!") % detail.expense_account)
+            if detail_account.id not in detail_sums[cost_accounting].keys():
+                detail_sums[cost_accounting][detail_account.id] = 0
+            detail_sums[cost_accounting][
+                detail_account.id] += currency_round(detail.price)
+        for cost_accounting, detail_sum in detail_sums.items():
+            new_entry = EntryAccount.objects.create(
+                year=fiscal_year, date_value=self.date, designation=self.__str__(),
+                journal=Journal.objects.get(id=4), costaccounting_id=cost_accounting)
+            total = 0
+            for detail_accountid, price in detail_sum.items():
+                EntryLineAccount.objects.create(
+                    account_id=detail_accountid, amount=is_asset * price, entry=new_entry)
+                total += price
+            EntryLineAccount.objects.create(
+                account=third_account, amount=is_asset * total, third=self.third, entry=new_entry)
+            no_change, debit_rest, credit_rest = new_entry.serial_control(
+                new_entry.get_serial())
+            if not no_change or (abs(debit_rest) > 0.001) or (abs(credit_rest) > 0.001):
+                raise LucteriosException(GRAVE, _("Error in accounting generator!") +
+                                         "{[br/]} no_change=%s debit_rest=%.3f credit_rest=%.3f" % (no_change, debit_rest, credit_rest))
 
     def close(self):
         if self.status == 1:
             self.status = 2
             self.save()
+
+    def get_info_state(self):
+        info = []
+        if self.status == 0:
+            info = Supporting.get_info_state(
+                self, current_system_account().get_provider_mask())
+        return "{[br/]}".join(info)
 
     class Meta(object):
         verbose_name = _('expense')

@@ -35,8 +35,9 @@ from lucterios.framework.xfercomponents import XferCompButton, XferCompLabelForm
     XferCompSelect
 from lucterios.framework.tools import ActionsManage, FORMTYPE_MODAL, CLOSE_NO,\
     SELECT_SINGLE, FORMTYPE_REFRESH
-from diacamma.accounting.models import Third, AccountThird
+from diacamma.accounting.models import Third, AccountThird, FiscalYear
 from diacamma.condominium.models import Set
+from django.utils import six
 
 
 class SetEditor(LucteriosEditor):
@@ -134,23 +135,25 @@ class ExpenseEditor(SupportingEditor):
 
     def show(self, xfer):
         if self.item.status == 0:
-            third = xfer.get_components('third')
-            third.colspan -= 2
-            btn = XferCompButton('change_third')
-            btn.set_location(third.col + third.colspan, third.row)
-            modal_name = xfer.item.__class__.__name__
-            btn.set_action(xfer.request, ActionsManage.get_act_changed(modal_name, 'third', _('change'), ''),
-                           {'modal': FORMTYPE_MODAL, 'close': CLOSE_NO})
-            xfer.add_component(btn)
-
-            if self.item.third is not None:
-                btn = XferCompButton('show_third')
-                btn.set_location(third.col + third.colspan + 1, third.row)
-                btn.set_action(xfer.request, ActionsManage.get_act_changed('Third', 'show', _('show'), ''),
-                               {'modal': FORMTYPE_MODAL, 'close': CLOSE_NO, 'params': {'third': self.item.third.id}})
-                xfer.add_component(btn)
+            SupportingEditor.show_third(self, xfer)
         else:
             details = xfer.get_components('expensedetail')
             details.actions = []
             if self.item.bill_type != 0:
                 SupportingEditor.show(self, xfer)
+
+
+class ExpenseDetailEditor(LucteriosEditor):
+
+    def edit(self, xfer):
+        xfer.get_components('price').prec = Params.getvalue(
+            "accounting-devise-prec")
+        old_account = xfer.get_components("expense_account")
+        xfer.remove_component("expense_account")
+        sel_account = XferCompSelect("expense_account")
+        sel_account.set_location(
+            old_account.col, old_account.row, old_account.colspan, old_account.rowspan)
+        for item in FiscalYear.get_current().chartsaccount_set.all().filter(code__regex=current_system_account().get_expence_mask()).order_by('code'):
+            sel_account.select_list.append(
+                (item.code, six.text_type(item)))
+        xfer.add_component(sel_account)

@@ -198,6 +198,12 @@ class CallFundsTest(LucteriosTest):
         self.assert_observer(
             'core.acknowledge', 'diacamma.condominium', 'callFundsValid')
 
+        self.factory.xfer = CallFundsDel()
+        self.call(
+            '/diacamma.condominium/callFundsAddDel', {'CONFIRME': 'YES', "callfunds": 3}, False)
+        self.assert_observer(
+            'core.exception', 'diacamma.condominium', 'callFundsAddDel')
+
         self.factory.xfer = CallFundsList()
         self.call(
             '/diacamma.condominium/callFundsList', {'status_filter': 0}, False)
@@ -234,6 +240,12 @@ class CallFundsTest(LucteriosTest):
             '/diacamma.condominium/callFundsClose', {'CONFIRME': 'YES', 'callfunds': 3}, False)
         self.assert_observer(
             'core.acknowledge', 'diacamma.condominium', 'callFundsClose')
+
+        self.factory.xfer = CallFundsDel()
+        self.call(
+            '/diacamma.condominium/callFundsAddDel', {'CONFIRME': 'YES', "callfunds": 3}, False)
+        self.assert_observer(
+            'core.exception', 'diacamma.condominium', 'callFundsAddDel')
 
         self.factory.xfer = CallFundsList()
         self.call(

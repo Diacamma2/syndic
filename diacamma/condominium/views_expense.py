@@ -64,7 +64,7 @@ class ExpenseShow(XferShowEditor):
     caption = _("Show expense")
 
     def fillresponse(self):
-        if (self.item.status == 0):
+        if (self.item.status == 0) and (self.item.get_info_state() == ''):
             self.action_list.insert(
                 0, ('valid', _("Valid"), "images/ok.png", CLOSE_YES))
         elif self.item.status == 1:
