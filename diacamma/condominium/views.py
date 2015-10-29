@@ -141,7 +141,7 @@ class PartitionAddModify(XferAddEditor):
 @ActionsManage.affect('Owner', 'add')
 @MenuManage.describ('condominium.add_set')
 class OwnerAddModify(XferAddEditor):
-    icon = "set.png"
+    icon = "owner.png"
     model = Owner
     field_id = 'owner'
     caption_add = _("Add owner")
@@ -151,7 +151,7 @@ class OwnerAddModify(XferAddEditor):
 @ActionsManage.affect('Owner', 'delete')
 @MenuManage.describ('condominium.delete_owner')
 class OwnerDel(XferDelete):
-    icon = "set.png"
+    icon = "owner.png"
     model = Owner
     field_id = 'owner'
     caption = _("Delete owner")

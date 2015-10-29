@@ -111,7 +111,7 @@ class ExpenseClose(XferContainerAcknowledge):
 @ActionsManage.affect('ExpenseDetail', 'edit', 'add')
 @MenuManage.describ('condominium.add_expense')
 class ExpenseDetailAddModify(XferAddEditor):
-    icon = "condominium.png"
+    icon = "expense.png"
     model = ExpenseDetail
     field_id = 'expensedetail'
     caption_add = _("Add detail of call")
@@ -121,7 +121,7 @@ class ExpenseDetailAddModify(XferAddEditor):
 @ActionsManage.affect('ExpenseDetail', 'delete')
 @MenuManage.describ('condominium.delete_expense')
 class ExpenseDetailDel(XferDelete):
-    icon = "condominium.png"
+    icon = "expense.png"
     model = ExpenseDetail
     field_id = 'expensedetail'
     caption = _("Delete detail of call")

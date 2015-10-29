@@ -124,7 +124,7 @@ class CallFundsPrint(XferPrintReporting):
 @ActionsManage.affect('CallDetail', 'edit', 'add')
 @MenuManage.describ('condominium.add_callfunds')
 class CallDetailAddModify(XferAddEditor):
-    icon = "condominium.png"
+    icon = "callfunds.png"
     model = CallDetail
     field_id = 'calldetail'
     caption_add = _("Add detail of call")
@@ -134,7 +134,7 @@ class CallDetailAddModify(XferAddEditor):
 @ActionsManage.affect('CallDetail', 'delete')
 @MenuManage.describ('condominium.delete_callfunds')
 class CallDetailDel(XferDelete):
-    icon = "condominium.png"
+    icon = "callfunds.png"
     model = CallDetail
     field_id = 'calldetail'
     caption = _("Delete detail of call")
