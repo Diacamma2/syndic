@@ -30,7 +30,7 @@ from django.db.models import Q
 from django.db.models.aggregates import Sum, Max
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.utils.translation import ugettext_lazy as _
-from django.utils import six
+from django.utils import six, formats
 
 from lucterios.framework.models import LucteriosModel, get_value_converted
 from lucterios.framework.error import LucteriosException, IMPORTANT, GRAVE
@@ -106,6 +106,12 @@ class Owner(Supporting):
         else:
             self.date_end = end_date
 
+    @property
+    def date_current(self):
+        if self.date_begin is None:
+            self.set_dates()
+        return formats.date_format(datetime.datetime.strptime(self.date_end, "%Y-%m-%d"), "DATE_FORMAT")
+
     def __str__(self):
         return six.text_type(self.third)
 
@@ -131,10 +137,14 @@ class Owner(Supporting):
 
     @property
     def callfunds_query(self):
+        if self.date_begin is None:
+            self.set_dates()
         return Q(date__gte=self.date_begin) & Q(date__lte=self.date_end)
 
     @property
     def payoff_query(self):
+        if self.date_begin is None:
+            self.set_dates()
         return Q(date__gte=self.date_begin) & Q(date__lte=self.date_end)
 
     def get_total_call(self):
@@ -158,10 +168,10 @@ class Owner(Supporting):
 
     @property
     def total_estimate(self):
-        return format_devise(self.get_total(), 5)
+        return format_devise(-1 * self.get_total_rest_topay(), 5)
 
     def get_total(self):
-        return self.get_total_initial() - self.get_total_call() + self.get_total_payed()
+        return self.get_total_call() - self.get_total_initial()
 
     @property
     def total_real(self):
@@ -343,7 +353,7 @@ class Expense(Supporting):
 
     @classmethod
     def get_show_fields(cls):
-        return ["num", "third", "expensetype", "expensedetail_set", "comment", ("status", (_('total'), 'total'))]
+        return ["third", ("num", "date"), "expensetype", "expensedetail_set", "comment", ("status", (_('total'), 'total'))]
 
     def get_total(self):
         val = 0
@@ -469,6 +479,7 @@ class Expense(Supporting):
         if self.status == 0:
             info = Supporting.get_info_state(
                 self, current_system_account().get_provider_mask())
+        info.extend(self.check_date(self.date.isoformat()))
         return "{[br/]}".join(info)
 
     class Meta(object):

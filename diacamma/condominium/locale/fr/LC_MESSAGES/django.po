@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-10-29 16:41+0000\n"
+"POT-Creation-Date: 2015-10-30 16:09+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -26,33 +26,77 @@ msgstr "Diacamma copropriété"
 msgid "third"
 msgstr "tiers"
 
-#: editors.py:84
+#: editors.py:84 views.py:264
 msgid "show"
 msgstr "voir"
 
-#: editors.py:93 views_callfunds.py:46 views_expense.py:45
+#: editors.py:93 views_callfunds.py:47 views_expense.py:45
 msgid "Edit"
 msgstr "Editer"
 
-#: migrations/0001_initial.py:15
+#: migrations/0001_initial.py:16
 msgid "condominium-frequency"
 msgstr "fréquence"
 
-#: migrations/0001_initial.py:16
+#: migrations/0001_initial.py:17
 msgid "condominium-frequency.0"
 msgstr "annuel"
 
-#: migrations/0001_initial.py:17
+#: migrations/0001_initial.py:18
 msgid "condominium-frequency.1"
 msgstr "trimestriel"
 
-#: migrations/0001_initial.py:17
+#: migrations/0001_initial.py:18
 msgid "condominium-frequency.2"
 msgstr "mensuel"
 
-#: migrations/0001_initial.py:24
+#: migrations/0001_initial.py:25
 msgid "condominium-default-owner-account"
 msgstr "compte de proprietaire par défaut"
+
+#: migrations/0001_initial.py:31 migrations/0001_initial.py:108 models.py:302
+#: models.py:308
+msgid "call of funds"
+msgstr "appel de fonds"
+
+#: migrations/0001_initial.py:109 models.py:88 models.py:193 models.py:310
+#: models.py:494 views.py:74 views.py:219
+msgid "set"
+msgstr "ensemble"
+
+#: migrations/0001_initial.py:110 models.py:311 models.py:495
+msgid "designation"
+msgstr "désignation"
+
+#: migrations/0001_initial.py:111 models.py:312 models.py:317 models.py:498
+#: models.py:503
+msgid "price"
+msgstr "prix"
+
+#: migrations/0001_initial.py:112
+msgid "situation at #owner.date_current"
+msgstr "situation au #owner.date_current"
+
+#: migrations/0001_initial.py:113 models.py:120 models.py:128 views.py:257
+msgid "initial state"
+msgstr "état initial"
+
+#: migrations/0001_initial.py:114 models.py:120 models.py:128 views.py:258
+msgid "total call for funds"
+msgstr "total des appels de fonds"
+
+#: migrations/0001_initial.py:115
+msgid "total payed"
+msgstr "total payé"
+
+#: migrations/0001_initial.py:116 models.py:120 models.py:128 views.py:258
+msgid "total estimate"
+msgstr "total estimé"
+
+#: migrations/0001_initial.py:117 models.py:240 models.py:248 models.py:348
+#: models.py:356
+msgid "total"
+msgstr "total"
 
 #: models.py:46
 msgid "name"
@@ -74,290 +118,287 @@ msgstr "comptabilité analytique"
 msgid "partition sum"
 msgstr "somme des partitions"
 
-#: models.py:88 models.py:183 models.py:300 models.py:483 views.py:70
-msgid "set"
-msgstr "ensemble"
-
 #: models.py:89
 msgid "sets"
 msgstr "ensembles"
 
-#: models.py:114 models.py:122
-msgid "initial state"
-msgstr "état initial"
-
-#: models.py:114 models.py:122
-msgid "total call for funds"
-msgstr "total des appels de fonds"
-
-#: models.py:114
+#: models.py:120
 msgid "total payoff"
 msgstr "total des réglements"
 
-#: models.py:114 models.py:122
-msgid "total estimate"
-msgstr "total estimé"
-
-#: models.py:114 models.py:122
+#: models.py:120 models.py:128
 msgid "total real"
 msgstr "total réel"
 
-#: models.py:177 models.py:185 models.py:218 views.py:79
+#: models.py:187 models.py:195 models.py:228 views.py:83
 msgid "owner"
 msgstr "propriétaire"
 
-#: models.py:178
+#: models.py:188
 msgid "owners"
 msgstr "propriétaires"
 
-#: models.py:186
+#: models.py:196
 msgid "value"
 msgstr "valeur"
 
-#: models.py:194
+#: models.py:204
 msgid "ratio"
 msgstr "ratio"
 
-#: models.py:212
+#: models.py:222
 msgid "partition"
 msgstr "partition"
 
-#: models.py:213
+#: models.py:223
 msgid "partitions"
 msgstr "partitions"
 
-#: models.py:219 models.py:323
+#: models.py:229 models.py:333
 msgid "numeros"
 msgstr "numéros"
 
-#: models.py:220 models.py:324
+#: models.py:230 models.py:334
 msgid "date"
 msgstr "date"
 
-#: models.py:221 models.py:325
+#: models.py:231 models.py:335
 msgid "comment"
 msgstr "commentaire"
 
-#: models.py:222 models.py:328
+#: models.py:232 models.py:338
 msgid "status"
 msgstr "status"
 
-#: models.py:223 models.py:329
+#: models.py:233 models.py:339
 msgid "building"
 msgstr "en cours"
 
-#: models.py:223 models.py:329
+#: models.py:233 models.py:339
 msgid "valid"
 msgstr "validé"
 
-#: models.py:223 models.py:329
+#: models.py:233 models.py:339
 msgid "ended"
 msgstr "fini"
 
-#: models.py:230 models.py:238 models.py:338 models.py:346
-msgid "total"
-msgstr "total"
-
-#: models.py:283 models.py:359
+#: models.py:293 models.py:369
 #, python-format
 msgid "\"%s\" cannot be deleted!"
 msgstr "\"%s\" ne peut être supprimé!"
 
-#: models.py:292 models.py:298
-msgid "call of funds"
-msgstr "appel de fonds"
-
-#: models.py:293 views_callfunds.py:26
+#: models.py:303 views_callfunds.py:27
 msgid "calls of funds"
 msgstr "appels de fonds"
 
-#: models.py:301 models.py:484
-msgid "designation"
-msgstr "désignation"
-
-#: models.py:302 models.py:307 models.py:487 models.py:492
-msgid "price"
-msgstr "prix"
-
-#: models.py:318
+#: models.py:328
 msgid "detail of call"
 msgstr "détail d'appel"
 
-#: models.py:319
+#: models.py:329
 msgid "details of call"
 msgstr "détails d'appel"
 
-#: models.py:326
+#: models.py:336
 msgid "expense type"
 msgstr "type de dépense"
 
-#: models.py:327 models.py:475 models.py:481
+#: models.py:337 models.py:486 models.py:492
 msgid "expense"
 msgstr "dépense"
 
-#: models.py:327
+#: models.py:337
 msgid "asset of expense"
 msgstr "avoir de dépense"
 
-#: models.py:331
+#: models.py:341
 msgid "entry"
 msgstr "écriture"
 
-#: models.py:390 models.py:440
+#: models.py:400 models.py:450
 #, python-format
 msgid "code account %s unknown!"
 msgstr "code comptable %s inconnu!"
 
-#: models.py:423 models.py:459
+#: models.py:433 models.py:469
 msgid "Error in accounting generator!"
 msgstr "Erreur dans la génération comptable!"
 
-#: models.py:476 views_expense.py:25
+#: models.py:487 views_expense.py:25
 msgid "expenses"
 msgstr "dépenses"
 
-#: models.py:486
+#: models.py:497
 msgid "account"
 msgstr "compte"
 
-#: models.py:503
+#: models.py:514
 msgid "detail of expense"
 msgstr "détail de dépense"
 
-#: models.py:504
+#: models.py:515
 msgid "details of expense"
 msgstr "détails de dépense"
 
-#: views.py:44
+#: views.py:48
 msgid "Management of parameters of condominium"
 msgstr "Gestion des paramètres de copropriété"
 
-#: views.py:47
+#: views.py:51
 msgid "Condominium configuration"
 msgstr "Configuration de copropriété"
 
-#: views.py:56
+#: views.py:60
 msgid "Modify"
 msgstr "Modifier"
 
-#: views.py:61
+#: views.py:65
 msgid "condominium"
 msgstr "copropriété"
 
-#: views.py:61
+#: views.py:65
 msgid "Manage of condominium"
 msgstr "Gestion de copropriété"
 
-#: views.py:65
+#: views.py:69
 msgid "Manage of set"
 msgstr "Gestion d'ensemble"
 
-#: views.py:95
-msgid "Add set"
-msgstr "Ajouter un ensemble"
-
-#: views.py:96
-msgid "Modify set"
-msgstr "Modifier un ensemble"
-
-#: views.py:106
-msgid "Show set"
-msgstr "Voir un ensemble"
-
-#: views.py:115
-msgid "Delete set"
-msgstr "Supprimer un ensemble"
-
-#: views.py:124
-msgid "Modify partition"
-msgstr "Modifier une partition"
-
-#: views.py:133
-msgid "Add owner"
-msgstr "Ajouter un propriétaire"
-
-#: views.py:143
-msgid "Delete owner"
-msgstr "Supprimer un propriétaire"
-
-#: views.py:152
-msgid "Show owner"
-msgstr "Voir un propriétaire"
-
-#: views.py:157
-msgid "initial date"
-msgstr "date initial"
-
-#: views.py:168
-msgid "current date"
-msgstr "date courante"
-
-#: views_callfunds.py:21
-msgid "Manage of calls of funds"
-msgstr "Gestion d'appel de fonds"
-
-#: views_callfunds.py:31 views_expense.py:30
-msgid "Filter by type"
-msgstr "fitre par type"
-
-#: views_callfunds.py:55
-msgid "Add call of funds"
-msgstr "Ajouter un appel de fonds"
-
-#: views_callfunds.py:56
-msgid "Modify call of funds"
-msgstr "Modifier un appel de fonds"
-
-#: views_callfunds.py:65
-msgid "Show call of funds"
-msgstr "Voir un appel de fonds"
-
-#: views_callfunds.py:70 views_expense.py:69
-msgid "Valid"
-msgstr "Valider"
-
-#: views_callfunds.py:73 views_expense.py:72
-msgid "Closed"
-msgstr "Clôturer"
-
-#: views_callfunds.py:76
+#: views.py:92 views.py:197 views_callfunds.py:49 views_callfunds.py:79
 msgid "Print"
 msgstr "Imprimer"
 
-#: views_callfunds.py:86
+#: views.py:93 views.py:198
+msgid "Close"
+msgstr "Clôturer"
+
+#: views.py:98
+msgid "Print sets and owners"
+msgstr "Imprimer les ensembles et les copropriétaires"
+
+#: views.py:112
+msgid "Add set"
+msgstr "Ajouter un ensemble"
+
+#: views.py:113
+msgid "Modify set"
+msgstr "Modifier un ensemble"
+
+#: views.py:123
+msgid "Show set"
+msgstr "Voir un ensemble"
+
+#: views.py:132
+msgid "Delete set"
+msgstr "Supprimer un ensemble"
+
+#: views.py:141
+msgid "Modify partition"
+msgstr "Modifier une partition"
+
+#: views.py:150
+msgid "Add owner"
+msgstr "Ajouter un propriétaire"
+
+#: views.py:160
+msgid "Delete owner"
+msgstr "Supprimer un propriétaire"
+
+#: views.py:169
+msgid "Show owner"
+msgstr "Voir un propriétaire"
+
+#: views.py:174
+msgid "initial date"
+msgstr "date initial"
+
+#: views.py:185
+msgid "current date"
+msgstr "date courante"
+
+#: views.py:203
+msgid "Print owner"
+msgstr "Imprimer le propriétaire"
+
+#: views.py:221
+msgid "parameters"
+msgstr "paramètres"
+
+#: views.py:224 views.py:233 views.py:254
+msgid "Condominium"
+msgstr "Copropriété"
+
+#: views.py:240
+#, python-format
+msgid "There are %(set)d sets for %(owner)d owners"
+msgstr "Il y a %(set)d ensembles pour %(owner)d propriétaires"
+
+#: views_callfunds.py:22
+msgid "Manage of calls of funds"
+msgstr "Gestion d'appel de fonds"
+
+#: views_callfunds.py:32 views_expense.py:30
+msgid "Filter by type"
+msgstr "fitre par type"
+
+#: views_callfunds.py:58
+msgid "Add call of funds"
+msgstr "Ajouter un appel de fonds"
+
+#: views_callfunds.py:59
+msgid "Modify call of funds"
+msgstr "Modifier un appel de fonds"
+
+#: views_callfunds.py:68
+msgid "Show call of funds"
+msgstr "Voir un appel de fonds"
+
+#: views_callfunds.py:73 views_expense.py:69
+msgid "Valid"
+msgstr "Valider"
+
+#: views_callfunds.py:76 views_expense.py:72
+msgid "Closed"
+msgstr "Clôturer"
+
+#: views_callfunds.py:89 views_callfunds.py:143
+msgid "Print call of funds"
+msgstr "Imprimer un appel de fonds"
+
+#: views_callfunds.py:99
+msgid "No call of funds to print!"
+msgstr "Aucun appel de fonds imprimable!"
+
+#: views_callfunds.py:108
 msgid "Delete call of funds"
 msgstr "Supprimer un appel de fonds"
 
-#: views_callfunds.py:95
+#: views_callfunds.py:117
 msgid "Valid call of funds"
 msgstr "Valider un appel de fonds"
 
-#: views_callfunds.py:98
+#: views_callfunds.py:120
 msgid "Do you want validate this call of funds?"
 msgstr "Voulez-vous valider  cet appel de fonds?"
 
-#: views_callfunds.py:108
+#: views_callfunds.py:130
 msgid "Close call of funds"
 msgstr "Clôturer des appels de fonds"
 
-#: views_callfunds.py:111 views_expense.py:107
+#: views_callfunds.py:133 views_expense.py:107
 #, python-format
 msgid "Do you want close '%s'?"
 msgstr "Voulez vous clôturer '%s'?"
 
-#: views_callfunds.py:121
-msgid "Print call of funds"
-msgstr "Imprimer un appel de fonds"
-
-#: views_callfunds.py:130 views_expense.py:117
+#: views_callfunds.py:152 views_expense.py:117
 msgid "Add detail of call"
 msgstr "Ajouter un détail d'appel"
 
-#: views_callfunds.py:131 views_expense.py:118
+#: views_callfunds.py:153 views_expense.py:118
 msgid "Modify detail of call"
 msgstr "Modifier un détail d'appel"
 
-#: views_callfunds.py:140 views_expense.py:127
+#: views_callfunds.py:162 views_expense.py:127
 msgid "Delete detail of call"
 msgstr "Supprimer un détail d'appel"
 

@@ -83,7 +83,7 @@ class ExpenseTest(LucteriosTest):
             '/diacamma.condominium/expenseShow', {'expense': 4}, False)
         self.assert_observer(
             'core.custom', 'diacamma.condominium', 'expenseShow')
-        self.assert_count_equal('COMPONENTS/*', 17)
+        self.assert_count_equal('COMPONENTS/*', 19)
         self.assert_count_equal('ACTIONS/ACTION', 2)
         self.assert_xml_equal(
             'COMPONENTS/LABELFORM[@name="third"]', "---")
@@ -107,7 +107,7 @@ class ExpenseTest(LucteriosTest):
             '/diacamma.condominium/expenseShow', {'expense': 4}, False)
         self.assert_observer(
             'core.custom', 'diacamma.condominium', 'expenseShow')
-        self.assert_count_equal('COMPONENTS/*', 18)
+        self.assert_count_equal('COMPONENTS/*', 20)
         self.assert_xml_equal(
             'COMPONENTS/LABELFORM[@name="third"]', "Minimum")
         self.assert_xml_equal(

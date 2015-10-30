@@ -9,12 +9,13 @@ from lucterios.framework.xferadvance import XferAddEditor
 from lucterios.framework.xferadvance import XferShowEditor
 from lucterios.framework.xferadvance import XferDelete
 from lucterios.framework.tools import FORMTYPE_NOMODAL, ActionsManage, MenuManage,\
-    FORMTYPE_REFRESH, CLOSE_NO, SELECT_SINGLE, CLOSE_YES
+    FORMTYPE_REFRESH, CLOSE_NO, SELECT_SINGLE, CLOSE_YES, SELECT_MULTI
 from lucterios.framework.xfercomponents import XferCompLabelForm, XferCompSelect
 
 from diacamma.condominium.models import CallFunds, CallDetail
 from lucterios.framework.xfergraphic import XferContainerAcknowledge
 from lucterios.CORE.xferprint import XferPrintReporting
+from lucterios.framework.error import LucteriosException, IMPORTANT
 
 
 @ActionsManage.affect('CallFunds', 'list')
@@ -44,6 +45,8 @@ class CallFundsList(XferListEditor):
         if status_filter > 0:
             self.action_grid = [
                 ('show', _("Edit"), "images/show.png", SELECT_SINGLE)]
+            self.action_grid.append(
+                ('printcall', _("Print"), "images/print.png", SELECT_MULTI))
 
 
 @ActionsManage.affect('CallFunds', 'modify', 'add')
@@ -75,6 +78,25 @@ class CallFundsShow(XferShowEditor):
             self.action_list.insert(0,
                                     ('printcall', _("Print"), "images/print.png", CLOSE_NO))
         XferShowEditor.fillresponse(self)
+
+
+@ActionsManage.affect('CallFunds', 'printcall')
+@MenuManage.describ('condominium.change_callfunds')
+class CallFundsPrint(XferPrintReporting):
+    icon = "callfunds.png"
+    model = CallFunds
+    field_id = 'callfunds'
+    caption = _("Print call of funds")
+
+    def items_callback(self):
+        has_item = False
+        for item in self.items:
+            if item.status > 0:
+                has_item = True
+                yield item
+        if not has_item:
+            raise LucteriosException(
+                IMPORTANT, _("No call of funds to print!"))
 
 
 @ActionsManage.affect('CallFunds', 'delete')

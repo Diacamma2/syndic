@@ -25,6 +25,7 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import unicode_literals
 
 from django.utils.translation import ugettext_lazy as _
+from django.core.exceptions import ObjectDoesNotExist
 
 from lucterios.framework.xferadvance import XferListEditor
 from lucterios.framework.xferadvance import XferAddEditor
@@ -32,14 +33,16 @@ from lucterios.framework.xferadvance import XferShowEditor
 from lucterios.framework.xferadvance import XferDelete
 from lucterios.framework.tools import FORMTYPE_NOMODAL, ActionsManage, MenuManage,\
     FORMTYPE_MODAL, CLOSE_NO, FORMTYPE_REFRESH, WrapAction
-
-from diacamma.condominium.models import Set, Partition, Owner
 from lucterios.framework.xfercomponents import XferCompLabelForm, XferCompImage,\
     XferCompButton, XferCompDate
 from lucterios.framework.xfergraphic import XferContainerCustom
+from lucterios.framework import signal_and_lock
+from lucterios.CORE.models import Parameter
 from lucterios.CORE.parameters import Params
 from lucterios.CORE.views import ParamEdit
 from lucterios.CORE.xferprint import XferPrintAction
+
+from diacamma.condominium.models import Set, Partition, Owner
 
 
 @MenuManage.describ('CORE.change_parameter', FORMTYPE_MODAL, 'contact.conf', _('Management of parameters of condominium'))
@@ -92,7 +95,7 @@ class SetOwnerList(XferListEditor):
 
 @MenuManage.describ('condominium.change_set')
 class SetOwnerPrint(XferPrintAction):
-    caption = _("Print set & owner")
+    caption = _("Print sets and owners")
     icon = "set.png"
     model = Set
     field_id = 'set'
@@ -203,3 +206,62 @@ class OwnerPrint(XferPrintAction):
     field_id = 'owner'
     action_class = OwneShow
     with_text_export = True
+
+
+@signal_and_lock.Signal.decorate('compte_no_found')
+def comptenofound_condo(known_codes, accompt_returned):
+    set_unknown = Set.objects.exclude(revenue_account__in=known_codes).values_list(
+        'revenue_account', flat=True).distinct()
+    param_unknown = Parameter.objects.filter(name='condominium-default-owner-account').exclude(
+        value__in=known_codes).values_list('value', flat=True).distinct()
+    comptenofound = ""
+    if (len(set_unknown) > 0):
+        comptenofound = _("set") + ":" + ",".join(set_unknown) + " "
+    if (len(param_unknown) > 0):
+        comptenofound += _("parameters") + ":" + ",".join(param_unknown)
+    if comptenofound != "":
+        accompt_returned.append(
+            "- {[i]}{[u]}%s{[/u]}: %s{[/i]}" % (_('Condominium'), comptenofound))
+    return True
+
+
+@signal_and_lock.Signal.decorate('summary')
+def summary_condo(xfer):
+    if WrapAction.is_permission(xfer.request, 'invoice.change_bill'):
+        row = xfer.get_max_row() + 1
+        lab = XferCompLabelForm('condotitle')
+        lab.set_value_as_infocenter(_('Condominium'))
+        lab.set_location(0, row, 4)
+        xfer.add_component(lab)
+        nb_set = len(Set.objects.all())
+        nb_owner = len(Owner.objects.all())
+        lab = XferCompLabelForm('condoinfo')
+        lab.set_value_as_header(
+            _("There are %(set)d sets for %(owner)d owners") % {'set': nb_set, 'owner': nb_owner})
+        lab.set_location(0, row + 1, 4)
+        xfer.add_component(lab)
+        lab = XferCompLabelForm('condosep')
+        lab.set_value_as_infocenter("{[hr/]}")
+        lab.set_location(0, row + 2, 4)
+        xfer.add_component(lab)
+
+
+@signal_and_lock.Signal.decorate('third_addon')
+def thirdaddon_condo(item, xfer):
+    if WrapAction.is_permission(xfer.request, 'condominium.change_set'):
+        try:
+            owner = Owner.objects.get(third=item)
+            xfer.new_tab(_('Condominium'))
+            old_item = xfer.item
+            xfer.item = owner
+            fields = [((_('initial state'), 'total_initial'),), ((
+                _('total call for funds'), 'total_call'),), ((_('total estimate'), 'total_estimate'),)]
+            xfer.filltab_from_model(0, 1, True, fields)
+            xfer.item = old_item
+            btn = XferCompButton('condobtn')
+            btn.set_location(0, 5, 2)
+            btn.set_action(xfer.request, OwneShow.get_action(
+                _("show"), 'images/edit.png'), {'close': CLOSE_NO, 'modal': FORMTYPE_MODAL, 'params': {'owner': owner.id}})
+            xfer.add_component(btn)
+        except ObjectDoesNotExist:
+            pass
