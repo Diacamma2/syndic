@@ -139,14 +139,16 @@ class CallDetailEditor(LucteriosEditor):
 
 class ExpenseEditor(SupportingEditor):
 
+    def edit(self, xfer):
+        xfer.change_to_readonly('status')
+
     def show(self, xfer):
         if self.item.status == 0:
             SupportingEditor.show_third(self, xfer)
         else:
             details = xfer.get_components('expensedetail')
             details.actions = []
-            if self.item.bill_type != 0:
-                SupportingEditor.show(self, xfer)
+            SupportingEditor.show(self, xfer)
 
 
 class ExpenseDetailEditor(LucteriosEditor):

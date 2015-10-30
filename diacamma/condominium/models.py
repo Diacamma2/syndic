@@ -341,7 +341,7 @@ class Expense(Supporting):
         EntryAccount, verbose_name=_('entry'), null=True, default=None, db_index=True, on_delete=models.PROTECT)
 
     def __str__(self):
-        return "%s - %s" % (self.num, get_value_converted(self.date))
+        return "%s %s - %s" % (_('expense'), self.num, get_value_converted(self.date))
 
     @classmethod
     def get_default_fields(cls):
@@ -380,6 +380,11 @@ class Expense(Supporting):
             else:
                 is_asset = -1
             fiscal_year = FiscalYear.get_current()
+            val = Expense.objects.exclude(status=0).aggregate(Max('num'))
+            if val['num__max'] is None:
+                self.num = 1
+            else:
+                self.num = val['num__max'] + 1
             self.generate_expense_entry(is_asset, fiscal_year)
             self.generate_revenue_entry(is_asset, fiscal_year)
             self.status = 1
@@ -455,7 +460,7 @@ class Expense(Supporting):
         for cost_accounting, detail_sum in detail_sums.items():
             new_entry = EntryAccount.objects.create(
                 year=fiscal_year, date_value=self.date, designation=self.__str__(),
-                journal=Journal.objects.get(id=4), costaccounting_id=cost_accounting)
+                journal=Journal.objects.get(id=2), costaccounting_id=cost_accounting)
             total = 0
             for detail_accountid, price in detail_sum.items():
                 EntryLineAccount.objects.create(
