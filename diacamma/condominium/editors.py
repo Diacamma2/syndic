@@ -72,8 +72,9 @@ class OwnerEditor(SupportingEditor):
         sel = XferCompSelect('third')
         sel.needed = True
         sel.set_location(2, 0)
-        sel.set_select_query(
-            Third.objects.filter(supporting__owner__isnull=True))
+        items = Third.objects.filter(supporting__owner__isnull=True)
+        items = sorted(items, key=lambda t: six.text_type(t))
+        sel.set_select_query(items)
         xfer.add_component(sel)
 
     def show(self, xfer):

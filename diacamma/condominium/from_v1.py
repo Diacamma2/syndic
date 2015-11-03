@@ -44,6 +44,7 @@ class CondominiumMigrate(MigrateAbstract):
         self.bank_list = {}
         self.callfunds_list = {}
         self.calldetail_list = {}
+        self.default_owner_account = ""
 
     def _setowner(self):
         set_mdl = apps.get_model("condominium", "Set")
@@ -151,7 +152,7 @@ class CondominiumMigrate(MigrateAbstract):
         cur_p = self.old_db.open()
         cur_p.execute(
             "SELECT id,tiers,date,montant,reference,compte,operation,justifs FROM fr_sdlibre_copropriete_payement")
-        for payoffid, tiers, date, montant, reference, _, operation, justifs in cur_p.fetchall():
+        for payoffid, tiers, date, montant, reference, compte, operation, justifs in cur_p.fetchall():
             supporting = None
             if tiers in self.owner_list.keys():
                 supporting = self.owner_list[tiers]
@@ -165,10 +166,22 @@ class CondominiumMigrate(MigrateAbstract):
                 if operation in self.old_db.objectlinks['entryaccount'].keys():
                     self.payoff_list[payoffid].entry = self.old_db.objectlinks[
                         'entryaccount'][operation]
-                compte_cheque = 0
-                if compte_cheque in self.bank_list.keys():
-                    self.payoff_list[payoffid].bank_account = self.bank_list[
-                        compte_cheque]
+                self.payoff_list[payoffid].payer = six.text_type(
+                    supporting.third)
+                bank_cheque = None
+                if compte in self.old_db.objectlinks['chartsaccount'].keys():
+                    account = self.old_db.objectlinks[
+                        'chartsaccount'][compte]
+                    if account.code != self.default_owner_account:
+                        banks = bank_mdl.objects.filter(
+                            account_code=account.code)
+                        if len(banks) > 0:
+                            bank_cheque = banks[0]
+                        else:
+                            bank_cheque = bank_mdl.objects.create(
+                                designation=account.name, reference=account.name, account_code=account.code)
+                if bank_cheque is not None:
+                    self.payoff_list[payoffid].bank_account = bank_cheque
                     self.payoff_list[payoffid].mode = 4
                 else:
                     self.payoff_list[payoffid].mode = 0

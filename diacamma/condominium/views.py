@@ -43,6 +43,7 @@ from lucterios.CORE.views import ParamEdit
 from lucterios.CORE.xferprint import XferPrintAction
 
 from diacamma.condominium.models import Set, Partition, Owner
+from diacamma.accounting.views import ThirdAdd
 
 
 @MenuManage.describ('CORE.change_parameter', FORMTYPE_MODAL, 'contact.conf', _('Management of parameters of condominium'))
@@ -66,12 +67,12 @@ MenuManage.add_sub("condominium", "core.general", "diacamma.condominium/images/c
 
 
 @ActionsManage.affect('Set', 'list')
-@MenuManage.describ('condominium.change_set', FORMTYPE_NOMODAL, 'condominium', _('Manage of set'))
+@MenuManage.describ('condominium.change_set', FORMTYPE_NOMODAL, 'condominium', _('Manage of sets and owners'))
 class SetOwnerList(XferListEditor):
     icon = "set.png"
     model = Set
     field_id = 'set'
-    caption = _("set")
+    caption = _("sets and owners")
 
     def fillownerlist(self):
         row = self.get_max_row()
@@ -149,6 +150,11 @@ class OwnerAddModify(XferAddEditor):
     field_id = 'owner'
     caption_add = _("Add owner")
     redirect_to_show = False
+
+    def fillresponse(self):
+        XferAddEditor.fillresponse(self)
+        self.add_action(ThirdAdd.get_action(
+            _("Add"), "images/add.png"), {"close": CLOSE_NO, "modal": FORMTYPE_MODAL}, 0)
 
 
 @ActionsManage.affect('Owner', 'delete')

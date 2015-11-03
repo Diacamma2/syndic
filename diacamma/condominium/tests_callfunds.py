@@ -109,7 +109,7 @@ class CallFundsTest(LucteriosTest):
             '/diacamma.condominium/callFundsShow', {'callfunds': 1}, False)
         self.assert_observer(
             'core.custom', 'diacamma.condominium', 'callFundsShow')
-        self.assert_count_equal('COMPONENTS/*', 13)
+        self.assert_count_equal('COMPONENTS/*', 15)
         self.assert_count_equal('ACTIONS/ACTION', 3)
         self.assert_count_equal(
             'COMPONENTS/GRID[@name="calldetail"]/RECORD', 0)

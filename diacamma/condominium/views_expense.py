@@ -114,7 +114,7 @@ class ExpenseDetailAddModify(XferAddEditor):
     icon = "expense.png"
     model = ExpenseDetail
     field_id = 'expensedetail'
-    caption_add = _("Add detail of call")
+    caption_add = _("Add detail of expense")
     caption_modify = _("Modify detail of call")
 
 
@@ -124,4 +124,4 @@ class ExpenseDetailDel(XferDelete):
     icon = "expense.png"
     model = ExpenseDetail
     field_id = 'expensedetail'
-    caption = _("Delete detail of call")
+    caption = _("Delete detail of expense")

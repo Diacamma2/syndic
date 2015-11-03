@@ -245,7 +245,7 @@ class CallFunds(LucteriosModel):
 
     @classmethod
     def get_show_fields(cls):
-        return ["num", "owner", "calldetail_set", "comment", ("status", (_('total'), 'total'))]
+        return [("num", "date"), "owner", "calldetail_set", "comment", ("status", (_('total'), 'total'))]
 
     def get_total(self):
         val = 0
