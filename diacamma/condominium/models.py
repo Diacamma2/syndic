@@ -221,6 +221,7 @@ class Partition(LucteriosModel):
     class Meta(object):
         verbose_name = _('partition')
         verbose_name_plural = _('partitions')
+        default_permissions = []
 
 
 class CallFunds(LucteriosModel):
@@ -327,6 +328,7 @@ class CallDetail(LucteriosModel):
     class Meta(object):
         verbose_name = _('detail of call')
         verbose_name_plural = _('details of call')
+        default_permissions = []
 
 
 class Expense(Supporting):
@@ -518,3 +520,4 @@ class ExpenseDetail(LucteriosModel):
     class Meta(object):
         verbose_name = _('detail of expense')
         verbose_name_plural = _('details of expense')
+        default_permissions = []

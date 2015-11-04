@@ -143,7 +143,7 @@ class PartitionAddModify(XferAddEditor):
 
 
 @ActionsManage.affect('Owner', 'add')
-@MenuManage.describ('condominium.add_set')
+@MenuManage.describ('condominium.add_owner')
 class OwnerAddModify(XferAddEditor):
     icon = "owner.png"
     model = Owner

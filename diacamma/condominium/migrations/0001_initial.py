@@ -168,7 +168,8 @@ class Migration(migrations.Migration):
                                           on_delete=django.db.models.deletion.PROTECT, verbose_name='set')),
             ],
             options={'verbose_name_plural': 'partitions',
-                     'verbose_name': 'partition'},
+                     'verbose_name': 'partition',
+                     'default_permissions': [], },
         ),
         migrations.CreateModel(
             name='CallFunds',
@@ -206,6 +207,7 @@ class Migration(migrations.Migration):
             options={
                 'verbose_name': 'detail of call',
                 'verbose_name_plural': 'details of call',
+                'default_permissions': [],
             },
         ),
         migrations.AlterField(
@@ -278,6 +280,7 @@ class Migration(migrations.Migration):
             options={
                 'verbose_name': 'detail of expense',
                 'verbose_name_plural': 'details of expense',
+                'default_permissions': [],
             },
         ),
         migrations.RunPython(initial_values),

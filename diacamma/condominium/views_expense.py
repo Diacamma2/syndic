@@ -119,7 +119,7 @@ class ExpenseDetailAddModify(XferAddEditor):
 
 
 @ActionsManage.affect('ExpenseDetail', 'delete')
-@MenuManage.describ('condominium.delete_expense')
+@MenuManage.describ('condominium.add_expense')
 class ExpenseDetailDel(XferDelete):
     icon = "expense.png"
     model = ExpenseDetail

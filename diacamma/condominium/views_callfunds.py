@@ -154,7 +154,7 @@ class CallDetailAddModify(XferAddEditor):
 
 
 @ActionsManage.affect('CallDetail', 'delete')
-@MenuManage.describ('condominium.delete_callfunds')
+@MenuManage.describ('condominium.add_callfunds')
 class CallDetailDel(XferDelete):
     icon = "callfunds.png"
     model = CallDetail
