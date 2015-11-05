@@ -53,7 +53,7 @@ setup(
         'Topic :: Database :: Front-Ends',
     ],
     # Packages
-    packages=["diacamma", "diacamma.syndic"],
+    packages=["diacamma", "diacamma.syndic", "diacamma.condominium"],
     package_data={
         "diacamma.syndic": ['build', 'logo.gif', 'locale/*/*/*', 'help/*'],
         "diacamma.condominium.migrations": ['*'],
