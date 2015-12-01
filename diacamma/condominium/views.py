@@ -43,7 +43,6 @@ from lucterios.CORE.views import ParamEdit
 from lucterios.CORE.xferprint import XferPrintAction
 
 from diacamma.condominium.models import Set, Partition, Owner
-from diacamma.accounting.views import ThirdAdd
 
 
 @MenuManage.describ('CORE.change_parameter', FORMTYPE_MODAL, 'contact.conf', _('Management of parameters of condominium'))
@@ -150,11 +149,6 @@ class OwnerAddModify(XferAddEditor):
     field_id = 'owner'
     caption_add = _("Add owner")
     redirect_to_show = False
-
-    def fillresponse(self):
-        XferAddEditor.fillresponse(self)
-        self.add_action(ThirdAdd.get_action(
-            _("Add"), "images/add.png"), {"close": CLOSE_NO, "modal": FORMTYPE_MODAL}, 0)
 
 
 @ActionsManage.affect('Owner', 'delete')

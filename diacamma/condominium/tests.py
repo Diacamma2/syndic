@@ -106,13 +106,13 @@ class SetOwnerTest(LucteriosTest):
         self.assert_observer(
             'core.custom', 'diacamma.condominium', 'setOwnerList')
         self.assert_count_equal('COMPONENTS/GRID[@name="owner"]/RECORD', 0)
-        self.assert_count_equal('COMPONENTS/GRID[@name="owner"]/HEADER', 6)
+        self.assert_count_equal('COMPONENTS/GRID[@name="owner"]/HEADER', 7)
 
         self.factory.xfer = OwnerAddModify()
         self.call('/diacamma.condominium/ownerAddModify', {}, False)
         self.assert_observer(
             'core.custom', 'diacamma.condominium', 'ownerAddModify')
-        self.assert_count_equal('COMPONENTS/*', 3)
+        self.assert_count_equal('COMPONENTS/*', 4)
         self.assert_count_equal('COMPONENTS/SELECT[@name="third"]/CASE', 7)
 
         self.factory.xfer = ThirdShow()
@@ -138,7 +138,7 @@ class SetOwnerTest(LucteriosTest):
         self.assert_observer(
             'core.custom', 'diacamma.condominium', 'setOwnerList')
         self.assert_count_equal('COMPONENTS/GRID[@name="owner"]/RECORD', 1)
-        self.assert_count_equal('COMPONENTS/GRID[@name="owner"]/HEADER', 6)
+        self.assert_count_equal('COMPONENTS/GRID[@name="owner"]/HEADER', 7)
         self.assert_xml_equal(
             'COMPONENTS/GRID[@name="owner"]/RECORD[1]/VALUE[@name="third"]', 'Minimum')
         self.assert_xml_equal(
@@ -147,6 +147,8 @@ class SetOwnerTest(LucteriosTest):
             'COMPONENTS/GRID[@name="owner"]/RECORD[1]/VALUE[@name="total_call"]', '0.00€')
         self.assert_xml_equal(
             'COMPONENTS/GRID[@name="owner"]/RECORD[1]/VALUE[@name="total_payed"]', '0.00€')
+        self.assert_xml_equal(
+            'COMPONENTS/GRID[@name="owner"]/RECORD[1]/VALUE[@name="total_ventilated"]', '0.00€')
         self.assert_xml_equal(
             'COMPONENTS/GRID[@name="owner"]/RECORD[1]/VALUE[@name="total_estimate"]', '0.00€')
         self.assert_xml_equal(
@@ -166,7 +168,7 @@ class SetOwnerTest(LucteriosTest):
         self.call('/diacamma.condominium/ownerAddModify', {}, False)
         self.assert_observer(
             'core.custom', 'diacamma.condominium', 'ownerAddModify')
-        self.assert_count_equal('COMPONENTS/*', 3)
+        self.assert_count_equal('COMPONENTS/*', 4)
         self.assert_count_equal('COMPONENTS/SELECT[@name="third"]/CASE', 6)
 
         self.factory.xfer = OwnerDel()
@@ -180,7 +182,7 @@ class SetOwnerTest(LucteriosTest):
         self.assert_observer(
             'core.custom', 'diacamma.condominium', 'setOwnerList')
         self.assert_count_equal('COMPONENTS/GRID[@name="owner"]/RECORD', 0)
-        self.assert_count_equal('COMPONENTS/GRID[@name="owner"]/HEADER', 6)
+        self.assert_count_equal('COMPONENTS/GRID[@name="owner"]/HEADER', 7)
 
     def test_show_partition(self):
         self.factory.xfer = SetOwnerList()
@@ -190,7 +192,7 @@ class SetOwnerTest(LucteriosTest):
         self.assert_count_equal('COMPONENTS/GRID[@name="set"]/RECORD', 0)
         self.assert_count_equal('COMPONENTS/GRID[@name="set"]/HEADER', 5)
         self.assert_count_equal('COMPONENTS/GRID[@name="owner"]/RECORD', 0)
-        self.assert_count_equal('COMPONENTS/GRID[@name="owner"]/HEADER', 6)
+        self.assert_count_equal('COMPONENTS/GRID[@name="owner"]/HEADER', 7)
 
         self.factory.xfer = SetAddModify()
         self.call('/diacamma.condominium/setAddModify',

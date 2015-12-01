@@ -76,6 +76,12 @@ class OwnerEditor(SupportingEditor):
         items = sorted(items, key=lambda t: six.text_type(t))
         sel.set_select_query(items)
         xfer.add_component(sel)
+        btn = XferCompButton('add_third')
+        btn.set_location(3, 0)
+        btn.set_is_mini(True)
+        btn.set_action(xfer.request, ActionsManage.get_act_changed(
+            'Third', 'add', '', "images/add.png"), {"close": CLOSE_NO, "modal": FORMTYPE_MODAL})
+        xfer.add_component(btn)
 
     def show(self, xfer):
         third = xfer.get_components('third')
@@ -95,6 +101,8 @@ class OwnerEditor(SupportingEditor):
         SupportingEditor.show(self, xfer)
         xfer.remove_component('lbl_total_rest_topay')
         xfer.remove_component('total_rest_topay')
+        xfer.move_components('lbl_total_ventilated', 0, 3)
+        xfer.move_components('total_ventilated', 0, 3)
         xfer.move_components('lbl_total_estimate', 0, 5)
         xfer.move_components('total_estimate', 0, 5)
         xfer.move_components('lbl_total_real', 0, 5)

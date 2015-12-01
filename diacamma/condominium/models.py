@@ -38,7 +38,7 @@ from lucterios.framework.error import LucteriosException, IMPORTANT, GRAVE
 from diacamma.accounting.models import CostAccounting, EntryAccount, Journal,\
     ChartsAccount, EntryLineAccount, FiscalYear
 from diacamma.accounting.tools import format_devise, currency_round,\
-    current_system_account
+    current_system_account, get_amount_sum
 from diacamma.payoff.models import Supporting
 
 
@@ -106,6 +106,9 @@ class Owner(Supporting):
         else:
             self.date_end = end_date
 
+    def get_third_mask(self):
+        return current_system_account().get_societary_mask()
+
     @property
     def date_current(self):
         if self.date_begin is None:
@@ -117,7 +120,7 @@ class Owner(Supporting):
 
     @classmethod
     def get_default_fields(cls):
-        return ["third", (_('initial state'), 'total_initial'), (_('total call for funds'), 'total_call'), (_('total payoff'), 'total_payed'), (_('total estimate'), 'total_estimate'), (_('total real'), 'total_real')]
+        return ["third", (_('initial state'), 'total_initial'), (_('total call for funds'), 'total_call'), (_('total payoff'), 'total_payed'), (_('total ventilated'), 'total_ventilated'), (_('total estimate'), 'total_estimate'), (_('total real'), 'total_real')]
 
     @classmethod
     def get_edit_fields(cls):
@@ -125,7 +128,7 @@ class Owner(Supporting):
 
     @classmethod
     def get_show_fields(cls):
-        return ["third", 'partition_set', ((_('initial state'), 'total_initial'),), 'callfunds_set', ((_('total call for funds'), 'total_call'),), ((_('total estimate'), 'total_estimate'), (_('total real'), 'total_real'))]
+        return ["third", 'partition_set', ((_('initial state'), 'total_initial'),), 'callfunds_set', ((_('total call for funds'), 'total_call'), (_('total ventilated'), 'total_ventilated')), ((_('total estimate'), 'total_estimate'), (_('total real'), 'total_real'))]
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         is_new = self.id is None
@@ -160,7 +163,12 @@ class Owner(Supporting):
     def get_total_initial(self):
         if self.date_begin is None:
             self.set_dates()
-        return self.third.get_total(self.date_begin)
+        third_total = self.third.get_total(self.date_begin)
+        third_total -= get_amount_sum(EntryLineAccount.objects.filter(Q(third=self.third) & Q(
+            entry__date_value=self.date_begin) & Q(entry__journal__id=1) & Q(account__type_of_account=0)).aggregate(Sum('amount')))
+        third_total += get_amount_sum(EntryLineAccount.objects.filter(Q(third=self.third) & Q(
+            entry__date_value=self.date_begin) & Q(entry__journal__id=1) & Q(account__type_of_account=1)).aggregate(Sum('amount')))
+        return third_total
 
     @property
     def total_initial(self):
@@ -172,6 +180,13 @@ class Owner(Supporting):
 
     def get_total(self):
         return self.get_total_call() - self.get_total_initial()
+
+    def get_total_ventilated(self):
+        return self.get_total_payed() + self.get_total_initial() - self.third.get_total(self.date_end)
+
+    @property
+    def total_ventilated(self):
+        return format_devise(self.get_total_ventilated(), 5)
 
     @property
     def total_real(self):
@@ -348,6 +363,9 @@ class Expense(Supporting):
     @classmethod
     def get_default_fields(cls):
         return ["num", "date", "third", "comment", (_('total'), 'total')]
+
+    def get_third_mask(self):
+        return current_system_account().get_provider_mask()
 
     @classmethod
     def get_edit_fields(cls):
