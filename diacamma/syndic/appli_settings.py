@@ -26,6 +26,7 @@ from __future__ import unicode_literals
 from django.utils.translation import ugettext_lazy as _, ugettext
 from os.path import join, dirname
 import diacamma.syndic
+from lucterios.framework import signal_and_lock
 
 
 def get_subtitle():
@@ -43,3 +44,10 @@ APPLI_EMAIL = "support@sd-libre.fr"
 APPLIS_LOGO_NAME = join(dirname(__file__), "logo.gif")
 APPLIS_COPYRIGHT = _("(c) GPL Licence")
 APPLIS_SUBTITLE = get_subtitle
+
+
+@signal_and_lock.Signal.decorate('initial_account')
+def initial_account_asso(account_list):
+    if isinstance(account_list, list):
+        account_list.append(join(dirname(__file__), 'init_french.csv'))
+    return True

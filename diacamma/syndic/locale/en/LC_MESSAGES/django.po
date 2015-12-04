@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-12-01 17:19+0000\n"
+"POT-Creation-Date: 2015-12-04 13:33+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -21,14 +21,47 @@ msgstr ""
 msgid "Diacamma syndic"
 msgstr "Diacamma Syndic"
 
-#: appli_settings.py:38
+#: appli_settings.py:39
 msgid "Condominium application"
 msgstr "Condominium application"
 
-#: appli_settings.py:44
+#: appli_settings.py:45
 msgid "(c) GPL Licence"
 msgstr "(c) GPL Licence"
 
 #: help/presentation.html:2
 msgid "presentation.html"
 msgstr "Diacamma Syndic Presentation"
+
+#: migrations/0001_initial.py:35
+msgid "president"
+msgstr "president"
+
+#: migrations/0001_initial.py:36
+msgid "treasurer"
+msgstr "treasurer"
+
+#: migrations/0001_initial.py:37
+msgid "secretary"
+msgstr "secretary"
+
+#: migrations/0001_initial.py:38
+msgid "special adviser"
+msgstr "special adviser"
+
+#: migrations/0001_initial.py:39
+msgid "enterprise"
+msgstr "enterprise"
+
+#: migrations/0001_initial.py:40
+msgid "association"
+msgstr "association"
+
+#: migrations/0001_initial.py:43
+msgid "spending"
+msgstr "spending"
+
+#: migrations/0001_initial.py:46
+msgid "ventilation"
+msgstr "ventilation"
+
