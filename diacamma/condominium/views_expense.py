@@ -26,6 +26,7 @@ class ExpenseList(XferListEditor):
 
     def fillresponse_header(self):
         status_filter = self.getparam('status_filter', 0)
+        self.fieldnames = Expense.get_default_fields(status_filter)
         lbl = XferCompLabelForm('lbl_filter')
         lbl.set_value_as_name(_('Filter by type'))
         lbl.set_location(0, 3)
@@ -68,8 +69,11 @@ class ExpenseShow(XferShowEditor):
             self.action_list.insert(
                 0, ('valid', _("Valid"), "images/ok.png", CLOSE_YES))
         elif self.item.status == 1:
+            self.action_list = []
             self.action_list.insert(
                 0, ('close', _("Closed"), "images/ok.png", CLOSE_NO))
+        elif self.item.status == 2:
+            self.action_list = []
         XferShowEditor.fillresponse(self)
 
 

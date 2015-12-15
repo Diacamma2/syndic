@@ -23,7 +23,7 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from __future__ import unicode_literals
-import datetime
+from datetime import date, datetime
 
 from django.db import models
 from django.db.models import Q
@@ -102,18 +102,28 @@ class Owner(Supporting):
         else:
             self.date_begin = begin_date
         if end_date is None:
-            self.date_end = six.text_type(datetime.date.today())
+            self.date_end = six.text_type(date.today())
         else:
             self.date_end = end_date
 
     def get_third_mask(self):
         return current_system_account().get_societary_mask()
 
+    def default_date(self):
+        if self.date_begin is None:
+            self.set_dates()
+        ret_date = six.text_type(date.today())
+        if ret_date < self.date_begin:
+            ret_date = self.date_begin
+        if ret_date > self.date_end:
+            ret_date = self.date_end
+        return ret_date
+
     @property
     def date_current(self):
         if self.date_begin is None:
             self.set_dates()
-        return formats.date_format(datetime.datetime.strptime(self.date_end, "%Y-%m-%d"), "DATE_FORMAT")
+        return formats.date_format(datetime.strptime(self.date_end, "%Y-%m-%d"), "DATE_FORMAT")
 
     def __str__(self):
         return six.text_type(self.third)
@@ -354,15 +364,17 @@ class Expense(Supporting):
                                       choices=((0, _('expense')), (1, _('asset of expense'))), null=False, default=0, db_index=True)
     status = models.IntegerField(verbose_name=_('status'),
                                  choices=((0, _('building')), (1, _('valid')), (2, _('ended'))), null=False, default=0, db_index=True)
-    entry = models.ForeignKey(
-        EntryAccount, verbose_name=_('entry'), null=True, default=None, db_index=True, on_delete=models.PROTECT)
+    entries = models.CharField(_('entries'), max_length=30)
 
     def __str__(self):
         return "%s %s - %s" % (_('expense'), self.num, get_value_converted(self.date))
 
     @classmethod
-    def get_default_fields(cls):
-        return ["num", "date", "third", "comment", (_('total'), 'total')]
+    def get_default_fields(cls, status=-1):
+        fields = ["num", "date", "third", "comment", (_('total'), 'total')]
+        if status == 1:
+            fields.append(Supporting.get_payoff_fields()[-1][-1])
+        return fields
 
     def get_third_mask(self):
         return current_system_account().get_provider_mask()
@@ -386,6 +398,9 @@ class Expense(Supporting):
 
     def default_date(self):
         return self.date
+
+    def entry_links(self):
+        return list(EntryAccount.objects.filter(id__in=self.entries.split(';')))
 
     def can_delete(self):
         if self.status != 0:
@@ -480,6 +495,7 @@ class Expense(Supporting):
                 detail_sums[cost_accounting][detail_account.id] = 0
             detail_sums[cost_accounting][
                 detail_account.id] += currency_round(detail.price)
+        entries = []
         for cost_accounting, detail_sum in detail_sums.items():
             new_entry = EntryAccount.objects.create(
                 year=fiscal_year, date_value=self.date, designation=self.__str__(),
@@ -496,6 +512,8 @@ class Expense(Supporting):
             if not no_change or (abs(debit_rest) > 0.001) or (abs(credit_rest) > 0.001):
                 raise LucteriosException(GRAVE, _("Error in accounting generator!") +
                                          "{[br/]} no_change=%s debit_rest=%.3f credit_rest=%.3f" % (no_change, debit_rest, credit_rest))
+            entries.append(six.text_type(new_entry.id))
+        self.entries = ";".join(entries)
 
     def close(self):
         if self.status == 1:
