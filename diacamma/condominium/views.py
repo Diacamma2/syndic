@@ -88,6 +88,7 @@ class SetOwnerList(XferListEditor):
     def fillresponse(self):
         XferListEditor.fillresponse(self)
         self.fillownerlist()
+        self.actions = []
         self.add_action(SetOwnerPrint.get_action(
             _("Print"), "images/print.png"), {'close': CLOSE_NO, 'params': {'classname': self.__class__.__name__}})
         self.add_action(WrapAction(_('Close'), 'images/close.png'), {})
@@ -193,6 +194,7 @@ class OwneShow(XferShowEditor):
             self.request, self.get_action(), {'close': CLOSE_NO, 'modal': FORMTYPE_REFRESH})
         self.add_component(date_end)
         XferShowEditor.fillresponse(self)
+        self.actions = []
         self.add_action(OwnerPrint.get_action(
             _("Print"), "images/print.png"), {'close': CLOSE_NO, 'params': {'classname': self.__class__.__name__}})
         self.add_action(WrapAction(_('Close'), 'images/close.png'), {})

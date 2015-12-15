@@ -10,11 +10,10 @@ code;name
 131;Subventions accordées en instance de versement	
 401;Fournisseurs - Factures parvenues	
 408;Fournisseurs - Factures non parvenues	
-450;Copropriétaire individualisé
+455;Copropriétaire individualisé
 459;Copropriétaire - créances douteuses
 512;Banques	
-514;Chèques postaux	
-530;Caisse	
+531;Caisse
 601;Eau	
 602;Electricité	
 603;Chauffage, énergie et combustibles
@@ -27,6 +26,8 @@ code;name
 6213;Frais postaux		
 6222;Prestations particulières		
 624;Frais du conseil syndical		
+626;Frais postaux et télécommunications
+627;Frais des services bancaires
 671;Travaux décidés par l'assemblée générale		
 672;Travaux urgents		
 673;Etudes techniques, diagnostic, consultation
