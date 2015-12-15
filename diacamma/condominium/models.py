@@ -202,7 +202,7 @@ class Owner(Supporting):
     def total_real(self):
         return format_devise(self.third.get_total(self.date_end), 5)
 
-    def get_max_payoff(self):
+    def get_max_payoff(self, ignore_payoff=-1):
         return 1000000
 
     def payoff_is_revenu(self):
@@ -400,7 +400,10 @@ class Expense(Supporting):
         return self.date
 
     def entry_links(self):
-        return list(EntryAccount.objects.filter(id__in=self.entries.split(';')))
+        if self.entries == '':
+            return []
+        else:
+            return list(EntryAccount.objects.filter(id__in=self.entries.split(';')))
 
     def can_delete(self):
         if self.status != 0:
