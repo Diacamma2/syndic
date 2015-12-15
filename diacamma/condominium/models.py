@@ -384,6 +384,9 @@ class Expense(Supporting):
     def payoff_is_revenu(self):
         return self.expensetype == 1
 
+    def default_date(self):
+        return self.date
+
     def can_delete(self):
         if self.status != 0:
             return _('"%s" cannot be deleted!') % six.text_type(self)
