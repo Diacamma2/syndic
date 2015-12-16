@@ -114,6 +114,7 @@ class CondominiumMigrate(MigrateAbstract):
                                                                                justifs], set=self.set_list[ensemble], designation=designation, price=montant)
 
     def _expense(self):
+        entryaccount_mdl = apps.get_model("accounting", "EntryAccount")
         expense_mdl = apps.get_model("condominium", "Expense")
         expense_mdl.objects.all().delete()
         self.expense_list = {}
@@ -130,10 +131,15 @@ class CondominiumMigrate(MigrateAbstract):
                     "=> expense third:%s - date=%s", (tiers, date))
                 self.expense_list[expenseid] = expense_mdl.objects.create(
                     status=etat, num=num, date=date, third=self.old_db.objectlinks['third'][tiers], comment=comment)
-                if operation in self.old_db.objectlinks['entryaccount'].keys():
-                    self.expense_list[expenseid].entry = self.old_db.objectlinks[
-                        'entryaccount'][operation]
-                    self.expense_list[expenseid].save()
+                entries = []
+                for op_item in operation.split(';'):
+                    op_item = int(op_item)
+                    if op_item in self.old_db.objectlinks['entryaccount'].keys():
+                        entries.append(
+                            self.old_db.objectlinks['entryaccount'][op_item].id)
+                self.expense_list[expenseid].entries = entryaccount_mdl.objects.filter(
+                    id__in=entries)
+                self.expense_list[expenseid].save()
 
         cur_d = self.old_db.open()
         cur_d.execute(
@@ -185,7 +191,8 @@ class CondominiumMigrate(MigrateAbstract):
                     self.payoff_list[payoffid].mode = 4
                 else:
                     self.payoff_list[payoffid].mode = 0
-                self.payoff_list[payoffid].save(do_generate=False)
+                self.payoff_list[payoffid].save(
+                    do_generate=False, do_linking=False)
 
     def _params(self):
         cur_p = self.old_db.open()

@@ -364,7 +364,7 @@ class Expense(Supporting):
                                       choices=((0, _('expense')), (1, _('asset of expense'))), null=False, default=0, db_index=True)
     status = models.IntegerField(verbose_name=_('status'),
                                  choices=((0, _('building')), (1, _('valid')), (2, _('ended'))), null=False, default=0, db_index=True)
-    entries = models.CharField(_('entries'), max_length=30)
+    entries = models.ManyToManyField(EntryAccount, verbose_name=_('entries'))
 
     def __str__(self):
         return "%s %s - %s" % (_('expense'), self.num, get_value_converted(self.date))
@@ -400,10 +400,7 @@ class Expense(Supporting):
         return self.date
 
     def entry_links(self):
-        if self.entries == '':
-            return []
-        else:
-            return list(EntryAccount.objects.filter(id__in=self.entries.split(';')))
+        return list(self.entries)
 
     def can_delete(self):
         if self.status != 0:
@@ -516,7 +513,7 @@ class Expense(Supporting):
                 raise LucteriosException(GRAVE, _("Error in accounting generator!") +
                                          "{[br/]} no_change=%s debit_rest=%.3f credit_rest=%.3f" % (no_change, debit_rest, credit_rest))
             entries.append(six.text_type(new_entry.id))
-        self.entries = ";".join(entries)
+        self.entries = EntryAccount.objects.filter(id__in=entries)
 
     def close(self):
         if self.status == 1:

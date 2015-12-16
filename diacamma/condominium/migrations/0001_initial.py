@@ -253,8 +253,8 @@ class Migration(migrations.Migration):
                                                     db_index=True, choices=[(0, 'expense'), (1, 'asset of expense')])),
                 ('status', models.IntegerField(verbose_name='status', default=0,
                                                db_index=True, choices=[(0, 'building'), (1, 'valid'), (2, 'ended')])),
-                ('entries', models.CharField(
-                    verbose_name='entry', max_length=30)),
+                ('entries', models.ManyToManyField(
+                    to='accounting.EntryAccount', verbose_name='entries')),
             ],
             options={
                 'verbose_name': 'expense',
