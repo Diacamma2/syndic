@@ -400,7 +400,10 @@ class Expense(Supporting):
         return self.date
 
     def entry_links(self):
-        return list(self.entries)
+        if self.entries is None:
+            return []
+        else:
+            return list(self.entries.all())
 
     def can_delete(self):
         if self.status != 0:
