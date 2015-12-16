@@ -105,6 +105,8 @@ class Owner(Supporting):
             self.date_end = six.text_type(date.today())
         else:
             self.date_end = end_date
+        if self.date_end < self.date_begin:
+            self.date_end = self.date_begin
 
     def get_third_mask(self):
         return current_system_account().get_societary_mask()
