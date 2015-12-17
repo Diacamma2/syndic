@@ -55,7 +55,7 @@ setup(
     # Packages
     packages=["diacamma", "diacamma.syndic", "diacamma.condominium"],
     package_data={
-        "diacamma.syndic": ['build', 'logo.gif', '*.csv', 'locale/*/*/*', 'help/*'],
+        "diacamma.syndic": ['build', 'Diacamma.png', 'Diacamma.ico', '*.csv', 'locale/*/*/*', 'help/*'],
         "diacamma.condominium.migrations": ['*'],
         "diacamma.condominium": ['build', 'images/*', 'locale/*/*/*', 'help/*'],
     },
