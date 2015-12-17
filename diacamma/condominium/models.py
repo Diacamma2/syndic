@@ -102,7 +102,7 @@ class Owner(Supporting):
         else:
             self.date_begin = begin_date
         if end_date is None:
-            self.date_end = six.text_type(date.today())
+            self.date_end = six.text_type(FiscalYear.get_current().end)
         else:
             self.date_end = end_date
         if self.date_end < self.date_begin:
@@ -175,7 +175,7 @@ class Owner(Supporting):
     def get_total_initial(self):
         if self.date_begin is None:
             self.set_dates()
-        third_total = self.third.get_total(self.date_begin)
+        third_total = self.third.get_total(self.date_begin, False)
         third_total -= get_amount_sum(EntryLineAccount.objects.filter(Q(third=self.third) & Q(
             entry__date_value=self.date_begin) & Q(entry__journal__id=1) & Q(account__type_of_account=0)).aggregate(Sum('amount')))
         third_total += get_amount_sum(EntryLineAccount.objects.filter(Q(third=self.third) & Q(
