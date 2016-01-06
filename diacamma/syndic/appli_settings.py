@@ -26,7 +26,6 @@ from __future__ import unicode_literals
 from django.utils.translation import ugettext_lazy as _, ugettext
 from os.path import join, dirname
 import diacamma.syndic
-from lucterios.framework import signal_and_lock
 
 
 def get_subtitle():
@@ -46,9 +45,13 @@ APPLIS_FAVICON = join(dirname(__file__), "Diacamma.ico")
 APPLIS_COPYRIGHT = _("(c) GPL Licence")
 APPLIS_SUBTITLE = get_subtitle
 
+try:
+    from lucterios.framework import signal_and_lock
 
-@signal_and_lock.Signal.decorate('initial_account')
-def initial_account_asso(account_list):
-    if isinstance(account_list, list):
-        account_list.append(join(dirname(__file__), 'init_french.csv'))
-    return True
+    @signal_and_lock.Signal.decorate('initial_account')
+    def initial_account_asso(account_list):
+        if isinstance(account_list, list):
+            account_list.append(join(dirname(__file__), 'init_french.csv'))
+        return True
+except:
+    pass
