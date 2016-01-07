@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-12-16 14:08+0000\n"
+"POT-Creation-Date: 2015-12-18 10:07+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -65,22 +65,22 @@ msgstr "monthly"
 msgid "condominium-default-owner-account"
 msgstr "default owner account"
 
-#: migrations/0001_initial.py:31 migrations/0001_initial.py:108 models.py:328
-#: models.py:334
+#: migrations/0001_initial.py:31 migrations/0001_initial.py:108 models.py:330
+#: models.py:336
 msgid "call of funds"
 msgstr "call of funds"
 
-#: migrations/0001_initial.py:109 models.py:88 models.py:218 models.py:336
-#: models.py:543 views.py:221
+#: migrations/0001_initial.py:109 models.py:88 models.py:220 models.py:338
+#: models.py:545 views.py:221
 msgid "set"
 msgstr "set"
 
-#: migrations/0001_initial.py:110 models.py:337 models.py:544
+#: migrations/0001_initial.py:110 models.py:339 models.py:546
 msgid "designation"
 msgstr "designation"
 
-#: migrations/0001_initial.py:111 models.py:338 models.py:343 models.py:547
-#: models.py:552
+#: migrations/0001_initial.py:111 models.py:340 models.py:345 models.py:549
+#: models.py:554
 msgid "price"
 msgstr "price"
 
@@ -88,11 +88,11 @@ msgstr "price"
 msgid "situation at #owner.date_current"
 msgstr "situation at #owner.date_current"
 
-#: migrations/0001_initial.py:113 models.py:133 models.py:141 views.py:259
+#: migrations/0001_initial.py:113 models.py:135 models.py:143 views.py:259
 msgid "initial state"
 msgstr "initial state"
 
-#: migrations/0001_initial.py:114 models.py:133 models.py:141 views.py:260
+#: migrations/0001_initial.py:114 models.py:135 models.py:143 views.py:260
 msgid "total call for funds"
 msgstr "total call for funds"
 
@@ -100,12 +100,12 @@ msgstr "total call for funds"
 msgid "total payed"
 msgstr "total payed"
 
-#: migrations/0001_initial.py:116 models.py:133 models.py:141 views.py:260
+#: migrations/0001_initial.py:116 models.py:135 models.py:143 views.py:260
 msgid "total estimate"
 msgstr "total estimate"
 
-#: migrations/0001_initial.py:117 models.py:266 models.py:274 models.py:374
-#: models.py:388
+#: migrations/0001_initial.py:117 models.py:268 models.py:276 models.py:376
+#: models.py:390
 msgid "total"
 msgstr "total"
 
@@ -133,125 +133,125 @@ msgstr "partition sum"
 msgid "sets"
 msgstr "sets"
 
-#: models.py:133
+#: models.py:135
 msgid "total payoff"
 msgstr "total payoff"
 
-#: models.py:133 models.py:141
+#: models.py:135 models.py:143
 msgid "total ventilated"
 msgstr "total ventilated"
 
-#: models.py:133 models.py:141
+#: models.py:135 models.py:143
 msgid "total real"
 msgstr "total real"
 
-#: models.py:212 models.py:220 models.py:254 views.py:83
+#: models.py:214 models.py:222 models.py:256 views.py:83
 msgid "owner"
 msgstr "owner"
 
-#: models.py:213
+#: models.py:215
 msgid "owners"
 msgstr "owners"
 
-#: models.py:221
+#: models.py:223
 msgid "value"
 msgstr "value"
 
-#: models.py:229
+#: models.py:231
 msgid "ratio"
 msgstr "ratio"
 
-#: models.py:247
+#: models.py:249
 msgid "partition"
 msgstr "partition"
 
-#: models.py:248
+#: models.py:250
 msgid "partitions"
 msgstr "partitions"
 
-#: models.py:255 models.py:360
+#: models.py:257 models.py:362
 msgid "numeros"
 msgstr "numeros"
 
-#: models.py:256 models.py:361
+#: models.py:258 models.py:363
 msgid "date"
 msgstr "date"
 
-#: models.py:257 models.py:362
+#: models.py:259 models.py:364
 msgid "comment"
 msgstr "comment"
 
-#: models.py:258 models.py:365
+#: models.py:260 models.py:367
 msgid "status"
 msgstr "status"
 
-#: models.py:259 models.py:366
+#: models.py:261 models.py:368
 msgid "building"
 msgstr "building"
 
-#: models.py:259 models.py:366
+#: models.py:261 models.py:368
 msgid "valid"
 msgstr "valid"
 
-#: models.py:259 models.py:366
+#: models.py:261 models.py:368
 msgid "ended"
 msgstr "ended"
 
-#: models.py:319 models.py:410
+#: models.py:321 models.py:412
 #, python-format
 msgid "\"%s\" cannot be deleted!"
 msgstr "\"%s\" cannot be deleted!"
 
-#: models.py:329 views_callfunds.py:27
+#: models.py:331 views_callfunds.py:27
 msgid "calls of funds"
 msgstr "calls of funds"
 
-#: models.py:354
+#: models.py:356
 msgid "detail of call"
 msgstr "detail of call"
 
-#: models.py:355
+#: models.py:357
 msgid "details of call"
 msgstr "details of call"
 
-#: models.py:363
+#: models.py:365
 msgid "expense type"
 msgstr "expense type"
 
-#: models.py:364 models.py:370 models.py:535 models.py:541
+#: models.py:366 models.py:372 models.py:537 models.py:543
 msgid "expense"
 msgstr "expense"
 
-#: models.py:364
+#: models.py:366
 msgid "asset of expense"
 msgstr "asset of expense"
 
-#: models.py:367
+#: models.py:369
 msgid "entries"
 msgstr "entries"
 
-#: models.py:446 models.py:496
+#: models.py:448 models.py:498
 #, python-format
 msgid "code account %s unknown!"
 msgstr "code account %s unknown!"
 
-#: models.py:479 models.py:516
+#: models.py:481 models.py:518
 msgid "Error in accounting generator!"
 msgstr "Error in accounting generator!"
 
-#: models.py:536 views_expense.py:25
+#: models.py:538 views_expense.py:25
 msgid "expenses"
 msgstr "expenses"
 
-#: models.py:546
+#: models.py:548
 msgid "account"
 msgstr "account"
 
-#: models.py:563
+#: models.py:565
 msgid "detail of expense"
 msgstr "detail of expense"
 
-#: models.py:564
+#: models.py:566
 msgid "details of expense"
 msgstr "details of expense"
 
