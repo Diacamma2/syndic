@@ -26,7 +26,7 @@ msgstr "Diacamma Syndic"
 msgid "Condominium application"
 msgstr "Application de copropriété"
 
-#: appli_settings.py:45
+#: appli_settings.py:46
 msgid "(c) GPL Licence"
 msgstr "(c) GPL Licence"
 
