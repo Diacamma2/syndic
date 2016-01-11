@@ -44,6 +44,8 @@ class CondominiumMigrate(MigrateAbstract):
         self.bank_list = {}
         self.callfunds_list = {}
         self.calldetail_list = {}
+        self.expense_list = {}
+        self.expensedetail_list = {}
         self.default_owner_account = ""
 
     def _setowner(self):
@@ -60,7 +62,7 @@ class CondominiumMigrate(MigrateAbstract):
         cur_s.execute(
             "SELECT id, nom,budget,imputationProduit,analytique  FROM fr_sdlibre_copropriete_ensemble")
         for setid, nom, budget, imputation_produit, analytique in cur_s.fetchall():
-            self.print_log("=> SET %s", (nom,))
+            self.print_debug("=> SET %s", (nom,))
             self.set_list[setid] = set_mdl.objects.create(
                 name=nom, budget=budget, revenue_account=convert_code(imputation_produit))
             if analytique in self.old_db.objectlinks['costaccounting'].keys():
@@ -72,7 +74,7 @@ class CondominiumMigrate(MigrateAbstract):
             "SELECT DISTINCT tiers FROM fr_sdlibre_copropriete_partition")
         for tiers, in cur_o.fetchall():
             if tiers in self.old_db.objectlinks['third'].keys():
-                self.print_log("=> OWNER %s", (tiers,))
+                self.print_debug("=> OWNER %s", (tiers,))
                 self.owner_list[tiers] = owner_mdl.objects.create(
                     third=self.old_db.objectlinks['third'][tiers])
         cur_p = self.old_db.open()
@@ -80,7 +82,7 @@ class CondominiumMigrate(MigrateAbstract):
             "SELECT id,   tiers,ensemble,part FROM fr_sdlibre_copropriete_partition")
         for partid, tiers, ensemble, part in cur_p.fetchall():
             if (tiers in self.owner_list.keys()) and (ensemble in self.set_list.keys()):
-                self.print_log(
+                self.print_debug(
                     "=> PARTITION %s,%s=>%s", (tiers, ensemble, part))
                 self.partition_list[partid] = partition_mdl.objects.get(
                     set=self.set_list[ensemble], owner=self.owner_list[tiers])
@@ -100,7 +102,7 @@ class CondominiumMigrate(MigrateAbstract):
             "SELECT id, etat,num,date,tiers,comment  FROM fr_sdlibre_copropriete_justifs WHERE type=0")
         for callid, etat, num, date, tiers, comment in cur_f.fetchall():
             if tiers in self.owner_list.keys():
-                self.print_log(
+                self.print_debug(
                     "=> call of funds owner:%s - date=%s", (tiers, date))
                 self.callfunds_list[callid] = callfunds_mdl.objects.create(
                     status=etat, num=num, date=date, owner=self.owner_list[tiers], comment=comment)
@@ -127,7 +129,7 @@ class CondominiumMigrate(MigrateAbstract):
             "SELECT id, etat,num,date,tiers,comment,operations  FROM fr_sdlibre_copropriete_justifs WHERE type=1")
         for expenseid, etat, num, date, tiers, comment, operation in cur_e.fetchall():
             if tiers in self.old_db.objectlinks['third'].keys():
-                self.print_log(
+                self.print_debug(
                     "=> expense third:%s - date=%s", (tiers, date))
                 self.expense_list[expenseid] = expense_mdl.objects.create(
                     status=etat, num=num, date=date, third=self.old_db.objectlinks['third'][tiers], comment=comment)
@@ -165,7 +167,7 @@ class CondominiumMigrate(MigrateAbstract):
             elif justifs in self.expense_list.keys():
                 supporting = self.expense_list[justifs]
             if supporting is not None:
-                self.print_log(
+                self.print_debug(
                     "=> payoff owner:%s - date=%s - amount=%.2f", (tiers, date, montant))
                 self.payoff_list[payoffid] = payoff_mdl.objects.create(
                     supporting=supporting, date=date, amount=montant, reference=reference)
@@ -206,7 +208,7 @@ class CondominiumMigrate(MigrateAbstract):
                 pname = 'condominium-default-owner-account'
                 param_value = convert_code(param_value)
             if pname != '':
-                self.print_log(
+                self.print_debug(
                     "=> parameter of invoice %s - %s", (pname, param_value))
                 Parameter.change_value(pname, param_value)
 
@@ -221,3 +223,7 @@ class CondominiumMigrate(MigrateAbstract):
             import traceback
             traceback.print_exc()
             six.print_("*** Unexpected error: %s ****" % sys.exc_info()[0])
+        self.print_info("Nb owners:%d", len(self.owner_list))
+        self.print_info("Nb sets:%d", len(self.set_list))
+        self.print_info("Nb calls of funds:%d", len(self.callfunds_list))
+        self.print_info("Nb expenses:%d", len(self.expense_list))
