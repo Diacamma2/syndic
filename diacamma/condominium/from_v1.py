@@ -134,11 +134,12 @@ class CondominiumMigrate(MigrateAbstract):
                 self.expense_list[expenseid] = expense_mdl.objects.create(
                     status=etat, num=num, date=date, third=self.old_db.objectlinks['third'][tiers], comment=comment)
                 entries = []
-                for op_item in operation.split(';'):
-                    op_item = int(op_item)
-                    if op_item in self.old_db.objectlinks['entryaccount'].keys():
-                        entries.append(
-                            self.old_db.objectlinks['entryaccount'][op_item].id)
+                if operation is not None:
+                    for op_item in operation.split(';'):
+                        op_item = int(op_item)
+                        if op_item in self.old_db.objectlinks['entryaccount'].keys():
+                            entries.append(
+                                self.old_db.objectlinks['entryaccount'][op_item].id)
                 self.expense_list[expenseid].entries = entryaccount_mdl.objects.filter(
                     id__in=entries)
                 self.expense_list[expenseid].save()
