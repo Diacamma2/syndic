@@ -32,7 +32,7 @@ from lucterios.framework.xferadvance import XferAddEditor
 from lucterios.framework.xferadvance import XferShowEditor
 from lucterios.framework.xferadvance import XferDelete
 from lucterios.framework.tools import FORMTYPE_NOMODAL, ActionsManage, MenuManage,\
-    FORMTYPE_MODAL, CLOSE_NO, FORMTYPE_REFRESH, WrapAction
+    FORMTYPE_MODAL, CLOSE_NO, FORMTYPE_REFRESH, WrapAction, get_icon_path
 from lucterios.framework.xfercomponents import XferCompLabelForm, XferCompImage,\
     XferCompButton, XferCompDate
 from lucterios.framework.xfergraphic import XferContainerCustom
@@ -76,7 +76,8 @@ class SetOwnerList(XferListEditor):
     def fillownerlist(self):
         row = self.get_max_row()
         img = XferCompImage('imgowner')
-        img.set_value("diacamma.condominium/images/owner.png")
+        img.set_value(
+            get_icon_path(icon_path="diacamma.condominium/images/owner.png"))
         img.set_location(0, row + 1)
         self.add_component(img)
         lbl = XferCompLabelForm('titleowner')
