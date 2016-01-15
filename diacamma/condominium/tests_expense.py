@@ -230,7 +230,7 @@ class ExpenseTest(LucteriosTest):
         self.assert_count_equal(
             'COMPONENTS/GRID[@name="entrylineaccount"]/RECORD', 0)
         self.assert_xml_equal(
-            "COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit:{[/b]} 0.00€ - {[b]}Charge:{[/b]} 0.00€ = {[b]}Resultat:{[/b]} 0.00€ | {[b]}Trésorie:{[/b]} 0.00€ - {[b]}Validé:{[/b]} 0.00€{[/center]}')
+            "COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit:{[/b]} 0.00€ - {[b]}Charge:{[/b]} 0.00€ = {[b]}Résultat:{[/b]} 0.00€ | {[b]}Trésorie:{[/b]} 0.00€ - {[b]}Validé:{[/b]} 0.00€{[/center]}')
 
         self.factory.xfer = ExpenseValid()
         self.call(
@@ -246,7 +246,7 @@ class ExpenseTest(LucteriosTest):
         self.assert_count_equal(
             'COMPONENTS/GRID[@name="entrylineaccount"]/RECORD', 4 + 4 + 3)
         self.assert_xml_equal(
-            "COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit:{[/b]} 180.00€ - {[b]}Charge:{[/b]} 180.00€ = {[b]}Resultat:{[/b]} 0.00€ | {[b]}Trésorie:{[/b]} 0.00€ - {[b]}Validé:{[/b]} 0.00€{[/center]}')
+            "COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit:{[/b]} 180.00€ - {[b]}Charge:{[/b]} 180.00€ = {[b]}Résultat:{[/b]} 0.00€ | {[b]}Trésorie:{[/b]} 0.00€ - {[b]}Validé:{[/b]} 0.00€{[/center]}')
 
         self.factory.xfer = ExpenseDel()
         self.call(
