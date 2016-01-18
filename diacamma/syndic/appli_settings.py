@@ -41,7 +41,8 @@ def get_subtitle():
 APPLIS_NAME = diacamma.syndic.__title__()
 APPLIS_VERSION = diacamma.syndic.__version__
 APPLI_EMAIL = "support@diacamma.org"
-APPLIS_LOGO_NAME = join(dirname(__file__), "Diacamma.png")
-APPLIS_FAVICON = join(dirname(__file__), "Diacamma.ico")
+APPLIS_LOGO_NAME = join(dirname(__file__), "DiacammaSyndic.png")
+APPLIS_FAVICON = join(dirname(__file__), "DiacammaSyndic.ico")
+APPLIS_BACKGROUND_NAME = join(dirname(__file__), "fond.jpg")
 APPLIS_COPYRIGHT = _("(c) GPL Licence")
 APPLIS_SUBTITLE = get_subtitle
