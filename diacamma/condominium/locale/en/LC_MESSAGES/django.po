@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-01-08 15:53+0000\n"
+"POT-Creation-Date: 2016-01-21 16:52+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -25,25 +25,13 @@ msgstr "Diacamma condominium"
 msgid "third"
 msgstr "third"
 
-#: editors.py:91 views.py:266
+#: editors.py:91 views.py:267
 msgid "show"
 msgstr "show"
 
 #: editors.py:100 views_callfunds.py:47 views_expense.py:46
 msgid "Edit"
 msgstr "Edit"
-
-#: help/01_sets_owners.html:2
-msgid "01_sets_owners.html"
-msgstr "Set and owners"
-
-#: help/02_calloffunds.html:2
-msgid "02_calloffunds.html"
-msgstr "Call of funds"
-
-#: help/03_expenses.html:2
-msgid "03_expenses.html"
-msgstr "Expenses"
 
 #: migrations/0001_initial.py:16
 msgid "condominium-frequency"
@@ -71,7 +59,7 @@ msgid "call of funds"
 msgstr "call of funds"
 
 #: migrations/0001_initial.py:109 models.py:88 models.py:220 models.py:338
-#: models.py:545 views.py:221
+#: models.py:545 views.py:222
 msgid "set"
 msgstr "set"
 
@@ -88,11 +76,11 @@ msgstr "price"
 msgid "situation at #owner.date_current"
 msgstr "situation at #owner.date_current"
 
-#: migrations/0001_initial.py:113 models.py:135 models.py:143 views.py:259
+#: migrations/0001_initial.py:113 models.py:135 models.py:143 views.py:260
 msgid "initial state"
 msgstr "initial state"
 
-#: migrations/0001_initial.py:114 models.py:135 models.py:143 views.py:260
+#: migrations/0001_initial.py:114 models.py:135 models.py:143 views.py:261
 msgid "total call for funds"
 msgstr "total call for funds"
 
@@ -100,7 +88,7 @@ msgstr "total call for funds"
 msgid "total payed"
 msgstr "total payed"
 
-#: migrations/0001_initial.py:116 models.py:135 models.py:143 views.py:260
+#: migrations/0001_initial.py:116 models.py:135 models.py:143 views.py:261
 msgid "total estimate"
 msgstr "total estimate"
 
@@ -145,7 +133,7 @@ msgstr "total ventilated"
 msgid "total real"
 msgstr "total real"
 
-#: models.py:214 models.py:222 models.py:256 views.py:83
+#: models.py:214 models.py:222 models.py:256 views.py:84
 msgid "owner"
 msgstr "owner"
 
@@ -283,71 +271,71 @@ msgstr "Manage of sets and owners"
 msgid "sets and owners"
 msgstr "sets and owners"
 
-#: views.py:93 views.py:199 views_callfunds.py:49 views_callfunds.py:79
+#: views.py:94 views.py:200 views_callfunds.py:49 views_callfunds.py:79
 msgid "Print"
 msgstr "Print"
 
-#: views.py:94 views.py:200
+#: views.py:95 views.py:201
 msgid "Close"
 msgstr "Close"
 
-#: views.py:99
+#: views.py:100
 msgid "Print sets and owners"
 msgstr "Print sets and owners"
 
-#: views.py:113
+#: views.py:114
 msgid "Add set"
 msgstr "Add set"
 
-#: views.py:114
+#: views.py:115
 msgid "Modify set"
 msgstr "Modify set"
 
-#: views.py:124
+#: views.py:125
 msgid "Show set"
 msgstr "Show set"
 
-#: views.py:133
+#: views.py:134
 msgid "Delete set"
 msgstr "Delete set"
 
-#: views.py:142
+#: views.py:143
 msgid "Modify partition"
 msgstr "Modify partition"
 
-#: views.py:151
+#: views.py:152
 msgid "Add owner"
 msgstr "Add owner"
 
-#: views.py:161
+#: views.py:162
 msgid "Delete owner"
 msgstr "Delete owner"
 
-#: views.py:170
+#: views.py:171
 msgid "Show owner"
 msgstr "Show owner"
 
-#: views.py:175
+#: views.py:176
 msgid "initial date"
 msgstr "initial date"
 
-#: views.py:186
+#: views.py:187
 msgid "current date"
 msgstr "current date"
 
-#: views.py:205
+#: views.py:206
 msgid "Print owner"
 msgstr "Print owner"
 
-#: views.py:223
+#: views.py:224
 msgid "parameters"
 msgstr "parameters"
 
-#: views.py:226 views.py:235 views.py:256
+#: views.py:227 views.py:236 views.py:257
 msgid "Condominium"
 msgstr "Condominium"
 
-#: views.py:242
+#: views.py:243
 #, python-format
 msgid "There are %(set)d sets for %(owner)d owners"
 msgstr "There are %(set)d sets for %(owner)d owners"
@@ -460,3 +448,12 @@ msgstr "Add detail of expense"
 #: views_expense.py:131
 msgid "Delete detail of expense"
 msgstr "Delete detail of expense"
+
+#~ msgid "01_sets_owners.html"
+#~ msgstr "Set and owners"
+
+#~ msgid "02_calloffunds.html"
+#~ msgstr "Call of funds"
+
+#~ msgid "03_expenses.html"
+#~ msgstr "Expenses"
