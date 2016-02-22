@@ -42,7 +42,8 @@ from lucterios.CORE.parameters import Params
 from lucterios.CORE.views import ParamEdit
 from lucterios.CORE.xferprint import XferPrintAction
 
-from diacamma.condominium.models import Set, Partition, Owner
+from diacamma.accounting.tools import correct_accounting_code
+from diacamma.condominium.models import Set, Partition, Owner, ExpenseDetail
 
 
 @MenuManage.describ('CORE.change_parameter', FORMTYPE_MODAL, 'contact.conf', _('Management of parameters of condominium'))
@@ -268,3 +269,21 @@ def thirdaddon_condo(item, xfer):
             xfer.add_component(btn)
         except ObjectDoesNotExist:
             pass
+
+
+@signal_and_lock.Signal.decorate('param_change')
+def paramchange_condominium(params):
+    if 'accounting-sizecode' in params:
+        Parameter.change_value('condominium-default-owner-account', correct_accounting_code(
+            Params.getvalue('condominium-default-owner-account')))
+        Params.clear()
+        for set_item in Set.objects.all():
+            if set_item.revenue_account != correct_accounting_code(set_item.revenue_account):
+                set_item.revenue_account = correct_accounting_code(
+                    set_item.revenue_account)
+                set_item.save()
+        for exp_item in ExpenseDetail.objects.filter(expense__status=0):
+            if exp_item.expense_account != correct_accounting_code(exp_item.expense_account):
+                exp_item.expense_account = correct_accounting_code(
+                    exp_item.expense_account)
+                exp_item.save()
