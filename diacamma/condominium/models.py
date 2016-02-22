@@ -38,7 +38,7 @@ from lucterios.framework.error import LucteriosException, IMPORTANT, GRAVE
 from diacamma.accounting.models import CostAccounting, EntryAccount, Journal,\
     ChartsAccount, EntryLineAccount, FiscalYear
 from diacamma.accounting.tools import format_devise, currency_round,\
-    current_system_account, get_amount_sum
+    current_system_account, get_amount_sum, correct_accounting_code
 from diacamma.payoff.models import Supporting
 
 
@@ -83,6 +83,10 @@ class Set(LucteriosModel):
             return total['sum']
         else:
             return 0
+
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+        self.revenue_account = correct_accounting_code(self.revenue_account)
+        return LucteriosModel.save(self, force_insert=force_insert, force_update=force_update, using=using, update_fields=update_fields)
 
     class Meta(object):
         verbose_name = _('set')
@@ -560,6 +564,10 @@ class ExpenseDetail(LucteriosModel):
     @property
     def price_txt(self):
         return format_devise(self.price, 5)
+
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+        self.expense_account = correct_accounting_code(self.expense_account)
+        return LucteriosModel.save(self, force_insert=force_insert, force_update=force_update, using=using, update_fields=update_fields)
 
     class Meta(object):
         verbose_name = _('detail of expense')

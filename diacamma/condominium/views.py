@@ -274,9 +274,6 @@ def thirdaddon_condo(item, xfer):
 @signal_and_lock.Signal.decorate('param_change')
 def paramchange_condominium(params):
     if 'accounting-sizecode' in params:
-        Parameter.change_value('condominium-default-owner-account', correct_accounting_code(
-            Params.getvalue('condominium-default-owner-account')))
-        Params.clear()
         for set_item in Set.objects.all():
             if set_item.revenue_account != correct_accounting_code(set_item.revenue_account):
                 set_item.revenue_account = correct_accounting_code(
@@ -287,3 +284,7 @@ def paramchange_condominium(params):
                 exp_item.expense_account = correct_accounting_code(
                     exp_item.expense_account)
                 exp_item.save()
+    if ('condominium-default-owner-account' in params) or ('accounting-sizecode' in params):
+        Parameter.change_value('condominium-default-owner-account', correct_accounting_code(
+            Params.getvalue('condominium-default-owner-account')))
+        Params.clear()
