@@ -35,8 +35,9 @@ from diacamma.condominium.test_tools import default_setowner
 from diacamma.condominium.views_expense import ExpenseList,\
     ExpenseAddModify, ExpenseDel, ExpenseShow, ExpenseDetailAddModify,\
     ExpenseValid, ExpenseClose
-from diacamma.payoff.views import SupportingThirdValid
+from diacamma.payoff.views import SupportingThirdValid, PayoffAddModify
 from diacamma.accounting.views_entries import EntryLineAccountList
+from diacamma.accounting.views import ThirdShow
 
 
 class ExpenseTest(LucteriosTest):
@@ -307,3 +308,76 @@ class ExpenseTest(LucteriosTest):
         self.assert_observer(
             'core.custom', 'diacamma.condominium', 'expenseList')
         self.assert_count_equal('COMPONENTS/GRID[@name="expense"]/RECORD', 0)
+
+    def test_payoff(self):
+        self.factory.xfer = ExpenseAddModify()
+        self.call(
+            '/diacamma.condominium/expenseAddModify', {'SAVE': 'YES', 'expensetype': 0, "date": '2015-06-10', "comment": 'abc 123'}, False)
+        self.assert_observer(
+            'core.acknowledge', 'diacamma.condominium', 'expenseAddModify')
+        self.factory.xfer = SupportingThirdValid()
+        self.call('/diacamma.payoff/supportingThirdValid',
+                  {'supporting': 4, 'third': 3}, False)
+        self.assert_observer(
+            'core.acknowledge', 'diacamma.payoff', 'supportingThirdValid')
+        self.factory.xfer = ExpenseDetailAddModify()
+        self.call(
+            '/diacamma.condominium/expenseDetailAddModify', {'SAVE': 'YES', 'expense': 4, 'set': 1, 'price': '150.00', 'comment': 'set 1', 'expense_account': '604'}, False)
+        self.assert_observer(
+            'core.acknowledge', 'diacamma.condominium', 'expenseDetailAddModify')
+        self.factory.xfer = ExpenseDetailAddModify()
+        self.call(
+            '/diacamma.condominium/expenseDetailAddModify', {'SAVE': 'YES', 'expense': 4, 'set': 2, 'price': '30.00', 'comment': 'set 2', 'expense_account': '627'}, False)
+        self.assert_observer(
+            'core.acknowledge', 'diacamma.condominium', 'expenseDetailAddModify')
+        self.factory.xfer = ExpenseShow()
+        self.call(
+            '/diacamma.condominium/expenseShow', {'expense': 4}, False)
+        self.assert_observer(
+            'core.custom', 'diacamma.condominium', 'expenseShow')
+        self.assert_count_equal(
+            'COMPONENTS/GRID[@name="expensedetail"]/RECORD', 2)
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="total"]', '180.00€')
+
+        self.factory.xfer = ThirdShow()
+        self.call('/diacamma.accounting/thirdShow', {"third": 3}, False)
+        self.assert_observer('core.custom', 'diacamma.accounting', 'thirdShow')
+        self.assert_xml_equal(
+            'COMPONENTS/LABELFORM[@name="contact"]', 'Luke Lucky')
+        self.assert_count_equal(
+            'COMPONENTS/GRID[@name="accountthird"]/RECORD', 2)
+        self.assert_xml_equal(
+            'COMPONENTS/GRID[@name="accountthird"]/RECORD[1]/VALUE[@name="code"]', '411')
+        self.assert_xml_equal(
+            'COMPONENTS/GRID[@name="accountthird"]/RECORD[1]/VALUE[@name="total_txt"]', '{[font color="green"]}Crédit: 0.00€{[/font]}')
+        self.assert_xml_equal(
+            'COMPONENTS/GRID[@name="accountthird"]/RECORD[2]/VALUE[@name="code"]', '401')
+        self.assert_xml_equal(
+            'COMPONENTS/GRID[@name="accountthird"]/RECORD[2]/VALUE[@name="total_txt"]', '{[font color="green"]}Crédit: 0.00€{[/font]}')
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="total"]', '0.00€')
+
+        self.factory.xfer = ExpenseValid()
+        self.call(
+            '/diacamma.condominium/expenseValid', {'CONFIRME': 'YES', 'expense': 4}, False)
+        self.assert_observer(
+            'core.acknowledge', 'diacamma.condominium', 'expenseValid')
+
+        self.factory.xfer = ThirdShow()
+        self.call('/diacamma.accounting/thirdShow', {"third": 3}, False)
+        self.assert_observer('core.custom', 'diacamma.accounting', 'thirdShow')
+        self.assert_xml_equal(
+            'COMPONENTS/GRID[@name="accountthird"]/RECORD[2]/VALUE[@name="total_txt"]', '{[font color="green"]}Crédit: 180.00€{[/font]}')
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="total"]', '180.00€')
+
+        self.factory.xfer = PayoffAddModify()
+        self.call(
+            '/diacamma.payoff/payoffAddModify', {'SAVE': 'YES', 'supporting': 4, 'amount': '180.0', 'payer': "Nous", 'date': '2015-04-03', 'mode': 0, 'reference': 'abc', 'bank_account': 0}, False)
+        self.assert_observer(
+            'core.acknowledge', 'diacamma.payoff', 'payoffAddModify')
+
+        self.factory.xfer = ThirdShow()
+        self.call('/diacamma.accounting/thirdShow', {"third": 3}, False)
+        self.assert_observer('core.custom', 'diacamma.accounting', 'thirdShow')
+        self.assert_xml_equal(
+            'COMPONENTS/GRID[@name="accountthird"]/RECORD[2]/VALUE[@name="total_txt"]', '{[font color="green"]}Crédit: 0.00€{[/font]}')
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="total"]', '0.00€')
