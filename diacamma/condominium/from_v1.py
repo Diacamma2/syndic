@@ -132,7 +132,7 @@ class CondominiumMigrate(MigrateAbstract):
                 self.print_debug(
                     "=> expense third:%s - date=%s", (tiers, date))
                 self.expense_list[expenseid] = expense_mdl.objects.create(
-                    status=etat, num=num, date=date, third=self.old_db.objectlinks['third'][tiers], comment=comment)
+                    status=etat, num=num, date=date, third=self.old_db.objectlinks['third'][tiers], comment=comment, expensetype=0, is_revenu=False)
                 entries = []
                 if operation is not None:
                     for op_item in operation.split(';'):
