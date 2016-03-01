@@ -173,4 +173,5 @@ class ExpenseDetailEditor(LucteriosEditor):
         for item in FiscalYear.get_current().chartsaccount_set.all().filter(code__regex=current_system_account().get_expence_mask()).order_by('code'):
             sel_account.select_list.append(
                 (item.code, six.text_type(item)))
+        sel_account.set_value(self.item.expense_account)
         xfer.add_component(sel_account)

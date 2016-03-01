@@ -14,6 +14,7 @@ from lucterios.framework.xfercomponents import XferCompLabelForm, XferCompSelect
 from lucterios.framework.xfergraphic import XferContainerAcknowledge
 
 from diacamma.condominium.models import Expense, ExpenseDetail
+from diacamma.accounting.models import FiscalYear
 
 
 @ActionsManage.affect('Expense', 'list')
@@ -26,8 +27,9 @@ class ExpenseList(XferListEditor):
 
     def fillresponse_header(self):
         status_filter = self.getparam('status_filter', 0)
+        date_filter = self.getparam('date_filter', 0)
         self.fieldnames = Expense.get_default_fields(status_filter)
-        lbl = XferCompLabelForm('lbl_filter')
+        lbl = XferCompLabelForm('lbl_status_filter')
         lbl.set_value_as_name(_('Filter by type'))
         lbl.set_location(0, 3)
         self.add_component(lbl)
@@ -40,7 +42,25 @@ class ExpenseList(XferListEditor):
         edt.set_action(self.request, self.get_action(),
                        {'modal': FORMTYPE_REFRESH, 'close': CLOSE_NO})
         self.add_component(edt)
+
+        lbl = XferCompLabelForm('lbl_date_filter')
+        lbl.set_value_as_name(_('Filter by date'))
+        lbl.set_location(0, 4)
+        self.add_component(lbl)
+        edt = XferCompSelect("date_filter")
+        edt.set_select(
+            [(0, _('only current fiscal year')), (1, _('all expenses'))])
+        edt.set_value(date_filter)
+        edt.set_location(1, 4)
+        edt.set_action(self.request, self.get_action(),
+                       {'modal': FORMTYPE_REFRESH, 'close': CLOSE_NO})
+        self.add_component(edt)
+
         self.filter = Q(status=status_filter)
+        if date_filter == 0:
+            current_year = FiscalYear.get_current()
+            self.filter &= Q(date__gte=current_year.begin) & Q(
+                date__lte=current_year.end)
         if status_filter > 0:
             self.action_grid = [
                 ('show', _("Edit"), "images/show.png", SELECT_SINGLE)]

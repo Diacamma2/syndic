@@ -540,6 +540,7 @@ class Expense(Supporting):
     class Meta(object):
         verbose_name = _('expense')
         verbose_name_plural = _('expenses')
+        ordering = ['-date']
 
 
 class ExpenseDetail(LucteriosModel):
