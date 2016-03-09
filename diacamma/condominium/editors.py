@@ -98,15 +98,19 @@ class OwnerEditor(SupportingEditor):
         callfunds.actions = []
         callfunds.add_actions(
             xfer, action_list=[('show', _("Edit"), "images/show.png", SELECT_SINGLE)])
+        lbl = XferCompLabelForm('sep')
+        lbl.set_location(1, xfer.get_max_row() + 1)
+        lbl.set_value("{[br/]}")
+        xfer.add_component(lbl)
         SupportingEditor.show(self, xfer)
         xfer.remove_component('lbl_total_rest_topay')
         xfer.remove_component('total_rest_topay')
-        xfer.move_components('lbl_total_ventilated', 0, 3)
-        xfer.move_components('total_ventilated', 0, 3)
-        xfer.move_components('lbl_total_estimate', 0, 5)
-        xfer.move_components('total_estimate', 0, 5)
-        xfer.move_components('lbl_total_real', 0, 5)
-        xfer.move_components('total_real', 0, 5)
+        xfer.move_components('lbl_total_ventilated', 0, 4)
+        xfer.move_components('total_ventilated', 0, 4)
+        xfer.move_components('lbl_total_estimate', 0, 6)
+        xfer.move_components('total_estimate', 0, 6)
+        xfer.move_components('lbl_total_real', 0, 6)
+        xfer.move_components('total_real', 0, 6)
 
 
 class PartitionEditor(LucteriosEditor):
