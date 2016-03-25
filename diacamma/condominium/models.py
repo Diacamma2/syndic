@@ -34,6 +34,7 @@ from django.utils import six, formats
 
 from lucterios.framework.models import LucteriosModel, get_value_converted
 from lucterios.framework.error import LucteriosException, IMPORTANT, GRAVE
+from lucterios.framework.tools import convert_date
 
 from diacamma.accounting.models import CostAccounting, EntryAccount, Journal,\
     ChartsAccount, EntryLineAccount, FiscalYear
@@ -50,12 +51,29 @@ class Set(LucteriosModel):
     cost_accounting = models.ForeignKey(
         CostAccounting, verbose_name=_('cost accounting'), null=True, default=None, db_index=True, on_delete=models.PROTECT)
 
+    def __init__(self, *args, **kwargs):
+        LucteriosModel.__init__(self, *args, **kwargs)
+        self.date_begin = None
+        self.date_end = None
+
+    def set_dates(self, begin_date=None, end_date=None):
+        if begin_date is None:
+            self.date_begin = six.text_type(FiscalYear.get_current().begin)
+        else:
+            self.date_begin = begin_date
+        if end_date is None:
+            self.date_end = six.text_type(FiscalYear.get_current().end)
+        else:
+            self.date_end = end_date
+        if self.date_end < self.date_begin:
+            self.date_end = self.date_begin
+
     def __str__(self):
         return self.name
 
     @classmethod
     def get_default_fields(cls):
-        return ["name", (_('budget'), "budget_txt"), "revenue_account", 'cost_accounting', 'partition_set']
+        return ["name", (_('budget'), "budget_txt"), "revenue_account", 'cost_accounting', 'partition_set', (_('expense'), 'sumexpense_txt')]
 
     @classmethod
     def get_edit_fields(cls):
@@ -63,7 +81,7 @@ class Set(LucteriosModel):
 
     @classmethod
     def get_show_fields(cls):
-        return [("name", (_('budget'), "budget_txt")), ("revenue_account", 'cost_accounting'), 'partition_set', ((_('partition sum'), 'total_part'),)]
+        return [("name", (_('budget'), "budget_txt")), ("revenue_account", 'cost_accounting'), 'partition_set', ((_('partition sum'), 'total_part'), (_('expense'), 'sumexpense_txt'))]
 
     def _do_insert(self, manager, using, fields, update_pk, raw):
         new_id = LucteriosModel._do_insert(
@@ -83,6 +101,22 @@ class Set(LucteriosModel):
             return total['sum']
         else:
             return 0
+
+    def get_expenselist(self):
+        if self.date_begin is None:
+            self.set_dates()
+        return self.expensedetail_set.filter(expense__date__gte=self.date_begin, expense__date__lte=self.date_end)
+
+    def get_sumexpense(self):
+        total = self.get_expenselist().aggregate(sum=Sum('price'))
+        if 'sum' in total.keys():
+            return total['sum']
+        else:
+            return 0
+
+    @property
+    def sumexpense_txt(self):
+        return format_devise(self.get_sumexpense(), 5)
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         self.revenue_account = correct_accounting_code(self.revenue_account)
@@ -136,7 +170,7 @@ class Owner(Supporting):
 
     @classmethod
     def get_default_fields(cls):
-        return ["third", (_('initial state'), 'total_initial'), (_('total call for funds'), 'total_call'), (_('total payoff'), 'total_payed'), (_('total ventilated'), 'total_ventilated'), (_('total estimate'), 'total_estimate'), (_('total real'), 'total_real')]
+        return ["third", (_('total call for funds'), 'total_call'), (_('total estimate'), 'total_estimate'), (_('initial state'), 'total_initial'), (_('total payoff'), 'total_payed'), (_('total ventilated'), 'total_ventilated'), (_('total real'), 'total_real')]
 
     @classmethod
     def get_edit_fields(cls):
@@ -144,7 +178,7 @@ class Owner(Supporting):
 
     @classmethod
     def get_show_fields(cls):
-        return ["third", 'partition_set', ((_('initial state'), 'total_initial'),), 'callfunds_set', ((_('total call for funds'), 'total_call'), (_('total ventilated'), 'total_ventilated')), ((_('total estimate'), 'total_estimate'), (_('total real'), 'total_real'))]
+        return ["third", 'callfunds_set', ((_('total call for funds'), 'total_call'), (_('total estimate'), 'total_estimate')), 'partition_set', ((_('initial state'), 'total_initial'), (_('total ventilated'), 'total_ventilated')), ((_('total real'), 'total_real'),)]
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         is_new = self.id is None
@@ -232,7 +266,7 @@ class Partition(LucteriosModel):
 
     @classmethod
     def get_default_fields(cls):
-        return ["set", "owner", "value", (_("ratio"), 'ratio')]
+        return ["set", "set.budget", (_('expense'), 'set.sumexpense_txt'), "owner", "value", (_("ratio"), 'ratio'), (_('ventilated'), 'ventilated_txt')]
 
     @classmethod
     def get_edit_fields(cls):
@@ -244,6 +278,23 @@ class Partition(LucteriosModel):
             return 0.0
         else:
             return float(100 * self.value / total)
+
+    def set_context(self, xfer):
+        if xfer is not None:
+            self.set.set_dates(convert_date(xfer.getparam("begin_date")), convert_date(
+                xfer.getparam("end_date")))
+
+    def get_ventilated(self):
+        value = 0
+        ratio = self.get_ratio()
+        if abs(ratio) > 0.01:
+            for expense in self.set.get_expenselist():
+                value += currency_round(float(expense.price) * ratio / 100.00)
+        return value
+
+    @property
+    def ventilated_txt(self):
+        return format_devise(self.get_ventilated(), 5)
 
     @property
     def ratio(self):

@@ -51,6 +51,8 @@ class SetEditor(LucteriosEditor):
     def show(self, xfer):
         partition = xfer.get_components('partition')
         partition.delete_header('set')
+        partition.delete_header('set.budget')
+        partition.delete_header('set.sumexpense_txt')
 
 
 class OwnerEditor(SupportingEditor):
@@ -105,12 +107,10 @@ class OwnerEditor(SupportingEditor):
         SupportingEditor.show(self, xfer)
         xfer.remove_component('lbl_total_rest_topay')
         xfer.remove_component('total_rest_topay')
-        xfer.move_components('lbl_total_ventilated', 0, 4)
-        xfer.move_components('total_ventilated', 0, 4)
-        xfer.move_components('lbl_total_estimate', 0, 6)
-        xfer.move_components('total_estimate', 0, 6)
-        xfer.move_components('lbl_total_real', 0, 6)
-        xfer.move_components('total_real', 0, 6)
+        xfer.move_components('lbl_total_payed', 0, 1)
+        xfer.move_components('total_payed', 0, 1)
+        xfer.move_components('lbl_total_real', 2, 4)
+        xfer.move_components('total_real', 2, 4)
 
 
 class PartitionEditor(LucteriosEditor):

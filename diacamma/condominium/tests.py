@@ -54,7 +54,7 @@ class SetOwnerTest(LucteriosTest):
         self.assert_observer(
             'core.custom', 'diacamma.condominium', 'setOwnerList')
         self.assert_count_equal('COMPONENTS/GRID[@name="set"]/RECORD', 0)
-        self.assert_count_equal('COMPONENTS/GRID[@name="set"]/HEADER', 5)
+        self.assert_count_equal('COMPONENTS/GRID[@name="set"]/HEADER', 6)
 
         self.factory.xfer = SetAddModify()
         self.call('/diacamma.condominium/setAddModify', {}, False)
@@ -75,7 +75,7 @@ class SetOwnerTest(LucteriosTest):
         self.assert_observer(
             'core.custom', 'diacamma.condominium', 'setOwnerList')
         self.assert_count_equal('COMPONENTS/GRID[@name="set"]/RECORD', 1)
-        self.assert_count_equal('COMPONENTS/GRID[@name="set"]/HEADER', 5)
+        self.assert_count_equal('COMPONENTS/GRID[@name="set"]/HEADER', 6)
         self.assert_xml_equal(
             'COMPONENTS/GRID[@name="set"]/RECORD[1]/VALUE[@name="name"]', 'abc123')
         self.assert_xml_equal(
@@ -86,6 +86,8 @@ class SetOwnerTest(LucteriosTest):
             'COMPONENTS/GRID[@name="set"]/RECORD[1]/VALUE[@name="cost_accounting"]', 'open')
         self.assert_xml_equal(
             'COMPONENTS/GRID[@name="set"]/RECORD[1]/VALUE[@name="partition_set"]', None)
+        self.assert_xml_equal(
+            'COMPONENTS/GRID[@name="set"]/RECORD[1]/VALUE[@name="sumexpense_txt"]', "0.00€")
 
         self.factory.xfer = SetDel()
         self.call('/diacamma.condominium/setDel',
@@ -98,7 +100,7 @@ class SetOwnerTest(LucteriosTest):
         self.assert_observer(
             'core.custom', 'diacamma.condominium', 'setOwnerList')
         self.assert_count_equal('COMPONENTS/GRID[@name="set"]/RECORD', 0)
-        self.assert_count_equal('COMPONENTS/GRID[@name="set"]/HEADER', 5)
+        self.assert_count_equal('COMPONENTS/GRID[@name="set"]/HEADER', 6)
 
     def test_add_owner(self):
         self.factory.xfer = SetOwnerList()
@@ -190,7 +192,7 @@ class SetOwnerTest(LucteriosTest):
         self.assert_observer(
             'core.custom', 'diacamma.condominium', 'setOwnerList')
         self.assert_count_equal('COMPONENTS/GRID[@name="set"]/RECORD', 0)
-        self.assert_count_equal('COMPONENTS/GRID[@name="set"]/HEADER', 5)
+        self.assert_count_equal('COMPONENTS/GRID[@name="set"]/HEADER', 6)
         self.assert_count_equal('COMPONENTS/GRID[@name="owner"]/RECORD', 0)
         self.assert_count_equal('COMPONENTS/GRID[@name="owner"]/HEADER', 7)
 
@@ -237,6 +239,8 @@ class SetOwnerTest(LucteriosTest):
         self.assert_xml_equal(
             'COMPONENTS/GRID[@name="set"]/RECORD[1]/VALUE[@name="partition_set"]', "Minimum : 0.0 %{[br/]}Dalton William : 0.0 %{[br/]}Dalton Joe : 0.0 %")
         self.assert_xml_equal(
+            'COMPONENTS/GRID[@name="set"]/RECORD[1]/VALUE[@name="sumexpense_txt"]', "0.00€")
+        self.assert_xml_equal(
             'COMPONENTS/GRID[@name="set"]/RECORD[2]/VALUE[@name="name"]', 'BBB')
         self.assert_xml_equal(
             'COMPONENTS/GRID[@name="set"]/RECORD[2]/VALUE[@name="budget_txt"]', '200.00€')
@@ -246,6 +250,8 @@ class SetOwnerTest(LucteriosTest):
             'COMPONENTS/GRID[@name="set"]/RECORD[2]/VALUE[@name="cost_accounting"]', '---')
         self.assert_xml_equal(
             'COMPONENTS/GRID[@name="set"]/RECORD[2]/VALUE[@name="partition_set"]', "Minimum : 0.0 %{[br/]}Dalton William : 0.0 %{[br/]}Dalton Joe : 0.0 %")
+        self.assert_xml_equal(
+            'COMPONENTS/GRID[@name="set"]/RECORD[2]/VALUE[@name="sumexpense_txt"]', "0.00€")
 
         self.factory.xfer = OwnerDel()
         self.call('/diacamma.condominium/ownerDel',
@@ -290,9 +296,9 @@ class SetOwnerTest(LucteriosTest):
         self.call('/diacamma.condominium/setShow', {'set': 1}, False)
         self.assert_observer(
             'core.custom', 'diacamma.condominium', 'setShow')
-        self.assert_count_equal('COMPONENTS/*', 13)
+        self.assert_count_equal('COMPONENTS/*', 15)
         self.assert_count_equal('COMPONENTS/GRID[@name="partition"]/RECORD', 3)
-        self.assert_count_equal('COMPONENTS/GRID[@name="partition"]/HEADER', 3)
+        self.assert_count_equal('COMPONENTS/GRID[@name="partition"]/HEADER', 4)
         self.assert_count_equal(
             'COMPONENTS/GRID[@name="partition"]/ACTIONS/ACTION', 1)
         self.assert_xml_equal(
@@ -300,15 +306,23 @@ class SetOwnerTest(LucteriosTest):
         self.assert_xml_equal(
             'COMPONENTS/GRID[@name="partition"]/RECORD[1]/VALUE[@name="ratio"]', '0.0 %')
         self.assert_xml_equal(
+            'COMPONENTS/GRID[@name="partition"]/RECORD[1]/VALUE[@name="ventilated_txt"]', '0.00€')
+        self.assert_xml_equal(
             'COMPONENTS/GRID[@name="partition"]/RECORD[2]/VALUE[@name="value"]', '0.00')
         self.assert_xml_equal(
             'COMPONENTS/GRID[@name="partition"]/RECORD[2]/VALUE[@name="ratio"]', '0.0 %')
+        self.assert_xml_equal(
+            'COMPONENTS/GRID[@name="partition"]/RECORD[2]/VALUE[@name="ventilated_txt"]', '0.00€')
         self.assert_xml_equal(
             'COMPONENTS/GRID[@name="partition"]/RECORD[3]/VALUE[@name="value"]', '0.00')
         self.assert_xml_equal(
             'COMPONENTS/GRID[@name="partition"]/RECORD[3]/VALUE[@name="ratio"]', '0.0 %')
         self.assert_xml_equal(
+            'COMPONENTS/GRID[@name="partition"]/RECORD[2]/VALUE[@name="ventilated_txt"]', '0.00€')
+        self.assert_xml_equal(
             'COMPONENTS/LABELFORM[@name="total_part"]', '0.00')
+        self.assert_xml_equal(
+            'COMPONENTS/LABELFORM[@name="sumexpense_txt"]', "0.00€")
 
         self.factory.xfer = PartitionAddModify()
         self.call(
