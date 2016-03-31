@@ -42,6 +42,10 @@ def printer_model(*args):
 {[b]}#third.contact.str{[/b]}{[br/]}#third.contact.address{[br/]}#third.contact.postal_code #third.contact.city
 </text>
 
+<text height="20.0" width="100.0" top="35.0" left="0.0" padding="1.0" spacing="0.0" border_color="black" border_style="" border_width="0.2" text_align="center" line_height="11" font_family="sans-serif" font_weight="" font_size="11">
+{[b]}%(info)s{[/b]}: #information
+</text>
+
 <table height="30.0" width="150.0" top="50.0" left="20.0" padding="1.0" spacing="0.0" border_color="black" border_style="" border_width="0.2">
     <columns width="10.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
     {[b]}%(num)s{[/b]}
@@ -209,7 +213,7 @@ def printer_model(*args):
 </table>
 
 </body>
-</model>""" % {'title': 'Situation de copropriétaire', 'num': _('numeros'), 'date': _('date'), 'comment': _('comment'), 'total': _('total'),
+</model>""" % {'title': _('Owner situation'), 'info': _('information'), 'num': _('numeros'), 'date': _('date'), 'comment': _('comment'), 'total': _('total'),
                'set': _('set'), 'budget': _('budget'), 'expense': _('expense'), 'value': _('value'), 'ratio': _('ratio'), 'ventilated': _('ventilated'),
                'amount': _('amount'), 'payer': _('payer'), 'mode': _('mode'), 'bank_account': _('bank account'), 'reference': _('reference'),
                'total_call': _('total call for funds'), 'total_estimate': _('total estimate'), 'total_initial': _('initial state'), 'total_ventilated': _('total ventilated'), 'total_payed': _('total payed'), 'total_real': _('total real')}
@@ -235,6 +239,12 @@ class Migration(migrations.Migration):
             name='entry',
             field=models.ForeignKey(
                 null=True, on_delete=django.db.models.deletion.SET_NULL, to='accounting.EntryAccount', verbose_name='entry'),
+        ),
+        migrations.AddField(
+            model_name='owner',
+            name='information',
+            field=models.CharField(
+                default='', max_length=200, null=True, verbose_name='information'),
         ),
         migrations.RunPython(printer_model),
     ]

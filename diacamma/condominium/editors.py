@@ -66,24 +66,30 @@ class OwnerEditor(SupportingEditor):
         return SupportingEditor.before_save(self, xfer)
 
     def edit(self, xfer):
-        lbl = XferCompLabelForm('lbl_third')
-        lbl.set_location(1, 0)
-        lbl.set_value_as_name(_('third'))
-        xfer.add_component(lbl)
+        if xfer.item.id is None:
+            third = xfer.get_components('third')
+            xfer.remove_component('third')
+            xfer.remove_component('lbl_third')
+            lbl = XferCompLabelForm('lbl_third')
+            lbl.set_location(third.col - 1, third.row)
+            lbl.set_value_as_name(_('third'))
+            xfer.add_component(lbl)
 
-        sel = XferCompSelect('third')
-        sel.needed = True
-        sel.set_location(2, 0)
-        items = Third.objects.filter(supporting__owner__isnull=True)
-        items = sorted(items, key=lambda t: six.text_type(t))
-        sel.set_select_query(items)
-        xfer.add_component(sel)
-        btn = XferCompButton('add_third')
-        btn.set_location(3, 0)
-        btn.set_is_mini(True)
-        btn.set_action(xfer.request, ActionsManage.get_act_changed(
-            'Third', 'add', '', "images/add.png"), {"close": CLOSE_NO, "modal": FORMTYPE_MODAL})
-        xfer.add_component(btn)
+            sel = XferCompSelect('third')
+            sel.needed = True
+            sel.set_location(third.col, third.row)
+            items = Third.objects.filter(supporting__owner__isnull=True).distinct()
+            items = sorted(items, key=lambda t: six.text_type(t))
+            sel.set_select_query(items)
+            xfer.add_component(sel)
+            btn = XferCompButton('add_third')
+            btn.set_location(3, 0)
+            btn.set_is_mini(True)
+            btn.set_action(xfer.request, ActionsManage.get_act_changed(
+                'Third', 'add', '', "images/add.png"), {"close": CLOSE_NO, "modal": FORMTYPE_MODAL})
+            xfer.add_component(btn)
+        else:
+            xfer.change_to_readonly('third')
 
     def show(self, xfer):
         third = xfer.get_components('third')

@@ -146,12 +146,21 @@ class PartitionAddModify(XferAddEditor):
 
 @ActionsManage.affect('Owner', 'add')
 @MenuManage.describ('condominium.add_owner')
-class OwnerAddModify(XferAddEditor):
+class OwnerAdd(XferAddEditor):
     icon = "owner.png"
     model = Owner
     field_id = 'owner'
     caption_add = _("Add owner")
     redirect_to_show = False
+
+
+@ActionsManage.affect('Owner', 'modify')
+@MenuManage.describ('condominium.add_owner')
+class OwnerModify(XferAddEditor):
+    icon = "owner.png"
+    model = Owner
+    field_id = 'owner'
+    caption_modify = _("Modify owner")
 
 
 @ActionsManage.affect('Owner', 'delete')
@@ -196,12 +205,9 @@ class OwneShow(XferShowEditor):
             self.request, self.get_action(), {'close': CLOSE_NO, 'modal': FORMTYPE_REFRESH})
         self.add_component(date_end)
         XferShowEditor.fillresponse(self)
-        self.actions = []
-        self.add_action(OwnerReport.get_action(
-            _("Print"), "images/print.png"), {'close': CLOSE_NO})
-        self.add_action(WrapAction(_('Close'), 'images/close.png'), {})
 
 
+@ActionsManage.affect('Owner', 'print')
 @MenuManage.describ('condominium.change_owner')
 class OwnerReport(XferPrintReporting):
     with_text_export = True

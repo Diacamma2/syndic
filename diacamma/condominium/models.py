@@ -134,6 +134,9 @@ class Set(LucteriosModel):
 
 class Owner(Supporting):
 
+    information = models.CharField(
+        _('information'), max_length=200, null=True, default='')
+
     def __init__(self, *args, **kwargs):
         Supporting.__init__(self, *args, **kwargs)
         self.date_begin = None
@@ -188,11 +191,11 @@ class Owner(Supporting):
 
     @classmethod
     def get_edit_fields(cls):
-        return []
+        return ["third", "information"]
 
     @classmethod
     def get_show_fields(cls):
-        return ["third", 'callfunds_set', ((_('total call for funds'), 'total_call'), (_('total estimate'), 'total_estimate')), 'partition_set', ((_('initial state'), 'total_initial'), (_('total ventilated'), 'total_ventilated')), ((_('total real'), 'total_real'),)]
+        return ["third", "information", 'callfunds_set', ((_('total call for funds'), 'total_call'), (_('total estimate'), 'total_estimate')), 'partition_set', ((_('initial state'), 'total_initial'), (_('total ventilated'), 'total_ventilated')), ((_('total real'), 'total_real'),)]
 
     @classmethod
     def get_print_fields(cls):
