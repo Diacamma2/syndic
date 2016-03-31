@@ -134,15 +134,6 @@ class CallFundsClose(XferContainerAcknowledge):
             self.item.close()
 
 
-@ActionsManage.affect('CallFunds', 'printcall')
-@MenuManage.describ('condominium.change_callfunds')
-class CallFundsPrint(XferPrintReporting):
-    icon = "callfunds.png"
-    model = CallFunds
-    field_id = 'callfunds'
-    caption = _("Print call of funds")
-
-
 @ActionsManage.affect('CallDetail', 'edit', 'add')
 @MenuManage.describ('condominium.add_callfunds')
 class CallDetailAddModify(XferAddEditor):

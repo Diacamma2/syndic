@@ -40,7 +40,7 @@ from lucterios.framework import signal_and_lock
 from lucterios.CORE.models import Parameter
 from lucterios.CORE.parameters import Params
 from lucterios.CORE.views import ParamEdit
-from lucterios.CORE.xferprint import XferPrintAction
+from lucterios.CORE.xferprint import XferPrintAction, XferPrintReporting
 
 from diacamma.accounting.tools import correct_accounting_code
 from diacamma.condominium.models import Set, Partition, Owner, ExpenseDetail
@@ -197,19 +197,18 @@ class OwneShow(XferShowEditor):
         self.add_component(date_end)
         XferShowEditor.fillresponse(self)
         self.actions = []
-        self.add_action(OwnerPrint.get_action(
-            _("Print"), "images/print.png"), {'close': CLOSE_NO, 'params': {'classname': self.__class__.__name__}})
+        self.add_action(OwnerReport.get_action(
+            _("Print"), "images/print.png"), {'close': CLOSE_NO})
         self.add_action(WrapAction(_('Close'), 'images/close.png'), {})
 
 
 @MenuManage.describ('condominium.change_owner')
-class OwnerPrint(XferPrintAction):
-    caption = _("Print owner")
+class OwnerReport(XferPrintReporting):
+    with_text_export = True
     icon = "owner.png"
     model = Owner
     field_id = 'owner'
-    action_class = OwneShow
-    with_text_export = True
+    caption = _("Print owner")
 
 
 @signal_and_lock.Signal.decorate('compte_no_found')

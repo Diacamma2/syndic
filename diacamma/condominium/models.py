@@ -68,6 +68,11 @@ class Set(LucteriosModel):
         if self.date_end < self.date_begin:
             self.date_end = self.date_begin
 
+    def set_context(self, xfer):
+        if xfer is not None:
+            self.set_dates(convert_date(xfer.getparam("begin_date")), convert_date(
+                xfer.getparam("end_date")))
+
     def __str__(self):
         return self.name
 
@@ -145,6 +150,15 @@ class Owner(Supporting):
             self.date_end = end_date
         if self.date_end < self.date_begin:
             self.date_end = self.date_begin
+        if isinstance(self.date_begin, six.text_type):
+            self.date_begin = convert_date(self.date_begin)
+        if isinstance(self.date_end, six.text_type):
+            self.date_end = convert_date(self.date_end)
+
+    def set_context(self, xfer):
+        if xfer is not None:
+            self.set_dates(convert_date(xfer.getparam("begin_date")), convert_date(
+                xfer.getparam("end_date")))
 
     def get_third_mask(self):
         return current_system_account().get_societary_mask()
@@ -179,6 +193,18 @@ class Owner(Supporting):
     @classmethod
     def get_show_fields(cls):
         return ["third", 'callfunds_set', ((_('total call for funds'), 'total_call'), (_('total estimate'), 'total_estimate')), 'partition_set', ((_('initial state'), 'total_initial'), (_('total ventilated'), 'total_ventilated')), ((_('total real'), 'total_real'),)]
+
+    @classmethod
+    def get_print_fields(cls):
+        fields = ["third"]
+        fields.extend(["callfunds_set.num", "callfunds_set.date",
+                       "callfunds_set.comment", (_('total'), 'callfunds_set.total')])
+        fields.extend(["partition_set.set.str", "partition_set.set.budget", (_('expense'), 'partition_set.set.sumexpense_txt'),
+                       "partition_set.value", (_("ratio"), 'partition_set.ratio'), (_('ventilated'), 'partition_set.ventilated_txt')])
+        fields.extend(['payoff_set'])
+        fields.extend([(_('total call for funds'), 'total_call'), (_('total estimate'), 'total_estimate'), (_('initial state'), 'total_initial'), (_(
+            'total ventilated'), 'total_ventilated'), (_('total payed'), 'total_payed'), (_('total real'), 'total_real')])
+        return fields
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         is_new = self.id is None
