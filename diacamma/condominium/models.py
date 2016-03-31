@@ -573,6 +573,15 @@ class Expense(Supporting):
 
     def close(self):
         if self.status == 1:
+            if self.entries is not None:
+                for entry in self.entries.all():
+                    entry.closed()
+            for detail in self.expensedetail_set.all():
+                if detail.entry is not None:
+                    detail.entry.closed()
+            for payoff in self.payoff_set.all():
+                if payoff.entry is not None:
+                    payoff.entry.closed()
             self.status = 2
             self.save()
 
