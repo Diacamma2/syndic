@@ -169,7 +169,7 @@ class Owner(Supporting):
     def default_date(self):
         if self.date_begin is None:
             self.set_dates()
-        ret_date = six.text_type(date.today())
+        ret_date = date.today()
         if ret_date < self.date_begin:
             ret_date = self.date_begin
         if ret_date > self.date_end:
@@ -324,7 +324,7 @@ class Partition(LucteriosModel):
                 else:
                     total = expensedetail.entry.entrylineaccount_set.filter(
                         third=self.owner.third).aggregate(sum=Sum('amount'))
-                    if 'sum' in total.keys():
+                    if ('sum' in total.keys()) and (total['sum'] is not None):
                         value += currency_round(total['sum'])
         return value
 
