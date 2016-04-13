@@ -390,7 +390,7 @@ class CallFunds(LucteriosModel):
             for calldetail in self.calldetail_set.all():
                 amount = float(calldetail.price)
                 new_detail = None
-                for part in calldetail.set.partition_set.all():
+                for part in calldetail.set.partition_set.all().order_by('value'):
                     if part.value > 0.001:
                         new_detail = CallDetail.objects.create(
                             set=calldetail.set, designation=calldetail.designation)
