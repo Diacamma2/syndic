@@ -31,10 +31,10 @@ from lucterios.framework.xferadvance import XferListEditor
 from lucterios.framework.xferadvance import XferAddEditor
 from lucterios.framework.xferadvance import XferShowEditor
 from lucterios.framework.xferadvance import XferDelete
-from lucterios.framework.tools import FORMTYPE_NOMODAL, ActionsManage, MenuManage,\
+from lucterios.framework.tools import FORMTYPE_NOMODAL, ActionsManage, MenuManage, \
     FORMTYPE_MODAL, CLOSE_NO, FORMTYPE_REFRESH, WrapAction, get_icon_path
-from lucterios.framework.xfercomponents import XferCompLabelForm, XferCompImage,\
-    XferCompButton, XferCompDate
+from lucterios.framework.xfercomponents import XferCompLabelForm, XferCompImage, \
+    XferCompButton, XferCompDate, XferCompGrid
 from lucterios.framework.xfergraphic import XferContainerCustom
 from lucterios.framework import signal_and_lock
 from lucterios.CORE.models import Parameter
@@ -44,6 +44,8 @@ from lucterios.CORE.xferprint import XferPrintAction, XferPrintReporting
 
 from diacamma.accounting.tools import correct_accounting_code
 from diacamma.condominium.models import Set, Partition, Owner, ExpenseDetail
+from lucterios.contacts.models import Individual, LegalEntity
+from lucterios.framework.error import LucteriosException, IMPORTANT
 
 
 @MenuManage.describ('CORE.change_parameter', FORMTYPE_MODAL, 'contact.conf', _('Management of parameters of condominium'))
@@ -233,15 +235,60 @@ def comptenofound_condo(known_codes, accompt_returned):
             "- {[i]}{[u]}%s{[/u]}: %s{[/i]}" % (_('Condominium'), comptenofound))
     return True
 
+def get_owners(request):
+    contacts = []
+    for contact in Individual.objects.filter(user=request.user):
+        contacts.append(contact.id)    
+    for contact in LegalEntity.objects.filter(responsability__individual__user=request.user):
+        contacts.append(contact.id)    
+    return Owner.objects.filter(third__contact_id__in=contacts)
+
+def current_owner(request):
+    right = False
+    if not request.user.is_anonymous():
+        right = len(get_owners(request)) == 1
+    return right
+
+
+@MenuManage.describ(current_owner, FORMTYPE_MODAL, 'core.general', _('View situation of my condominium.'))
+class CurrentOwneShow(OwneShow):
+    caption = _("My condominium")
+    
+    def fillresponse(self, begin_date, end_date):
+        self.action_list = [('currentprintowner', _("Print"), "images/print.png", CLOSE_NO)]
+        owners = get_owners(self.request)
+        if len(owners) != 1:
+            raise LucteriosException(IMPORTANT, _('Bad access!'))
+        self.item = owners[0]
+        OwneShow.fillresponse(self, begin_date, end_date)
+
+@ActionsManage.affect('Owner', 'currentprintowner')
+@MenuManage.describ(None)
+class CurrentOwnePrint(OwnerReport):
+    pass
 
 @signal_and_lock.Signal.decorate('summary')
 def summary_condo(xfer):
-    if WrapAction.is_permission(xfer.request, 'invoice.change_bill'):
+    is_right = WrapAction.is_permission(xfer.request, 'condominium.change_set')
+    owners = get_owners(xfer.request)
+    if is_right or (len(owners) == 1):
         row = xfer.get_max_row() + 1
         lab = XferCompLabelForm('condotitle')
         lab.set_value_as_infocenter(_('Condominium'))
         lab.set_location(0, row, 4)
         xfer.add_component(lab)
+    if len(owners) == 1:
+        lab = XferCompLabelForm('condoowner')
+        lab.set_value(_('You are a owner'))
+        lab.set_location(0, row + 1, 2)
+        xfer.add_component(lab)
+        grid = XferCompGrid("part")
+        grid.set_model(owners[0].partition_set.all(), ["set", "value", (_("ratio"), 'ratio')])
+        grid.set_location(0, row + 2, 4)
+        grid.set_size(200, 500)
+        xfer.add_component(grid)        
+    if is_right:
+        row = xfer.get_max_row() + 1
         nb_set = len(Set.objects.all())
         nb_owner = len(Owner.objects.all())
         lab = XferCompLabelForm('condoinfo')
@@ -249,10 +296,15 @@ def summary_condo(xfer):
             _("There are %(set)d sets for %(owner)d owners") % {'set': nb_set, 'owner': nb_owner})
         lab.set_location(0, row + 1, 4)
         xfer.add_component(lab)
+    if is_right or (len(owners) == 1):
+        row = xfer.get_max_row() + 1
         lab = XferCompLabelForm('condosep')
         lab.set_value_as_infocenter("{[hr/]}")
-        lab.set_location(0, row + 2, 4)
+        lab.set_location(0, row, 4)
         xfer.add_component(lab)
+        return True
+    else:
+        return False
 
 
 @signal_and_lock.Signal.decorate('third_addon')
@@ -274,7 +326,6 @@ def thirdaddon_condo(item, xfer):
             xfer.add_component(btn)
         except ObjectDoesNotExist:
             pass
-
 
 @signal_and_lock.Signal.decorate('param_change')
 def paramchange_condominium(params):
