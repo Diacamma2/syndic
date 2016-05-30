@@ -237,10 +237,11 @@ def comptenofound_condo(known_codes, accompt_returned):
 
 def get_owners(request):
     contacts = []
-    for contact in Individual.objects.filter(user=request.user):
-        contacts.append(contact.id)    
-    for contact in LegalEntity.objects.filter(responsability__individual__user=request.user):
-        contacts.append(contact.id)    
+    if not request.user.is_anonymous():
+        for contact in Individual.objects.filter(user=request.user):
+            contacts.append(contact.id)    
+        for contact in LegalEntity.objects.filter(responsability__individual__user=request.user):
+            contacts.append(contact.id)    
     return Owner.objects.filter(third__contact_id__in=contacts)
 
 def current_owner(request):
