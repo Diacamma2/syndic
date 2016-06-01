@@ -235,14 +235,16 @@ def comptenofound_condo(known_codes, accompt_returned):
             "- {[i]}{[u]}%s{[/u]}: %s{[/i]}" % (_('Condominium'), comptenofound))
     return True
 
+
 def get_owners(request):
     contacts = []
     if not request.user.is_anonymous():
         for contact in Individual.objects.filter(user=request.user):
-            contacts.append(contact.id)    
+            contacts.append(contact.id)
         for contact in LegalEntity.objects.filter(responsability__individual__user=request.user):
-            contacts.append(contact.id)    
+            contacts.append(contact.id)
     return Owner.objects.filter(third__contact_id__in=contacts)
+
 
 def current_owner(request):
     right = False
@@ -251,22 +253,25 @@ def current_owner(request):
     return right
 
 
-@MenuManage.describ(current_owner, FORMTYPE_MODAL, 'core.general', _('View situation of my condominium.'))
+@MenuManage.describ(current_owner, FORMTYPE_MODAL, 'core.general', _('View situation of your condominium.'))
 class CurrentOwneShow(OwneShow):
-    caption = _("My condominium")
-    
+    caption = _("Your condominium")
+
     def fillresponse(self, begin_date, end_date):
-        self.action_list = [('currentprintowner', _("Print"), "images/print.png", CLOSE_NO)]
+        self.action_list = [
+            ('currentprintowner', _("Print"), "images/print.png", CLOSE_NO)]
         owners = get_owners(self.request)
         if len(owners) != 1:
             raise LucteriosException(IMPORTANT, _('Bad access!'))
         self.item = owners[0]
         OwneShow.fillresponse(self, begin_date, end_date)
 
+
 @ActionsManage.affect('Owner', 'currentprintowner')
 @MenuManage.describ(None)
 class CurrentOwnePrint(OwnerReport):
     pass
+
 
 @signal_and_lock.Signal.decorate('summary')
 def summary_condo(xfer):
@@ -284,10 +289,11 @@ def summary_condo(xfer):
         lab.set_location(0, row + 1, 2)
         xfer.add_component(lab)
         grid = XferCompGrid("part")
-        grid.set_model(owners[0].partition_set.all(), ["set", "value", (_("ratio"), 'ratio')])
+        grid.set_model(
+            owners[0].partition_set.all(), ["set", "value", (_("ratio"), 'ratio')])
         grid.set_location(0, row + 2, 4)
         grid.set_size(200, 500)
-        xfer.add_component(grid)        
+        xfer.add_component(grid)
     if is_right:
         row = xfer.get_max_row() + 1
         nb_set = len(Set.objects.all())
@@ -327,6 +333,7 @@ def thirdaddon_condo(item, xfer):
             xfer.add_component(btn)
         except ObjectDoesNotExist:
             pass
+
 
 @signal_and_lock.Signal.decorate('param_change')
 def paramchange_condominium(params):

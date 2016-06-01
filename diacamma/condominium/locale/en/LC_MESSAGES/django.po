@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-05-28 11:07+0000\n"
+"POT-Creation-Date: 2016-06-01 13:03+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -25,7 +25,7 @@ msgstr "Diacamma condominium"
 msgid "third"
 msgstr "third"
 
-#: editors.py:99 views.py:325
+#: editors.py:99 views.py:332
 msgid "show"
 msgstr "show"
 
@@ -77,12 +77,12 @@ msgid "situation at #owner.date_current"
 msgstr "situation at #owner.date_current"
 
 #: migrations/0001_initial.py:112 migrations/0002_expensedetail_entry.py:230
-#: models.py:190 models.py:198 models.py:208 views.py:318
+#: models.py:190 models.py:198 models.py:208 views.py:325
 msgid "initial state"
 msgstr "initial state"
 
 #: migrations/0001_initial.py:113 migrations/0002_expensedetail_entry.py:230
-#: models.py:190 models.py:198 models.py:208 views.py:319
+#: models.py:190 models.py:198 models.py:208 views.py:326
 msgid "total call for funds"
 msgstr "total call for funds"
 
@@ -92,7 +92,7 @@ msgid "total payed"
 msgstr "total payed"
 
 #: migrations/0001_initial.py:115 migrations/0002_expensedetail_entry.py:230
-#: models.py:190 models.py:198 models.py:208 views.py:319
+#: models.py:190 models.py:198 models.py:208 views.py:326
 msgid "total estimate"
 msgstr "total estimate"
 
@@ -146,7 +146,7 @@ msgid "value"
 msgstr "value"
 
 #: migrations/0002_expensedetail_entry.py:228 models.py:206 models.py:298
-#: views.py:286
+#: views.py:293
 msgid "ratio"
 msgstr "ratio"
 
@@ -322,7 +322,7 @@ msgstr "Manage of sets and owners"
 msgid "sets and owners"
 msgstr "sets and owners"
 
-#: views.py:97 views.py:258 views_callfunds.py:49 views_callfunds.py:79
+#: views.py:97 views.py:262 views_callfunds.py:49 views_callfunds.py:79
 msgid "Print"
 msgstr "Print"
 
@@ -386,27 +386,27 @@ msgstr "Print owner"
 msgid "parameters"
 msgstr "parameters"
 
-#: views.py:235 views.py:277 views.py:315
+#: views.py:235 views.py:283 views.py:322
 msgid "Condominium"
 msgstr "Condominium"
 
-#: views.py:253
-msgid "View situation of my condominium."
-msgstr "View situation of my condominium."
+#: views.py:256
+msgid "View situation of your condominium."
+msgstr "View situation of your condominium."
 
-#: views.py:255
-msgid "My condominium"
-msgstr "My condominium"
+#: views.py:258
+msgid "Your condominium"
+msgstr "Your condominium"
 
-#: views.py:261
+#: views.py:265
 msgid "Bad access!"
 msgstr "Bad access!"
 
-#: views.py:282
+#: views.py:288
 msgid "You are a owner"
 msgstr "You are a owner"
 
-#: views.py:296
+#: views.py:303
 #, python-format
 msgid "There are %(set)d sets for %(owner)d owners"
 msgstr "There are %(set)d sets for %(owner)d owners"

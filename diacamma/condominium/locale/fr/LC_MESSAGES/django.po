@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-05-28 11:07+0000\n"
+"POT-Creation-Date: 2016-06-01 13:03+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -26,7 +26,7 @@ msgstr "Copropriété Diacamma"
 msgid "third"
 msgstr "tiers"
 
-#: editors.py:99 views.py:325
+#: editors.py:99 views.py:332
 msgid "show"
 msgstr "voir"
 
@@ -78,12 +78,12 @@ msgid "situation at #owner.date_current"
 msgstr "situation au #owner.date_current"
 
 #: migrations/0001_initial.py:112 migrations/0002_expensedetail_entry.py:230
-#: models.py:190 models.py:198 models.py:208 views.py:318
+#: models.py:190 models.py:198 models.py:208 views.py:325
 msgid "initial state"
 msgstr "état initial"
 
 #: migrations/0001_initial.py:113 migrations/0002_expensedetail_entry.py:230
-#: models.py:190 models.py:198 models.py:208 views.py:319
+#: models.py:190 models.py:198 models.py:208 views.py:326
 msgid "total call for funds"
 msgstr "total des appels de fonds"
 
@@ -93,7 +93,7 @@ msgid "total payed"
 msgstr "total payé"
 
 #: migrations/0001_initial.py:115 migrations/0002_expensedetail_entry.py:230
-#: models.py:190 models.py:198 models.py:208 views.py:319
+#: models.py:190 models.py:198 models.py:208 views.py:326
 msgid "total estimate"
 msgstr "total estimé"
 
@@ -147,7 +147,7 @@ msgid "value"
 msgstr "valeur"
 
 #: migrations/0002_expensedetail_entry.py:228 models.py:206 models.py:298
-#: views.py:286
+#: views.py:293
 msgid "ratio"
 msgstr "ratio"
 
@@ -323,7 +323,7 @@ msgstr "Gérer les ensembles et les copropriétaires"
 msgid "sets and owners"
 msgstr "les ensembles et les copropriétaires"
 
-#: views.py:97 views.py:258 views_callfunds.py:49 views_callfunds.py:79
+#: views.py:97 views.py:262 views_callfunds.py:49 views_callfunds.py:79
 msgid "Print"
 msgstr "Imprimer"
 
@@ -387,27 +387,27 @@ msgstr "Imprimer le propriétaire"
 msgid "parameters"
 msgstr "paramètres"
 
-#: views.py:235 views.py:277 views.py:315
+#: views.py:235 views.py:283 views.py:322
 msgid "Condominium"
 msgstr "Copropriété"
 
-#: views.py:253
-msgid "View situation of my condominium."
-msgstr "Voir la situation de ma copropriété"
+#: views.py:256
+msgid "View situation of your condominium."
+msgstr "Voir la situation de votre copropriété"
 
-#: views.py:255
-msgid "My condominium"
-msgstr "Ma copropriété"
+#: views.py:258
+msgid "Your condominium"
+msgstr "Votre copropriété"
 
-#: views.py:261
+#: views.py:265
 msgid "Bad access!"
 msgstr "Mauvais accès!"
 
-#: views.py:282
+#: views.py:288
 msgid "You are a owner"
 msgstr "Vous êtes un copropriétaire"
 
-#: views.py:296
+#: views.py:303
 #, python-format
 msgid "There are %(set)d sets for %(owner)d owners"
 msgstr "Il y a %(set)d ensembles pour %(owner)d propriétaires"
