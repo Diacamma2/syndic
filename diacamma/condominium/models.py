@@ -319,8 +319,7 @@ class Partition(LucteriosModel):
         if abs(ratio) > 0.01:
             for expensedetail in self.set.get_expenselist():
                 if expensedetail.entry is None:
-                    value += currency_round(float(expensedetail.price)
-                                            * ratio / 100.00)
+                    value += currency_round(float(expensedetail.price) * ratio / 100.00)
                 else:
                     total = expensedetail.entry.entrylineaccount_set.filter(
                         third=self.owner.third).aggregate(sum=Sum('amount'))
