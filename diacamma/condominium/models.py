@@ -40,7 +40,7 @@ from diacamma.accounting.models import CostAccounting, EntryAccount, Journal,\
     ChartsAccount, EntryLineAccount, FiscalYear
 from diacamma.accounting.tools import format_devise, currency_round,\
     current_system_account, get_amount_sum, correct_accounting_code
-from diacamma.payoff.models import Supporting
+from diacamma.payoff.models import Supporting, Payable
 
 
 class Set(LucteriosModel):
@@ -319,7 +319,8 @@ class Partition(LucteriosModel):
         if abs(ratio) > 0.01:
             for expensedetail in self.set.get_expenselist():
                 if expensedetail.entry is None:
-                    value += currency_round(float(expensedetail.price) * ratio / 100.00)
+                    value += currency_round(float(expensedetail.price)
+                                            * ratio / 100.00)
                 else:
                     total = expensedetail.entry.entrylineaccount_set.filter(
                         third=self.owner.third).aggregate(sum=Sum('amount'))
@@ -341,7 +342,7 @@ class Partition(LucteriosModel):
         default_permissions = []
 
 
-class CallFunds(LucteriosModel):
+class CallFunds(Payable):
     owner = models.ForeignKey(
         Owner, verbose_name=_('owner'), null=True, db_index=True, on_delete=models.PROTECT)
     num = models.IntegerField(verbose_name=_('numeros'), null=True)
@@ -351,11 +352,15 @@ class CallFunds(LucteriosModel):
                                  choices=((0, _('building')), (1, _('valid')), (2, _('ended'))), null=False, default=0, db_index=True)
 
     def __str__(self):
-        return "%s - %s" % (self.num, get_value_converted(self.date))
+        return _('call of funds #%d - %s') % (self.num, get_value_converted(self.date))
 
     @classmethod
     def get_default_fields(cls):
         return ["num", "date", "owner", "comment", (_('total'), 'total')]
+
+    @classmethod
+    def get_payment_fields(cls):
+        return ["owner", ("num", "date"), "comment", ((_('total'), 'total'),)]
 
     @classmethod
     def get_edit_fields(cls):
@@ -415,6 +420,18 @@ class CallFunds(LucteriosModel):
         if self.status == 1:
             self.status = 2
             self.save()
+
+    def support_validated(self, validate_date):
+        return self.owner
+
+    def get_tax(self):
+        return 0.0
+
+    def get_payable_without_tax(self):
+        return self.get_total()
+
+    def payoff_have_payment(self):
+        return (self.status == 1)
 
     class Meta(object):
         verbose_name = _('call of funds')

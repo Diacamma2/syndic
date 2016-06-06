@@ -264,6 +264,7 @@ class CurrentOwneShow(OwneShow):
         if len(owners) != 1:
             raise LucteriosException(IMPORTANT, _('Bad access!'))
         self.item = owners[0]
+        self.params['owner'] = self.item.id
         OwneShow.fillresponse(self, begin_date, end_date)
 
 

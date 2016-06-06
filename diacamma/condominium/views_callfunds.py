@@ -16,6 +16,7 @@ from diacamma.condominium.models import CallFunds, CallDetail
 from lucterios.framework.xfergraphic import XferContainerAcknowledge
 from lucterios.CORE.xferprint import XferPrintReporting
 from lucterios.framework.error import LucteriosException, IMPORTANT
+from diacamma.payoff.models import PaymentMethod
 
 
 @ActionsManage.affect('CallFunds', 'list')
@@ -47,6 +48,9 @@ class CallFundsList(XferListEditor):
                 ('show', _("Edit"), "images/show.png", SELECT_SINGLE)]
             self.action_grid.append(
                 ('printcall', _("Print"), "images/print.png", SELECT_MULTI))
+        if status_filter == 1:
+            self.action_grid.append(
+                ('close', _("Closed"), "images/ok.png", SELECT_SINGLE))
 
 
 @ActionsManage.affect('CallFunds', 'modify', 'add')
@@ -74,6 +78,9 @@ class CallFundsShow(XferShowEditor):
         elif self.item.status == 1:
             self.action_list.insert(
                 0, ('close', _("Closed"), "images/ok.png", CLOSE_NO))
+            if self.item.payoff_have_payment() and (len(PaymentMethod.objects.all()) > 0):
+                self.add_action(ActionsManage.get_act_changed('Payable', 'show', _("Payment"), "diacamma.payoff/images/payments.png"), {
+                                'close': CLOSE_NO, 'params': {'item_name': self.field_id, 'model_name': self.model.get_long_name()}}, 0)
         if self.item.status in (1, 2):
             self.action_list.insert(0,
                                     ('printcall', _("Print"), "images/print.png", CLOSE_NO))

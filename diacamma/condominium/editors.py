@@ -37,7 +37,7 @@ from lucterios.framework.tools import ActionsManage, FORMTYPE_MODAL, CLOSE_NO,\
 from diacamma.accounting.tools import current_system_account
 from diacamma.accounting.models import Third, AccountThird, FiscalYear
 from diacamma.payoff.editors import SupportingEditor
-from diacamma.condominium.models import Set
+from diacamma.condominium.models import Set, CallFunds
 
 
 class SetEditor(LucteriosEditor):
@@ -78,7 +78,8 @@ class OwnerEditor(SupportingEditor):
             sel = XferCompSelect('third')
             sel.needed = True
             sel.set_location(third.col, third.row)
-            items = Third.objects.filter(supporting__owner__isnull=True).distinct()
+            items = Third.objects.filter(
+                supporting__owner__isnull=True).distinct()
             items = sorted(items, key=lambda t: six.text_type(t))
             sel.set_select_query(items)
             xfer.add_component(sel)
@@ -104,8 +105,11 @@ class OwnerEditor(SupportingEditor):
         partition.delete_header('owner')
         callfunds = xfer.get_components('callfunds')
         callfunds.actions = []
-        callfunds.add_actions(
-            xfer, action_list=[('show', _("Edit"), "images/show.png", SELECT_SINGLE)])
+        callfunds.add_actions(xfer, model=CallFunds,
+                              action_list=[('show', _("Edit"), "images/show.png", SELECT_SINGLE)])
+        callfunds.add_action(xfer.request, ActionsManage.get_act_changed('Payable', 'show', _("Payment"), "diacamma.payoff/images/payments.png"),
+                             {'unique': SELECT_SINGLE, 'close': CLOSE_NO, 'params':
+                              {'item_name': 'callfunds', 'model_name': CallFunds.get_long_name()}})
         lbl = XferCompLabelForm('sep')
         lbl.set_location(1, xfer.get_max_row() + 1)
         lbl.set_value("{[br/]}")
