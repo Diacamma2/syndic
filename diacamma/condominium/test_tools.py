@@ -23,7 +23,8 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from __future__ import unicode_literals
-from diacamma.condominium.models import Set, Owner, Partition
+from diacamma.condominium.models import Set, Owner, Partition, CallFunds,\
+    CallDetail
 from lucterios.CORE.models import Parameter
 from diacamma.accounting.test_tools import create_account
 from diacamma.accounting.models import FiscalYear
@@ -52,3 +53,12 @@ def default_setowner():
     Partition.objects.create(set=set2, owner=owner1, value=75.0)
     Partition.objects.create(set=set2, owner=owner2, value=0.0)
     Partition.objects.create(set=set2, owner=owner3, value=25.0)
+
+
+def add_simple_callfunds():
+    call = CallFunds.objects.create(date='2015-06-10', comment='abc 123')
+    CallDetail.objects.create(
+        callfunds=call, set_id=1, price='250.00', designation='set 1')
+    CallDetail.objects.create(
+        callfunds=call, set_id=2, price='25.00', designation='set 2')
+    call.valid()

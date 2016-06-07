@@ -24,17 +24,28 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import unicode_literals
 from shutil import rmtree
+from base64 import b64decode
+
+from django.utils import six
 
 from lucterios.framework.test import LucteriosTest
 from lucterios.framework.xfergraphic import XferContainerAcknowledge
 from lucterios.framework.filetools import get_user_dir
 
+from lucterios.mailing.tests import configSMTP, TestReceiver, decode_b64
+
 from diacamma.accounting.test_tools import initial_thirds, default_compta,\
     default_costaccounting
-from diacamma.payoff.test_tools import default_bankaccount
-from diacamma.condominium.views import SetOwnerList, SetAddModify, SetDel,\
-    OwnerAdd, OwnerDel, SetShow, PartitionAddModify
 from diacamma.accounting.views import ThirdShow
+
+from diacamma.payoff.test_tools import default_bankaccount,\
+    default_paymentmethod, PaymentTest
+from diacamma.payoff.views import PayableShow, PayableEmail
+
+from diacamma.condominium.views import SetOwnerList, SetAddModify, SetDel,\
+    OwnerAdd, OwnerDel, SetShow, PartitionAddModify, OwnerShow
+from diacamma.condominium.test_tools import default_setowner,\
+    add_simple_callfunds
 
 
 class SetOwnerTest(LucteriosTest):
@@ -375,3 +386,182 @@ class SetOwnerTest(LucteriosTest):
         self.assert_count_equal('COMPONENTS/GRID[@name="owner"]/RECORD', 3)
         self.assert_xml_equal(
             'COMPONENTS/GRID[@name="set"]/RECORD[1]/VALUE[@name="partition_set"]', "Minimum : 16.7 %{[br/]}Dalton William : 33.3 %{[br/]}Dalton Joe : 50.0 %")
+
+
+class MethodTest(PaymentTest):
+
+    def setUp(self):
+        self.xfer_class = XferContainerAcknowledge
+        initial_thirds()
+        LucteriosTest.setUp(self)
+        default_compta()
+        default_costaccounting()
+        default_bankaccount()
+        default_setowner()
+        rmtree(get_user_dir(), True)
+
+    def test_payment_owner_empty(self):
+        default_paymentmethod()
+        self.factory.xfer = OwnerShow()
+        self.call('/diacamma.condominium/ownerShow', {'owner': 1}, False)
+        self.assert_observer(
+            'core.custom', 'diacamma.condominium', 'ownerShow')
+        self.assert_xml_equal(
+            'COMPONENTS/LABELFORM[@name="total_estimate"]', "0.00€")
+        self.assert_count_equal('ACTIONS/ACTION', 3)
+
+        self.factory.xfer = PayableShow()
+        self.call('/diacamma.payoff/supportingPaymentMethod',
+                  {'owner': 1, 'item_name': 'owner'}, False)
+        self.assert_observer(
+            'core.exception', 'diacamma.payoff', 'supportingPaymentMethod')
+        self.assert_xml_equal(
+            "EXCEPTION/MESSAGE", "Pas de paiement pour ce document")
+
+    def test_payment_owner_nopayable(self):
+        add_simple_callfunds()
+        self.factory.xfer = OwnerShow()
+        self.call('/diacamma.condominium/ownerShow', {'owner': 1}, False)
+        self.assert_observer(
+            'core.custom', 'diacamma.condominium', 'ownerShow')
+        self.assert_xml_equal(
+            'COMPONENTS/LABELFORM[@name="total_estimate"]', "-131.25€")
+        self.assert_count_equal('ACTIONS/ACTION', 3)
+
+        self.factory.xfer = PayableShow()
+        self.call('/diacamma.payoff/supportingPaymentMethod',
+                  {'owner': 1, 'item_name': 'owner'}, False)
+        self.assert_observer(
+            'core.exception', 'diacamma.payoff', 'supportingPaymentMethod')
+        self.assert_xml_equal(
+            "EXCEPTION/MESSAGE", "Pas de paiement pour ce document")
+
+    def test_payment_owner_topay(self):
+        default_paymentmethod()
+        add_simple_callfunds()
+        self.factory.xfer = OwnerShow()
+        self.call('/diacamma.condominium/ownerShow', {'owner': 1}, False)
+        self.assert_observer(
+            'core.custom', 'diacamma.condominium', 'ownerShow')
+        self.assert_xml_equal(
+            'COMPONENTS/LABELFORM[@name="total_initial"]', "0.00€")
+        self.assert_xml_equal(
+            'COMPONENTS/LABELFORM[@name="total_call"]', "131.25€")
+        self.assert_xml_equal(
+            'COMPONENTS/LABELFORM[@name="total_payed"]', "0.00€")
+        self.assert_xml_equal(
+            'COMPONENTS/LABELFORM[@name="total_estimate"]', "-131.25€")
+        self.assert_xml_equal(
+            'COMPONENTS/LABELFORM[@name="total_real"]', "0.00€")
+        self.assert_count_equal('ACTIONS/ACTION', 4)
+        self.assert_action_equal('ACTIONS/ACTION[1]', (six.text_type(
+            'Règlement'), 'diacamma.payoff/images/payments.png', 'diacamma.payoff', 'payableShow', 0, 1, 1))
+
+        self.factory.xfer = PayableShow()
+        self.call('/diacamma.payoff/supportingPaymentMethod',
+                  {'owner': 1, 'item_name': 'owner'}, False)
+        self.assert_observer(
+            'core.custom', 'diacamma.payoff', 'supportingPaymentMethod')
+        self.assert_count_equal('COMPONENTS/*', 20)
+        self.assert_xml_equal(
+            'COMPONENTS/LABELFORM[@name="total_estimate"]', "-131.25€")
+        self.check_payment(1, "copropriete de Minimum", 131.25)
+
+    def test_payment_paypal_owner(self):
+        default_paymentmethod()
+        add_simple_callfunds()
+        self.check_payment_paypal(1, "copropriete de Minimum")
+
+        self.factory.xfer = OwnerShow()
+        self.call('/diacamma.condominium/ownerShow', {'owner': 1}, False)
+        self.assert_observer(
+            'core.custom', 'diacamma.condominium', 'ownerShow')
+        self.assert_xml_equal(
+            'COMPONENTS/LABELFORM[@name="total_initial"]', "0.00€")
+        self.assert_xml_equal(
+            'COMPONENTS/LABELFORM[@name="total_call"]', "131.25€")
+        self.assert_xml_equal(
+            'COMPONENTS/LABELFORM[@name="total_payed"]', "100.00€")
+        self.assert_xml_equal(
+            'COMPONENTS/LABELFORM[@name="total_estimate"]', "-31.25€")
+        self.assert_xml_equal(
+            'COMPONENTS/LABELFORM[@name="total_real"]', "100.00€")
+        self.assert_count_equal('ACTIONS/ACTION', 4)
+
+    def test_send_owner(self):
+        default_paymentmethod()
+        add_simple_callfunds()
+        configSMTP('localhost', 1025)
+
+        self.factory.xfer = OwnerShow()
+        self.call('/diacamma.condominium/ownerShow', {'owner': 1}, False)
+        self.assert_observer(
+            'core.custom', 'diacamma.condominium', 'ownerShow')
+        self.assert_xml_equal(
+            'COMPONENTS/LABELFORM[@name="total_estimate"]', "-131.25€")
+        self.assert_count_equal('ACTIONS/ACTION', 5)
+
+        server = TestReceiver()
+        server.start(1025)
+        try:
+            self.assertEqual(0, server.count())
+            self.factory.xfer = PayableEmail()
+            self.call('/diacamma.payoff/payableEmail',
+                      {'item_name': 'owner', 'owner': 1}, False)
+            self.assert_observer(
+                'core.custom', 'diacamma.payoff', 'payableEmail')
+            self.assert_count_equal('COMPONENTS/*', 9)
+
+            self.factory.xfer = PayableEmail()
+            self.call('/diacamma.payoff/payableEmail',
+                      {'owner': 1, 'OK': 'YES', 'item_name': 'owner', 'subject': 'my bill', 'message': 'this is a bill.', 'model': 8, 'withpayment': 1}, False)
+            self.assert_observer(
+                'core.acknowledge', 'diacamma.payoff', 'payableEmail')
+            self.assertEqual(1, server.count())
+            self.assertEqual(
+                'mr-sylvestre@worldcompany.com', server.get(0)[1])
+            self.assertEqual(
+                ['Minimum@worldcompany.com'], server.get(0)[2])
+            msg, msg_file = server.check_first_message('my bill', 2)
+            self.assertEqual('text/html', msg.get_content_type())
+            self.assertEqual(
+                'base64', msg.get('Content-Transfer-Encoding', ''))
+            email_content = decode_b64(msg.get_payload())
+            self.assertTrue(
+                '<html>this is a bill.<hr/>' in email_content, email_content)
+            self.assertTrue(
+                email_content.find('<u><i>IBAN</i></u>') != -1, email_content)
+            self.assertTrue(
+                email_content.find('123456789') != -1, email_content)
+            self.assertTrue(
+                email_content.find('<u><i>libellé à</i></u>') != -1, email_content)
+            self.assertTrue(
+                email_content.find('<u><i>adresse</i></u>') != -1, email_content)
+            self.assertTrue(email_content.find('Truc') != -1, email_content)
+            self.assertTrue(email_content.find(
+                '1 rue de la Paix<newline>99000 LA-BAS') != -1, email_content)
+            self.assertTrue(email_content.find(
+                "<input name='currency_code' type='hidden' value='EUR' />") != -1, email_content)
+            self.assertTrue(email_content.find(
+                "<input name='lc' type='hidden' value='fr' />") != -1, email_content)
+            self.assertTrue(email_content.find(
+                "<input name='return' type='hidden' value='http://testserver' />") != -1, email_content)
+            self.assertTrue(email_content.find(
+                "<input name='cancel_return' type='hidden' value='http://testserver' />") != -1, email_content)
+            self.assertTrue(email_content.find(
+                "<input name='notify_url' type='hidden' value='http://testserver/diacamma.payoff/validationPaymentPaypal' />") != -1, email_content)
+            self.assertTrue(email_content.find(
+                "<input name='business' type='hidden' value='monney@truc.org' />") != -1, email_content)
+            self.assertTrue(email_content.find(
+                "<input name='item_name' type='hidden' value='copropriete de Minimum' />") != -1, email_content)
+            self.assertTrue(email_content.find(
+                "<input name='custom' type='hidden' value='1' />") != -1, email_content)
+            self.assertTrue(email_content.find(
+                "<input name='amount' type='hidden' value='131.25' />") != -1, email_content)
+
+            self.assertTrue(
+                'copropriete_de_Minimum.pdf' in msg_file.get('Content-Type', ''), msg_file.get('Content-Type', ''))
+            self.assertEqual(
+                "%PDF".encode('ascii', 'ignore'), b64decode(msg_file.get_payload())[:4])
+        finally:
+            server.stop()

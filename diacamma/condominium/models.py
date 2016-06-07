@@ -190,10 +190,6 @@ class Owner(Supporting):
         return ["third", (_('total call for funds'), 'total_call'), (_('total estimate'), 'total_estimate'), (_('initial state'), 'total_initial'), (_('total payoff'), 'total_payed'), (_('total ventilated'), 'total_ventilated'), (_('total real'), 'total_real')]
 
     @classmethod
-    def get_payment_fields(cls):
-        return ["third", "information", 'callfunds_set', 'partition_set', ((_('total real'), 'total_real'),)]
-
-    @classmethod
     def get_edit_fields(cls):
         return ["third", "information"]
 
@@ -292,14 +288,20 @@ class Owner(Supporting):
         return 0.0
 
     def get_payable_without_tax(self):
-        return self.self.third.get_total()
+        return currency_round(max(0, self.get_total_rest_topay()))
 
     def payoff_have_payment(self):
-        return (self.self.third.get_total() > 0.001)
+        return (self.get_total_rest_topay() > 0.001)
 
     @classmethod
     def get_payment_fields(cls):
-        raise Exception('no implemented!')
+        return ["third", "information", 'callfunds_set', ((_('total estimate'), 'total_estimate'),)]
+
+    def get_payment_name(self):
+        return _('codominium of %s') % six.text_type(self.third)
+
+    def get_docname(self):
+        return _('your situation')
 
 
 class Partition(LucteriosModel):
@@ -372,7 +374,7 @@ class CallFunds(LucteriosModel):
                                  choices=((0, _('building')), (1, _('valid')), (2, _('ended'))), null=False, default=0, db_index=True)
 
     def __str__(self):
-        return _('call of funds #%d - %s') % (self.num, get_value_converted(self.date))
+        return _('call of funds #%(num)d - %(date)s') % {'num': self.num, 'date': get_value_converted(self.date)}
 
     @classmethod
     def get_default_fields(cls):
