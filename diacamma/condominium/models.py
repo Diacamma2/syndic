@@ -40,7 +40,7 @@ from diacamma.accounting.models import CostAccounting, EntryAccount, Journal,\
     ChartsAccount, EntryLineAccount, FiscalYear
 from diacamma.accounting.tools import format_devise, currency_round,\
     current_system_account, get_amount_sum, correct_accounting_code
-from diacamma.payoff.models import Supporting, Payable
+from diacamma.payoff.models import Supporting
 
 
 class Set(LucteriosModel):
@@ -190,6 +190,10 @@ class Owner(Supporting):
         return ["third", (_('total call for funds'), 'total_call'), (_('total estimate'), 'total_estimate'), (_('initial state'), 'total_initial'), (_('total payoff'), 'total_payed'), (_('total ventilated'), 'total_ventilated'), (_('total real'), 'total_real')]
 
     @classmethod
+    def get_payment_fields(cls):
+        return ["third", "information", 'callfunds_set', 'partition_set', ((_('total real'), 'total_real'),)]
+
+    @classmethod
     def get_edit_fields(cls):
         return ["third", "information"]
 
@@ -281,6 +285,22 @@ class Owner(Supporting):
         verbose_name = _('owner')
         verbose_name_plural = _('owners')
 
+    def support_validated(self, validate_date):
+        return self
+
+    def get_tax(self):
+        return 0.0
+
+    def get_payable_without_tax(self):
+        return self.self.third.get_total()
+
+    def payoff_have_payment(self):
+        return (self.self.third.get_total() > 0.001)
+
+    @classmethod
+    def get_payment_fields(cls):
+        raise Exception('no implemented!')
+
 
 class Partition(LucteriosModel):
     set = models.ForeignKey(
@@ -342,7 +362,7 @@ class Partition(LucteriosModel):
         default_permissions = []
 
 
-class CallFunds(Payable):
+class CallFunds(LucteriosModel):
     owner = models.ForeignKey(
         Owner, verbose_name=_('owner'), null=True, db_index=True, on_delete=models.PROTECT)
     num = models.IntegerField(verbose_name=_('numeros'), null=True)
@@ -357,10 +377,6 @@ class CallFunds(Payable):
     @classmethod
     def get_default_fields(cls):
         return ["num", "date", "owner", "comment", (_('total'), 'total')]
-
-    @classmethod
-    def get_payment_fields(cls):
-        return ["owner", ("num", "date"), "comment", ((_('total'), 'total'),)]
 
     @classmethod
     def get_edit_fields(cls):
@@ -420,18 +436,6 @@ class CallFunds(Payable):
         if self.status == 1:
             self.status = 2
             self.save()
-
-    def support_validated(self, validate_date):
-        return self.owner
-
-    def get_tax(self):
-        return 0.0
-
-    def get_payable_without_tax(self):
-        return self.get_total()
-
-    def payoff_have_payment(self):
-        return (self.status == 1)
 
     class Meta(object):
         verbose_name = _('call of funds')

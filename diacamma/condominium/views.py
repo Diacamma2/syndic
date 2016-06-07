@@ -46,6 +46,7 @@ from diacamma.accounting.tools import correct_accounting_code
 from diacamma.condominium.models import Set, Partition, Owner, ExpenseDetail
 from lucterios.contacts.models import Individual, LegalEntity
 from lucterios.framework.error import LucteriosException, IMPORTANT
+from diacamma.payoff.models import PaymentMethod
 
 
 @MenuManage.describ('CORE.change_parameter', FORMTYPE_MODAL, 'contact.conf', _('Management of parameters of condominium'))
@@ -207,6 +208,9 @@ class OwneShow(XferShowEditor):
             self.request, self.get_action(), {'close': CLOSE_NO, 'modal': FORMTYPE_REFRESH})
         self.add_component(date_end)
         XferShowEditor.fillresponse(self)
+        if self.item.payoff_have_payment() and (len(PaymentMethod.objects.all()) > 0):
+            self.add_action(ActionsManage.get_act_changed('Supporting', 'showpay', _(
+                "Payment"), "diacamma.payoff/images/payments.png"), {'close': CLOSE_NO, 'params': {'item_name': self.field_id}}, 0)
 
 
 @ActionsManage.affect('Owner', 'print')

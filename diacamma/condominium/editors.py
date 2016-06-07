@@ -107,9 +107,6 @@ class OwnerEditor(SupportingEditor):
         callfunds.actions = []
         callfunds.add_actions(xfer, model=CallFunds,
                               action_list=[('show', _("Edit"), "images/show.png", SELECT_SINGLE)])
-        callfunds.add_action(xfer.request, ActionsManage.get_act_changed('Payable', 'show', _("Payment"), "diacamma.payoff/images/payments.png"),
-                             {'unique': SELECT_SINGLE, 'close': CLOSE_NO, 'params':
-                              {'item_name': 'callfunds', 'model_name': CallFunds.get_long_name()}})
         lbl = XferCompLabelForm('sep')
         lbl.set_location(1, xfer.get_max_row() + 1)
         lbl.set_value("{[br/]}")
