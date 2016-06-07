@@ -465,7 +465,7 @@ class MethodTest(PaymentTest):
         self.assert_count_equal('COMPONENTS/*', 20)
         self.assert_xml_equal(
             'COMPONENTS/LABELFORM[@name="total_estimate"]', "-131.25€")
-        self.check_payment(1, "copropriete de Minimum", 131.25)
+        self.check_payment(1, "copropriete de Minimum", "131.25")
 
     def test_payment_paypal_owner(self):
         default_paymentmethod()
@@ -524,40 +524,8 @@ class MethodTest(PaymentTest):
                 ['Minimum@worldcompany.com'], server.get(0)[2])
             msg, msg_file = server.check_first_message('my bill', 2)
             self.assertEqual('text/html', msg.get_content_type())
-            self.assertEqual(
-                'base64', msg.get('Content-Transfer-Encoding', ''))
-            email_content = decode_b64(msg.get_payload())
-            self.assertTrue(
-                '<html>this is a bill.<hr/>' in email_content, email_content)
-            self.assertTrue(
-                email_content.find('<u><i>IBAN</i></u>') != -1, email_content)
-            self.assertTrue(
-                email_content.find('123456789') != -1, email_content)
-            self.assertTrue(
-                email_content.find('<u><i>libellé à</i></u>') != -1, email_content)
-            self.assertTrue(
-                email_content.find('<u><i>adresse</i></u>') != -1, email_content)
-            self.assertTrue(email_content.find('Truc') != -1, email_content)
-            self.assertTrue(email_content.find(
-                '1 rue de la Paix<newline>99000 LA-BAS') != -1, email_content)
-            self.assertTrue(email_content.find(
-                "<input name='currency_code' type='hidden' value='EUR' />") != -1, email_content)
-            self.assertTrue(email_content.find(
-                "<input name='lc' type='hidden' value='fr' />") != -1, email_content)
-            self.assertTrue(email_content.find(
-                "<input name='return' type='hidden' value='http://testserver' />") != -1, email_content)
-            self.assertTrue(email_content.find(
-                "<input name='cancel_return' type='hidden' value='http://testserver' />") != -1, email_content)
-            self.assertTrue(email_content.find(
-                "<input name='notify_url' type='hidden' value='http://testserver/diacamma.payoff/validationPaymentPaypal' />") != -1, email_content)
-            self.assertTrue(email_content.find(
-                "<input name='business' type='hidden' value='monney@truc.org' />") != -1, email_content)
-            self.assertTrue(email_content.find(
-                "<input name='item_name' type='hidden' value='copropriete de Minimum' />") != -1, email_content)
-            self.assertTrue(email_content.find(
-                "<input name='custom' type='hidden' value='1' />") != -1, email_content)
-            self.assertTrue(email_content.find(
-                "<input name='amount' type='hidden' value='131.25' />") != -1, email_content)
+            self.assertEqual('base64', msg.get('Content-Transfer-Encoding', ''))
+            self.check_email_msg(msg, 1, "copropriete de Minimum", "131.25")
 
             self.assertTrue(
                 'copropriete_de_Minimum.pdf' in msg_file.get('Content-Type', ''), msg_file.get('Content-Type', ''))
