@@ -180,7 +180,9 @@ class Owner(Supporting):
     def date_current(self):
         if self.date_begin is None:
             self.set_dates()
-        return formats.date_format(datetime.strptime(self.date_end, "%Y-%m-%d"), "DATE_FORMAT")
+        if isinstance(self.date_end, six.text_type):
+            self.date_end = convert_date(self.date_end)
+        return formats.date_format(self.date_end, "DATE_FORMAT")
 
     def __str__(self):
         return six.text_type(self.third)

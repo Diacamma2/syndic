@@ -34,7 +34,7 @@ from diacamma.payoff.test_tools import default_bankaccount
 from diacamma.condominium.test_tools import default_setowner
 from diacamma.condominium.views_callfunds import CallFundsList,\
     CallFundsAddModify, CallFundsDel, CallFundsShow, CallDetailAddModify,\
-    CallFundsValid, CallFundsClose
+    CallFundsValid, CallFundsClose, CallFundsPrint
 
 
 class CallFundsTest(LucteriosTest):
@@ -234,6 +234,19 @@ class CallFundsTest(LucteriosTest):
             'COMPONENTS/GRID[@name="callfunds"]/RECORD[3]/VALUE[@name="owner"]', "Dalton Joe")  # 250*20%+25*25%
         self.assert_xml_equal(
             'COMPONENTS/GRID[@name="callfunds"]/RECORD[3]/VALUE[@name="total"]', "56.25€")
+
+        self.factory.xfer = CallFundsPrint()
+        self.call(
+            '/diacamma.condominium/callFundsPrint', {'callfunds': 3}, False)
+        self.assert_observer(
+            'core.custom', 'diacamma.condominium', 'callFundsPrint')
+        self.assert_xml_equal('COMPONENTS/SELECT[@name="MODEL"]', '8')
+
+        self.factory.xfer = CallFundsPrint()
+        self.call(
+            '/diacamma.condominium/callFundsPrint', {'callfunds': 3, 'PRINT_MODE': 0, 'MODEL': 8}, False)
+        self.assert_observer(
+            'core.print', 'diacamma.condominium', 'callFundsPrint')
 
         self.factory.xfer = CallFundsClose()
         self.call(

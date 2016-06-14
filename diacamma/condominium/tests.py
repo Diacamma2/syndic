@@ -32,8 +32,6 @@ from lucterios.framework.test import LucteriosTest
 from lucterios.framework.xfergraphic import XferContainerAcknowledge
 from lucterios.framework.filetools import get_user_dir
 
-from lucterios.mailing.tests import configSMTP, TestReceiver, decode_b64
-
 from diacamma.accounting.test_tools import initial_thirds, default_compta,\
     default_costaccounting
 from diacamma.accounting.views import ThirdShow
@@ -489,6 +487,7 @@ class MethodTest(PaymentTest):
         self.assert_count_equal('ACTIONS/ACTION', 4)
 
     def test_send_owner(self):
+        from lucterios.mailing.tests import configSMTP, TestReceiver
         default_paymentmethod()
         add_simple_callfunds()
         configSMTP('localhost', 1025)
