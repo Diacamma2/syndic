@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-06-07 15:55+0000\n"
+"POT-Creation-Date: 2016-06-09 08:59+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -26,7 +26,11 @@ msgstr "Diacamma Syndic"
 msgid "Condominium application"
 msgstr "Application de copropriété"
 
-#: appli_settings.py:47
+#: appli_settings.py:49
+msgid "Meet the {[i]}Diacamma{[/i]} community on"
+msgstr "Retrouvez la communauté {[i]}Diacamma{[/i]} sur"
+
+#: appli_settings.py:57
 msgid "(c) GPL Licence"
 msgstr "(c) GPL Licence"
 
@@ -61,6 +65,3 @@ msgstr "dépenses"
 #: migrations/0001_initial.py:46
 msgid "ventilation"
 msgstr "ventilations"
-
-#~ msgid "presentation.html"
-#~ msgstr "Présentation de Diacamma Syndic"
