@@ -4,12 +4,11 @@ from __future__ import unicode_literals
 from django.utils.translation import ugettext_lazy as _
 from django.db.models import Q
 
-from lucterios.framework.xferadvance import XferListEditor
+from lucterios.framework.xferadvance import XferListEditor, TITLE_EDIT, TITLE_ADD, TITLE_MODIFY, TITLE_DELETE
 from lucterios.framework.xferadvance import XferAddEditor
 from lucterios.framework.xferadvance import XferShowEditor
 from lucterios.framework.xferadvance import XferDelete
-from lucterios.framework.tools import FORMTYPE_NOMODAL, ActionsManage, MenuManage,\
-    FORMTYPE_REFRESH, CLOSE_NO, SELECT_SINGLE, CLOSE_YES
+from lucterios.framework.tools import FORMTYPE_NOMODAL, ActionsManage, MenuManage, FORMTYPE_REFRESH, CLOSE_NO, SELECT_SINGLE, CLOSE_YES, SELECT_MULTI
 from lucterios.framework.xfercomponents import XferCompLabelForm, XferCompSelect
 from lucterios.framework.xfergraphic import XferContainerAcknowledge
 
@@ -17,7 +16,6 @@ from diacamma.condominium.models import Expense, ExpenseDetail
 from diacamma.accounting.models import FiscalYear
 
 
-@ActionsManage.affect('Expense', 'list')
 @MenuManage.describ('condominium.change_expense', FORMTYPE_NOMODAL, 'condominium', _('Manage of expenses'))
 class ExpenseList(XferListEditor):
     icon = "expense.png"
@@ -39,8 +37,7 @@ class ExpenseList(XferListEditor):
         edt.set_select(sel_list)
         edt.set_value(status_filter)
         edt.set_location(1, 3)
-        edt.set_action(self.request, self.get_action(),
-                       {'modal': FORMTYPE_REFRESH, 'close': CLOSE_NO})
+        edt.set_action(self.request, self.get_action(), modal=FORMTYPE_REFRESH, close=CLOSE_NO)
         self.add_component(edt)
 
         lbl = XferCompLabelForm('lbl_date_filter')
@@ -48,25 +45,20 @@ class ExpenseList(XferListEditor):
         lbl.set_location(0, 4)
         self.add_component(lbl)
         edt = XferCompSelect("date_filter")
-        edt.set_select(
-            [(0, _('only current fiscal year')), (1, _('all expenses'))])
+        edt.set_select([(0, _('only current fiscal year')), (1, _('all expenses'))])
         edt.set_value(date_filter)
         edt.set_location(1, 4)
-        edt.set_action(self.request, self.get_action(),
-                       {'modal': FORMTYPE_REFRESH, 'close': CLOSE_NO})
+        edt.set_action(self.request, self.get_action(), modal=FORMTYPE_REFRESH, close=CLOSE_NO)
         self.add_component(edt)
 
         self.filter = Q(status=status_filter)
         if date_filter == 0:
             current_year = FiscalYear.get_current()
-            self.filter &= Q(date__gte=current_year.begin) & Q(
-                date__lte=current_year.end)
-        if status_filter > 0:
-            self.action_grid = [
-                ('show', _("Edit"), "images/show.png", SELECT_SINGLE)]
+            self.filter &= Q(date__gte=current_year.begin) & Q(date__lte=current_year.end)
 
 
-@ActionsManage.affect('Expense', 'modify', 'add')
+@ActionsManage.affect_grid(TITLE_ADD, "images/add.png", condition=lambda xfer, gridname='': xfer.getparam('status_filter', 0) == 0)
+@ActionsManage.affect_show(TITLE_MODIFY, "images/edit.png", close=CLOSE_YES, condition=lambda xfer: xfer.item.status == 0)
 @MenuManage.describ('condominium.add_expense')
 class ExpenseAddModify(XferAddEditor):
     icon = "expense.png"
@@ -76,7 +68,7 @@ class ExpenseAddModify(XferAddEditor):
     caption_modify = _("Modify expense")
 
 
-@ActionsManage.affect('Expense', 'show')
+@ActionsManage.affect_grid(TITLE_EDIT, "images/show.png", unique=SELECT_SINGLE)
 @MenuManage.describ('condominium.change_expense')
 class ExpenseShow(XferShowEditor):
     icon = "expense.png"
@@ -84,20 +76,8 @@ class ExpenseShow(XferShowEditor):
     field_id = 'expense'
     caption = _("Show expense")
 
-    def fillresponse(self):
-        if (self.item.status == 0) and (self.item.get_info_state() == ''):
-            self.action_list.insert(
-                0, ('valid', _("Valid"), "images/ok.png", CLOSE_YES))
-        elif self.item.status == 1:
-            self.action_list = []
-            self.action_list.insert(
-                0, ('close', _("Closed"), "images/ok.png", CLOSE_NO))
-        elif self.item.status == 2:
-            self.action_list = []
-        XferShowEditor.fillresponse(self)
 
-
-@ActionsManage.affect('Expense', 'delete')
+@ActionsManage.affect_grid(TITLE_DELETE, "images/delete.png", unique=SELECT_MULTI, condition=lambda xfer, gridname='': xfer.getparam('status_filter', 0) == 0)
 @MenuManage.describ('condominium.delete_expense')
 class ExpenseDel(XferDelete):
     icon = "expense.png"
@@ -106,7 +86,7 @@ class ExpenseDel(XferDelete):
     caption = _("Delete expense")
 
 
-@ActionsManage.affect('Expense', 'valid')
+@ActionsManage.affect_show(_("Valid"), "images/ok.png", close=CLOSE_YES, condition=lambda xfer: (xfer.item.status == 0) and (xfer.item.get_info_state() == ''))
 @MenuManage.describ('condominium.add_expense')
 class ExpenseValid(XferContainerAcknowledge):
     icon = "expense.png"
@@ -119,7 +99,7 @@ class ExpenseValid(XferContainerAcknowledge):
             self.item.valid()
 
 
-@ActionsManage.affect('Expense', 'close')
+@ActionsManage.affect_show(_("Valid"), "images/ok.png", close=CLOSE_YES, condition=lambda xfer: xfer.item.status == 1)
 @MenuManage.describ('condominium.add_expense')
 class ExpenseClose(XferContainerAcknowledge):
     icon = "expense.png"
@@ -132,7 +112,8 @@ class ExpenseClose(XferContainerAcknowledge):
             self.item.close()
 
 
-@ActionsManage.affect('ExpenseDetail', 'edit', 'add')
+@ActionsManage.affect_grid(TITLE_ADD, "images/add.png", condition=lambda xfer, gridname='': xfer.item.status == 0)
+@ActionsManage.affect_grid(TITLE_MODIFY, "images/edit.png", unique=SELECT_SINGLE, condition=lambda xfer, gridname='': xfer.item.status == 0)
 @MenuManage.describ('condominium.add_expense')
 class ExpenseDetailAddModify(XferAddEditor):
     icon = "expense.png"
@@ -142,7 +123,7 @@ class ExpenseDetailAddModify(XferAddEditor):
     caption_modify = _("Modify detail of call")
 
 
-@ActionsManage.affect('ExpenseDetail', 'delete')
+@ActionsManage.affect_grid(TITLE_DELETE, "images/delete.png", unique=SELECT_MULTI, condition=lambda xfer, gridname='': xfer.item.status == 0)
 @MenuManage.describ('condominium.add_expense')
 class ExpenseDetailDel(XferDelete):
     icon = "expense.png"

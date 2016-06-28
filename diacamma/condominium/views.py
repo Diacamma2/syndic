@@ -26,17 +26,15 @@ from __future__ import unicode_literals
 
 from django.utils.translation import ugettext_lazy as _
 from django.core.exceptions import ObjectDoesNotExist
-from django.utils.module_loading import import_module
-from django.apps.registry import apps
+from django.utils import six
 
-from lucterios.framework.xferadvance import XferListEditor
+from lucterios.framework.xferadvance import XferListEditor, TITLE_MODIFY, TITLE_PRINT, TITLE_CLOSE, TITLE_ADD, TITLE_DELETE, TITLE_EDIT
 from lucterios.framework.xferadvance import XferAddEditor
 from lucterios.framework.xferadvance import XferShowEditor
 from lucterios.framework.xferadvance import XferDelete
-from lucterios.framework.tools import FORMTYPE_NOMODAL, ActionsManage, MenuManage, \
-    FORMTYPE_MODAL, CLOSE_NO, FORMTYPE_REFRESH, WrapAction, get_icon_path
-from lucterios.framework.xfercomponents import XferCompLabelForm, XferCompImage, \
-    XferCompButton, XferCompDate, XferCompGrid
+from lucterios.framework.tools import ActionsManage, MenuManage, WrapAction, get_icon_path
+from lucterios.framework.tools import FORMTYPE_NOMODAL, FORMTYPE_MODAL, CLOSE_NO, FORMTYPE_REFRESH, CLOSE_YES, SELECT_SINGLE, SELECT_MULTI
+from lucterios.framework.xfercomponents import XferCompLabelForm, XferCompImage, XferCompButton, XferCompDate, XferCompGrid
 from lucterios.framework.xfergraphic import XferContainerCustom
 from lucterios.framework import signal_and_lock
 from lucterios.framework.error import LucteriosException, IMPORTANT
@@ -48,9 +46,7 @@ from lucterios.CORE.xferprint import XferPrintAction, XferPrintReporting
 from lucterios.contacts.models import Individual, LegalEntity
 
 from diacamma.accounting.tools import correct_accounting_code
-from diacamma.payoff.models import PaymentMethod
 from diacamma.condominium.models import Set, Partition, Owner, ExpenseDetail
-from django.utils import six
 
 
 @MenuManage.describ('CORE.change_parameter', FORMTYPE_MODAL, 'contact.conf', _('Management of parameters of condominium'))
@@ -59,13 +55,11 @@ class CondominiumConf(XferContainerCustom):
     caption = _("Condominium configuration")
 
     def fillresponse(self):
-        param_lists = [
-            'condominium-frequency', 'condominium-default-owner-account']
+        param_lists = ['condominium-frequency', 'condominium-default-owner-account']
         Params.fill(self, param_lists, 1, 1)
         btn = XferCompButton('editparam')
         btn.set_location(1, self.get_max_row() + 1, 2, 1)
-        btn.set_action(self.request, ParamEdit.get_action(
-            _('Modify'), 'images/edit.png'), {'close': 0, 'params': {'params': param_lists}})
+        btn.set_action(self.request, ParamEdit.get_action(TITLE_MODIFY, 'images/edit.png'), close=CLOSE_NO, params={'params': param_lists})
         self.add_component(btn)
 
 
@@ -73,7 +67,6 @@ MenuManage.add_sub("condominium", "core.general", "diacamma.condominium/images/c
                    _("condominium"), _("Manage of condominium"), 30)
 
 
-@ActionsManage.affect('Set', 'list')
 @MenuManage.describ('condominium.change_set', FORMTYPE_NOMODAL, 'condominium', _('Manage of sets and owners'))
 class SetOwnerList(XferListEditor):
     icon = "set.png"
@@ -84,8 +77,7 @@ class SetOwnerList(XferListEditor):
     def fillownerlist(self):
         row = self.get_max_row()
         img = XferCompImage('imgowner')
-        img.set_value(
-            get_icon_path(icon_path="diacamma.condominium/images/owner.png"))
+        img.set_value(get_icon_path(icon_path="diacamma.condominium/images/owner.png"))
         img.set_location(0, row + 1)
         self.add_component(img)
         lbl = XferCompLabelForm('titleowner')
@@ -98,9 +90,8 @@ class SetOwnerList(XferListEditor):
         XferListEditor.fillresponse(self)
         self.fillownerlist()
         self.actions = []
-        self.add_action(SetOwnerPrint.get_action(
-            _("Print"), "images/print.png"), {'close': CLOSE_NO, 'params': {'classname': self.__class__.__name__}})
-        self.add_action(WrapAction(_('Close'), 'images/close.png'), {})
+        self.add_action(SetOwnerPrint.get_action(TITLE_PRINT, "images/print.png"), close=CLOSE_NO, params={'classname': self.__class__.__name__})
+        self.add_action(WrapAction(TITLE_CLOSE, 'images/close.png'))
 
 
 @MenuManage.describ('condominium.change_set')
@@ -113,7 +104,8 @@ class SetOwnerPrint(XferPrintAction):
     with_text_export = True
 
 
-@ActionsManage.affect('Set', 'modify', 'add')
+@ActionsManage.affect_grid(TITLE_ADD, "images/add.png")
+@ActionsManage.affect_show(TITLE_MODIFY, "images/edit.png", close=CLOSE_YES)
 @MenuManage.describ('condominium.add_set')
 class SetAddModify(XferAddEditor):
     icon = "set.png"
@@ -124,7 +116,7 @@ class SetAddModify(XferAddEditor):
     redirect_to_show = False
 
 
-@ActionsManage.affect('Set', 'show')
+@ActionsManage.affect_grid(TITLE_EDIT, "images/show.png", unique=SELECT_SINGLE)
 @MenuManage.describ('condominium.change_set')
 class SetShow(XferShowEditor):
     icon = "set.png"
@@ -133,7 +125,7 @@ class SetShow(XferShowEditor):
     caption = _("Show set")
 
 
-@ActionsManage.affect('Set', 'delete')
+@ActionsManage.affect_grid(TITLE_DELETE, "images/delete.png", unique=SELECT_MULTI)
 @MenuManage.describ('condominium.delete_set')
 class SetDel(XferDelete):
     icon = "set.png"
@@ -142,7 +134,7 @@ class SetDel(XferDelete):
     caption = _("Delete set")
 
 
-@ActionsManage.affect('Partition', 'edit')
+@ActionsManage.affect_grid(TITLE_MODIFY, "images/edit.png", unique=SELECT_SINGLE)
 @MenuManage.describ('condominium.add_set')
 class PartitionAddModify(XferAddEditor):
     icon = "set.png"
@@ -151,7 +143,7 @@ class PartitionAddModify(XferAddEditor):
     caption_modify = _("Modify partition")
 
 
-@ActionsManage.affect('Owner', 'add')
+@ActionsManage.affect_grid(TITLE_ADD, "images/add.png")
 @MenuManage.describ('condominium.add_owner')
 class OwnerAdd(XferAddEditor):
     icon = "owner.png"
@@ -161,7 +153,7 @@ class OwnerAdd(XferAddEditor):
     redirect_to_show = False
 
 
-@ActionsManage.affect('Owner', 'modify')
+@ActionsManage.affect_show(TITLE_MODIFY, "images/edit.png", close=CLOSE_YES)
 @MenuManage.describ('condominium.add_owner')
 class OwnerModify(XferAddEditor):
     icon = "owner.png"
@@ -170,7 +162,7 @@ class OwnerModify(XferAddEditor):
     caption_modify = _("Modify owner")
 
 
-@ActionsManage.affect('Owner', 'delete')
+@ActionsManage.affect_grid(TITLE_DELETE, "images/delete.png", unique=SELECT_MULTI)
 @MenuManage.describ('condominium.delete_owner')
 class OwnerDel(XferDelete):
     icon = "owner.png"
@@ -179,7 +171,7 @@ class OwnerDel(XferDelete):
     caption = _("Delete owner")
 
 
-@ActionsManage.affect('Owner', 'show')
+@ActionsManage.affect_grid(TITLE_EDIT, "images/show.png", unique=SELECT_SINGLE)
 @MenuManage.describ('condominium.change_owner')
 class OwnerShow(XferShowEditor):
     icon = "set.png"
@@ -197,8 +189,7 @@ class OwnerShow(XferShowEditor):
         date_init.set_needed(True)
         date_init.set_value(self.item.date_begin)
         date_init.set_location(2, 0)
-        date_init.set_action(
-            self.request, self.get_action(), {'close': CLOSE_NO, 'modal': FORMTYPE_REFRESH})
+        date_init.set_action(self.request, self.get_action(), close=CLOSE_NO, modal=FORMTYPE_REFRESH)
         self.add_component(date_init)
         lbl = XferCompLabelForm('lbl_end_date')
         lbl.set_value_as_name(_('current date'))
@@ -208,22 +199,15 @@ class OwnerShow(XferShowEditor):
         date_end.set_needed(True)
         date_end.set_value(self.item.date_end)
         date_end.set_location(4, 0)
-        date_end.set_action(
-            self.request, self.get_action(), {'close': CLOSE_NO, 'modal': FORMTYPE_REFRESH})
+        date_end.set_action(self.request, self.get_action(), close=CLOSE_NO, modal=FORMTYPE_REFRESH)
         self.add_component(date_end)
 
         XferShowEditor.fillresponse(self)
-        if self.item.payoff_have_payment() and (len(PaymentMethod.objects.all()) > 0):
-            self.add_action(ActionsManage.get_act_changed('Supporting', 'showpay', _(
-                "Payment"), "diacamma.payoff/images/payments.png"), {'close': CLOSE_NO, 'params': {'item_name': self.field_id}}, 0)
-        if apps.is_installed("lucterios.mailing"):
-            fct_mailing_mod = import_module('lucterios.mailing.functions')
-            if fct_mailing_mod.will_mail_send():
-                self.add_action(ActionsManage.get_act_changed('Supporting', 'email', _(
-                    "Send"), "lucterios.mailing/images/email.png"), {'close': CLOSE_NO, 'params': {'item_name': self.field_id}}, 0)
+        self.add_action(ActionsManage.get_action_url('Supporting', 'Show', self), close=CLOSE_NO, params={'item_name': self.field_id}, pos_act=0)
+        self.add_action(ActionsManage.get_action_url('Supporting', 'Email', self), close=CLOSE_NO, params={'item_name': self.field_id}, pos_act=0)
 
 
-@ActionsManage.affect('Owner', 'print')
+@ActionsManage.affect_show(TITLE_PRINT, "images/print.png", close=CLOSE_NO)
 @MenuManage.describ('condominium.change_owner')
 class OwnerReport(XferPrintReporting):
     with_text_export = True
@@ -242,8 +226,7 @@ class OwnerReport(XferPrintReporting):
 
 @signal_and_lock.Signal.decorate('compte_no_found')
 def comptenofound_condo(known_codes, accompt_returned):
-    set_unknown = Set.objects.exclude(revenue_account__in=known_codes).values_list(
-        'revenue_account', flat=True).distinct()
+    set_unknown = Set.objects.exclude(revenue_account__in=known_codes).values_list('revenue_account', flat=True).distinct()
     param_unknown = Parameter.objects.filter(name='condominium-default-owner-account').exclude(
         value__in=known_codes).values_list('value', flat=True).distinct()
     comptenofound = ""
@@ -279,17 +262,15 @@ class CurrentOwneShow(OwnerShow):
     caption = _("Your condominium")
 
     def fillresponse(self, begin_date, end_date):
-        self.action_list = [
-            ('currentprintowner', _("Print"), "images/print.png", CLOSE_NO)]
         owners = get_owners(self.request)
         if len(owners) != 1:
             raise LucteriosException(IMPORTANT, _('Bad access!'))
         self.item = owners[0]
         self.params['owner'] = self.item.id
         OwnerShow.fillresponse(self, begin_date, end_date)
+        self.add_action(CurrentOwnePrint.get_action(TITLE_PRINT, "images/print.png"), close=CLOSE_NO, pos_act=0)
 
 
-@ActionsManage.affect('Owner', 'currentprintowner')
 @MenuManage.describ(None)
 class CurrentOwnePrint(OwnerReport):
     pass
@@ -311,8 +292,7 @@ def summary_condo(xfer):
         lab.set_location(0, row + 1, 2)
         xfer.add_component(lab)
         grid = XferCompGrid("part")
-        grid.set_model(
-            owners[0].partition_set.all(), ["set", "value", (_("ratio"), 'ratio')])
+        grid.set_model(owners[0].partition_set.all(), ["set", "value", (_("ratio"), 'ratio')])
         grid.set_location(0, row + 2, 4)
         grid.set_size(200, 500)
         xfer.add_component(grid)
@@ -321,8 +301,7 @@ def summary_condo(xfer):
         nb_set = len(Set.objects.all())
         nb_owner = len(Owner.objects.all())
         lab = XferCompLabelForm('condoinfo')
-        lab.set_value_as_header(
-            _("There are %(set)d sets for %(owner)d owners") % {'set': nb_set, 'owner': nb_owner})
+        lab.set_value_as_header(_("There are %(set)d sets for %(owner)d owners") % {'set': nb_set, 'owner': nb_owner})
         lab.set_location(0, row + 1, 4)
         xfer.add_component(lab)
     if is_right or (len(owners) == 1):
@@ -344,14 +323,14 @@ def thirdaddon_condo(item, xfer):
             xfer.new_tab(_('Condominium'))
             old_item = xfer.item
             xfer.item = owner
-            fields = [((_('initial state'), 'total_initial'),), ((
-                _('total call for funds'), 'total_call'),), ((_('total estimate'), 'total_estimate'),)]
+            fields = [((_('initial state'), 'total_initial'),), ((_('total call for funds'), 'total_call'),),
+                      ((_('total estimate'), 'total_estimate'),)]
             xfer.filltab_from_model(0, 1, True, fields)
             xfer.item = old_item
             btn = XferCompButton('condobtn')
             btn.set_location(0, 5, 2)
-            btn.set_action(xfer.request, OwnerShow.get_action(
-                _("show"), 'images/edit.png'), {'close': CLOSE_NO, 'modal': FORMTYPE_MODAL, 'params': {'owner': owner.id}})
+            btn.set_action(xfer.request, OwnerShow.get_action(TITLE_EDIT, 'images/edit.png'),
+                           close=CLOSE_NO, modal=FORMTYPE_MODAL, params={'owner': owner.id})
             xfer.add_component(btn)
         except ObjectDoesNotExist:
             pass
