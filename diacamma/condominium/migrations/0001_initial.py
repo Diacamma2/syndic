@@ -5,27 +5,11 @@ from django.db import models, migrations
 import django.core.validators
 from django.utils.translation import ugettext_lazy as _
 
-from lucterios.CORE.models import Parameter, PrintModel
+from lucterios.CORE.models import PrintModel
 from diacamma.condominium.models import CallFunds
 
 
 def initial_values(*args):
-    param = Parameter.objects.create(
-        name='condominium-frequency', typeparam=4)
-    param.title = _("condominium-frequency")
-    param.param_titles = (_("condominium-frequency.0"),
-                          _("condominium-frequency.1"), _("condominium-frequency.2"))
-    param.args = "{'Enum':3}"
-    param.value = '0'
-    param.save()
-
-    param = Parameter.objects.create(
-        name='condominium-default-owner-account', typeparam=0)
-    param.title = _("condominium-default-owner-account")
-    param.args = "{'Multi':False}"
-    param.value = '455'
-    param.save()
-
     prtmdl = PrintModel.objects.create(
         name=_("call of funds"), kind=2, modelname=CallFunds.get_long_name())
     prtmdl.value = """

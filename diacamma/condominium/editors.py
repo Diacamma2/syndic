@@ -80,7 +80,7 @@ class OwnerEditor(SupportingEditor):
             btn = XferCompButton('add_third')
             btn.set_location(3, 0)
             btn.set_is_mini(True)
-            btn.set_action(xfer.request, ActionsManage.get_action_url('Third', 'Add', xfer), close=CLOSE_NO, modal=FORMTYPE_MODAL)
+            btn.set_action(xfer.request, ActionsManage.get_action_url('accounting.Third', 'Add', xfer), close=CLOSE_NO, modal=FORMTYPE_MODAL)
             xfer.add_component(btn)
         else:
             xfer.change_to_readonly('third')
@@ -90,7 +90,7 @@ class OwnerEditor(SupportingEditor):
         third.colspan -= 1
         btn = XferCompButton('show_third')
         btn.set_location(third.col + third.colspan, third.row)
-        btn.set_action(xfer.request, ActionsManage.get_action_url('Third', 'Show', xfer),
+        btn.set_action(xfer.request, ActionsManage.get_action_url('accounting.Third', 'Show', xfer),
                        modal=FORMTYPE_MODAL, close=CLOSE_NO, params={'third': self.item.third.id})
         xfer.add_component(btn)
         partition = xfer.get_components('partition')
@@ -98,7 +98,7 @@ class OwnerEditor(SupportingEditor):
         partition.delete_header('owner')
         callfunds = xfer.get_components('callfunds')
         callfunds.actions = []
-        callfunds.add_action(xfer.request, ActionsManage.get_action_url('CallFunds', 'Show', xfer), close=CLOSE_NO, unique=SELECT_SINGLE)
+        callfunds.add_action(xfer.request, ActionsManage.get_action_url('condominium.CallFunds', 'Show', xfer), close=CLOSE_NO, unique=SELECT_SINGLE)
         lbl = XferCompLabelForm('sep')
         lbl.set_location(1, xfer.get_max_row() + 1)
         lbl.set_value("{[br/]}")

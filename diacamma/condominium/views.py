@@ -203,8 +203,10 @@ class OwnerShow(XferShowEditor):
         self.add_component(date_end)
 
         XferShowEditor.fillresponse(self)
-        self.add_action(ActionsManage.get_action_url('Supporting', 'Show', self), close=CLOSE_NO, params={'item_name': self.field_id}, pos_act=0)
-        self.add_action(ActionsManage.get_action_url('Supporting', 'Email', self), close=CLOSE_NO, params={'item_name': self.field_id}, pos_act=0)
+        self.add_action(ActionsManage.get_action_url('payoff.Supporting', 'Show', self),
+                        close=CLOSE_NO, params={'item_name': self.field_id}, pos_act=0)
+        self.add_action(ActionsManage.get_action_url('payoff.Supporting', 'Email', self),
+                        close=CLOSE_NO, params={'item_name': self.field_id}, pos_act=0)
 
 
 @ActionsManage.affect_show(TITLE_PRINT, "images/print.png", close=CLOSE_NO)

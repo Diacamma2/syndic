@@ -41,6 +41,8 @@ from diacamma.accounting.models import CostAccounting, EntryAccount, Journal,\
 from diacamma.accounting.tools import format_devise, currency_round,\
     current_system_account, get_amount_sum, correct_accounting_code
 from diacamma.payoff.models import Supporting
+from lucterios.framework.signal_and_lock import Signal
+from lucterios.CORE.models import Parameter
 
 
 class Set(LucteriosModel):
@@ -695,3 +697,13 @@ class ExpenseDetail(LucteriosModel):
         verbose_name = _('detail of expense')
         verbose_name_plural = _('details of expense')
         default_permissions = []
+
+
+@Signal.decorate('checkparam')
+def condominium_checkparam():
+    Parameter.check_and_create(name='condominium-frequency', typeparam=4, title=_("condominium-frequency"),
+                               args="{'Enum':3}", value='0',
+                               param_titles=(_("condominium-frequency.0"), _("condominium-frequency.1"), _("condominium-frequency.2")))
+
+    Parameter.check_and_create(name='condominium-default-owner-account', typeparam=0, title=_("condominium-default-owner-account"),
+                               args="{'Multi':False}", value='455')
