@@ -36,7 +36,7 @@ from diacamma.condominium.views_expense import ExpenseList,\
     ExpenseAddModify, ExpenseDel, ExpenseShow, ExpenseDetailAddModify,\
     ExpenseValid, ExpenseClose
 from diacamma.payoff.views import SupportingThirdValid, PayoffAddModify
-from diacamma.accounting.views_entries import EntryLineAccountList
+from diacamma.accounting.views_entries import EntryAccountList
 from diacamma.accounting.views import ThirdShow
 
 
@@ -223,13 +223,13 @@ class ExpenseTest(LucteriosTest):
             'core.custom', 'diacamma.condominium', 'expenseList')
         self.assert_count_equal('COMPONENTS/GRID[@name="expense"]/RECORD', 0)
 
-        self.factory.xfer = EntryLineAccountList()
-        self.call('/diacamma.accounting/entryLineAccountList',
+        self.factory.xfer = EntryAccountList()
+        self.call('/diacamma.accounting/entryAccountList',
                   {'year': '1', 'journal': '-1', 'filter': '0'}, False)
         self.assert_observer(
-            'core.custom', 'diacamma.accounting', 'entryLineAccountList')
+            'core.custom', 'diacamma.accounting', 'entryAccountList')
         self.assert_count_equal(
-            'COMPONENTS/GRID[@name="entrylineaccount"]/RECORD', 0)
+            'COMPONENTS/GRID[@name="entryaccount"]/RECORD', 0)
         self.assert_xml_equal(
             "COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit:{[/b]} 0.00€ - {[b]}Charge:{[/b]} 0.00€ = {[b]}Résultat:{[/b]} 0.00€ | {[b]}Trésorie:{[/b]} 0.00€ - {[b]}Validé:{[/b]} 0.00€{[/center]}')
 
@@ -239,13 +239,13 @@ class ExpenseTest(LucteriosTest):
         self.assert_observer(
             'core.acknowledge', 'diacamma.condominium', 'expenseValid')
 
-        self.factory.xfer = EntryLineAccountList()
-        self.call('/diacamma.accounting/entryLineAccountList',
+        self.factory.xfer = EntryAccountList()
+        self.call('/diacamma.accounting/entryAccountList',
                   {'year': '1', 'journal': '-1', 'filter': '0'}, False)
         self.assert_observer(
-            'core.custom', 'diacamma.accounting', 'entryLineAccountList')
+            'core.custom', 'diacamma.accounting', 'entryAccountList')
         self.assert_count_equal(
-            'COMPONENTS/GRID[@name="entrylineaccount"]/RECORD', 4 + 4 + 3)
+            'COMPONENTS/GRID[@name="entryaccount"]/RECORD', 4)
         self.assert_xml_equal(
             "COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit:{[/b]} 180.00€ - {[b]}Charge:{[/b]} 180.00€ = {[b]}Résultat:{[/b]} 0.00€ | {[b]}Trésorie:{[/b]} 0.00€ - {[b]}Validé:{[/b]} 0.00€{[/center]}')
 
