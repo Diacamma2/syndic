@@ -87,38 +87,12 @@ class ExpenseDel(XferDelete):
     caption = _("Delete expense")
 
 
-@ActionsManage.affect_transition("status")
+@ActionsManage.affect_transition("status", close=CLOSE_YES)
 @MenuManage.describ('condominium.add_expense')
 class ExpenseTransition(XferTransition):
     icon = "expense.png"
     model = Expense
     field_id = 'expense'
-
-
-# @ActionsManage.affect_show(_("Valid"), "images/ok.png", close=CLOSE_YES, condition=lambda xfer: (xfer.item.status == 0) and (xfer.item.get_info_state() == ''))
-# @MenuManage.describ('condominium.add_expense')
-# class ExpenseValid(XferContainerAcknowledge):
-#     icon = "expense.png"
-#     model = Expense
-#     field_id = 'expense'
-#     caption = _("Valid expense")
-#
-#     def fillresponse(self):
-#         if (self.item.status == 0) and self.confirme(_("Do you want validate this expense?")):
-#             self.item.valid()
-#
-#
-# @ActionsManage.affect_show(_("Closed"), "images/ok.png", close=CLOSE_YES, condition=lambda xfer: xfer.item.status == 1)
-# @MenuManage.describ('condominium.add_expense')
-# class ExpenseClose(XferContainerAcknowledge):
-#     icon = "expense.png"
-#     model = Expense
-#     field_id = 'expense'
-#     caption = _("Close expense")
-#
-#     def fillresponse(self):
-#         if (self.item.status == 1) and self.confirme(_("Do you want close '%s'?") % self.item):
-#             self.item.close()
 
 
 @ActionsManage.affect_grid(TITLE_ADD, "images/add.png", condition=lambda xfer, gridname='': xfer.item.status == 0)

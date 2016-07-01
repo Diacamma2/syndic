@@ -91,39 +91,12 @@ class CallFundsDel(XferDelete):
     caption = _("Delete call of funds")
 
 
-@ActionsManage.affect_transition("status")
+@ActionsManage.affect_transition("status", close=CLOSE_YES)
 @MenuManage.describ('condominium.add_callfunds')
 class CallFundsTransition(XferTransition):
     icon = "callfunds.png"
     model = CallFunds
     field_id = 'callfunds'
-
-
-# @ActionsManage.affect_show(_("Valid"), "images/ok.png", close=CLOSE_YES, condition=lambda xfer: xfer.item.status == 0)
-# @MenuManage.describ('condominium.add_callfunds')
-# class CallFundsValid(XferContainerAcknowledge):
-#     icon = "callfunds.png"
-#     model = CallFunds
-#     field_id = 'callfunds'
-#     caption = _("Valid call of funds")
-# 
-#     def fillresponse(self):
-#         if (self.item.status == 0) and self.confirme(_("Do you want validate this call of funds?")):
-#             self.item.valid()
-# 
-# 
-# @ActionsManage.affect_grid(_("Closed"), "images/ok.png", unique=SELECT_MULTI, condition=lambda xfer, gridname='': xfer.getparam('status_filter', 1) == 1)
-# @ActionsManage.affect_show(_("Closed"), "images/ok.png", close=CLOSE_YES, condition=lambda xfer: xfer.item.status == 1)
-# @MenuManage.describ('condominium.add_callfunds')
-# class CallFundsClose(XferContainerAcknowledge):
-#     icon = "callfunds.png"
-#     model = CallFunds
-#     field_id = 'callfunds'
-#     caption = _("Close call of funds")
-# 
-#     def fillresponse(self):
-#         if (self.item.status == 1) and self.confirme(_("Do you want close '%s'?") % self.item):
-#             self.item.close()
 
 
 @ActionsManage.affect_grid(TITLE_ADD, "images/add.png", condition=lambda xfer, gridname='': xfer.item.status == 0)
