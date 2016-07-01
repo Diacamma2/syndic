@@ -3,103 +3,15 @@ from __future__ import unicode_literals
 
 from django.db import models, migrations
 import django.core.validators
-from django.utils.translation import ugettext_lazy as _
+from django.utils import translation
+from django.conf import settings
 
 from lucterios.CORE.models import PrintModel
-from diacamma.condominium.models import CallFunds
 
 
 def initial_values(*args):
-    prtmdl = PrintModel.objects.create(
-        name=_("call of funds"), kind=2, modelname=CallFunds.get_long_name())
-    prtmdl.value = """
-<model hmargin="10.0" vmargin="10.0" page_width="210.0" page_height="297.0">
-<header extent="25.0">
-<text height="20.0" width="120.0" top="5.0" left="70.0" padding="1.0" spacing="0.0" border_color="black" border_style="" border_width="0.2" text_align="center" line_height="20" font_family="sans-serif" font_weight="" font_size="20">
-{[b]}#OUR_DETAIL.name{[/b]}
-</text>
-<image height="25.0" width="30.0" top="0.0" left="10.0" padding="1.0" spacing="0.0" border_color="black" border_style="" border_width="0.2">
-#OUR_DETAIL.image
-</image>
-</header>
-<bottom extent="10.0">
-<text height="10.0" width="190.0" top="00.0" left="0.0" padding="1.0" spacing="0.0" border_color="black" border_style="" border_width="0.2" text_align="center" line_height="8" font_family="sans-serif" font_weight="" font_size="8">
-{[italic]}
-#OUR_DETAIL.address - #OUR_DETAIL.postal_code #OUR_DETAIL.city - #OUR_DETAIL.tel1 #OUR_DETAIL.tel2 #OUR_DETAIL.email{[br/]}#OUR_DETAIL.identify_number
-{[/italic]}
-</text>
-</bottom>
-<body>
-<text height="8.0" width="190.0" top="0.0" left="0.0" padding="1.0" spacing="0.0" border_color="black" border_style="" border_width="0.2" text_align="center" line_height="15" font_family="sans-serif" font_weight="" font_size="15">
-{[b]}%(callfunds)s #num{[/b]}
-</text>
-<text height="8.0" width="190.0" top="8.0" left="0.0" padding="1.0" spacing="0.0" border_color="black" border_style="" border_width="0.2" text_align="center" line_height="13" font_family="sans-serif" font_weight="" font_size="13">
-#date
-</text>
-<text height="20.0" width="100.0" top="25.0" left="80.0" padding="1.0" spacing="0.0" border_color="black" border_style="" border_width="0.2" text_align="center" line_height="11" font_family="sans-serif" font_weight="" font_size="11">
-{[b]}#owner.third.contact.str{[/b]}{[br/]}#owner.third.contact.address{[br/]}#owner.third.contact.postal_code #owner.third.contact.city
-</text>
-<table height="100.0" width="150.0" top="70.0" left="20.0" padding="1.0" spacing="0.0" border_color="black" border_style="" border_width="0.2">
-    <columns width="25.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
-    {[b]}%(set)s{[/b]}
-    </columns>
-    <columns width="100.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
-    {[b]}%(designation)s{[/b]}
-    </columns>
-    <columns width="25.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
-    {[b]}%(price)s{[/b]}
-    </columns>
-    <rows data="calldetail_set">
-        <cell display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="start" line_height="7" font_family="sans-serif" font_weight="" font_size="7">
-#set
-        </cell>
-        <cell display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="start" line_height="7" font_family="sans-serif" font_weight="" font_size="7">
-#designation
-        </cell>
-        <cell display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="end" line_height="7" font_family="sans-serif" font_weight="" font_size="7">
-#price_txt
-        </cell>
-    </rows>
-</table>
-<text height="15.0" width="30.0" top="190.0" left="140.0" padding="1.0" spacing="0.0" border_color="black" border_style="" border_width="0.2" text_align="right" line_height="9" font_family="sans-serif" font_weight="" font_size="9">
-{[u]}{[b]}%(total)s{[/b]}{[/u]}{[br/]}
-</text>
-<text height="15.0" width="20.0" top="190.0" left="170.0" padding="1.0" spacing="0.0" border_color="black" border_style="" border_width="0.2" text_align="right" line_height="9" font_family="sans-serif" font_weight="" font_size="9">
-{[u]}#total{[/u]}{[br/]}
-</text>
-<text height="20.0" width="100.0" top="190.0" left="0.0" padding="1.0" spacing="0.0" border_color="black" border_style="" border_width="0.2" text_align="left" line_height="9" font_family="sans-serif" font_weight="" font_size="9">
-#comment
-</text>
-<text height="5.0" width="60.0" top="215.0" left="20.0" padding="1.0" spacing="0.0" border_color="black" border_style="" border_width="0.2" text_align="center" line_height="9" font_family="sans-serif" font_weight="" font_size="9">
-{[u]}{[i]}%(situation)s{[/i]}{[/u]}
-</text>
-<text height="15.0" width="50.0" top="220.0" left="00.0" padding="1.0" spacing="0.0" border_color="black" border_style="" border_width="0.2" text_align="right" line_height="9" font_family="sans-serif" font_weight="" font_size="9">
-{[i]}%(total_initial)s{[/i]}{[br/]}
-{[i]}%(total_call)s{[/i]}{[br/]}
-{[i]}%(total_payed)s{[/i]}{[br/]}
-{[i]}%(total_estimate)s{[/i]}{[br/]}
-</text>
-<text height="15.0" width="15.0" top="220.0" left="50.0" padding="1.0" spacing="0.0" border_color="black" border_style="" border_width="0.2" text_align="right" line_height="9" font_family="sans-serif" font_weight="" font_size="9">
-#owner.total_initial{[br/]}
-#owner.total_call{[br/]}
-#owner.total_payed{[br/]}
-#owner.total_estimate{[br/]}
-</text>
-</body>
-</model>
-""" % {
-        'callfunds': _('call of funds'),
-        'set': _('set'),
-        'designation': _('designation'),
-        'price': _('price'),
-        'situation': _('situation at #owner.date_current'),
-        'total_initial': _('initial state'),
-        'total_call': _('total call for funds'),
-        'total_payed': _('total payed'),
-        'total_estimate': _('total estimate'),
-        'total': _('total'),
-    }
-    prtmdl.save()
+    translation.activate(settings.LANGUAGE_CODE)
+    PrintModel().load_model("diacamma.condominium", "CallFunds_0001")
 
 
 class Migration(migrations.Migration):
