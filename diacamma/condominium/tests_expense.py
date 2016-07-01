@@ -34,7 +34,7 @@ from diacamma.payoff.test_tools import default_bankaccount
 from diacamma.condominium.test_tools import default_setowner
 from diacamma.condominium.views_expense import ExpenseList,\
     ExpenseAddModify, ExpenseDel, ExpenseShow, ExpenseDetailAddModify,\
-    ExpenseValid, ExpenseClose
+    ExpenseTransition
 from diacamma.payoff.views import SupportingThirdValid, PayoffAddModify
 from diacamma.accounting.views_entries import EntryAccountList
 from diacamma.accounting.views import ThirdShow
@@ -233,11 +233,11 @@ class ExpenseTest(LucteriosTest):
         self.assert_xml_equal(
             "COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit:{[/b]} 0.00€ - {[b]}Charge:{[/b]} 0.00€ = {[b]}Résultat:{[/b]} 0.00€ | {[b]}Trésorie:{[/b]} 0.00€ - {[b]}Validé:{[/b]} 0.00€{[/center]}')
 
-        self.factory.xfer = ExpenseValid()
+        self.factory.xfer = ExpenseTransition()
         self.call(
-            '/diacamma.condominium/expenseValid', {'CONFIRME': 'YES', 'expense': 4}, False)
+            '/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 4, 'TRANSITION': 'valid'}, False)
         self.assert_observer(
-            'core.acknowledge', 'diacamma.condominium', 'expenseValid')
+            'core.acknowledge', 'diacamma.condominium', 'expenseTransition')
 
         self.factory.xfer = EntryAccountList()
         self.call('/diacamma.accounting/entryAccountList',
@@ -278,11 +278,11 @@ class ExpenseTest(LucteriosTest):
         self.assert_xml_equal(
             'COMPONENTS/GRID[@name="expense"]/RECORD[1]/VALUE[@name="total"]', "180.00€")
 
-        self.factory.xfer = ExpenseClose()
+        self.factory.xfer = ExpenseTransition()
         self.call(
-            '/diacamma.condominium/expenseClose', {'CONFIRME': 'YES', 'expense': 4}, False)
+            '/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 4, "TRANSITION": 'close'}, False)
         self.assert_observer(
-            'core.acknowledge', 'diacamma.condominium', 'expenseClose')
+            'core.acknowledge', 'diacamma.condominium', 'expenseTransition')
 
         self.factory.xfer = ExpenseDel()
         self.call(
@@ -356,11 +356,11 @@ class ExpenseTest(LucteriosTest):
             'COMPONENTS/GRID[@name="accountthird"]/RECORD[2]/VALUE[@name="total_txt"]', '{[font color="green"]}Crédit: 0.00€{[/font]}')
         self.assert_xml_equal('COMPONENTS/LABELFORM[@name="total"]', '0.00€')
 
-        self.factory.xfer = ExpenseValid()
+        self.factory.xfer = ExpenseTransition()
         self.call(
-            '/diacamma.condominium/expenseValid', {'CONFIRME': 'YES', 'expense': 4}, False)
+            '/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 4, 'TRANSITION':'valid'}, False)
         self.assert_observer(
-            'core.acknowledge', 'diacamma.condominium', 'expenseValid')
+            'core.acknowledge', 'diacamma.condominium', 'expenseTransition')
 
         self.factory.xfer = ThirdShow()
         self.call('/diacamma.accounting/thirdShow', {"third": 3}, False)

@@ -34,7 +34,7 @@ from diacamma.payoff.test_tools import default_bankaccount
 from diacamma.condominium.test_tools import default_setowner
 from diacamma.condominium.views_callfunds import CallFundsList,\
     CallFundsAddModify, CallFundsDel, CallFundsShow, CallDetailAddModify,\
-    CallFundsValid, CallFundsClose, CallFundsPrint
+    CallFundsTransition, CallFundsPrint
 
 
 class CallFundsTest(LucteriosTest):
@@ -110,7 +110,7 @@ class CallFundsTest(LucteriosTest):
         self.assert_observer(
             'core.custom', 'diacamma.condominium', 'callFundsShow')
         self.assert_count_equal('COMPONENTS/*', 15)
-        self.assert_count_equal('ACTIONS/ACTION', 3)
+        self.assert_count_equal('ACTIONS/ACTION', 2)
         self.assert_count_equal(
             'COMPONENTS/GRID[@name="calldetail"]/RECORD', 0)
         self.assert_count_equal(
@@ -152,6 +152,7 @@ class CallFundsTest(LucteriosTest):
             '/diacamma.condominium/callFundsShow', {'callfunds': 1}, False)
         self.assert_observer(
             'core.custom', 'diacamma.condominium', 'callFundsShow')
+        self.assert_count_equal('ACTIONS/ACTION', 3)
         self.assert_count_equal(
             'COMPONENTS/GRID[@name="calldetail"]/RECORD', 2)
         self.assert_xml_equal('COMPONENTS/LABELFORM[@name="total"]', '275.00€')
@@ -192,11 +193,11 @@ class CallFundsTest(LucteriosTest):
             'core.custom', 'diacamma.condominium', 'callFundsList')
         self.assert_count_equal('COMPONENTS/GRID[@name="callfunds"]/RECORD', 0)
 
-        self.factory.xfer = CallFundsValid()
+        self.factory.xfer = CallFundsTransition()
         self.call(
-            '/diacamma.condominium/callFundsValid', {'CONFIRME': 'YES', 'callfunds': 1}, False)
+            '/diacamma.condominium/callFundsTransition', {'CONFIRME': 'YES', 'callfunds': 1, 'TRANSITION': 'valid'}, False)
         self.assert_observer(
-            'core.acknowledge', 'diacamma.condominium', 'callFundsValid')
+            'core.acknowledge', 'diacamma.condominium', 'callFundsTransition')
 
         self.factory.xfer = CallFundsDel()
         self.call(
@@ -248,11 +249,11 @@ class CallFundsTest(LucteriosTest):
         self.assert_observer(
             'core.print', 'diacamma.condominium', 'callFundsPrint')
 
-        self.factory.xfer = CallFundsClose()
+        self.factory.xfer = CallFundsTransition()
         self.call(
-            '/diacamma.condominium/callFundsClose', {'CONFIRME': 'YES', 'callfunds': 3}, False)
+            '/diacamma.condominium/callFundsTransition', {'CONFIRME': 'YES', 'callfunds': 3, 'TRANSITION': 'close'}, False)
         self.assert_observer(
-            'core.acknowledge', 'diacamma.condominium', 'callFundsClose')
+            'core.acknowledge', 'diacamma.condominium', 'callFundsTransition')
 
         self.factory.xfer = CallFundsDel()
         self.call(

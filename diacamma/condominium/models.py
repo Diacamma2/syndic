@@ -23,7 +23,7 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from __future__ import unicode_literals
-from datetime import date, datetime
+from datetime import date
 
 from django.db import models
 from django.db.models import Q
@@ -35,14 +35,15 @@ from django.utils import six, formats
 from lucterios.framework.models import LucteriosModel, get_value_converted
 from lucterios.framework.error import LucteriosException, IMPORTANT, GRAVE
 from lucterios.framework.tools import convert_date
+from lucterios.framework.signal_and_lock import Signal
+from lucterios.CORE.models import Parameter
 
 from diacamma.accounting.models import CostAccounting, EntryAccount, Journal,\
     ChartsAccount, EntryLineAccount, FiscalYear
 from diacamma.accounting.tools import format_devise, currency_round,\
     current_system_account, get_amount_sum, correct_accounting_code
 from diacamma.payoff.models import Supporting
-from lucterios.framework.signal_and_lock import Signal
-from lucterios.CORE.models import Parameter
+from django_fsm import FSMIntegerField, transition
 
 
 class Set(LucteriosModel):
@@ -374,8 +375,8 @@ class CallFunds(LucteriosModel):
     num = models.IntegerField(verbose_name=_('numeros'), null=True)
     date = models.DateField(verbose_name=_('date'), null=False)
     comment = models.TextField(_('comment'), null=True, default="")
-    status = models.IntegerField(verbose_name=_('status'),
-                                 choices=((0, _('building')), (1, _('valid')), (2, _('ended'))), null=False, default=0, db_index=True)
+    status = FSMIntegerField(verbose_name=_('status'),
+                             choices=((0, _('building')), (1, _('valid')), (2, _('ended'))), null=False, default=0, db_index=True)
 
     def __str__(self):
         return _('call of funds #%(num)d - %(date)s') % {'num': self.num, 'date': get_value_converted(self.date)}
@@ -402,46 +403,53 @@ class CallFunds(LucteriosModel):
     def total(self):
         return format_devise(self.get_total(), 5)
 
-    def valid(self):
-        if self.status == 0:
-            val = CallFunds.objects.exclude(status=0).aggregate(Max('num'))
-            if val['num__max'] is None:
-                new_num = 1
-            else:
-                new_num = val['num__max'] + 1
-            calls_by_owner = {}
-            for owner in Owner.objects.all():
-                calls_by_owner[owner.id] = CallFunds.objects.create(
-                    num=new_num, date=self.date, owner=owner, comment=self.comment, status=1)
-            for calldetail in self.calldetail_set.all():
-                amount = float(calldetail.price)
-                new_detail = None
-                for part in calldetail.set.partition_set.all().order_by('value'):
-                    if part.value > 0.001:
-                        new_detail = CallDetail.objects.create(
-                            set=calldetail.set, designation=calldetail.designation)
-                        new_detail.callfunds = calls_by_owner[part.owner.id]
-                        new_detail.price = currency_round(float(
-                            calldetail.price) * part.get_ratio() / 100.0)
-                        amount -= new_detail.price
-                        new_detail.save()
-                if abs(amount) > 0.0001:
-                    new_detail.price += amount
-                    new_detail.save()
-            for new_call in calls_by_owner.values():
-                if new_call.get_total() < 0.0001:
-                    new_call.delete()
-            self.delete()
-
     def can_delete(self):
         if self.status != 0:
             return _('"%s" cannot be deleted!') % six.text_type(self)
         return ''
 
+    transitionname__valid = _("Valid")
+
+    @transition(field=status, source=0, target=1, conditions=[lambda item:(len(Owner.objects.all()) > 0) and (len(item.calldetail_set.all()) > 0)])
+    def valid(self):
+        val = CallFunds.objects.exclude(status=0).aggregate(Max('num'))
+        if val['num__max'] is None:
+            new_num = 1
+        else:
+            new_num = val['num__max'] + 1
+        last_call = None
+        calls_by_owner = {}
+        for owner in Owner.objects.all():
+            calls_by_owner[owner.id] = CallFunds.objects.create(
+                num=new_num, date=self.date, owner=owner, comment=self.comment, status=1)
+            last_call = calls_by_owner[owner.id]
+        for calldetail in self.calldetail_set.all():
+            amount = float(calldetail.price)
+            new_detail = None
+            for part in calldetail.set.partition_set.all().order_by('value'):
+                if part.value > 0.001:
+                    new_detail = CallDetail.objects.create(
+                        set=calldetail.set, designation=calldetail.designation)
+                    new_detail.callfunds = calls_by_owner[part.owner.id]
+                    new_detail.price = currency_round(float(
+                        calldetail.price) * part.get_ratio() / 100.0)
+                    amount -= new_detail.price
+                    new_detail.save()
+            if abs(amount) > 0.0001:
+                new_detail.price += amount
+                new_detail.save()
+        for new_call in calls_by_owner.values():
+            if new_call.get_total() < 0.0001:
+                new_call.delete()
+        self.delete()
+        if last_call is not None:
+            self.__dict__ = last_call.__dict__
+
+    transitionname__close = _("Closed")
+
+    @transition(field=status, source=1, target=2)
     def close(self):
-        if self.status == 1:
-            self.status = 2
-            self.save()
+        pass
 
     class Meta(object):
         verbose_name = _('call of funds')
@@ -481,8 +489,8 @@ class Expense(Supporting):
     comment = models.TextField(_('comment'), null=True, default="")
     expensetype = models.IntegerField(verbose_name=_('expense type'),
                                       choices=((0, _('expense')), (1, _('asset of expense'))), null=False, default=0, db_index=True)
-    status = models.IntegerField(verbose_name=_('status'),
-                                 choices=((0, _('building')), (1, _('valid')), (2, _('ended'))), null=False, default=0, db_index=True)
+    status = FSMIntegerField(verbose_name=_('status'),
+                             choices=((0, _('building')), (1, _('valid')), (2, _('ended'))), null=False, default=0, db_index=True)
     entries = models.ManyToManyField(EntryAccount, verbose_name=_('entries'))
 
     def __str__(self):
@@ -537,23 +545,6 @@ class Expense(Supporting):
     def total(self):
         return format_devise(self.get_total(), 5)
 
-    def valid(self):
-        if self.status == 0:
-            if self.expensetype == 0:
-                is_asset = 1
-            else:
-                is_asset = -1
-            fiscal_year = FiscalYear.get_current()
-            val = Expense.objects.exclude(status=0).aggregate(Max('num'))
-            if val['num__max'] is None:
-                self.num = 1
-            else:
-                self.num = val['num__max'] + 1
-            self.generate_expense_entry(is_asset, fiscal_year)
-            self.generate_revenue_entry(is_asset, fiscal_year)
-            self.status = 1
-            self.save()
-
     def generate_revenue_entry(self, is_asset, fiscal_year):
         for detail in self.expensedetail_set.all():
             detail.generate_revenue_entry(is_asset, fiscal_year)
@@ -597,19 +588,36 @@ class Expense(Supporting):
             entries.append(six.text_type(new_entry.id))
         self.entries = EntryAccount.objects.filter(id__in=entries)
 
+    transitionname__valid = _("Valid")
+
+    @transition(field=status, source=0, target=1, conditions=[lambda item:item.get_info_state() == ''])
+    def valid(self):
+        if self.expensetype == 0:
+            is_asset = 1
+        else:
+            is_asset = -1
+        fiscal_year = FiscalYear.get_current()
+        val = Expense.objects.exclude(status=0).aggregate(Max('num'))
+        if val['num__max'] is None:
+            self.num = 1
+        else:
+            self.num = val['num__max'] + 1
+        self.generate_expense_entry(is_asset, fiscal_year)
+        self.generate_revenue_entry(is_asset, fiscal_year)
+
+    transitionname__close = _("Closed")
+
+    @transition(field=status, source=1, target=2)
     def close(self):
-        if self.status == 1:
-            if self.entries is not None:
-                for entry in self.entries.all():
-                    entry.closed()
-            for detail in self.expensedetail_set.all():
-                if detail.entry is not None:
-                    detail.entry.closed()
-            for payoff in self.payoff_set.all():
-                if payoff.entry is not None:
-                    payoff.entry.closed()
-            self.status = 2
-            self.save()
+        if self.entries is not None:
+            for entry in self.entries.all():
+                entry.closed()
+        for detail in self.expensedetail_set.all():
+            if detail.entry is not None:
+                detail.entry.closed()
+        for payoff in self.payoff_set.all():
+            if payoff.entry is not None:
+                payoff.entry.closed()
 
     def get_info_state(self):
         info = []

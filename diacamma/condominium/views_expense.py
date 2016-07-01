@@ -4,7 +4,8 @@ from __future__ import unicode_literals
 from django.utils.translation import ugettext_lazy as _
 from django.db.models import Q
 
-from lucterios.framework.xferadvance import XferListEditor, TITLE_EDIT, TITLE_ADD, TITLE_MODIFY, TITLE_DELETE
+from lucterios.framework.xferadvance import XferListEditor, TITLE_EDIT, TITLE_ADD, TITLE_MODIFY, TITLE_DELETE,\
+    XferTransition
 from lucterios.framework.xferadvance import XferAddEditor
 from lucterios.framework.xferadvance import XferShowEditor
 from lucterios.framework.xferadvance import XferDelete
@@ -86,30 +87,38 @@ class ExpenseDel(XferDelete):
     caption = _("Delete expense")
 
 
-@ActionsManage.affect_show(_("Valid"), "images/ok.png", close=CLOSE_YES, condition=lambda xfer: (xfer.item.status == 0) and (xfer.item.get_info_state() == ''))
+@ActionsManage.affect_transition("status")
 @MenuManage.describ('condominium.add_expense')
-class ExpenseValid(XferContainerAcknowledge):
+class ExpenseTransition(XferTransition):
     icon = "expense.png"
     model = Expense
     field_id = 'expense'
-    caption = _("Valid expense")
-
-    def fillresponse(self):
-        if (self.item.status == 0) and self.confirme(_("Do you want validate this expense?")):
-            self.item.valid()
 
 
-@ActionsManage.affect_show(_("Valid"), "images/ok.png", close=CLOSE_YES, condition=lambda xfer: xfer.item.status == 1)
-@MenuManage.describ('condominium.add_expense')
-class ExpenseClose(XferContainerAcknowledge):
-    icon = "expense.png"
-    model = Expense
-    field_id = 'expense'
-    caption = _("Close expense")
-
-    def fillresponse(self):
-        if (self.item.status == 1) and self.confirme(_("Do you want close '%s'?") % self.item):
-            self.item.close()
+# @ActionsManage.affect_show(_("Valid"), "images/ok.png", close=CLOSE_YES, condition=lambda xfer: (xfer.item.status == 0) and (xfer.item.get_info_state() == ''))
+# @MenuManage.describ('condominium.add_expense')
+# class ExpenseValid(XferContainerAcknowledge):
+#     icon = "expense.png"
+#     model = Expense
+#     field_id = 'expense'
+#     caption = _("Valid expense")
+#
+#     def fillresponse(self):
+#         if (self.item.status == 0) and self.confirme(_("Do you want validate this expense?")):
+#             self.item.valid()
+#
+#
+# @ActionsManage.affect_show(_("Closed"), "images/ok.png", close=CLOSE_YES, condition=lambda xfer: xfer.item.status == 1)
+# @MenuManage.describ('condominium.add_expense')
+# class ExpenseClose(XferContainerAcknowledge):
+#     icon = "expense.png"
+#     model = Expense
+#     field_id = 'expense'
+#     caption = _("Close expense")
+#
+#     def fillresponse(self):
+#         if (self.item.status == 1) and self.confirme(_("Do you want close '%s'?") % self.item):
+#             self.item.close()
 
 
 @ActionsManage.affect_grid(TITLE_ADD, "images/add.png", condition=lambda xfer, gridname='': xfer.item.status == 0)
