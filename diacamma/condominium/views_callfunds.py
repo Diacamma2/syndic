@@ -11,7 +11,6 @@ from lucterios.framework.xferadvance import XferShowEditor
 from lucterios.framework.xferadvance import XferDelete
 from lucterios.framework.tools import FORMTYPE_NOMODAL, ActionsManage, MenuManage, FORMTYPE_REFRESH, CLOSE_NO, SELECT_SINGLE, CLOSE_YES, SELECT_MULTI
 from lucterios.framework.xfercomponents import XferCompLabelForm, XferCompSelect
-from lucterios.framework.xfergraphic import XferContainerAcknowledge
 from lucterios.framework.error import LucteriosException, IMPORTANT
 
 from lucterios.CORE.xferprint import XferPrintReporting
@@ -28,6 +27,7 @@ class CallFundsList(XferListEditor):
 
     def fillresponse_header(self):
         status_filter = self.getparam('status_filter', 1)
+        self.params['status_filter'] = status_filter
         lbl = XferCompLabelForm('lbl_filter')
         lbl.set_value_as_name(_('Filter by type'))
         lbl.set_location(0, 3)

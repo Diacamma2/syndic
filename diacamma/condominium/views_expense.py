@@ -26,6 +26,7 @@ class ExpenseList(XferListEditor):
 
     def fillresponse_header(self):
         status_filter = self.getparam('status_filter', 0)
+        self.params['status_filter'] = status_filter
         date_filter = self.getparam('date_filter', 0)
         self.fieldnames = Expense.get_default_fields(status_filter)
         lbl = XferCompLabelForm('lbl_status_filter')
@@ -87,7 +88,7 @@ class ExpenseDel(XferDelete):
     caption = _("Delete expense")
 
 
-@ActionsManage.affect_transition("status", close=CLOSE_YES)
+@ActionsManage.affect_transition("status", close=CLOSE_NO)
 @MenuManage.describ('condominium.add_expense')
 class ExpenseTransition(XferTransition):
     icon = "expense.png"
