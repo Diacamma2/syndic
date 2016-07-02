@@ -167,3 +167,14 @@ class ExpenseDetailEditor(LucteriosEditor):
             sel_account.select_list.append((item.code, six.text_type(item)))
         sel_account.set_value(self.item.expense_account)
         xfer.add_component(sel_account)
+
+        self.item.year = FiscalYear.get_current()
+        btn = XferCompButton('add_account')
+        btn.set_location(old_account.col + 1, old_account.row)
+        btn.set_is_mini(True)
+        btn.set_action(xfer.request, ActionsManage.get_action_url('accounting.ChartsAccount', 'AddModify', xfer),
+                       close=CLOSE_NO, modal=FORMTYPE_MODAL, params={'year': self.item.year.id})
+        xfer.add_component(btn)
+        xfer.get_components("set").colspan = old_account.colspan + 1
+        xfer.get_components("designation").colspan = old_account.colspan + 1
+        xfer.get_components("price").colspan = old_account.colspan + 1

@@ -145,7 +145,7 @@ class ExpenseTest(LucteriosTest):
             '/diacamma.condominium/expenseDetailAddModify', {'expense': 4}, False)
         self.assert_observer(
             'core.custom', 'diacamma.condominium', 'expenseDetailAddModify')
-        self.assert_count_equal('COMPONENTS/*', 9)
+        self.assert_count_equal('COMPONENTS/*', 10)
         self.assert_xml_equal('COMPONENTS/SELECT[@name="set"]', '1')
         self.assert_xml_equal('COMPONENTS/FLOAT[@name="price"]', '0.00')
         self.assert_count_equal(
