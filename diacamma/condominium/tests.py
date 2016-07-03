@@ -520,8 +520,8 @@ class MethodTest(PaymentTest):
             self.assertEqual(
                 'mr-sylvestre@worldcompany.com', server.get(0)[1])
             self.assertEqual(
-                ['Minimum@worldcompany.com'], server.get(0)[2])
-            msg, msg_file = server.check_first_message('my bill', 2)
+                ['Minimum@worldcompany.com', 'mr-sylvestre@worldcompany.com'], server.get(0)[2])
+            msg, msg_file = server.check_first_message('my bill', 2, {'To': 'Minimum@worldcompany.com'})
             self.assertEqual('text/html', msg.get_content_type())
             self.assertEqual('base64', msg.get('Content-Transfer-Encoding', ''))
             self.check_email_msg(msg, 1, "copropriete de Minimum", "131.25")
