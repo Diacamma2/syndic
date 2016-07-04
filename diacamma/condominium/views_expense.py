@@ -15,6 +15,7 @@ from lucterios.framework.xfergraphic import XferContainerAcknowledge
 
 from diacamma.condominium.models import Expense, ExpenseDetail
 from diacamma.accounting.models import FiscalYear
+from diacamma.condominium.views import SetShow
 
 
 @MenuManage.describ('condominium.change_expense', FORMTYPE_NOMODAL, 'condominium', _('Manage of expenses'))
@@ -114,3 +115,15 @@ class ExpenseDetailDel(XferDelete):
     model = ExpenseDetail
     field_id = 'expensedetail'
     caption = _("Delete detail of expense")
+
+
+@ActionsManage.affect_grid(_("Show set"), "diacamma.condominium/images/set.png", unique=SELECT_SINGLE, condition=lambda xfer, gridname='': xfer.item.status == 0)
+@MenuManage.describ('condominium.change_set')
+class ExpenseDetailShowSet(XferContainerAcknowledge):
+    icon = "expense.png"
+    model = ExpenseDetail
+    field_id = 'expensedetail'
+    caption = _("Show set")
+
+    def fillresponse(self):
+        self.redirect_action(SetShow.get_action(), close=CLOSE_NO, params={'set': self.item.set_id})

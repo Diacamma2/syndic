@@ -36,7 +36,8 @@ from diacamma.condominium.views_expense import ExpenseList,\
     ExpenseAddModify, ExpenseDel, ExpenseShow, ExpenseDetailAddModify,\
     ExpenseTransition
 from diacamma.payoff.views import SupportingThirdValid, PayoffAddModify
-from diacamma.accounting.views_entries import EntryAccountList
+from diacamma.accounting.views_entries import EntryAccountList,\
+    EntryAccountClose
 from diacamma.accounting.views import ThirdShow
 
 
@@ -55,64 +56,50 @@ class ExpenseTest(LucteriosTest):
     def test_create(self):
         self.factory.xfer = ExpenseList()
         self.call('/diacamma.condominium/expenseList', {}, False)
-        self.assert_observer(
-            'core.custom', 'diacamma.condominium', 'expenseList')
+        self.assert_observer('core.custom', 'diacamma.condominium', 'expenseList')
         self.assert_count_equal('COMPONENTS/GRID[@name="expense"]/RECORD', 0)
         self.assert_count_equal('COMPONENTS/GRID[@name="expense"]/HEADER', 5)
 
         self.factory.xfer = ExpenseAddModify()
         self.call('/diacamma.condominium/expenseAddModify', {}, False)
-        self.assert_observer(
-            'core.custom', 'diacamma.condominium', 'expenseAddModify')
+        self.assert_observer('core.custom', 'diacamma.condominium', 'expenseAddModify')
         self.assert_count_equal('COMPONENTS/*', 9)
 
         self.factory.xfer = ExpenseAddModify()
-        self.call(
-            '/diacamma.condominium/expenseAddModify', {'SAVE': 'YES', 'expensetype': 0, "date": '2015-06-10', "comment": 'abc 123'}, False)
-        self.assert_observer(
-            'core.acknowledge', 'diacamma.condominium', 'expenseAddModify')
+        self.call('/diacamma.condominium/expenseAddModify', {'SAVE': 'YES', 'expensetype': 0, "date": '2015-06-10', "comment": 'abc 123'}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseAddModify')
 
         self.factory.xfer = ExpenseList()
         self.call('/diacamma.condominium/expenseList', {}, False)
-        self.assert_observer(
-            'core.custom', 'diacamma.condominium', 'expenseList')
+        self.assert_observer('core.custom', 'diacamma.condominium', 'expenseList')
         self.assert_count_equal('COMPONENTS/GRID[@name="expense"]/RECORD', 1)
         self.assert_count_equal('COMPONENTS/GRID[@name="expense"]/HEADER', 5)
 
         self.factory.xfer = ExpenseShow()
-        self.call(
-            '/diacamma.condominium/expenseShow', {'expense': 4}, False)
-        self.assert_observer(
-            'core.custom', 'diacamma.condominium', 'expenseShow')
+        self.call('/diacamma.condominium/expenseShow', {'expense': 4}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
         self.assert_count_equal('COMPONENTS/*', 19)
         self.assert_count_equal('ACTIONS/ACTION', 2)
-        self.assert_xml_equal(
-            'COMPONENTS/LABELFORM[@name="third"]', "---")
-        self.assert_xml_equal(
-            'COMPONENTS/LABELFORM[@name="info"]', "{[font color=\"red\"]}aucun tiers sélectionné{[/font]}")
-        self.assert_count_equal(
-            'COMPONENTS/GRID[@name="expensedetail"]/RECORD', 0)
-        self.assert_count_equal(
-            'COMPONENTS/GRID[@name="expensedetail"]/HEADER', 4)
-        self.assert_count_equal(
-            'COMPONENTS/GRID[@name="expensedetail"]/ACTIONS/ACTION', 3)
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="third"]', "---")
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="info"]', "{[font color=\"red\"]}aucun tiers sélectionné{[/font]}")
+        self.assert_count_equal('COMPONENTS/GRID[@name="expensedetail"]/RECORD', 0)
+        self.assert_count_equal('COMPONENTS/GRID[@name="expensedetail"]/HEADER', 5)
+        self.assert_count_equal('COMPONENTS/GRID[@name="expensedetail"]/ACTIONS/ACTION', 4)
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="status"]', 'en création')
+        self.assert_count_equal('ACTIONS/ACTION', 2)
+        self.assert_attrib_equal('ACTIONS/ACTION[1]', "action", 'expenseAddModify')
+        self.assert_attrib_equal('ACTIONS/ACTION[2]', "action", None)
 
         self.factory.xfer = SupportingThirdValid()
-        self.call('/diacamma.payoff/supportingThirdValid',
-                  {'supporting': 4, 'third': 4}, False)
-        self.assert_observer(
-            'core.acknowledge', 'diacamma.payoff', 'supportingThirdValid')
+        self.call('/diacamma.payoff/supportingThirdValid', {'supporting': 4, 'third': 4}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.payoff', 'supportingThirdValid')
 
         self.factory.xfer = ExpenseShow()
-        self.call(
-            '/diacamma.condominium/expenseShow', {'expense': 4}, False)
-        self.assert_observer(
-            'core.custom', 'diacamma.condominium', 'expenseShow')
+        self.call('/diacamma.condominium/expenseShow', {'expense': 4}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
         self.assert_count_equal('COMPONENTS/*', 20)
-        self.assert_xml_equal(
-            'COMPONENTS/LABELFORM[@name="third"]', "Minimum")
-        self.assert_xml_equal(
-            'COMPONENTS/LABELFORM[@name="info"]', "{[font color=\"red\"]}{[/font]}")
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="third"]', "Minimum")
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="info"]', "{[font color=\"red\"]}{[/font]}")
         self.assert_count_equal('ACTIONS/ACTION', 3)
 
         self.factory.xfer = ExpenseDel()
@@ -130,254 +117,369 @@ class ExpenseTest(LucteriosTest):
 
     def test_add(self):
         self.factory.xfer = ExpenseAddModify()
-        self.call(
-            '/diacamma.condominium/expenseAddModify', {'SAVE': 'YES', 'expensetype': 0, "date": '2015-06-10', "comment": 'abc 123'}, False)
-        self.assert_observer(
-            'core.acknowledge', 'diacamma.condominium', 'expenseAddModify')
+        self.call('/diacamma.condominium/expenseAddModify', {'SAVE': 'YES', 'expensetype': 0, "date": '2015-06-10', "comment": 'abc 123'}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseAddModify')
         self.factory.xfer = SupportingThirdValid()
         self.call('/diacamma.payoff/supportingThirdValid',
                   {'supporting': 4, 'third': 4}, False)
-        self.assert_observer(
-            'core.acknowledge', 'diacamma.payoff', 'supportingThirdValid')
+        self.assert_observer('core.acknowledge', 'diacamma.payoff', 'supportingThirdValid')
 
         self.factory.xfer = ExpenseDetailAddModify()
-        self.call(
-            '/diacamma.condominium/expenseDetailAddModify', {'expense': 4}, False)
-        self.assert_observer(
-            'core.custom', 'diacamma.condominium', 'expenseDetailAddModify')
+        self.call('/diacamma.condominium/expenseDetailAddModify', {'expense': 4}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'expenseDetailAddModify')
         self.assert_count_equal('COMPONENTS/*', 10)
         self.assert_xml_equal('COMPONENTS/SELECT[@name="set"]', '1')
         self.assert_xml_equal('COMPONENTS/FLOAT[@name="price"]', '0.00')
-        self.assert_count_equal(
-            'COMPONENTS/SELECT[@name="expense_account"]/CASE', 5)
-        self.assert_attrib_equal(
-            'COMPONENTS/SELECT[@name="expense_account"]/CASE[1]', 'id', '601')
-        self.assert_attrib_equal(
-            'COMPONENTS/SELECT[@name="expense_account"]/CASE[2]', 'id', '602')
-        self.assert_attrib_equal(
-            'COMPONENTS/SELECT[@name="expense_account"]/CASE[3]', 'id', '604')
-        self.assert_attrib_equal(
-            'COMPONENTS/SELECT[@name="expense_account"]/CASE[4]', 'id', '607')
-        self.assert_attrib_equal(
-            'COMPONENTS/SELECT[@name="expense_account"]/CASE[5]', 'id', '627')
+        self.assert_count_equal('COMPONENTS/SELECT[@name="expense_account"]/CASE', 5)
+        self.assert_attrib_equal('COMPONENTS/SELECT[@name="expense_account"]/CASE[1]', 'id', '601')
+        self.assert_attrib_equal('COMPONENTS/SELECT[@name="expense_account"]/CASE[2]', 'id', '602')
+        self.assert_attrib_equal('COMPONENTS/SELECT[@name="expense_account"]/CASE[3]', 'id', '604')
+        self.assert_attrib_equal('COMPONENTS/SELECT[@name="expense_account"]/CASE[4]', 'id', '607')
+        self.assert_attrib_equal('COMPONENTS/SELECT[@name="expense_account"]/CASE[5]', 'id', '627')
 
         self.factory.xfer = ExpenseDetailAddModify()
-        self.call(
-            '/diacamma.condominium/expenseDetailAddModify', {'SAVE': 'YES', 'expense': 4, 'set': 1, 'price': '150.00', 'comment': 'set 1', 'expense_account': '604'}, False)
-        self.assert_observer(
-            'core.acknowledge', 'diacamma.condominium', 'expenseDetailAddModify')
+        self.call('/diacamma.condominium/expenseDetailAddModify',
+                  {'SAVE': 'YES', 'expense': 4, 'set': 1, 'price': '150.00', 'comment': 'set 1', 'expense_account': '604'}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseDetailAddModify')
 
         self.factory.xfer = ExpenseDetailAddModify()
-        self.call(
-            '/diacamma.condominium/expenseDetailAddModify', {'SAVE': 'YES', 'expense': 4, 'set': 2, 'price': '30.00', 'comment': 'set 2', 'expense_account': '627'}, False)
-        self.assert_observer(
-            'core.acknowledge', 'diacamma.condominium', 'expenseDetailAddModify')
+        self.call('/diacamma.condominium/expenseDetailAddModify',
+                  {'SAVE': 'YES', 'expense': 4, 'set': 2, 'price': '30.00', 'comment': 'set 2', 'expense_account': '627'}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseDetailAddModify')
 
         self.factory.xfer = ExpenseShow()
-        self.call(
-            '/diacamma.condominium/expenseShow', {'expense': 4}, False)
-        self.assert_observer(
-            'core.custom', 'diacamma.condominium', 'expenseShow')
-        self.assert_count_equal(
-            'COMPONENTS/GRID[@name="expensedetail"]/RECORD', 2)
+        self.call('/diacamma.condominium/expenseShow', {'expense': 4}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
+        self.assert_count_equal('COMPONENTS/GRID[@name="expensedetail"]/HEADER', 5)
+        self.assert_count_equal('COMPONENTS/GRID[@name="expensedetail"]/RECORD', 2)
+        self.assert_xml_equal('COMPONENTS/GRID[@name="expensedetail"]/RECORD[1]/VALUE[@name="set"]', 'AAA')
+        self.assert_xml_equal('COMPONENTS/GRID[@name="expensedetail"]/RECORD[1]/VALUE[@name="ratio_txt"]',
+                              'Minimum : 45.0 %{[br/]}Dalton William : 35.0 %{[br/]}Dalton Joe : 20.0 %{[br/]}')
+        self.assert_xml_equal('COMPONENTS/GRID[@name="expensedetail"]/RECORD[2]/VALUE[@name="set"]', 'BBB')
+        self.assert_xml_equal('COMPONENTS/GRID[@name="expensedetail"]/RECORD[2]/VALUE[@name="ratio_txt"]',
+                              'Minimum : 75.0 %{[br/]}Dalton Joe : 25.0 %{[br/]}')
         self.assert_xml_equal('COMPONENTS/LABELFORM[@name="total"]', '180.00€')
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="status"]', 'en création')
+        self.assert_count_equal('ACTIONS/ACTION', 3)
+        self.assert_attrib_equal('ACTIONS/ACTION[1]', "action", 'expenseTransition')
+        self.assert_xml_equal("ACTIONS/ACTION[1]/PARAM[@name='TRANSITION']", 'valid')
+        self.assert_attrib_equal('ACTIONS/ACTION[2]', "action", 'expenseAddModify')
+        self.assert_attrib_equal('ACTIONS/ACTION[3]', "action", None)
 
     def test_valid(self):
         self.factory.xfer = ExpenseAddModify()
-        self.call(
-            '/diacamma.condominium/expenseAddModify', {'SAVE': 'YES', 'expensetype': 0, "date": '2015-06-10', "comment": 'abc 123'}, False)
-        self.assert_observer(
-            'core.acknowledge', 'diacamma.condominium', 'expenseAddModify')
+        self.call('/diacamma.condominium/expenseAddModify', {'SAVE': 'YES', 'expensetype': 0, "date": '2015-06-10', "comment": 'abc 123'}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseAddModify')
         self.factory.xfer = SupportingThirdValid()
         self.call('/diacamma.payoff/supportingThirdValid',
                   {'supporting': 4, 'third': 4}, False)
-        self.assert_observer(
-            'core.acknowledge', 'diacamma.payoff', 'supportingThirdValid')
+        self.assert_observer('core.acknowledge', 'diacamma.payoff', 'supportingThirdValid')
         self.factory.xfer = ExpenseDetailAddModify()
-        self.call(
-            '/diacamma.condominium/expenseDetailAddModify', {'SAVE': 'YES', 'expense': 4, 'set': 1, 'price': '150.00', 'comment': 'set 1', 'expense_account': '604'}, False)
-        self.assert_observer(
-            'core.acknowledge', 'diacamma.condominium', 'expenseDetailAddModify')
+        self.call('/diacamma.condominium/expenseDetailAddModify',
+                  {'SAVE': 'YES', 'expense': 4, 'set': 1, 'price': '150.00', 'comment': 'set 1', 'expense_account': '604'}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseDetailAddModify')
         self.factory.xfer = ExpenseDetailAddModify()
-        self.call(
-            '/diacamma.condominium/expenseDetailAddModify', {'SAVE': 'YES', 'expense': 4, 'set': 2, 'price': '30.00', 'comment': 'set 2', 'expense_account': '627'}, False)
-        self.assert_observer(
-            'core.acknowledge', 'diacamma.condominium', 'expenseDetailAddModify')
+        self.call('/diacamma.condominium/expenseDetailAddModify',
+                  {'SAVE': 'YES', 'expense': 4, 'set': 2, 'price': '30.00', 'comment': 'set 2', 'expense_account': '627'}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseDetailAddModify')
 
         self.factory.xfer = ExpenseList()
-        self.call(
-            '/diacamma.condominium/expenseList', {'status_filter': 0}, False)
-        self.assert_observer(
-            'core.custom', 'diacamma.condominium', 'expenseList')
+        self.call('/diacamma.condominium/expenseList', {'status_filter': 0}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'expenseList')
         self.assert_count_equal('COMPONENTS/GRID[@name="expense"]/RECORD', 1)
         self.factory.xfer = ExpenseList()
-        self.call(
-            '/diacamma.condominium/expenseList', {'status_filter': 1}, False)
-        self.assert_observer(
-            'core.custom', 'diacamma.condominium', 'expenseList')
+        self.call('/diacamma.condominium/expenseList', {'status_filter': 1}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'expenseList')
         self.assert_count_equal('COMPONENTS/GRID[@name="expense"]/RECORD', 0)
         self.factory.xfer = ExpenseList()
-        self.call(
-            '/diacamma.condominium/expenseList', {'status_filter': 2}, False)
-        self.assert_observer(
-            'core.custom', 'diacamma.condominium', 'expenseList')
+        self.call('/diacamma.condominium/expenseList', {'status_filter': 2}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'expenseList')
         self.assert_count_equal('COMPONENTS/GRID[@name="expense"]/RECORD', 0)
 
         self.factory.xfer = EntryAccountList()
-        self.call('/diacamma.accounting/entryAccountList',
-                  {'year': '1', 'journal': '-1', 'filter': '0'}, False)
-        self.assert_observer(
-            'core.custom', 'diacamma.accounting', 'entryAccountList')
-        self.assert_count_equal(
-            'COMPONENTS/GRID[@name="entryaccount"]/RECORD', 0)
+        self.call('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '-1', 'filter': '0'}, False)
+        self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
+        self.assert_count_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD', 0)
         self.assert_xml_equal(
             "COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit:{[/b]} 0.00€ - {[b]}Charge:{[/b]} 0.00€ = {[b]}Résultat:{[/b]} 0.00€ | {[b]}Trésorie:{[/b]} 0.00€ - {[b]}Validé:{[/b]} 0.00€{[/center]}')
 
         self.factory.xfer = ExpenseTransition()
-        self.call(
-            '/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 4, 'TRANSITION': 'valid'}, False)
-        self.assert_observer(
-            'core.acknowledge', 'diacamma.condominium', 'expenseTransition')
+        self.call('/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 4, 'TRANSITION': 'valid'}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseTransition')
 
         self.factory.xfer = EntryAccountList()
-        self.call('/diacamma.accounting/entryAccountList',
-                  {'year': '1', 'journal': '-1', 'filter': '0'}, False)
-        self.assert_observer(
-            'core.custom', 'diacamma.accounting', 'entryAccountList')
-        self.assert_count_equal(
-            'COMPONENTS/GRID[@name="entryaccount"]/RECORD', 4)
+        self.call('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '-1', 'filter': '0'}, False)
+        self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
+        self.assert_count_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD', 4)
         self.assert_xml_equal(
             "COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit:{[/b]} 180.00€ - {[b]}Charge:{[/b]} 180.00€ = {[b]}Résultat:{[/b]} 0.00€ | {[b]}Trésorie:{[/b]} 0.00€ - {[b]}Validé:{[/b]} 0.00€{[/center]}')
 
+        self.factory.xfer = ExpenseShow()
+        self.call('/diacamma.condominium/expenseShow', {'expense': 4}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
+        self.assert_count_equal('COMPONENTS/GRID[@name="expensedetail"]/HEADER', 5)
+        self.assert_count_equal('COMPONENTS/GRID[@name="expensedetail"]/RECORD', 2)
+        self.assert_xml_equal('COMPONENTS/GRID[@name="expensedetail"]/RECORD[1]/VALUE[@name="set"]', 'AAA')
+        self.assert_xml_equal('COMPONENTS/GRID[@name="expensedetail"]/RECORD[1]/VALUE[@name="ratio_txt"]',
+                              'Minimum : 45.0 %{[br/]}Dalton William : 35.0 %{[br/]}Dalton Joe : 20.0 %{[br/]}')
+        self.assert_xml_equal('COMPONENTS/GRID[@name="expensedetail"]/RECORD[2]/VALUE[@name="set"]', 'BBB')
+        self.assert_xml_equal('COMPONENTS/GRID[@name="expensedetail"]/RECORD[2]/VALUE[@name="ratio_txt"]',
+                              'Minimum : 75.0 %{[br/]}Dalton Joe : 25.0 %{[br/]}')
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="total"]', '180.00€')
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="status"]', 'validé')
+        self.assert_count_equal('ACTIONS/ACTION', 3)
+        self.assert_attrib_equal('ACTIONS/ACTION[1]', "action", 'expenseTransition')
+        self.assert_xml_equal("ACTIONS/ACTION[1]/PARAM[@name='TRANSITION']", 'reedit')
+        self.assert_attrib_equal('ACTIONS/ACTION[2]', "action", 'expenseTransition')
+        self.assert_xml_equal("ACTIONS/ACTION[2]/PARAM[@name='TRANSITION']", 'close')
+        self.assert_attrib_equal('ACTIONS/ACTION[3]', "action", None)
+
         self.factory.xfer = ExpenseDel()
-        self.call(
-            '/diacamma.condominium/expenseAddDel', {'CONFIRME': 'YES', "expense": 4}, False)
-        self.assert_observer(
-            'core.exception', 'diacamma.condominium', 'expenseAddDel')
+        self.call('/diacamma.condominium/expenseAddDel', {'CONFIRME': 'YES', "expense": 4}, False)
+        self.assert_observer('core.exception', 'diacamma.condominium', 'expenseAddDel')
 
         self.factory.xfer = ExpenseList()
-        self.call(
-            '/diacamma.condominium/expenseList', {'status_filter': 0}, False)
-        self.assert_observer(
-            'core.custom', 'diacamma.condominium', 'expenseList')
+        self.call('/diacamma.condominium/expenseList', {'status_filter': 0}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'expenseList')
         self.assert_count_equal('COMPONENTS/GRID[@name="expense"]/RECORD', 0)
         self.factory.xfer = ExpenseList()
-        self.call(
-            '/diacamma.condominium/expenseList', {'status_filter': 2}, False)
-        self.assert_observer(
-            'core.custom', 'diacamma.condominium', 'expenseList')
+        self.call('/diacamma.condominium/expenseList', {'status_filter': 2}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'expenseList')
         self.assert_count_equal('COMPONENTS/GRID[@name="expense"]/RECORD', 0)
         self.factory.xfer = ExpenseList()
-        self.call(
-            '/diacamma.condominium/expenseList', {'status_filter': 1}, False)
-        self.assert_observer(
-            'core.custom', 'diacamma.condominium', 'expenseList')
+        self.call('/diacamma.condominium/expenseList', {'status_filter': 1}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'expenseList')
         self.assert_count_equal('COMPONENTS/GRID[@name="expense"]/RECORD', 1)
-        self.assert_xml_equal(
-            'COMPONENTS/GRID[@name="expense"]/RECORD[1]/VALUE[@name="third"]', "Minimum")
-        self.assert_xml_equal(
-            'COMPONENTS/GRID[@name="expense"]/RECORD[1]/VALUE[@name="total"]', "180.00€")
+        self.assert_xml_equal('COMPONENTS/GRID[@name="expense"]/RECORD[1]/VALUE[@name="third"]', "Minimum")
+        self.assert_xml_equal('COMPONENTS/GRID[@name="expense"]/RECORD[1]/VALUE[@name="total"]', "180.00€")
 
         self.factory.xfer = ExpenseTransition()
-        self.call(
-            '/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 4, "TRANSITION": 'close'}, False)
-        self.assert_observer(
-            'core.acknowledge', 'diacamma.condominium', 'expenseTransition')
+        self.call('/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 4, "TRANSITION": 'close'}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseTransition')
 
         self.factory.xfer = ExpenseDel()
-        self.call(
-            '/diacamma.condominium/expenseAddDel', {'CONFIRME': 'YES', "expense": 4}, False)
-        self.assert_observer(
-            'core.exception', 'diacamma.condominium', 'expenseAddDel')
+        self.call('/diacamma.condominium/expenseAddDel', {'CONFIRME': 'YES', "expense": 4}, False)
+        self.assert_observer('core.exception', 'diacamma.condominium', 'expenseAddDel')
 
         self.factory.xfer = ExpenseList()
-        self.call(
-            '/diacamma.condominium/expenseList', {'status_filter': 0}, False)
-        self.assert_observer(
-            'core.custom', 'diacamma.condominium', 'expenseList')
+        self.call('/diacamma.condominium/expenseList', {'status_filter': 0}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'expenseList')
         self.assert_count_equal('COMPONENTS/GRID[@name="expense"]/RECORD', 0)
         self.factory.xfer = ExpenseList()
-        self.call(
-            '/diacamma.condominium/expenseList', {'status_filter': 2}, False)
-        self.assert_observer(
-            'core.custom', 'diacamma.condominium', 'expenseList')
+        self.call('/diacamma.condominium/expenseList', {'status_filter': 2}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'expenseList')
         self.assert_count_equal('COMPONENTS/GRID[@name="expense"]/RECORD', 1)
         self.factory.xfer = ExpenseList()
-        self.call(
-            '/diacamma.condominium/expenseList', {'status_filter': 1}, False)
-        self.assert_observer(
-            'core.custom', 'diacamma.condominium', 'expenseList')
+        self.call('/diacamma.condominium/expenseList', {'status_filter': 1}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'expenseList')
         self.assert_count_equal('COMPONENTS/GRID[@name="expense"]/RECORD', 0)
+
+        self.factory.xfer = ExpenseShow()
+        self.call('/diacamma.condominium/expenseShow', {'expense': 4}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
+        self.assert_count_equal('COMPONENTS/GRID[@name="expensedetail"]/RECORD', 2)
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="total"]', '180.00€')
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="status"]', 'fini')
+        self.assert_count_equal('ACTIONS/ACTION', 1)
 
     def test_payoff(self):
         self.factory.xfer = ExpenseAddModify()
-        self.call(
-            '/diacamma.condominium/expenseAddModify', {'SAVE': 'YES', 'expensetype': 0, "date": '2015-06-10', "comment": 'abc 123'}, False)
-        self.assert_observer(
-            'core.acknowledge', 'diacamma.condominium', 'expenseAddModify')
+        self.call('/diacamma.condominium/expenseAddModify', {'SAVE': 'YES', 'expensetype': 0, "date": '2015-06-10', "comment": 'abc 123'}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseAddModify')
         self.factory.xfer = SupportingThirdValid()
-        self.call('/diacamma.payoff/supportingThirdValid',
-                  {'supporting': 4, 'third': 3}, False)
-        self.assert_observer(
-            'core.acknowledge', 'diacamma.payoff', 'supportingThirdValid')
+        self.call('/diacamma.payoff/supportingThirdValid', {'supporting': 4, 'third': 3}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.payoff', 'supportingThirdValid')
         self.factory.xfer = ExpenseDetailAddModify()
-        self.call(
-            '/diacamma.condominium/expenseDetailAddModify', {'SAVE': 'YES', 'expense': 4, 'set': 1, 'price': '150.00', 'comment': 'set 1', 'expense_account': '604'}, False)
-        self.assert_observer(
-            'core.acknowledge', 'diacamma.condominium', 'expenseDetailAddModify')
+        self.call('/diacamma.condominium/expenseDetailAddModify',
+                  {'SAVE': 'YES', 'expense': 4, 'set': 1, 'price': '150.00', 'comment': 'set 1', 'expense_account': '604'}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseDetailAddModify')
         self.factory.xfer = ExpenseDetailAddModify()
-        self.call(
-            '/diacamma.condominium/expenseDetailAddModify', {'SAVE': 'YES', 'expense': 4, 'set': 2, 'price': '30.00', 'comment': 'set 2', 'expense_account': '627'}, False)
-        self.assert_observer(
-            'core.acknowledge', 'diacamma.condominium', 'expenseDetailAddModify')
+        self.call('/diacamma.condominium/expenseDetailAddModify',
+                  {'SAVE': 'YES', 'expense': 4, 'set': 2, 'price': '30.00', 'comment': 'set 2', 'expense_account': '627'}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseDetailAddModify')
         self.factory.xfer = ExpenseShow()
-        self.call(
-            '/diacamma.condominium/expenseShow', {'expense': 4}, False)
-        self.assert_observer(
-            'core.custom', 'diacamma.condominium', 'expenseShow')
-        self.assert_count_equal(
-            'COMPONENTS/GRID[@name="expensedetail"]/RECORD', 2)
+        self.call('/diacamma.condominium/expenseShow', {'expense': 4}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
+        self.assert_count_equal('COMPONENTS/GRID[@name="expensedetail"]/RECORD', 2)
         self.assert_xml_equal('COMPONENTS/LABELFORM[@name="total"]', '180.00€')
+        self.assert_count_equal('ACTIONS/ACTION', 3)
 
         self.factory.xfer = ThirdShow()
         self.call('/diacamma.accounting/thirdShow', {"third": 3}, False)
         self.assert_observer('core.custom', 'diacamma.accounting', 'thirdShow')
-        self.assert_xml_equal(
-            'COMPONENTS/LABELFORM[@name="contact"]', 'Luke Lucky')
-        self.assert_count_equal(
-            'COMPONENTS/GRID[@name="accountthird"]/RECORD', 2)
-        self.assert_xml_equal(
-            'COMPONENTS/GRID[@name="accountthird"]/RECORD[1]/VALUE[@name="code"]', '411')
-        self.assert_xml_equal(
-            'COMPONENTS/GRID[@name="accountthird"]/RECORD[1]/VALUE[@name="total_txt"]', '{[font color="green"]}Crédit: 0.00€{[/font]}')
-        self.assert_xml_equal(
-            'COMPONENTS/GRID[@name="accountthird"]/RECORD[2]/VALUE[@name="code"]', '401')
-        self.assert_xml_equal(
-            'COMPONENTS/GRID[@name="accountthird"]/RECORD[2]/VALUE[@name="total_txt"]', '{[font color="green"]}Crédit: 0.00€{[/font]}')
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="contact"]', 'Luke Lucky')
+        self.assert_count_equal('COMPONENTS/GRID[@name="accountthird"]/RECORD', 2)
+        self.assert_xml_equal('COMPONENTS/GRID[@name="accountthird"]/RECORD[1]/VALUE[@name="code"]', '411')
+        self.assert_xml_equal('COMPONENTS/GRID[@name="accountthird"]/RECORD[1]/VALUE[@name="total_txt"]',
+                              '{[font color="green"]}Crédit: 0.00€{[/font]}')
+        self.assert_xml_equal('COMPONENTS/GRID[@name="accountthird"]/RECORD[2]/VALUE[@name="code"]', '401')
+        self.assert_xml_equal('COMPONENTS/GRID[@name="accountthird"]/RECORD[2]/VALUE[@name="total_txt"]',
+                              '{[font color="green"]}Crédit: 0.00€{[/font]}')
         self.assert_xml_equal('COMPONENTS/LABELFORM[@name="total"]', '0.00€')
 
         self.factory.xfer = ExpenseTransition()
-        self.call(
-            '/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 4, 'TRANSITION':'valid'}, False)
-        self.assert_observer(
-            'core.acknowledge', 'diacamma.condominium', 'expenseTransition')
+        self.call('/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 4, 'TRANSITION': 'valid'}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseTransition')
 
         self.factory.xfer = ThirdShow()
         self.call('/diacamma.accounting/thirdShow', {"third": 3}, False)
         self.assert_observer('core.custom', 'diacamma.accounting', 'thirdShow')
-        self.assert_xml_equal(
-            'COMPONENTS/GRID[@name="accountthird"]/RECORD[2]/VALUE[@name="total_txt"]', '{[font color="green"]}Crédit: 180.00€{[/font]}')
+        self.assert_xml_equal('COMPONENTS/GRID[@name="accountthird"]/RECORD[2]/VALUE[@name="total_txt"]',
+                              '{[font color="green"]}Crédit: 180.00€{[/font]}')
         self.assert_xml_equal('COMPONENTS/LABELFORM[@name="total"]', '180.00€')
 
         self.factory.xfer = PayoffAddModify()
-        self.call(
-            '/diacamma.payoff/payoffAddModify', {'SAVE': 'YES', 'supporting': 4, 'amount': '180.0', 'payer': "Nous", 'date': '2015-04-03', 'mode': 0, 'reference': 'abc', 'bank_account': 0}, False)
-        self.assert_observer(
-            'core.acknowledge', 'diacamma.payoff', 'payoffAddModify')
+        self.call('/diacamma.payoff/payoffAddModify', {'SAVE': 'YES', 'supporting': 4, 'amount': '180.0',
+                                                       'payer': "Nous", 'date': '2015-04-03', 'mode': 0, 'reference': 'abc', 'bank_account': 0}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.payoff', 'payoffAddModify')
 
         self.factory.xfer = ThirdShow()
         self.call('/diacamma.accounting/thirdShow', {"third": 3}, False)
         self.assert_observer('core.custom', 'diacamma.accounting', 'thirdShow')
-        self.assert_xml_equal(
-            'COMPONENTS/GRID[@name="accountthird"]/RECORD[2]/VALUE[@name="total_txt"]', '{[font color="green"]}Crédit: 0.00€{[/font]}')
+        self.assert_xml_equal('COMPONENTS/GRID[@name="accountthird"]/RECORD[2]/VALUE[@name="total_txt"]',
+                              '{[font color="green"]}Crédit: 0.00€{[/font]}')
         self.assert_xml_equal('COMPONENTS/LABELFORM[@name="total"]', '0.00€')
+
+        self.factory.xfer = ExpenseShow()
+        self.call('/diacamma.condominium/expenseShow', {'expense': 4}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
+        self.assert_count_equal('ACTIONS/ACTION', 3)
+
+        self.factory.xfer = EntryAccountList()
+        self.call('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '-1', 'filter': '0'}, False)
+        self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
+        self.assert_count_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD', 5)
+        self.assert_xml_equal(
+            "COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit:{[/b]} 180.00€ - {[b]}Charge:{[/b]} 180.00€ = {[b]}Résultat:{[/b]} 0.00€ | {[b]}Trésorie:{[/b]} -180.00€ - {[b]}Validé:{[/b]} 0.00€{[/center]}')
+
+        self.factory.xfer = EntryAccountClose()
+        self.call('/diacamma.accounting/entryAccountClose',
+                  {'CONFIRME': 'YES', 'year': '1', "entryaccount": "5"}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.accounting', 'entryAccountClose')
+
+        self.factory.xfer = EntryAccountList()
+        self.call('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '-1', 'filter': '0'}, False)
+        self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
+        self.assert_count_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD', 5)
+        self.assert_xml_equal(
+            "COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit:{[/b]} 180.00€ - {[b]}Charge:{[/b]} 180.00€ = {[b]}Résultat:{[/b]} 0.00€ | {[b]}Trésorie:{[/b]} -180.00€ - {[b]}Validé:{[/b]} -180.00€{[/center]}')
+
+        self.factory.xfer = ExpenseShow()
+        self.call('/diacamma.condominium/expenseShow', {'expense': 4}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
+        self.assert_count_equal('ACTIONS/ACTION', 2)
+
+    def test_reedit_fail1(self):
+        self.factory.xfer = ExpenseAddModify()
+        self.call('/diacamma.condominium/expenseAddModify', {'SAVE': 'YES', 'expensetype': 0, "date": '2015-06-10', "comment": 'abc 123'}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseAddModify')
+        self.factory.xfer = SupportingThirdValid()
+        self.call('/diacamma.payoff/supportingThirdValid', {'supporting': 4, 'third': 3}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.payoff', 'supportingThirdValid')
+        self.factory.xfer = ExpenseDetailAddModify()
+        self.call('/diacamma.condominium/expenseDetailAddModify',
+                  {'SAVE': 'YES', 'expense': 4, 'set': 1, 'price': '150.00', 'comment': 'set 1', 'expense_account': '604'}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseDetailAddModify')
+        self.factory.xfer = ExpenseDetailAddModify()
+        self.call('/diacamma.condominium/expenseDetailAddModify',
+                  {'SAVE': 'YES', 'expense': 4, 'set': 2, 'price': '30.00', 'comment': 'set 2', 'expense_account': '627'}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseDetailAddModify')
+        self.factory.xfer = ExpenseTransition()
+        self.call('/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 4, 'TRANSITION': 'valid'}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseTransition')
+        self.factory.xfer = ExpenseShow()
+        self.call('/diacamma.condominium/expenseShow', {'expense': 4}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
+        self.assert_count_equal('ACTIONS/ACTION', 3)
+
+        self.factory.xfer = EntryAccountClose()
+        self.call('/diacamma.accounting/entryAccountClose',
+                  {'CONFIRME': 'YES', 'year': '1', "entryaccount": "1"}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.accounting', 'entryAccountClose')
+        self.factory.xfer = ExpenseShow()
+        self.call('/diacamma.condominium/expenseShow', {'expense': 4}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
+        self.assert_count_equal('ACTIONS/ACTION', 2)
+
+    def test_reedit_fail2(self):
+        self.factory.xfer = ExpenseAddModify()
+        self.call('/diacamma.condominium/expenseAddModify', {'SAVE': 'YES', 'expensetype': 0, "date": '2015-06-10', "comment": 'abc 123'}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseAddModify')
+        self.factory.xfer = SupportingThirdValid()
+        self.call('/diacamma.payoff/supportingThirdValid', {'supporting': 4, 'third': 3}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.payoff', 'supportingThirdValid')
+        self.factory.xfer = ExpenseDetailAddModify()
+        self.call('/diacamma.condominium/expenseDetailAddModify',
+                  {'SAVE': 'YES', 'expense': 4, 'set': 1, 'price': '150.00', 'comment': 'set 1', 'expense_account': '604'}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseDetailAddModify')
+        self.factory.xfer = ExpenseDetailAddModify()
+        self.call('/diacamma.condominium/expenseDetailAddModify',
+                  {'SAVE': 'YES', 'expense': 4, 'set': 2, 'price': '30.00', 'comment': 'set 2', 'expense_account': '627'}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseDetailAddModify')
+        self.factory.xfer = ExpenseTransition()
+        self.call('/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 4, 'TRANSITION': 'valid'}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseTransition')
+        self.factory.xfer = ExpenseShow()
+        self.call('/diacamma.condominium/expenseShow', {'expense': 4}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
+        self.assert_count_equal('ACTIONS/ACTION', 3)
+
+        self.factory.xfer = EntryAccountClose()
+        self.call('/diacamma.accounting/entryAccountClose',
+                  {'CONFIRME': 'YES', 'year': '1', "entryaccount": "4"}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.accounting', 'entryAccountClose')
+        self.factory.xfer = ExpenseShow()
+        self.call('/diacamma.condominium/expenseShow', {'expense': 4}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
+        self.assert_count_equal('ACTIONS/ACTION', 2)
+
+    def test_reedit(self):
+        self.factory.xfer = ExpenseAddModify()
+        self.call('/diacamma.condominium/expenseAddModify', {'SAVE': 'YES', 'expensetype': 0, "date": '2015-06-10', "comment": 'abc 123'}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseAddModify')
+        self.factory.xfer = SupportingThirdValid()
+        self.call('/diacamma.payoff/supportingThirdValid', {'supporting': 4, 'third': 3}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.payoff', 'supportingThirdValid')
+        self.factory.xfer = ExpenseDetailAddModify()
+        self.call('/diacamma.condominium/expenseDetailAddModify',
+                  {'SAVE': 'YES', 'expense': 4, 'set': 1, 'price': '150.00', 'comment': 'set 1', 'expense_account': '604'}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseDetailAddModify')
+        self.factory.xfer = ExpenseDetailAddModify()
+        self.call('/diacamma.condominium/expenseDetailAddModify',
+                  {'SAVE': 'YES', 'expense': 4, 'set': 2, 'price': '30.00', 'comment': 'set 2', 'expense_account': '627'}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseDetailAddModify')
+        self.factory.xfer = EntryAccountList()
+        self.call('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '-1', 'filter': '0'}, False)
+        self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
+        self.assert_count_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD', 0)
+        self.assert_xml_equal(
+            "COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit:{[/b]} 0.00€ - {[b]}Charge:{[/b]} 0.00€ = {[b]}Résultat:{[/b]} 0.00€ | {[b]}Trésorie:{[/b]} 0.00€ - {[b]}Validé:{[/b]} 0.00€{[/center]}')
+
+        self.factory.xfer = ExpenseTransition()
+        self.call('/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 4, 'TRANSITION': 'valid'}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseTransition')
+        self.factory.xfer = PayoffAddModify()
+        self.call('/diacamma.payoff/payoffAddModify', {'SAVE': 'YES', 'supporting': 4, 'amount': '180.0',
+                                                       'payer': "Nous", 'date': '2015-04-03', 'mode': 0, 'reference': 'abc', 'bank_account': 0}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.payoff', 'payoffAddModify')
+        self.factory.xfer = EntryAccountList()
+        self.call('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '-1', 'filter': '0'}, False)
+        self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
+        self.assert_count_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD', 5)
+        self.assert_xml_equal(
+            "COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit:{[/b]} 180.00€ - {[b]}Charge:{[/b]} 180.00€ = {[b]}Résultat:{[/b]} 0.00€ | {[b]}Trésorie:{[/b]} -180.00€ - {[b]}Validé:{[/b]} 0.00€{[/center]}')
+
+        self.factory.xfer = ExpenseShow()
+        self.call('/diacamma.condominium/expenseShow', {'expense': 4}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
+        self.assert_count_equal('ACTIONS/ACTION', 3)
+
+        self.factory.xfer = ExpenseTransition()
+        self.call('/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 4, 'TRANSITION': 'reedit'}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseTransition')
+        self.factory.xfer = EntryAccountList()
+        self.call('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '-1', 'filter': '0'}, False)
+        self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
+        self.assert_count_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD', 0)
+        self.assert_xml_equal(
+            "COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit:{[/b]} 0.00€ - {[b]}Charge:{[/b]} 0.00€ = {[b]}Résultat:{[/b]} 0.00€ | {[b]}Trésorie:{[/b]} 0.00€ - {[b]}Validé:{[/b]} 0.00€{[/center]}')

@@ -23,4 +23,8 @@ class Migration(migrations.Migration):
             name='status',
             field=django_fsm.FSMIntegerField(choices=[(0, 'building'), (1, 'valid'), (2, 'ended')], db_index=True, default=0, verbose_name='status'),
         ),
+        migrations.AlterModelOptions(
+            name='partition',
+            options={'default_permissions': [], 'ordering': ['owner__third_id', 'set_id'], 'verbose_name': 'partition', 'verbose_name_plural': 'partitions'},
+        ),
     ]

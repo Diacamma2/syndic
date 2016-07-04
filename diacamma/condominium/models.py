@@ -346,8 +346,7 @@ class Partition(LucteriosModel):
         if abs(ratio) > 0.01:
             for expensedetail in self.set.get_expenselist():
                 if expensedetail.entry is None:
-                    value += currency_round(float(expensedetail.price)
-                                            * ratio / 100.00)
+                    value += currency_round(float(expensedetail.price) * ratio / 100.00)
                 else:
                     total = expensedetail.entry.entrylineaccount_set.filter(
                         third=self.owner.third).aggregate(sum=Sum('amount'))
@@ -367,6 +366,7 @@ class Partition(LucteriosModel):
         verbose_name = _('partition')
         verbose_name_plural = _('partitions')
         default_permissions = []
+        ordering = ['owner__third_id', 'set_id']
 
 
 class CallFunds(LucteriosModel):
@@ -588,6 +588,32 @@ class Expense(Supporting):
             entries.append(six.text_type(new_entry.id))
         self.entries = EntryAccount.objects.filter(id__in=entries)
 
+    def check_if_can_reedit(self):
+        is_close = False
+        for detail in self.expensedetail_set.all():
+            is_close = is_close or detail.entry.close
+        for entry in self.entries.all():
+            is_close = is_close or entry.close
+        for payoff in self.payoff_set.all():
+            is_close = is_close or payoff.entry.close
+        return not is_close
+
+    transitionname__reedit = _("Re-edit")
+
+    @transition(field=status, source=1, target=0, conditions=[lambda item:item.check_if_can_reedit()])
+    def reedit(self):
+        def del_entry(entry_id):
+            current_entry = EntryAccount.objects.get(id=entry_id)
+            current_entry.delete()
+        for payoff in self.payoff_set.all():
+            payoff.delete()
+        for detail in self.expensedetail_set.all():
+            del_entry(detail.entry_id)
+            detail.entry = None
+            detail.save()
+        for entry in self.entries.all():
+            del_entry(entry.id)
+
     transitionname__valid = _("Valid")
 
     @transition(field=status, source=0, target=1, conditions=[lambda item:item.get_info_state() == ''])
@@ -651,7 +677,7 @@ class ExpenseDetail(LucteriosModel):
 
     @classmethod
     def get_default_fields(cls):
-        return ["set", "designation", "expense_account", (_('price'), 'price_txt')]
+        return ["set", "designation", "expense_account", (_('price'), 'price_txt'), (_('ratio'), 'ratio_txt')]
 
     @classmethod
     def get_edit_fields(cls):
@@ -660,6 +686,19 @@ class ExpenseDetail(LucteriosModel):
     @property
     def price_txt(self):
         return format_devise(self.price, 5)
+
+    @property
+    def ratio_txt(self):
+        ratio = ""
+        if self.entry is None:
+            for part in self.set.partition_set.exclude(value=0.0):
+                ratio += six.text_type(part)
+                ratio += "{[br/]}"
+        else:
+            for line in self.entry.entrylineaccount_set.filter(third__isnull=False).order_by('third_id'):
+                ratio += "%s : %.1f %%" % (six.text_type(line.third), 100.0 * float(line.amount) / float(self.price))
+                ratio += "{[br/]}"
+        return ratio
 
     def generate_revenue_entry(self, is_asset, fiscal_year):
         cost_accounting = self.set.cost_accounting_id
