@@ -11,7 +11,7 @@ from lucterios.CORE.models import PrintModel
 
 def initial_values(*args):
     translation.activate(settings.LANGUAGE_CODE)
-    PrintModel().load_model("diacamma.condominium", "CallFunds_0001")
+    PrintModel().load_model("diacamma.condominium", "CallFunds_0001", is_default=True)
 
 
 class Migration(migrations.Migration):

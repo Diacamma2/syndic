@@ -12,7 +12,7 @@ from lucterios.CORE.models import PrintModel
 
 def printer_model(*args):
     translation.activate(settings.LANGUAGE_CODE)
-    PrintModel().load_model("diacamma.condominium", "Owner_0001")
+    PrintModel().load_model("diacamma.condominium", "Owner_0001", is_default=True)
 
 
 class Migration(migrations.Migration):
