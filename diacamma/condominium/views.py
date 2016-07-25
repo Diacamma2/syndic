@@ -49,18 +49,24 @@ from diacamma.accounting.tools import correct_accounting_code
 from diacamma.condominium.models import Set, Partition, Owner, ExpenseDetail
 
 
+def fill_params(self, is_mini):
+    param_lists = ['condominium-frequency', 'condominium-default-owner-account']
+    Params.fill(self, param_lists, 1, self.get_max_row() + 1)
+    btn = XferCompButton('editparam')
+    btn.set_location(1, self.get_max_row() + 1, 2, 1)
+    btn.set_is_mini(is_mini)
+    btn.set_action(self.request, ParamEdit.get_action(TITLE_MODIFY, 'images/edit.png'), close=CLOSE_NO,
+                   params={'params': param_lists})
+    self.add_component(btn)
+
+
 @MenuManage.describ('CORE.change_parameter', FORMTYPE_MODAL, 'contact.conf', _('Management of parameters of condominium'))
 class CondominiumConf(XferContainerCustom):
     icon = "condominium.png"
     caption = _("Condominium configuration")
 
     def fillresponse(self):
-        param_lists = ['condominium-frequency', 'condominium-default-owner-account']
-        Params.fill(self, param_lists, 1, 1)
-        btn = XferCompButton('editparam')
-        btn.set_location(1, self.get_max_row() + 1, 2, 1)
-        btn.set_action(self.request, ParamEdit.get_action(TITLE_MODIFY, 'images/edit.png'), close=CLOSE_NO, params={'params': param_lists})
-        self.add_component(btn)
+        fill_params(self)
 
 
 MenuManage.add_sub("condominium", "core.general", "diacamma.condominium/images/condominium.png",
@@ -355,3 +361,12 @@ def paramchange_condominium(params):
         Parameter.change_value('condominium-default-owner-account', correct_accounting_code(
             Params.getvalue('condominium-default-owner-account')))
         Params.clear()
+
+
+@signal_and_lock.Signal.decorate('conf_wizard')
+def conf_wizard_condominium(wizard_ident, xfer):
+    if isinstance(wizard_ident, list) and (xfer is None):
+        wizard_ident.append(("condominium_params", 35))
+    elif (xfer is not None) and (wizard_ident == "condominium_params"):
+        xfer.add_title(_("Diacamma condominium"), _("Condominium configuration"))
+        fill_params(xfer, True)
