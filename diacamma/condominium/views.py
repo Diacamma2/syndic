@@ -73,40 +73,41 @@ MenuManage.add_sub("condominium", "core.general", "diacamma.condominium/images/c
                    _("condominium"), _("Manage of condominium"), 30)
 
 
-@MenuManage.describ('condominium.change_set', FORMTYPE_NOMODAL, 'condominium', _('Manage of sets and owners'))
-class SetOwnerList(XferListEditor):
-    icon = "set.png"
-    model = Set
-    field_id = 'set'
-    caption = _("sets and owners")
-
-    def fillownerlist(self):
-        row = self.get_max_row()
-        img = XferCompImage('imgowner')
-        img.set_value(get_icon_path(icon_path="diacamma.condominium/images/owner.png"))
-        img.set_location(0, row + 1)
-        self.add_component(img)
-        lbl = XferCompLabelForm('titleowner')
-        lbl.set_value_as_title(_("owner"))
-        lbl.set_location(1, row + 1)
-        self.add_component(lbl)
-        self.fill_grid(self.get_max_row(), Owner, "owner", Owner.objects.all())
-
-    def fillresponse(self):
-        XferListEditor.fillresponse(self)
-        self.fillownerlist()
-        self.actions = []
-        self.add_action(SetOwnerPrint.get_action(TITLE_PRINT, "images/print.png"), close=CLOSE_NO, params={'classname': self.__class__.__name__})
-        self.add_action(WrapAction(TITLE_CLOSE, 'images/close.png'))
+@MenuManage.describ('condominium.change_set', FORMTYPE_NOMODAL, 'condominium', _('Manage of owners'))
+class OwnerList(XferListEditor):
+    icon = "owner.png"
+    model = Owner
+    field_id = 'owner'
+    caption = _("Owners")
 
 
+@ActionsManage.affect_list(TITLE_PRINT, "images/print.png", close=CLOSE_NO)
 @MenuManage.describ('condominium.change_set')
-class SetOwnerPrint(XferPrintAction):
-    caption = _("Print sets and owners")
+class OwnerPrint(XferPrintAction):
+    caption = _("Print owners")
+    icon = "owner.png"
+    model = Owner
+    field_id = 'owner'
+    action_class = OwnerList
+    with_text_export = True
+
+
+@MenuManage.describ('condominium.change_set', FORMTYPE_NOMODAL, 'condominium', _('Manage of class loads'))
+class SetList(XferListEditor):
     icon = "set.png"
     model = Set
     field_id = 'set'
-    action_class = SetOwnerList
+    caption = _("Class loads")
+
+
+@ActionsManage.affect_list(TITLE_PRINT, "images/print.png", close=CLOSE_NO)
+@MenuManage.describ('condominium.change_set')
+class SetPrint(XferPrintAction):
+    caption = _("Print class loads")
+    icon = "set.png"
+    model = Set
+    field_id = 'set'
+    action_class = SetList
     with_text_export = True
 
 
@@ -117,8 +118,8 @@ class SetAddModify(XferAddEditor):
     icon = "set.png"
     model = Set
     field_id = 'set'
-    caption_add = _("Add set")
-    caption_modify = _("Modify set")
+    caption_add = _("Add class load")
+    caption_modify = _("Modify class load")
     redirect_to_show = False
 
 
@@ -128,7 +129,7 @@ class SetShow(XferShowEditor):
     icon = "set.png"
     model = Set
     field_id = 'set'
-    caption = _("Show set")
+    caption = _("Show class load")
 
 
 @ActionsManage.affect_grid(TITLE_DELETE, "images/delete.png", unique=SELECT_MULTI)
@@ -137,7 +138,7 @@ class SetDel(XferDelete):
     icon = "set.png"
     model = Set
     field_id = 'set'
-    caption = _("Delete set")
+    caption = _("Delete class load")
 
 
 @ActionsManage.affect_grid(TITLE_MODIFY, "images/edit.png", unique=SELECT_SINGLE)

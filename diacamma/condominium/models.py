@@ -131,8 +131,8 @@ class Set(LucteriosModel):
         return LucteriosModel.save(self, force_insert=force_insert, force_update=force_update, using=using, update_fields=update_fields)
 
     class Meta(object):
-        verbose_name = _('set')
-        verbose_name_plural = _('sets')
+        verbose_name = _('class load')
+        verbose_name_plural = _('class loads')
 
 
 class Owner(Supporting):

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-07-04 16:22+0000\n"
+"POT-Creation-Date: 2016-07-26 16:05+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: __init__.py:42
+#: __init__.py:42 views.py:372
 msgid "Diacamma condominium"
 msgstr "Copropriété Diacamma"
 
@@ -51,31 +51,30 @@ msgstr "dépense"
 msgid "partition sum"
 msgstr "somme des partitions"
 
-#: models.py:134 models.py:314 models.py:463 models.py:666
-#: printmodel/CallFunds_0001.py:111 printmodel/Owner_0001.py:245 views.py:236
-msgid "set"
-msgstr "ensemble"
+#: models.py:134
+msgid "class load"
+msgstr "catégorie de charges"
 
 #: models.py:135
-msgid "sets"
-msgstr "ensembles"
+msgid "class loads"
+msgstr "catégories de charges"
 
 #: models.py:141 printmodel/Owner_0001.py:244
 msgid "information"
 msgstr "information"
 
 #: models.py:195 models.py:203 models.py:213 printmodel/CallFunds_0001.py:116
-#: printmodel/Owner_0001.py:247 views.py:328
+#: printmodel/Owner_0001.py:247 views.py:335
 msgid "total call for funds"
 msgstr "total des appels de fonds"
 
 #: models.py:195 models.py:203 models.py:213 models.py:303
-#: printmodel/CallFunds_0001.py:118 printmodel/Owner_0001.py:247 views.py:329
+#: printmodel/CallFunds_0001.py:118 printmodel/Owner_0001.py:247 views.py:336
 msgid "total estimate"
 msgstr "total estimé"
 
 #: models.py:195 models.py:203 models.py:213 printmodel/CallFunds_0001.py:115
-#: printmodel/Owner_0001.py:247 views.py:328
+#: printmodel/Owner_0001.py:247 views.py:335
 msgid "initial state"
 msgstr "état initial"
 
@@ -97,7 +96,7 @@ msgid "total"
 msgstr "total"
 
 #: models.py:211 models.py:325 models.py:680 printmodel/Owner_0001.py:245
-#: views.py:297
+#: views.py:304
 msgid "ratio"
 msgstr "ratio"
 
@@ -110,7 +109,6 @@ msgid "total payed"
 msgstr "total payé"
 
 #: models.py:286 models.py:316 models.py:374 printmodel/Owner_0001.py:31
-#: views.py:84
 msgid "owner"
 msgstr "propriétaire"
 
@@ -126,6 +124,11 @@ msgstr "copropriété de %s"
 #: models.py:309
 msgid "your situation"
 msgstr "votre situation"
+
+#: models.py:314 models.py:463 models.py:666 printmodel/CallFunds_0001.py:111
+#: printmodel/Owner_0001.py:245 views.py:243
+msgid "set"
+msgstr "ensemble"
 
 #: models.py:317 printmodel/Owner_0001.py:245
 msgid "value"
@@ -308,107 +311,119 @@ msgstr "compte bancaire"
 msgid "reference"
 msgstr "référence"
 
-#: views.py:52
+#: views.py:63
 msgid "Management of parameters of condominium"
 msgstr "Gestion des paramètres de copropriété"
 
-#: views.py:55
+#: views.py:66 views.py:372
 msgid "Condominium configuration"
 msgstr "Configuration de copropriété"
 
-#: views.py:67
+#: views.py:73
 msgid "condominium"
 msgstr "copropriété"
 
-#: views.py:67
+#: views.py:73
 msgid "Manage of condominium"
 msgstr "Gestion de copropriété"
 
-#: views.py:70
-msgid "Manage of sets and owners"
-msgstr "Gérer les ensembles et les copropriétaires"
+#: views.py:76
+msgid "Manage of owners"
+msgstr "Gérer les copropriétaires"
 
-#: views.py:75
-msgid "sets and owners"
-msgstr "les ensembles et les copropriétaires"
+#: views.py:81
+msgid "Owners"
+msgstr "Les propriétaires"
 
-#: views.py:99
-msgid "Print sets and owners"
-msgstr "Imprimer les ensembles et les copropriétaires"
+#: views.py:87
+msgid "Print owners"
+msgstr "Imprimer les propriétaires"
 
-#: views.py:114
-msgid "Add set"
-msgstr "Ajouter un ensemble"
+#: views.py:95
+msgid "Manage of class loads"
+msgstr "Gestion des catégories de charges"
 
-#: views.py:115
-msgid "Modify set"
-msgstr "Modifier un ensemble"
+#: views.py:100
+msgid "Class loads"
+msgstr "Les catégories de charges"
 
-#: views.py:125 views_expense.py:120 views_expense.py:126
-msgid "Show set"
-msgstr "Voir l'ensemble"
+#: views.py:106
+msgid "Print class loads"
+msgstr "Imprimer une catégorie de charges"
 
-#: views.py:134
-msgid "Delete set"
-msgstr "Supprimer un ensemble"
+#: views.py:121
+msgid "Add class load"
+msgstr "Ajouter une catégorie de charges"
 
-#: views.py:143
+#: views.py:122
+msgid "Modify class load"
+msgstr "Modifier une catégorie de charges"
+
+#: views.py:132
+msgid "Show class load"
+msgstr "Voir une catégorie de charges"
+
+#: views.py:141
+msgid "Delete class load"
+msgstr "Supprimer une catégorie de charges"
+
+#: views.py:150
 msgid "Modify partition"
 msgstr "Modifier une partition"
 
-#: views.py:152
+#: views.py:159
 msgid "Add owner"
 msgstr "Ajouter un propriétaire"
 
-#: views.py:162
+#: views.py:169
 msgid "Modify owner"
 msgstr "Modifier un propriétaire"
 
-#: views.py:171
+#: views.py:178
 msgid "Delete owner"
 msgstr "Supprimer un propriétaire"
 
-#: views.py:180
+#: views.py:187
 msgid "Show owner"
 msgstr "Voir le propriétaire"
 
-#: views.py:185
+#: views.py:192
 msgid "initial date"
 msgstr "date initial"
 
-#: views.py:195
+#: views.py:202
 msgid "current date"
 msgstr "date courante"
 
-#: views.py:219
+#: views.py:226
 msgid "Print owner"
 msgstr "Imprimer le propriétaire"
 
-#: views.py:238
+#: views.py:245
 msgid "parameters"
 msgstr "paramètres"
 
-#: views.py:241 views.py:288 views.py:325
+#: views.py:248 views.py:295 views.py:332
 msgid "Condominium"
 msgstr "Copropriété"
 
-#: views.py:262
+#: views.py:269
 msgid "View situation of your condominium."
 msgstr "Voir la situation de votre copropriété"
 
-#: views.py:264
+#: views.py:271
 msgid "Your condominium"
 msgstr "Votre copropriété"
 
-#: views.py:269
+#: views.py:276
 msgid "Bad access!"
 msgstr "Mauvais accès!"
 
-#: views.py:293
+#: views.py:300
 msgid "You are a owner"
 msgstr "Vous êtes un copropriétaire"
 
-#: views.py:306
+#: views.py:313
 #, python-format
 msgid "There are %(set)d sets for %(owner)d owners"
 msgstr "Il y a %(set)d ensembles pour %(owner)d propriétaires"
@@ -496,3 +511,7 @@ msgstr "Ajouter un détail de dépense"
 #: views_expense.py:117
 msgid "Delete detail of expense"
 msgstr "Supprimer un détail de dépense"
+
+#: views_expense.py:120 views_expense.py:126
+msgid "Show set"
+msgstr "Voir l'ensemble"
