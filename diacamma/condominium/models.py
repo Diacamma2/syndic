@@ -53,6 +53,11 @@ class Set(LucteriosModel):
     revenue_account = models.CharField(_('revenue account'), max_length=50)
     cost_accounting = models.ForeignKey(
         CostAccounting, verbose_name=_('cost accounting'), null=True, default=None, db_index=True, on_delete=models.PROTECT)
+    is_link_to_lots = models.BooleanField(_('is link to lots'), default=False)
+    type_load = FSMIntegerField(verbose_name=_('type of load'),
+                                choices=((0, _('current')), (1, _('exceptional'))), null=False, default=0, db_index=True)
+    is_active = models.BooleanField(_('is active'), default=True)
+    set_of_lots = models.ManyToManyField('PropertyLot', verbose_name=_('set of lots'), blank=True)
 
     def __init__(self, *args, **kwargs):
         LucteriosModel.__init__(self, *args, **kwargs)
@@ -81,15 +86,15 @@ class Set(LucteriosModel):
 
     @classmethod
     def get_default_fields(cls):
-        return ["name", (_('budget'), "budget_txt"), "revenue_account", 'cost_accounting', 'partition_set', (_('expense'), 'sumexpense_txt')]
+        return ["name", 'type_load', 'partition_set', (_('budget'), "budget_txt"), (_('expense'), 'sumexpense_txt')]
 
     @classmethod
     def get_edit_fields(cls):
-        return ["name", "budget", "revenue_account", 'cost_accounting']
+        return ["name", "budget", "type_load", 'is_link_to_lots']
 
     @classmethod
     def get_show_fields(cls):
-        return [("name", (_('budget'), "budget_txt")), ("revenue_account", 'cost_accounting'), 'partition_set', ((_('partition sum'), 'total_part'), (_('expense'), 'sumexpense_txt'))]
+        return [("name", ), ("type_load", 'is_active'), ('is_link_to_lots', (_('partition sum'), 'total_part')), 'partition_set', ((_('budget'), "budget_txt"), (_('expense'), 'sumexpense_txt'),)]
 
     def _do_insert(self, manager, using, fields, update_pk, raw):
         new_id = LucteriosModel._do_insert(
@@ -390,7 +395,7 @@ class PropertyLot(LucteriosModel):
         Owner, verbose_name=_('owner'), null=False, db_index=True, on_delete=models.CASCADE)
 
     def __str__(self):
-        return "[%s] %s - %s" % (self.num, self.ratio, self.owner)
+        return "[%s] %s" % (self.num, self.description)
 
     @classmethod
     def get_default_fields(cls):

@@ -63,19 +63,17 @@ class SetOwnerTest(LucteriosTest):
         self.assert_observer(
             'core.custom', 'diacamma.condominium', 'setList')
         self.assert_count_equal('COMPONENTS/GRID[@name="set"]/RECORD', 0)
-        self.assert_count_equal('COMPONENTS/GRID[@name="set"]/HEADER', 6)
+        self.assert_count_equal('COMPONENTS/GRID[@name="set"]/HEADER', 5)
 
         self.factory.xfer = SetAddModify()
         self.call('/diacamma.condominium/setAddModify', {}, False)
         self.assert_observer(
             'core.custom', 'diacamma.condominium', 'setAddModify')
         self.assert_count_equal('COMPONENTS/*', 9)
-        self.assert_xml_equal(
-            'COMPONENTS/EDIT[@name="revenue_account"]/REG_EXPR', r'^7[0-9][0-9][0-9a-zA-Z]*$')
 
         self.factory.xfer = SetAddModify()
         self.call('/diacamma.condominium/setAddModify',
-                  {'SAVE': 'YES', "name": "abc123", "budget": '1200', "revenue_account": '704', 'cost_accounting': 2}, False)
+                  {'SAVE': 'YES', "name": "abc123", "budget": '1200', 'type_load': 1}, False)
         self.assert_observer(
             'core.acknowledge', 'diacamma.condominium', 'setAddModify')
 
@@ -84,15 +82,13 @@ class SetOwnerTest(LucteriosTest):
         self.assert_observer(
             'core.custom', 'diacamma.condominium', 'setList')
         self.assert_count_equal('COMPONENTS/GRID[@name="set"]/RECORD', 1)
-        self.assert_count_equal('COMPONENTS/GRID[@name="set"]/HEADER', 6)
+        self.assert_count_equal('COMPONENTS/GRID[@name="set"]/HEADER', 5)
         self.assert_xml_equal(
             'COMPONENTS/GRID[@name="set"]/RECORD[1]/VALUE[@name="name"]', 'abc123')
         self.assert_xml_equal(
             'COMPONENTS/GRID[@name="set"]/RECORD[1]/VALUE[@name="budget_txt"]', '1200.00€')
         self.assert_xml_equal(
-            'COMPONENTS/GRID[@name="set"]/RECORD[1]/VALUE[@name="revenue_account"]', '704')
-        self.assert_xml_equal(
-            'COMPONENTS/GRID[@name="set"]/RECORD[1]/VALUE[@name="cost_accounting"]', 'open')
+            'COMPONENTS/GRID[@name="set"]/RECORD[1]/VALUE[@name="type_load"]', 'exceptional')
         self.assert_xml_equal(
             'COMPONENTS/GRID[@name="set"]/RECORD[1]/VALUE[@name="partition_set"]', None)
         self.assert_xml_equal(
@@ -109,7 +105,7 @@ class SetOwnerTest(LucteriosTest):
         self.assert_observer(
             'core.custom', 'diacamma.condominium', 'setList')
         self.assert_count_equal('COMPONENTS/GRID[@name="set"]/RECORD', 0)
-        self.assert_count_equal('COMPONENTS/GRID[@name="set"]/HEADER', 6)
+        self.assert_count_equal('COMPONENTS/GRID[@name="set"]/HEADER', 5)
 
     def test_add_owner(self):
         self.factory.xfer = OwnerAndPropertyLotList()
@@ -297,11 +293,11 @@ class SetOwnerTest(LucteriosTest):
         self.assert_observer(
             'core.custom', 'diacamma.condominium', 'setList')
         self.assert_count_equal('COMPONENTS/GRID[@name="set"]/RECORD', 0)
-        self.assert_count_equal('COMPONENTS/GRID[@name="set"]/HEADER', 6)
+        self.assert_count_equal('COMPONENTS/GRID[@name="set"]/HEADER', 5)
 
         self.factory.xfer = SetAddModify()
         self.call('/diacamma.condominium/setAddModify',
-                  {'SAVE': 'YES', "name": "AAA", "budget": '1000', "revenue_account": '704', 'cost_accounting': 2}, False)
+                  {'SAVE': 'YES', "name": "AAA", "budget": '1000'}, False)
         self.assert_observer(
             'core.acknowledge', 'diacamma.condominium', 'setAddModify')
         self.factory.xfer = OwnerAdd()
@@ -311,7 +307,7 @@ class SetOwnerTest(LucteriosTest):
             'core.acknowledge', 'diacamma.condominium', 'ownerAddModify')
         self.factory.xfer = SetAddModify()
         self.call('/diacamma.condominium/setAddModify',
-                  {'SAVE': 'YES', "name": "BBB", "budget": '200', "revenue_account": '705', 'cost_accounting': 0}, False)
+                  {'SAVE': 'YES', "name": "BBB", "budget": '200'}, False)
         self.assert_observer(
             'core.acknowledge', 'diacamma.condominium', 'setAddModify')
         self.factory.xfer = OwnerAdd()
@@ -341,9 +337,7 @@ class SetOwnerTest(LucteriosTest):
         self.assert_xml_equal(
             'COMPONENTS/GRID[@name="set"]/RECORD[1]/VALUE[@name="budget_txt"]', '1000.00€')
         self.assert_xml_equal(
-            'COMPONENTS/GRID[@name="set"]/RECORD[1]/VALUE[@name="revenue_account"]', '704')
-        self.assert_xml_equal(
-            'COMPONENTS/GRID[@name="set"]/RECORD[1]/VALUE[@name="cost_accounting"]', 'open')
+            'COMPONENTS/GRID[@name="set"]/RECORD[1]/VALUE[@name="type_load"]', 'current')
         self.assert_xml_equal(
             'COMPONENTS/GRID[@name="set"]/RECORD[1]/VALUE[@name="partition_set"]', "Minimum : 0.0 %{[br/]}Dalton William : 0.0 %{[br/]}Dalton Joe : 0.0 %")
         self.assert_xml_equal(
@@ -353,9 +347,7 @@ class SetOwnerTest(LucteriosTest):
         self.assert_xml_equal(
             'COMPONENTS/GRID[@name="set"]/RECORD[2]/VALUE[@name="budget_txt"]', '200.00€')
         self.assert_xml_equal(
-            'COMPONENTS/GRID[@name="set"]/RECORD[2]/VALUE[@name="revenue_account"]', '705')
-        self.assert_xml_equal(
-            'COMPONENTS/GRID[@name="set"]/RECORD[2]/VALUE[@name="cost_accounting"]', '---')
+            'COMPONENTS/GRID[@name="set"]/RECORD[2]/VALUE[@name="type_load"]', 'current')
         self.assert_xml_equal(
             'COMPONENTS/GRID[@name="set"]/RECORD[2]/VALUE[@name="partition_set"]', "Minimum : 0.0 %{[br/]}Dalton William : 0.0 %{[br/]}Dalton Joe : 0.0 %")
         self.assert_xml_equal(
@@ -409,7 +401,7 @@ class SetOwnerTest(LucteriosTest):
         self.call('/diacamma.condominium/setShow', {'set': 1}, False)
         self.assert_observer(
             'core.custom', 'diacamma.condominium', 'setShow')
-        self.assert_count_equal('COMPONENTS/*', 15)
+        self.assert_count_equal('COMPONENTS/*', 17)
         self.assert_count_equal('COMPONENTS/GRID[@name="partition"]/RECORD', 3)
         self.assert_count_equal('COMPONENTS/GRID[@name="partition"]/HEADER', 4)
         self.assert_count_equal(

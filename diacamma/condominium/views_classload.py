@@ -26,13 +26,14 @@ from __future__ import unicode_literals
 
 from django.utils.translation import ugettext_lazy as _
 
-from lucterios.framework.xferadvance import XferListEditor, TITLE_MODIFY, TITLE_PRINT, TITLE_ADD, TITLE_DELETE, TITLE_EDIT
+from lucterios.framework.xferadvance import XferListEditor, TITLE_MODIFY, TITLE_PRINT, TITLE_ADD, TITLE_DELETE, TITLE_EDIT,\
+    TITLE_OK, TITLE_CANCEL
 from lucterios.framework.xferadvance import XferAddEditor
 from lucterios.framework.xferadvance import XferShowEditor
 from lucterios.framework.xferadvance import XferDelete
-from lucterios.framework.tools import ActionsManage, MenuManage
+from lucterios.framework.tools import ActionsManage, MenuManage, WrapAction
 from lucterios.framework.tools import FORMTYPE_NOMODAL, FORMTYPE_MODAL, CLOSE_NO, CLOSE_YES, SELECT_SINGLE, SELECT_MULTI
-from lucterios.framework.xfercomponents import XferCompButton
+from lucterios.framework.xfercomponents import XferCompButton, XferCompImage
 from lucterios.framework.xfergraphic import XferContainerCustom
 from lucterios.framework import signal_and_lock
 from lucterios.CORE.models import Parameter
@@ -117,13 +118,34 @@ class SetDel(XferDelete):
     caption = _("Delete class load")
 
 
-@ActionsManage.affect_grid(TITLE_MODIFY, "images/edit.png", unique=SELECT_SINGLE)
+@ActionsManage.affect_grid(TITLE_MODIFY, "images/edit.png", unique=SELECT_SINGLE, condition=lambda xfer, gridname='': isinstance(xfer.item, Set) and (xfer.item.type_load == 0))
 @MenuManage.describ('condominium.add_set')
 class PartitionAddModify(XferAddEditor):
     icon = "set.png"
     model = Partition
     field_id = 'partition'
     caption_modify = _("Modify partition")
+
+
+@ActionsManage.affect_show(TITLE_EDIT, "images/show.png", condition=lambda xfer: xfer.item.type_load == 1)
+@MenuManage.describ('condominium.add_set')
+class SetAssociate(XferAddEditor):
+    icon = "set.png"
+    model = Set
+    field_id = 'set'
+    caption = _("Associate lots")
+
+    def fillresponse(self):
+        self.caption = self.caption
+        img = XferCompImage('img')
+        img.set_value(self.icon_path())
+        img.set_location(0, 0, 1, 6)
+        self.add_component(img)
+        self.fill_from_model(1, 0, True, ['name', 'type_load'])
+        self.fill_from_model(1, 0, False, ['set_of_lots'])
+        if len(self.actions) == 0:
+            self.add_action(self.get_action(TITLE_OK, 'images/ok.png'), params={"SAVE": "YES"})
+        self.add_action(WrapAction(TITLE_CANCEL, 'images/cancel.png'))
 
 
 @signal_and_lock.Signal.decorate('compte_no_found')
