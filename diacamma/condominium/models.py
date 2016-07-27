@@ -192,7 +192,7 @@ class Owner(Supporting):
 
     @classmethod
     def get_default_fields(cls):
-        return ["third", (_('total call for funds'), 'total_call'), (_('total estimate'), 'total_estimate'), (_('initial state'), 'total_initial'), (_('total payoff'), 'total_payed'), (_('total ventilated'), 'total_ventilated'), (_('total real'), 'total_real')]
+        return ["third", (_('property part'), 'property_part'), (_('initial state'), 'total_initial'), (_('total call for funds'), 'total_call'), (_('total payoff'), 'total_payed'), (_('total estimate'), 'total_estimate'), (_('total ventilated'), 'total_ventilated'), (_('total real'), 'total_real')]
 
     @classmethod
     def get_edit_fields(cls):
@@ -253,6 +253,19 @@ class Owner(Supporting):
         third_total += get_amount_sum(EntryLineAccount.objects.filter(Q(third=self.third) & Q(
             entry__date_value=self.date_begin) & Q(entry__journal__id=1) & Q(account__type_of_account=1)).aggregate(Sum('amount')))
         return third_total
+
+    @property
+    def property_part(self):
+        total_part = PropertyLot.get_total_part()
+        if total_part > 0:
+            total = self.propertylot_set.aggregate(sum=Sum('value'))
+            if ('sum' in total.keys()) and (total['sum'] is not None):
+                value = total['sum']
+            else:
+                value = 0
+            return "%d/%d{[br/]}%.1f %%" % (value, total_part, 100.0 * float(value) / float(total_part))
+        else:
+            return "---"
 
     @property
     def total_initial(self):
@@ -367,6 +380,50 @@ class Partition(LucteriosModel):
         verbose_name_plural = _('partitions')
         default_permissions = []
         ordering = ['owner__third_id', 'set_id']
+
+
+class PropertyLot(LucteriosModel):
+    num = models.IntegerField(verbose_name=_('numeros'), null=False, default=1)
+    value = models.IntegerField(_('value'), default=0, validators=[MinValueValidator(0), MaxValueValidator(10000)])
+    description = models.TextField(_('description'), null=True, default="")
+    owner = models.ForeignKey(
+        Owner, verbose_name=_('owner'), null=False, db_index=True, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return "[%s] %s - %s" % (self.num, self.ratio, self.owner)
+
+    @classmethod
+    def get_default_fields(cls):
+        return ["num", "value", (_("ratio"), 'ratio'), "description", "owner"]
+
+    @classmethod
+    def get_edit_fields(cls):
+        return ["num", "value", "description", "owner"]
+
+    @classmethod
+    def get_total_part(cls):
+        total = cls.objects.all().aggregate(sum=Sum('value'))
+        if ('sum' in total.keys()) and (total['sum'] is not None):
+            return total['sum']
+        else:
+            return 0
+
+    def get_ratio(self):
+        total = self.get_total_part()
+        if abs(total) < 0.01:
+            return 0.0
+        else:
+            return float(100 * self.value / total)
+
+    @property
+    def ratio(self):
+        return "%.1f %%" % self.get_ratio()
+
+    class Meta(object):
+        verbose_name = _('property lot')
+        verbose_name_plural = _('property lots')
+        default_permissions = []
+        ordering = ['num']
 
 
 class CallFunds(LucteriosModel):

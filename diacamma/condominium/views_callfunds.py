@@ -23,7 +23,7 @@ class CallFundsList(XferListEditor):
     icon = "callfunds.png"
     model = CallFunds
     field_id = 'callfunds'
-    caption = _("calls of funds")
+    caption = _("Calls of funds")
 
     def fillresponse_header(self):
         status_filter = self.getparam('status_filter', 1)
