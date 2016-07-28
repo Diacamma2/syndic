@@ -418,7 +418,7 @@ class PropertyLot(LucteriosModel):
         if abs(total) < 0.01:
             return 0.0
         else:
-            return float(100 * self.value / total)
+            return 100.0 * float(self.value) / float(total)
 
     @property
     def ratio(self):
