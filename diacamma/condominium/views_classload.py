@@ -25,16 +25,20 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import unicode_literals
 
 from django.utils.translation import ugettext_lazy as _
+from django.db.models import Q
 
 from lucterios.framework.xferadvance import XferListEditor, TITLE_MODIFY, TITLE_PRINT, TITLE_ADD, TITLE_DELETE, TITLE_EDIT,\
     TITLE_OK, TITLE_CANCEL
 from lucterios.framework.xferadvance import XferAddEditor
 from lucterios.framework.xferadvance import XferShowEditor
 from lucterios.framework.xferadvance import XferDelete
-from lucterios.framework.tools import ActionsManage, MenuManage, WrapAction
+from lucterios.framework.tools import ActionsManage, MenuManage, WrapAction,\
+    FORMTYPE_REFRESH
 from lucterios.framework.tools import FORMTYPE_NOMODAL, FORMTYPE_MODAL, CLOSE_NO, CLOSE_YES, SELECT_SINGLE, SELECT_MULTI
-from lucterios.framework.xfercomponents import XferCompButton, XferCompImage
-from lucterios.framework.xfergraphic import XferContainerCustom
+from lucterios.framework.xfercomponents import XferCompButton, XferCompImage,\
+    XferCompLabelForm, XferCompCheck
+from lucterios.framework.xfergraphic import XferContainerCustom,\
+    XferContainerAcknowledge
 from lucterios.framework import signal_and_lock
 from lucterios.CORE.models import Parameter
 from lucterios.CORE.parameters import Params
@@ -76,6 +80,22 @@ class SetList(XferListEditor):
     field_id = 'set'
     caption = _("Class loads")
 
+    def fillresponse_header(self):
+        if not self.getparam('show_inactive', False):
+            self.filter = Q(is_active=True)
+
+    def fillresponse(self):
+        XferListEditor.fillresponse(self)
+        lbl = XferCompLabelForm('lbl_show_inactive')
+        lbl.set_value_as_name(_('Show all class load'))
+        lbl.set_location(0, self.get_max_row() + 1)
+        self.add_component(lbl)
+        chk = XferCompCheck('show_inactive')
+        chk.set_value(self.getparam('show_inactive', False))
+        chk.set_location(1, self.get_max_row())
+        chk.set_action(self.request, self.get_action(), close=CLOSE_NO, modal=FORMTYPE_REFRESH)
+        self.add_component(chk)
+
 
 @ActionsManage.affect_list(TITLE_PRINT, "images/print.png", close=CLOSE_NO)
 @MenuManage.describ('condominium.change_set')
@@ -89,7 +109,7 @@ class SetPrint(XferPrintAction):
 
 
 @ActionsManage.affect_grid(TITLE_ADD, "images/add.png")
-@ActionsManage.affect_show(TITLE_MODIFY, "images/edit.png", close=CLOSE_YES)
+@ActionsManage.affect_show(TITLE_MODIFY, "images/edit.png", close=CLOSE_YES, condition=lambda xfer: xfer.item.is_active)
 @MenuManage.describ('condominium.add_set')
 class SetAddModify(XferAddEditor):
     icon = "set.png"
@@ -118,7 +138,21 @@ class SetDel(XferDelete):
     caption = _("Delete class load")
 
 
-@ActionsManage.affect_grid(TITLE_MODIFY, "images/edit.png", unique=SELECT_SINGLE, condition=lambda xfer, gridname='': isinstance(xfer.item, Set) and (xfer.item.type_load == 0))
+@ActionsManage.affect_show(_('Closed'), "images/down.png", condition=lambda xfer: xfer.item.is_active)
+@MenuManage.describ('condominium.delete_set')
+class SetClose(XferContainerAcknowledge):
+    icon = "set.png"
+    model = Set
+    field_id = 'set'
+    caption = _("Close class load")
+
+    def fillresponse(self):
+        if self.confirme(_('Do you want to close this class load?')):
+            self.item.is_active = False
+            self.item.save()
+
+
+@ActionsManage.affect_grid(TITLE_MODIFY, "images/edit.png", unique=SELECT_SINGLE, condition=lambda xfer, gridname='': isinstance(xfer.item, Set) and (xfer.item.type_load == 0) and xfer.item.is_active)
 @MenuManage.describ('condominium.add_set')
 class PartitionAddModify(XferAddEditor):
     icon = "set.png"
@@ -127,7 +161,7 @@ class PartitionAddModify(XferAddEditor):
     caption_modify = _("Modify partition")
 
 
-@ActionsManage.affect_show(TITLE_EDIT, "images/show.png", condition=lambda xfer: xfer.item.type_load == 1)
+@ActionsManage.affect_show(TITLE_EDIT, "images/show.png", condition=lambda xfer: (xfer.item.type_load == 1) and xfer.item.is_active)
 @MenuManage.describ('condominium.add_set')
 class SetAssociate(XferAddEditor):
     icon = "set.png"

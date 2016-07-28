@@ -89,7 +89,7 @@ class SetOwnerTest(LucteriosTest):
         self.assert_xml_equal(
             'COMPONENTS/GRID[@name="set"]/RECORD[1]/VALUE[@name="budget_txt"]', '1200.00€')
         self.assert_xml_equal(
-            'COMPONENTS/GRID[@name="set"]/RECORD[1]/VALUE[@name="type_load"]', 'exceptional')
+            'COMPONENTS/GRID[@name="set"]/RECORD[1]/VALUE[@name="type_load"]', 'charge exceptionnelle')
         self.assert_xml_equal(
             'COMPONENTS/GRID[@name="set"]/RECORD[1]/VALUE[@name="partition_set"]', None)
         self.assert_xml_equal(
@@ -338,7 +338,7 @@ class SetOwnerTest(LucteriosTest):
         self.assert_xml_equal(
             'COMPONENTS/GRID[@name="set"]/RECORD[1]/VALUE[@name="budget_txt"]', '1000.00€')
         self.assert_xml_equal(
-            'COMPONENTS/GRID[@name="set"]/RECORD[1]/VALUE[@name="type_load"]', 'current')
+            'COMPONENTS/GRID[@name="set"]/RECORD[1]/VALUE[@name="type_load"]', 'charge courante')
         self.assert_xml_equal(
             'COMPONENTS/GRID[@name="set"]/RECORD[1]/VALUE[@name="partition_set"]', "Minimum : 0.0 %{[br/]}Dalton William : 0.0 %{[br/]}Dalton Joe : 0.0 %")
         self.assert_xml_equal(
@@ -348,7 +348,7 @@ class SetOwnerTest(LucteriosTest):
         self.assert_xml_equal(
             'COMPONENTS/GRID[@name="set"]/RECORD[2]/VALUE[@name="budget_txt"]', '200.00€')
         self.assert_xml_equal(
-            'COMPONENTS/GRID[@name="set"]/RECORD[2]/VALUE[@name="type_load"]', 'current')
+            'COMPONENTS/GRID[@name="set"]/RECORD[2]/VALUE[@name="type_load"]', 'charge courante')
         self.assert_xml_equal(
             'COMPONENTS/GRID[@name="set"]/RECORD[2]/VALUE[@name="partition_set"]', "Minimum : 0.0 %{[br/]}Dalton William : 0.0 %{[br/]}Dalton Joe : 0.0 %")
         self.assert_xml_equal(

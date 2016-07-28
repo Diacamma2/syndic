@@ -129,6 +129,7 @@ class CallDetailEditor(LucteriosEditor):
 
     def edit(self, xfer):
         set_comp = xfer.get_components('set')
+        set_comp.set_select_query(Set.objects.filter(is_active=True))
         set_comp.set_action(xfer.request, xfer.get_action(), close=CLOSE_NO, modal=FORMTYPE_REFRESH)
         xfer.get_components('price').prec = Params.getvalue("accounting-devise-prec")
         set_comp.get_reponse_xml()
@@ -160,6 +161,8 @@ class ExpenseEditor(SupportingEditor):
 class ExpenseDetailEditor(LucteriosEditor):
 
     def edit(self, xfer):
+        set_comp = xfer.get_components('set')
+        set_comp.set_select_query(Set.objects.filter(is_active=True))
         xfer.get_components('price').prec = Params.getvalue(
             "accounting-devise-prec")
         old_account = xfer.get_components("expense_account")
