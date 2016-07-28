@@ -45,8 +45,8 @@ from diacamma.accounting.tools import correct_accounting_code
 from diacamma.condominium.models import Set, Partition, ExpenseDetail
 
 
-def fill_params(self, is_mini):
-    param_lists = ['condominium-frequency', 'condominium-default-owner-account']
+def fill_params(self, is_mini=False):
+    param_lists = ['condominium-default-owner-account']
     Params.fill(self, param_lists, 1, self.get_max_row() + 1)
     btn = XferCompButton('editparam')
     btn.set_location(1, self.get_max_row() + 1, 2, 1)
@@ -133,6 +133,7 @@ class SetAssociate(XferAddEditor):
     icon = "set.png"
     model = Set
     field_id = 'set'
+    redirect_to_show = False
     caption = _("Associate lots")
 
     def fillresponse(self):
@@ -143,8 +144,7 @@ class SetAssociate(XferAddEditor):
         self.add_component(img)
         self.fill_from_model(1, 0, True, ['name', 'type_load'])
         self.fill_from_model(1, 0, False, ['set_of_lots'])
-        if len(self.actions) == 0:
-            self.add_action(self.get_action(TITLE_OK, 'images/ok.png'), params={"SAVE": "YES"})
+        self.add_action(self.get_action(TITLE_OK, 'images/ok.png'), params={"SAVE": "YES"})
         self.add_action(WrapAction(TITLE_CANCEL, 'images/cancel.png'))
 
 

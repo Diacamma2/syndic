@@ -35,7 +35,7 @@ from lucterios.CORE.parameters import Params
 from diacamma.accounting.tools import current_system_account
 from diacamma.accounting.models import Third, AccountThird, FiscalYear
 from diacamma.payoff.editors import SupportingEditor
-from diacamma.condominium.models import Set
+from diacamma.condominium.models import Set, CallDetail
 
 
 class SetEditor(LucteriosEditor):
@@ -43,6 +43,7 @@ class SetEditor(LucteriosEditor):
     def edit(self, xfer):
         currency_decimal = Params.getvalue("accounting-devise-prec")
         xfer.get_components('budget').prec = currency_decimal
+        xfer.get_components('revenue_account').mask = current_system_account().get_revenue_mask()
 
     def show(self, xfer):
         partition = xfer.get_components('partition')
@@ -129,16 +130,19 @@ class CallDetailEditor(LucteriosEditor):
     def edit(self, xfer):
         set_comp = xfer.get_components('set')
         set_comp.set_action(xfer.request, xfer.get_action(), close=CLOSE_NO, modal=FORMTYPE_REFRESH)
-        freq = Params.getvalue("condominium-frequency")
         xfer.get_components('price').prec = Params.getvalue("accounting-devise-prec")
         set_comp.get_reponse_xml()
         current_set = Set.objects.get(id=set_comp.value)
-        if freq == 1:
+        if current_set.type_load == 0:
             xfer.get_components('price').value = current_set.budget / 4
-        elif freq == 2:
-            xfer.get_components('price').value = current_set.budget / 12
-        else:
-            xfer.get_components('price').value = current_set.budget
+        elif current_set.type_load == 1:
+            already_called = 0
+            call_details = CallDetail.objects.filter(set_id=set_comp.value)
+            if self.item.id is not None:
+                call_details = call_details.exclude(id=self.item.id)
+            for detail in call_details:
+                already_called += detail.price
+            xfer.get_components('price').value = current_set.budget - already_called
 
 
 class ExpenseEditor(SupportingEditor):

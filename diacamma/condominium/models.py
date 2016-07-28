@@ -90,11 +90,11 @@ class Set(LucteriosModel):
 
     @classmethod
     def get_edit_fields(cls):
-        return ["name", "budget", "type_load", 'is_link_to_lots']
+        return ["name", "budget", "type_load", 'is_link_to_lots', "revenue_account", 'cost_accounting']
 
     @classmethod
     def get_show_fields(cls):
-        return [("name", ), ("type_load", 'is_active'), ('is_link_to_lots', (_('partition sum'), 'total_part')), 'partition_set', ((_('budget'), "budget_txt"), (_('expense'), 'sumexpense_txt'),)]
+        return [("name", ), ("revenue_account", 'cost_accounting'), ("type_load", 'is_active'), ('is_link_to_lots', (_('partition sum'), 'total_part')), 'partition_set', ((_('budget'), "budget_txt"), (_('expense'), 'sumexpense_txt'),)]
 
     def _do_insert(self, manager, using, fields, update_pk, raw):
         new_id = LucteriosModel._do_insert(
@@ -131,8 +131,18 @@ class Set(LucteriosModel):
     def sumexpense_txt(self):
         return format_devise(self.get_sumexpense(), 5)
 
+    def refresh_ratio_link_lots(self):
+        if self.is_link_to_lots:
+            for part in self.partition_set.all():
+                value = 0
+                for lot in self.set_of_lots.filter(owner=part.owner):
+                    value += lot.value
+                part.value = value
+                part.save()
+
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         self.revenue_account = correct_accounting_code(self.revenue_account)
+        self.refresh_ratio_link_lots()
         return LucteriosModel.save(self, force_insert=force_insert, force_update=force_update, using=using, update_fields=update_fields)
 
     class Meta(object):
@@ -423,6 +433,11 @@ class PropertyLot(LucteriosModel):
     @property
     def ratio(self):
         return "%.1f %%" % self.get_ratio()
+
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+        LucteriosModel.save(self, force_insert=force_insert, force_update=force_update, using=using, update_fields=update_fields)
+        for set_linked in Set.objects.filter(is_link_to_lots=True, set_of_lots__id=self.id):
+            set_linked.refresh_ratio_link_lots()
 
     class Meta(object):
         verbose_name = _('property lot')
@@ -810,9 +825,5 @@ class ExpenseDetail(LucteriosModel):
 
 @Signal.decorate('checkparam')
 def condominium_checkparam():
-    Parameter.check_and_create(name='condominium-frequency', typeparam=4, title=_("condominium-frequency"),
-                               args="{'Enum':3}", value='0',
-                               param_titles=(_("condominium-frequency.0"), _("condominium-frequency.1"), _("condominium-frequency.2")))
-
     Parameter.check_and_create(name='condominium-default-owner-account', typeparam=0, title=_("condominium-default-owner-account"),
-                               args="{'Multi':False}", value='455')
+                               args="{'Multi':False}", value='450')

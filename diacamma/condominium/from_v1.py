@@ -203,9 +203,7 @@ class CondominiumMigrate(MigrateAbstract):
             "SELECT paramName,value FROM CORE_extension_params WHERE extensionId LIKE 'fr_sdlibre_copropriete' and paramName in ('frequenceAppel','defautCompteCopro')")
         for param_name, param_value in cur_p.fetchall():
             pname = ''
-            if param_name == 'frequenceAppel':
-                pname = 'condominium-frequency'
-            elif param_name == 'defautCompteCopro':
+            if param_name == 'defautCompteCopro':
                 pname = 'condominium-default-owner-account'
                 param_value = convert_code(param_value)
             if pname != '':

@@ -69,11 +69,12 @@ class SetOwnerTest(LucteriosTest):
         self.call('/diacamma.condominium/setAddModify', {}, False)
         self.assert_observer(
             'core.custom', 'diacamma.condominium', 'setAddModify')
-        self.assert_count_equal('COMPONENTS/*', 9)
+        self.assert_count_equal('COMPONENTS/*', 13)
+        self.assert_xml_equal('COMPONENTS/EDIT[@name="revenue_account"]/REG_EXPR', r'^7[0-9][0-9][0-9a-zA-Z]*$')
 
         self.factory.xfer = SetAddModify()
         self.call('/diacamma.condominium/setAddModify',
-                  {'SAVE': 'YES', "name": "abc123", "budget": '1200', 'type_load': 1}, False)
+                  {'SAVE': 'YES', "name": "abc123", "budget": '1200', "revenue_account": '704', 'cost_accounting': 2, 'type_load': 1}, False)
         self.assert_observer(
             'core.acknowledge', 'diacamma.condominium', 'setAddModify')
 
@@ -169,7 +170,7 @@ class SetOwnerTest(LucteriosTest):
         self.assert_count_equal(
             'COMPONENTS/GRID[@name="accountthird"]/RECORD', 3)
         self.assert_xml_equal(
-            'COMPONENTS/GRID[@name="accountthird"]/RECORD[3]/VALUE[@name="code"]', '455')
+            'COMPONENTS/GRID[@name="accountthird"]/RECORD[3]/VALUE[@name="code"]', '450')
 
         self.factory.xfer = OwnerAdd()
         self.call('/diacamma.condominium/ownerAddModify', {}, False)
@@ -297,7 +298,7 @@ class SetOwnerTest(LucteriosTest):
 
         self.factory.xfer = SetAddModify()
         self.call('/diacamma.condominium/setAddModify',
-                  {'SAVE': 'YES', "name": "AAA", "budget": '1000'}, False)
+                  {'SAVE': 'YES', "name": "AAA", "budget": '1000', "revenue_account": '704', 'cost_accounting': 2}, False)
         self.assert_observer(
             'core.acknowledge', 'diacamma.condominium', 'setAddModify')
         self.factory.xfer = OwnerAdd()
@@ -307,7 +308,7 @@ class SetOwnerTest(LucteriosTest):
             'core.acknowledge', 'diacamma.condominium', 'ownerAddModify')
         self.factory.xfer = SetAddModify()
         self.call('/diacamma.condominium/setAddModify',
-                  {'SAVE': 'YES', "name": "BBB", "budget": '200'}, False)
+                  {'SAVE': 'YES', "name": "BBB", "budget": '200', "revenue_account": '705', 'cost_accounting': 0}, False)
         self.assert_observer(
             'core.acknowledge', 'diacamma.condominium', 'setAddModify')
         self.factory.xfer = OwnerAdd()
@@ -401,7 +402,7 @@ class SetOwnerTest(LucteriosTest):
         self.call('/diacamma.condominium/setShow', {'set': 1}, False)
         self.assert_observer(
             'core.custom', 'diacamma.condominium', 'setShow')
-        self.assert_count_equal('COMPONENTS/*', 17)
+        self.assert_count_equal('COMPONENTS/*', 21)
         self.assert_count_equal('COMPONENTS/GRID[@name="partition"]/RECORD', 3)
         self.assert_count_equal('COMPONENTS/GRID[@name="partition"]/HEADER', 4)
         self.assert_count_equal(

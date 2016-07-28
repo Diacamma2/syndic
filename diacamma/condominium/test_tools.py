@@ -31,9 +31,8 @@ from diacamma.accounting.models import FiscalYear
 
 
 def default_setowner():
-    create_account(['455'], 0, FiscalYear.get_current())
+    create_account(['450'], 0, FiscalYear.get_current())
     create_account(['704'], 3, FiscalYear.get_current())
-    Parameter.change_value('condominium-frequency', '1')
     set1 = Set.objects.create(
         name="AAA", budget=1000, revenue_account='704', cost_accounting_id=2)
     set2 = Set.objects.create(
