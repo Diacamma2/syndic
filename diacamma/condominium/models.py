@@ -373,13 +373,9 @@ class Partition(LucteriosModel):
         ratio = self.get_ratio()
         if abs(ratio) > 0.01:
             for expensedetail in self.set.get_expenselist():
-                if expensedetail.entry is None:
-                    value += currency_round(float(expensedetail.price) * ratio / 100.00)
-                else:
-                    total = expensedetail.entry.entrylineaccount_set.filter(
-                        third=self.owner.third).aggregate(sum=Sum('amount'))
-                    if ('sum' in total.keys()) and (total['sum'] is not None):
-                        value += currency_round(total['sum'])
+                total = expensedetail.expenseratio_set.filter(owner=self.owner).aggregate(sum=Sum('value'))
+                if ('sum' in total.keys()) and (total['sum'] is not None):
+                    value += currency_round(total['sum'])
         return value
 
     @property
@@ -668,11 +664,11 @@ class Expense(Supporting):
     def check_if_can_reedit(self):
         is_close = False
         for detail in self.expensedetail_set.all():
-            is_close = is_close or detail.entry.close
+            is_close = is_close or ((detail.entry is not None) and detail.entry.close)
         for entry in self.entries.all():
             is_close = is_close or entry.close
         for payoff in self.payoff_set.all():
-            is_close = is_close or payoff.entry.close
+            is_close = is_close or ((payoff.entry is not None) and payoff.entry.close)
         return not is_close
 
     transitionname__reedit = _("Re-edit")
@@ -767,22 +763,22 @@ class ExpenseDetail(LucteriosModel):
     @property
     def ratio_txt(self):
         ratio = ""
-        if self.entry is None:
+        if self.expense.status == 0:
             for part in self.set.partition_set.exclude(value=0.0):
                 ratio += six.text_type(part)
                 ratio += "{[br/]}"
         else:
-            for line in self.entry.entrylineaccount_set.filter(third__isnull=False).order_by('third_id'):
-                ratio += "%s : %.1f %%" % (six.text_type(line.third), 100.0 * float(line.amount) / float(self.price))
+            for part in self.expenseratio_set.all():
+                ratio += six.text_type(part)
                 ratio += "{[br/]}"
         return ratio
 
     def generate_revenue_entry(self, is_asset, fiscal_year):
+        self.generate_ratio(is_asset)
         cost_accounting = self.set.cost_accounting_id
         if cost_accounting == 0:
             cost_accounting = None
-        detail_account = ChartsAccount.get_account(
-            self.set.revenue_account, fiscal_year)
+        detail_account = ChartsAccount.get_account(self.set.revenue_account, fiscal_year)
         if detail_account is None:
             raise LucteriosException(
                 IMPORTANT, _("code account %s unknown!") % self.set.revenue_account)
@@ -790,28 +786,31 @@ class ExpenseDetail(LucteriosModel):
         new_entry = EntryAccount.objects.create(
             year=fiscal_year, date_value=self.expense.date, designation=self.__str__(),
             journal=Journal.objects.get(id=3), costaccounting_id=cost_accounting)
-        EntryLineAccount.objects.create(
-            account=detail_account, amount=is_asset * price, entry=new_entry)
-        last_line = None
-        total = 0
-        for part in Partition.objects.filter(set=self.set).order_by('value'):
-            amount = currency_round(price * part.get_ratio() / 100.0)
-            if amount > 0.0001:
-                third_account = self.expense.get_third_account(
-                    current_system_account().get_societary_mask(), fiscal_year, part.owner.third)
-                last_line = EntryLineAccount.objects.create(
-                    account=third_account, amount=is_asset * amount, entry=new_entry, third=part.owner.third)
-                total += amount
-        if (last_line is not None) and (abs(price - total) > 0.0001):
-            last_line.amount += is_asset * (price - total)
-            last_line.save()
-        no_change, debit_rest, credit_rest = new_entry.serial_control(
-            new_entry.get_serial())
+        EntryLineAccount.objects.create(account=detail_account, amount=is_asset * price, entry=new_entry)
+        for ratio in self.expenseratio_set.all():
+            third_account = self.expense.get_third_account(current_system_account().get_societary_mask(), fiscal_year, ratio.owner.third)
+            EntryLineAccount.objects.create(account=third_account, amount=ratio.value, entry=new_entry, third=ratio.owner.third)
+        no_change, debit_rest, credit_rest = new_entry.serial_control(new_entry.get_serial())
         if not no_change or (abs(debit_rest) > 0.001) or (abs(credit_rest) > 0.001):
             raise LucteriosException(GRAVE, _("Error in accounting generator!") +
                                      "{[br/]} no_change=%s debit_rest=%.3f credit_rest=%.3f" % (no_change, debit_rest, credit_rest))
         self.entry = new_entry
         self.save()
+
+    def generate_ratio(self, is_asset):
+        price = currency_round(self.price)
+        last_line = None
+        total = 0
+        for part in Partition.objects.filter(set=self.set).order_by('value'):
+            amount = currency_round(price * part.get_ratio() / 100.0)
+            if amount > 0.0001:
+                last_line, _created = ExpenseRatio.objects.get_or_create(expensedetail=self, owner=part.owner)
+                last_line.value = is_asset * amount
+                last_line.save()
+                total += amount
+        if (last_line is not None) and (abs(price - total) > 0.0001):
+            last_line.value += is_asset * (price - total)
+            last_line.save()
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         self.expense_account = correct_accounting_code(self.expense_account)
@@ -821,6 +820,24 @@ class ExpenseDetail(LucteriosModel):
         verbose_name = _('detail of expense')
         verbose_name_plural = _('details of expense')
         default_permissions = []
+
+
+class ExpenseRatio(LucteriosModel):
+    expensedetail = models.ForeignKey(
+        ExpenseDetail, verbose_name=_('detail of expense'), null=False, db_index=True, on_delete=models.CASCADE)
+    owner = models.ForeignKey(
+        Owner, verbose_name=_('owner'), null=False, db_index=True, on_delete=models.CASCADE)
+    value = models.DecimalField(_('value'), max_digits=7, decimal_places=2, default=0.0, validators=[
+        MinValueValidator(0.0), MaxValueValidator(1000.00)])
+
+    def __str__(self):
+        return "%s : %.1f %%" % (six.text_type(self.owner.third), 100.0 * float(abs(self.value)) / float(self.expensedetail.price))
+
+    class Meta(object):
+        verbose_name = _('detail of expense')
+        verbose_name_plural = _('details of expense')
+        default_permissions = []
+        ordering = ['owner__third_id']
 
 
 @Signal.decorate('checkparam')
