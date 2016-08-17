@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-08-17 13:00+0000\n"
+"POT-Creation-Date: 2016-08-17 14:37+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -125,7 +125,7 @@ msgstr "001@Propriété"
 
 #: models.py:224
 msgid "002@callfunds"
-msgstr "002@appel de fonds"
+msgstr "002@Appel de fonds"
 
 #: models.py:225
 msgid "003@Situation"

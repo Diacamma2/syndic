@@ -87,6 +87,7 @@ class OwnerEditor(SupportingEditor):
             xfer.change_to_readonly('third')
 
     def show(self, xfer):
+        xfer.params['supporting'] = self.item.id
         third = xfer.get_components('third')
         third.colspan -= 1
         xfer.tab = third.tab
