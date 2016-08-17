@@ -213,10 +213,10 @@ def summary_condo(xfer):
         xfer.add_component(grid)
     if is_right:
         row = xfer.get_max_row() + 1
-        nb_set = len(Set.objects.all())
+        nb_set = len(Set.objects.filter(is_active=True))
         nb_owner = len(Owner.objects.all())
         lab = XferCompLabelForm('condoinfo')
-        lab.set_value_as_header(_("There are %(set)d sets for %(owner)d owners") % {'set': nb_set, 'owner': nb_owner})
+        lab.set_value_as_header(_("There are %(set)d classes of loads for %(owner)d owners") % {'set': nb_set, 'owner': nb_owner})
         lab.set_location(0, row + 1, 4)
         xfer.add_component(lab)
     if is_right or (len(owners) == 1):

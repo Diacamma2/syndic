@@ -3,7 +3,6 @@
 from __future__ import unicode_literals
 
 from django.db import migrations, models
-import django_fsm
 
 
 class Migration(migrations.Migration):
@@ -31,6 +30,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='set',
             name='type_load',
-            field=django_fsm.FSMIntegerField(choices=[(0, 'current'), (1, 'exceptional')], db_index=True, default=0, verbose_name='type of load'),
+            field=models.IntegerField(choices=[(0, 'current'), (1, 'exceptional')], db_index=True, default=0, verbose_name='type of load'),
         ),
     ]

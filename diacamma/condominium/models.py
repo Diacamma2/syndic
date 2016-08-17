@@ -54,8 +54,8 @@ class Set(LucteriosModel):
     cost_accounting = models.ForeignKey(
         CostAccounting, verbose_name=_('cost accounting'), null=True, default=None, db_index=True, on_delete=models.PROTECT)
     is_link_to_lots = models.BooleanField(_('is link to lots'), default=False)
-    type_load = FSMIntegerField(verbose_name=_('type of load'),
-                                choices=((0, _('current')), (1, _('exceptional'))), null=False, default=0, db_index=True)
+    type_load = models.IntegerField(verbose_name=_('type of load'),
+                                    choices=((0, _('current')), (1, _('exceptional'))), null=False, default=0, db_index=True)
     is_active = models.BooleanField(_('is active'), default=True)
     set_of_lots = models.ManyToManyField('PropertyLot', verbose_name=_('set of lots'), blank=True)
 
@@ -215,7 +215,17 @@ class Owner(Supporting):
 
     @classmethod
     def get_show_fields(cls):
-        return ["third", "information", 'callfunds_set', ((_('total call for funds'), 'total_call'), (_('total estimate'), 'total_estimate')), 'partition_set', ((_('initial state'), 'total_initial'), (_('total ventilated'), 'total_ventilated')), ((_('total real'), 'total_real'),)]
+        # return ["third", "information", 'callfunds_set', ((_('total call for
+        # funds'), 'total_call'), (_('total estimate'), 'total_estimate')),
+        # 'partition_set', ((_('initial state'), 'total_initial'), (_('total
+        # ventilated'), 'total_ventilated')), ((_('total real'), 'total_real'),)]
+        return {"": ["third", "information"],
+                _("001@Owning"): ['propertylot_set', 'partition_set'],
+                _("002@callfunds"): ['callfunds_set'],
+                _("003@Situation"): [('payoff_set',),
+                                     ((_('total call for funds'), 'total_call'), (_('total estimate'), 'total_estimate')),
+                                     ((_('initial state'), 'total_initial'), (_('total ventilated'), 'total_ventilated')),
+                                     ((_('total payed'), 'total_payed'), (_('total real'), 'total_real'))]}
 
     @classmethod
     def get_print_fields(cls):
@@ -224,6 +234,7 @@ class Owner(Supporting):
                        "callfunds_set.comment", (_('total'), 'callfunds_set.total')])
         fields.extend(["partition_set.set.str", "partition_set.set.budget", (_('expense'), 'partition_set.set.sumexpense_txt'),
                        "partition_set.value", (_("ratio"), 'partition_set.ratio'), (_('ventilated'), 'partition_set.ventilated_txt')])
+        fields.extend(['propertylot_set.num', 'propertylot_set.value', 'propertylot_set.ratio', 'propertylot_set.description'])
         fields.extend(['payoff_set'])
         fields.extend([(_('total call for funds'), 'total_call'), (_('total estimate'), 'total_estimate'), (_('initial state'), 'total_initial'), (_(
             'total ventilated'), 'total_ventilated'), (_('total payed'), 'total_payed'), (_('total real'), 'total_real')])
@@ -387,8 +398,8 @@ class Partition(LucteriosModel):
         return "%.1f %%" % self.get_ratio()
 
     class Meta(object):
-        verbose_name = _('partition')
-        verbose_name_plural = _('partitions')
+        verbose_name = _("class load")
+        verbose_name_plural = _("class loads")
         default_permissions = []
         ordering = ['owner__third_id', 'set_id']
 

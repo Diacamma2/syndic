@@ -46,7 +46,8 @@ from lucterios.CORE.views import ParamEdit
 from lucterios.CORE.xferprint import XferPrintAction
 
 from diacamma.accounting.tools import correct_accounting_code
-from diacamma.condominium.models import Set, Partition, ExpenseDetail
+from diacamma.condominium.models import Set, Partition, ExpenseDetail, Owner,\
+    PropertyLot
 
 
 def fill_params(self, is_mini=False):
@@ -138,7 +139,7 @@ class SetDel(XferDelete):
     caption = _("Delete class load")
 
 
-@ActionsManage.affect_show(_('Closed'), "images/down.png", condition=lambda xfer: xfer.item.is_active)
+@ActionsManage.affect_show(_('Finished'), "images/down.png", condition=lambda xfer: xfer.item.is_active)
 @MenuManage.describ('condominium.delete_set')
 class SetClose(XferContainerAcknowledge):
     icon = "set.png"
@@ -152,7 +153,7 @@ class SetClose(XferContainerAcknowledge):
             self.item.save()
 
 
-@ActionsManage.affect_grid(TITLE_MODIFY, "images/edit.png", unique=SELECT_SINGLE, condition=lambda xfer, gridname='': isinstance(xfer.item, Set) and (xfer.item.type_load == 0) and xfer.item.is_active)
+@ActionsManage.affect_grid(TITLE_MODIFY, "images/edit.png", unique=SELECT_SINGLE, condition=lambda xfer, gridname='': isinstance(xfer.item, Set) and not xfer.item.is_link_to_lots and xfer.item.is_active)
 @MenuManage.describ('condominium.add_set')
 class PartitionAddModify(XferAddEditor):
     icon = "set.png"
@@ -161,7 +162,7 @@ class PartitionAddModify(XferAddEditor):
     caption_modify = _("Modify partition")
 
 
-@ActionsManage.affect_show(TITLE_EDIT, "images/show.png", condition=lambda xfer: (xfer.item.type_load == 1) and xfer.item.is_active)
+@ActionsManage.affect_show(TITLE_EDIT, "images/show.png", condition=lambda xfer: xfer.item.is_link_to_lots and xfer.item.is_active)
 @MenuManage.describ('condominium.add_set')
 class SetAssociate(XferAddEditor):
     icon = "set.png"
@@ -221,6 +222,18 @@ def paramchange_condominium(params):
 def conf_wizard_condominium(wizard_ident, xfer):
     if isinstance(wizard_ident, list) and (xfer is None):
         wizard_ident.append(("condominium_params", 35))
+        wizard_ident.append(("condominium_owner", 45))
+        wizard_ident.append(("condominium_lot", 46))
+        wizard_ident.append(("condominium_classload", 47))
     elif (xfer is not None) and (wizard_ident == "condominium_params"):
         xfer.add_title(_("Diacamma condominium"), _("Condominium configuration"))
         fill_params(xfer, True)
+    elif (xfer is not None) and (wizard_ident == "condominium_owner"):
+        xfer.add_title(_("Diacamma condominium"), _("Owners"), _('Add owners of your condominium.'))
+        xfer.fill_grid(xfer.get_max_row(), Owner, 'owner', Owner.objects.all())
+    elif (xfer is not None) and (wizard_ident == "condominium_lot"):
+        xfer.add_title(_("Diacamma condominium"), _("Property lots"), _('Define the lots for each owners.'))
+        xfer.fill_grid(xfer.get_max_row(), PropertyLot, 'propertylot', PropertyLot.objects.all())
+    elif (xfer is not None) and (wizard_ident == "condominium_classload"):
+        xfer.add_title(_("Diacamma condominium"), _("Class loads"), _('Define the class loads of your condominium.'))
+        xfer.fill_grid(xfer.get_max_row(), Set, 'set', Set.objects.all())

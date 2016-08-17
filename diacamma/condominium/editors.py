@@ -80,7 +80,8 @@ class OwnerEditor(SupportingEditor):
             btn = XferCompButton('add_third')
             btn.set_location(3, 0)
             btn.set_is_mini(True)
-            btn.set_action(xfer.request, ActionsManage.get_action_url('accounting.Third', 'Add', xfer), close=CLOSE_NO, modal=FORMTYPE_MODAL)
+            btn.set_action(xfer.request, ActionsManage.get_action_url('accounting.Third', 'Add', xfer), close=CLOSE_NO,
+                           modal=FORMTYPE_MODAL, params={'new_account': Params.getvalue('condominium-default-owner-account')})
             xfer.add_component(btn)
         else:
             xfer.change_to_readonly('third')
@@ -88,6 +89,7 @@ class OwnerEditor(SupportingEditor):
     def show(self, xfer):
         third = xfer.get_components('third')
         third.colspan -= 1
+        xfer.tab = third.tab
         btn = XferCompButton('show_third')
         btn.set_location(third.col + third.colspan, third.row)
         btn.set_action(xfer.request, ActionsManage.get_action_url('accounting.Third', 'Show', xfer),
@@ -96,20 +98,12 @@ class OwnerEditor(SupportingEditor):
         partition = xfer.get_components('partition')
         partition.actions = []
         partition.delete_header('owner')
+        lots = xfer.get_components('propertylot')
+        lots.actions = []
+        lots.delete_header('owner')
         callfunds = xfer.get_components('callfunds')
         callfunds.actions = []
         callfunds.add_action(xfer.request, ActionsManage.get_action_url('condominium.CallFunds', 'Show', xfer), close=CLOSE_NO, unique=SELECT_SINGLE)
-        lbl = XferCompLabelForm('sep')
-        lbl.set_location(1, xfer.get_max_row() + 1)
-        lbl.set_value("{[br/]}")
-        xfer.add_component(lbl)
-        SupportingEditor.show(self, xfer)
-        xfer.remove_component('lbl_total_rest_topay')
-        xfer.remove_component('total_rest_topay')
-        xfer.move_components('lbl_total_payed', 0, 1)
-        xfer.move_components('total_payed', 0, 1)
-        xfer.move_components('lbl_total_real', 2, 4)
-        xfer.move_components('total_real', 2, 4)
 
 
 class PartitionEditor(LucteriosEditor):
