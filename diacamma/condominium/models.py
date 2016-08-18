@@ -453,9 +453,40 @@ class PropertyLot(LucteriosModel):
         ordering = ['num']
 
 
+class CallFundsSupporting(Supporting):
+
+    def get_total(self):
+        return self.callfunds.get_total()
+
+    def get_third_mask(self):
+        return current_system_account().get_societary_mask()
+
+    def payoff_is_revenu(self):
+        return True
+
+    @classmethod
+    def get_payment_fields(cls):
+        return ["third", "callfunds.num", "callfunds.date", (_('total'), 'callfunds.total')]
+
+    def support_validated(self, validate_date):
+        return self.callfunds
+
+    def get_tax(self):
+        return 0
+
+    def get_payable_without_tax(self):
+        return self.get_total_rest_topay()
+
+    def payoff_have_payment(self):
+        return (self.status == 1) and (self.get_total_rest_topay() > 0.001)
+
+    class Meta(object):
+        default_permissions = []
+
+
 class CallFunds(LucteriosModel):
-    owner = models.ForeignKey(
-        Owner, verbose_name=_('owner'), null=True, db_index=True, on_delete=models.PROTECT)
+    owner = models.ForeignKey(Owner, verbose_name=_('owner'), null=True, db_index=True, on_delete=models.PROTECT)
+    supporting = models.OneToOneField(CallFundsSupporting, on_delete=models.CASCADE, default=None, null=True)
     num = models.IntegerField(verbose_name=_('numeros'), null=True)
     date = models.DateField(verbose_name=_('date'), null=False)
     comment = models.TextField(_('comment'), null=True, default="")
@@ -467,7 +498,7 @@ class CallFunds(LucteriosModel):
 
     @classmethod
     def get_default_fields(cls):
-        return ["num", "date", "owner", "comment", (_('total'), 'total')]
+        return ["num", "date", "owner", "comment", (_('total'), 'total'), (_('rest to pay'), 'supporting.total_rest_topay')]
 
     @classmethod
     def get_edit_fields(cls):
@@ -504,8 +535,8 @@ class CallFunds(LucteriosModel):
         last_call = None
         calls_by_owner = {}
         for owner in Owner.objects.all():
-            calls_by_owner[owner.id] = CallFunds.objects.create(
-                num=new_num, date=self.date, owner=owner, comment=self.comment, status=1)
+            calls_by_owner[owner.id] = CallFunds.objects.create(num=new_num, date=self.date, owner=owner, comment=self.comment,
+                                                                status=1, supporting=CallFundsSupporting.objects.create(third=owner.third))
             last_call = calls_by_owner[owner.id]
         for calldetail in self.calldetail_set.all():
             amount = float(calldetail.price)

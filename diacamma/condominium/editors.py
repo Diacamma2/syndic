@@ -35,7 +35,7 @@ from lucterios.CORE.parameters import Params
 from diacamma.accounting.tools import current_system_account
 from diacamma.accounting.models import Third, AccountThird, FiscalYear
 from diacamma.payoff.editors import SupportingEditor
-from diacamma.condominium.models import Set, CallDetail
+from diacamma.condominium.models import Set, CallDetail, CallFundsSupporting
 
 
 class SetEditor(LucteriosEditor):
@@ -114,10 +114,26 @@ class PartitionEditor(LucteriosEditor):
         xfer.change_to_readonly('owner')
 
 
+class CallFundsSupportingEditor(SupportingEditor):
+    pass
+
+
 class CallFundsEditor(LucteriosEditor):
 
     def edit(self, xfer):
         xfer.change_to_readonly('status')
+
+    def show(self, xfer):
+        if (self.item.supporting is not None) and (self.item.status > 0):
+            old_item = xfer.item
+            old_model = xfer.model
+            try:
+                xfer.item = self.item.supporting
+                xfer.model = CallFundsSupporting
+                self.item.supporting.editor.show(xfer)
+            finally:
+                xfer.item = old_item
+                xfer.model = old_model
 
 
 class CallDetailEditor(LucteriosEditor):

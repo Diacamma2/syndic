@@ -42,6 +42,12 @@ class CallFundsList(XferListEditor):
         self.add_component(edt)
         self.filter = Q(status=status_filter)
 
+    def fillresponse(self):
+        XferListEditor.fillresponse(self)
+        if self.getparam('status_filter', 1) == 0:
+            callfunds_grid = self.get_components('callfunds')
+            callfunds_grid.delete_header('supporting.total_rest_topay')
+
 
 @ActionsManage.affect_grid(TITLE_ADD, "images/add.png", condition=lambda xfer, gridname='': xfer.getparam('status_filter', 1) == 0)
 @ActionsManage.affect_show(TITLE_MODIFY, "images/edit.png", close=CLOSE_YES, condition=lambda xfer: xfer.item.status == 0)
