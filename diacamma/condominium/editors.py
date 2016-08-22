@@ -124,6 +124,8 @@ class CallFundsEditor(LucteriosEditor):
 
     def edit(self, xfer):
         xfer.change_to_readonly('status')
+        if len(self.item.calldetail_set.all()) > 0:
+            xfer.change_to_readonly('type_call')
 
     def show(self, xfer):
         if (self.item.supporting is not None) and (self.item.status > 0):
@@ -142,7 +144,11 @@ class CallDetailEditor(LucteriosEditor):
 
     def edit(self, xfer):
         set_comp = xfer.get_components('set')
-        set_comp.set_select_query(Set.objects.filter(is_active=True))
+        if self.item.callfunds.type_call == 1:
+            type_load = 1
+        else:
+            type_load = 0
+        set_comp.set_select_query(Set.objects.filter(is_active=True, type_load=type_load))
         set_comp.set_action(xfer.request, xfer.get_action(), close=CLOSE_NO, modal=FORMTYPE_REFRESH)
         xfer.get_components('price').prec = Params.getvalue("accounting-devise-prec")
         set_comp.get_reponse_xml()

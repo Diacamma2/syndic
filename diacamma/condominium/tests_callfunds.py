@@ -55,13 +55,13 @@ class CallFundsTest(LucteriosTest):
         self.assert_observer(
             'core.custom', 'diacamma.condominium', 'callFundsList')
         self.assert_count_equal('COMPONENTS/GRID[@name="callfunds"]/RECORD', 0)
-        self.assert_count_equal('COMPONENTS/GRID[@name="callfunds"]/HEADER', 6)
+        self.assert_count_equal('COMPONENTS/GRID[@name="callfunds"]/HEADER', 7)
 
         self.factory.xfer = CallFundsAddModify()
         self.call('/diacamma.condominium/callFundsAddModify', {}, False)
         self.assert_observer(
             'core.custom', 'diacamma.condominium', 'callFundsAddModify')
-        self.assert_count_equal('COMPONENTS/*', 7)
+        self.assert_count_equal('COMPONENTS/*', 9)
 
         self.factory.xfer = CallFundsAddModify()
         self.call(
@@ -74,7 +74,7 @@ class CallFundsTest(LucteriosTest):
         self.assert_observer(
             'core.custom', 'diacamma.condominium', 'callFundsList')
         self.assert_count_equal('COMPONENTS/GRID[@name="callfunds"]/RECORD', 0)
-        self.assert_count_equal('COMPONENTS/GRID[@name="callfunds"]/HEADER', 6)
+        self.assert_count_equal('COMPONENTS/GRID[@name="callfunds"]/HEADER', 7)
 
         self.factory.xfer = CallFundsList()
         self.call(
@@ -82,7 +82,7 @@ class CallFundsTest(LucteriosTest):
         self.assert_observer(
             'core.custom', 'diacamma.condominium', 'callFundsList')
         self.assert_count_equal('COMPONENTS/GRID[@name="callfunds"]/RECORD', 1)
-        self.assert_count_equal('COMPONENTS/GRID[@name="callfunds"]/HEADER', 5)
+        self.assert_count_equal('COMPONENTS/GRID[@name="callfunds"]/HEADER', 6)
 
         self.factory.xfer = CallFundsDel()
         self.call(
@@ -95,7 +95,7 @@ class CallFundsTest(LucteriosTest):
         self.assert_observer(
             'core.custom', 'diacamma.condominium', 'callFundsList')
         self.assert_count_equal('COMPONENTS/GRID[@name="callfunds"]/RECORD', 0)
-        self.assert_count_equal('COMPONENTS/GRID[@name="callfunds"]/HEADER', 6)
+        self.assert_count_equal('COMPONENTS/GRID[@name="callfunds"]/HEADER', 7)
 
     def test_add(self):
         self.factory.xfer = CallFundsAddModify()
@@ -109,7 +109,7 @@ class CallFundsTest(LucteriosTest):
             '/diacamma.condominium/callFundsShow', {'callfunds': 1}, False)
         self.assert_observer(
             'core.custom', 'diacamma.condominium', 'callFundsShow')
-        self.assert_count_equal('COMPONENTS/*', 15)
+        self.assert_count_equal('COMPONENTS/*', 17)
         self.assert_count_equal('ACTIONS/ACTION', 2)
         self.assert_count_equal(
             'COMPONENTS/GRID[@name="calldetail"]/RECORD', 0)

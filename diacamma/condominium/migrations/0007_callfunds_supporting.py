@@ -6,16 +6,6 @@ from django.db import migrations, models
 import django.db.models.deletion
 
 
-def migrate_callfunds(*args):
-    from django.apps.registry import apps
-    CallFunds = apps.get_model("condominium", "CallFunds")
-    CallFundsSupporting = apps.get_model("condominium", "CallFundsSupporting")
-    for call_funds in CallFunds.objects.all():
-        if call_funds.owner is not None:
-            call_funds.supporting = CallFundsSupporting.objects.create(third=call_funds.owner.third)
-            call_funds.save()
-
-
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -42,5 +32,4 @@ class Migration(migrations.Migration):
             name='supporting',
             field=models.OneToOneField(default=None, null=True, on_delete=django.db.models.deletion.CASCADE, to='condominium.CallFundsSupporting'),
         ),
-        migrations.RunPython(migrate_callfunds),
     ]

@@ -499,6 +499,8 @@ class CallFunds(LucteriosModel):
     num = models.IntegerField(verbose_name=_('numeros'), null=True)
     date = models.DateField(verbose_name=_('date'), null=False)
     comment = models.TextField(_('comment'), null=True, default="")
+    type_call = models.IntegerField(verbose_name=_('type of call'),
+                                    choices=((0, _('current')), (1, _('exceptional')), (2, _('cash advance'))), null=False, default=0, db_index=True)
     status = FSMIntegerField(verbose_name=_('status'),
                              choices=((0, _('building')), (1, _('valid')), (2, _('ended'))), null=False, default=0, db_index=True)
 
@@ -507,15 +509,15 @@ class CallFunds(LucteriosModel):
 
     @classmethod
     def get_default_fields(cls):
-        return ["num", "date", "owner", "comment", (_('total'), 'total'), (_('rest to pay'), 'supporting.total_rest_topay')]
+        return ["num", 'type_call', "date", "owner", "comment", (_('total'), 'total'), (_('rest to pay'), 'supporting.total_rest_topay')]
 
     @classmethod
     def get_edit_fields(cls):
-        return ["status", "date", "comment"]
+        return ["status", 'type_call', "date", "comment"]
 
     @classmethod
     def get_show_fields(cls):
-        return [("num", "date"), "owner", "calldetail_set", "comment", ("status", (_('total'), 'total'))]
+        return [("num", "date"), ("owner", 'type_call'), "calldetail_set", "comment", ("status", (_('total'), 'total'))]
 
     def get_total(self):
         val = 0
