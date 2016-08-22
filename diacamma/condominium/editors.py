@@ -33,7 +33,7 @@ from lucterios.framework.tools import ActionsManage, FORMTYPE_MODAL, CLOSE_NO, S
 from lucterios.CORE.parameters import Params
 
 from diacamma.accounting.tools import current_system_account
-from diacamma.accounting.models import Third, AccountThird, FiscalYear
+from diacamma.accounting.models import Third, AccountThird, FiscalYear, CostAccounting
 from diacamma.payoff.editors import SupportingEditor
 from diacamma.condominium.models import Set, CallDetail, CallFundsSupporting
 
@@ -44,6 +44,8 @@ class SetEditor(LucteriosEditor):
         currency_decimal = Params.getvalue("accounting-devise-prec")
         xfer.get_components('budget').prec = currency_decimal
         xfer.get_components('revenue_account').mask = current_system_account().get_revenue_mask()
+        sel = xfer.get_components('cost_accounting')
+        sel.set_select_query(CostAccounting.objects.filter(status=0))
 
     def show(self, xfer):
         partition = xfer.get_components('partition')

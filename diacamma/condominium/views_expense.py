@@ -123,7 +123,7 @@ class ExpenseDetailShowSet(XferContainerAcknowledge):
     icon = "expense.png"
     model = ExpenseDetail
     field_id = 'expensedetail'
-    caption = _("Show set")
+    caption = _("Show class load")
 
     def fillresponse(self):
         self.redirect_action(SetShow.get_action(), close=CLOSE_NO, params={'set': self.item.set_id})

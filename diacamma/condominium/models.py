@@ -223,9 +223,9 @@ class Owner(Supporting):
                 _("001@Owning"): ['propertylot_set', 'partition_set'],
                 _("002@callfunds"): ['callfunds_set'],
                 _("003@Situation"): [('payoff_set',),
-                                     ((_('total call for funds'), 'total_call'), (_('total estimate'), 'total_estimate')),
-                                     ((_('initial state'), 'total_initial'), (_('total ventilated'), 'total_ventilated')),
-                                     ((_('total payed'), 'total_payed'), (_('total real'), 'total_real'))]}
+                                     ((_('initial state'), 'total_initial'), (_('total real'), 'total_real')),
+                                     ((_('total call for funds'), 'total_call'), (_('total payed'), 'total_payed')),
+                                     ((_('total estimate'), 'total_estimate'), (_('total ventilated'), 'total_ventilated')), ]}
 
     @classmethod
     def get_print_fields(cls):
@@ -264,6 +264,12 @@ class Owner(Supporting):
         val = 0
         for callfunds in self.callfunds_set.filter(self.callfunds_query):
             val += currency_round(callfunds.get_total())
+        return val
+
+    def get_total_payed(self, ignore_payoff=-1):
+        val = Supporting.get_total_payed(self, ignore_payoff=ignore_payoff)
+        for callfunds in self.callfunds_set.filter(self.callfunds_query):
+            val += currency_round(callfunds.supporting.get_total_payed(ignore_payoff))
         return val
 
     @property
@@ -454,6 +460,9 @@ class PropertyLot(LucteriosModel):
 
 
 class CallFundsSupporting(Supporting):
+
+    def __str__(self):
+        return self.callfunds.__str__()
 
     def get_total(self):
         return self.callfunds.get_total()
@@ -738,7 +747,7 @@ class Expense(Supporting):
         else:
             is_asset = -1
         fiscal_year = FiscalYear.get_current()
-        val = Expense.objects.exclude(status=0).aggregate(Max('num'))
+        val = Expense.objects.filter(date__gte=fiscal_year.begin, date__lte=fiscal_year.end).exclude(status=0).aggregate(Max('num'))
         if val['num__max'] is None:
             self.num = 1
         else:
