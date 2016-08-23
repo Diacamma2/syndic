@@ -35,7 +35,8 @@ from lucterios.CORE.parameters import Params
 from diacamma.accounting.tools import current_system_account
 from diacamma.accounting.models import Third, AccountThird, FiscalYear, CostAccounting
 from diacamma.payoff.editors import SupportingEditor
-from diacamma.condominium.models import Set, CallDetail, CallFundsSupporting
+from diacamma.condominium.models import Set, CallDetail, CallFundsSupporting,\
+    Owner
 
 
 class SetEditor(LucteriosEditor):
@@ -75,7 +76,10 @@ class OwnerEditor(SupportingEditor):
             sel = XferCompSelect('third')
             sel.needed = True
             sel.set_location(third.col, third.row)
-            items = Third.objects.filter(supporting__owner__isnull=True).distinct()
+            owner_third_ids = []
+            for owner in Owner.objects.all():
+                owner_third_ids.append(owner.third_id)
+            items = Third.objects.all().exclude(id__in=owner_third_ids).distinct()
             items = sorted(items, key=lambda t: six.text_type(t))
             sel.set_select_query(items)
             xfer.add_component(sel)
