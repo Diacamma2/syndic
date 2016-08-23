@@ -41,11 +41,11 @@ def get_subtitle():
 
 def get_support():
     return """{[table style='text-align: center; width: 100%%;']}
-{[tr]}{[td]}{[img width='128px' title='Diacamma' alt='Diacamma' src='http://forum.diacamma.org/static/DiacammaForum.png'/]}{[/td]}{[/td]}
+{[tr]}{[td]}{[img width='128px' title='Diacamma' alt='Diacamma' src='http://forum.diacamma.org/static/DiacammaForum.png?syndic=%s'/]}{[/td]}{[/td]}
 {[tr]}{[td]}%s{[/td]}{[/td]}
 {[tr]}{[td]}{[a href='http://forum.diacamma.org' target='_blank']}http://forum.diacamma.org{[/a]}{[/td]}{[/td]}
 {[/table]}
-""" % _('Meet the {[i]}Diacamma{[/i]} community on')
+""" % (diacamma.syndic.__version__, _('Meet the {[i]}Diacamma{[/i]} community on our forum and blog'))
 
 APPLIS_NAME = diacamma.syndic.__title__()
 APPLIS_VERSION = diacamma.syndic.__version__

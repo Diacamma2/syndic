@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-08-22 15:41+0000\n"
+"POT-Creation-Date: 2016-08-23 13:59+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -27,8 +27,9 @@ msgid "Condominium application"
 msgstr "Application de copropriété"
 
 #: appli_settings.py:48
-msgid "Meet the {[i]}Diacamma{[/i]} community on"
-msgstr "Retrouvez la communauté {[i]}Diacamma{[/i]} sur"
+msgid "Meet the {[i]}Diacamma{[/i]} community on our forum and blog"
+msgstr ""
+"Retrouvez la communauté {[i]}Diacamma{[/i]} sur notre forum et notre blog"
 
 #: appli_settings.py:56
 msgid "(c) GPL Licence"
