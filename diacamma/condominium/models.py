@@ -269,6 +269,7 @@ class Owner(Supporting):
     def get_total_payed(self, ignore_payoff=-1):
         val = Supporting.get_total_payed(self, ignore_payoff=ignore_payoff)
         for callfunds in self.callfunds_set.filter(self.callfunds_query):
+            callfunds.check_supporting()
             val += currency_round(callfunds.supporting.get_total_payed(ignore_payoff))
         return val
 
@@ -520,6 +521,7 @@ class CallFunds(LucteriosModel):
         return [("num", "date"), ("owner", 'type_call'), "calldetail_set", "comment", ("status", (_('total'), 'total'))]
 
     def get_total(self):
+        self.check_supporting()
         val = 0
         for calldetail in self.calldetail_set.all():
             val += currency_round(calldetail.price)
@@ -576,6 +578,11 @@ class CallFunds(LucteriosModel):
     @transition(field=status, source=1, target=2)
     def close(self):
         pass
+
+    def check_supporting(self):
+        if (self.owner is not None) and (self.supporting is None):
+            self.supporting = CallFundsSupporting.objects.create(third=self.owner.third)
+            self.save()
 
     class Meta(object):
         verbose_name = _('call of funds')

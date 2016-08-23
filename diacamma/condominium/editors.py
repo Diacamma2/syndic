@@ -128,6 +128,7 @@ class CallFundsEditor(LucteriosEditor):
             xfer.change_to_readonly('type_call')
 
     def show(self, xfer):
+        self.item.check_supporting()
         if (self.item.supporting is not None) and (self.item.status > 0):
             old_item = xfer.item
             old_model = xfer.model

@@ -5,16 +5,6 @@ from __future__ import unicode_literals
 from django.db import migrations, models
 
 
-def migrate_callfunds(*args):
-    from django.apps.registry import apps
-    CallFunds = apps.get_model("condominium", "CallFunds")
-    CallFundsSupporting = apps.get_model("condominium", "CallFundsSupporting")
-    for call_funds in CallFunds.objects.all():
-        if call_funds.owner is not None:
-            call_funds.supporting = CallFundsSupporting.objects.create(third=call_funds.owner.third)
-            call_funds.save()
-
-
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -28,5 +18,4 @@ class Migration(migrations.Migration):
             field=models.IntegerField(choices=[(0, 'current'), (1, 'exceptional'), (2, 'cash advance')],
                                       db_index=True, default=0, verbose_name='type of call'),
         ),
-        migrations.RunPython(migrate_callfunds),
     ]
