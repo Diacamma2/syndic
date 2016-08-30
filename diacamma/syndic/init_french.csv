@@ -5,12 +5,18 @@ code;name
 1033;Autres avances	
 110;Report à nouveau (créditeur)	
 119;Report à nouveau (débiteur)	
+12;Solde en attente sur travaux et opérations exceptionnelles
 120;Résultat de l'exercice (excédent)	
 129;Résultat de l'exercice (perte)	
 131;Subventions accordées en instance de versement	
 401;Fournisseurs - Factures parvenues	
 408;Fournisseurs - Factures non parvenues	
-455;Copropriétaire individualisé
+409;Fournisseurs débiteurs	
+450;Copropriétaire individualisé
+4501;Copropriétaire - budget prévisionnel
+4502;Copropriétaire - travaux et opération exceptionnelles
+4503;Copropriétaire - avances
+4504;Copropriétaire - emprunts
 459;Copropriétaire - créances douteuses
 512;Banques	
 531;Caisse
@@ -19,14 +25,17 @@ code;name
 603;Chauffage, énergie et combustibles
 604;Achats produits d'entretien et petits équipements	
 605;Matériel
-611;Nettoyage des locaux		
+606;Fournitures
+611;Nettoyage des locaux
+612;Location immobilières		
+613;Location mobilières
 614;Contrats de maintenance		
 615;Entretien et petites réparations		
 616;Primes d'assurances		
-6213;Frais postaux		
-6222;Prestations particulières		
+621;Rénumération du syndic sur gestion copropriété		
+6213;Frais postaux et télécommunications
+622;Autres honoraires du syndic		
 624;Frais du conseil syndical		
-626;Frais postaux et télécommunications
 627;Frais des services bancaires
 671;Travaux décidés par l'assemblée générale		
 672;Travaux urgents		
@@ -36,3 +45,9 @@ code;name
 702;Appels de fonds - Provisions sur travaux de l'article 14-2 et opérations exceptionnelles
 703;Appels de fonds - Avances
 704;Appels de fonds - Remboursements d'annuités d'emprunts
+711;Subventions
+712;Emprunts
+713;Indemnités d'assurances
+714;Produits divers
+716;Produits financiers
+717;Produits exceptionnels
