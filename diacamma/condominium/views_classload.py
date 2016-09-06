@@ -28,7 +28,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.db.models import Q
 
 from lucterios.framework.xferadvance import XferListEditor, TITLE_MODIFY, TITLE_PRINT, TITLE_ADD, TITLE_DELETE, TITLE_EDIT,\
-    TITLE_OK, TITLE_CANCEL
+    TITLE_OK, TITLE_CANCEL, TITLE_CLOSE
 from lucterios.framework.xferadvance import XferAddEditor
 from lucterios.framework.xferadvance import XferShowEditor
 from lucterios.framework.xferadvance import XferDelete
@@ -48,6 +48,7 @@ from lucterios.CORE.xferprint import XferPrintAction
 from diacamma.accounting.tools import correct_accounting_code
 from diacamma.condominium.models import Set, Partition, ExpenseDetail, Owner,\
     PropertyLot
+from diacamma.accounting.models import CostAccounting
 
 
 def fill_params(self, is_mini=False):
@@ -181,6 +182,33 @@ class SetAssociate(XferAddEditor):
         self.fill_from_model(1, 0, False, ['set_of_lots'])
         self.add_action(self.get_action(TITLE_OK, 'images/ok.png'), params={"SAVE": "YES"})
         self.add_action(WrapAction(TITLE_CANCEL, 'images/cancel.png'))
+
+
+@ActionsManage.affect_show(_('Costs'), "images/right.png")
+@MenuManage.describ('condominium.change_set')
+class SetListCost(XferListEditor):
+    icon = "set.png"
+    model = Set
+    field_id = 'set'
+    caption = _("Costs accounting of a class load")
+
+    def fillresponse(self):
+        img = XferCompImage('img')
+        img.set_value(self.icon_path())
+        img.set_location(0, 0)
+        self.add_component(img)
+        lbl = XferCompLabelForm('title')
+        lbl.set_value_as_title(self.item.name)
+        lbl.set_location(1, 0)
+        self.add_component(lbl)
+        self.fill_grid(0, CostAccounting, 'costaccounting', CostAccounting.objects.filter(setcost__set=self.item).order_by('-setcost__year__begin'))
+        new_actions = []
+        grid = self.get_components('costaccounting')
+        for grid_action in grid.actions:
+            if grid_action[0].icon_path.endswith('images/print.png'):
+                new_actions.append(grid_action)
+        grid.actions = new_actions
+        self.add_action(WrapAction(TITLE_CLOSE, 'images/close.png'))
 
 
 @signal_and_lock.Signal.decorate('compte_no_found')

@@ -90,11 +90,11 @@ class Set(LucteriosModel):
 
     @classmethod
     def get_edit_fields(cls):
-        return ["name", "budget", "type_load", 'is_link_to_lots', "revenue_account", 'cost_accounting']
+        return ["name", "budget", "type_load", 'is_link_to_lots', "revenue_account"]
 
     @classmethod
     def get_show_fields(cls):
-        return [("name", ), ("revenue_account", 'cost_accounting'), ("type_load", 'is_active'), ('is_link_to_lots', (_('partition sum'), 'total_part')), 'partition_set', ((_('budget'), "budget_txt"), (_('expense'), 'sumexpense_txt'),)]
+        return [("name", ), ("revenue_account", (_('cost accounting'), 'current_cost_accounting')), ("type_load", 'is_active'), ('is_link_to_lots', (_('partition sum'), 'total_part')), 'partition_set', ((_('budget'), "budget_txt"), (_('expense'), 'sumexpense_txt'),)]
 
     def _do_insert(self, manager, using, fields, update_pk, raw):
         new_id = LucteriosModel._do_insert(
@@ -102,6 +102,57 @@ class Set(LucteriosModel):
         for owner in Owner.objects.all():
             Partition.objects.create(set_id=new_id, owner=owner)
         return new_id
+
+    @property
+    def current_cost_accounting(self):
+        if self.type_load == 0:
+            costs = self.setcost_set.filter(year=FiscalYear.get_current())
+        else:
+            costs = self.setcost_set.all()
+        if len(costs) > 0:
+            cost = costs[0]
+        else:
+            new_set_cost = self.create_new_cost()
+            if new_set_cost is None:
+                cost = None
+            else:
+                cost = new_set_cost.cost_accounting
+        return cost
+
+    def create_new_cost(self):
+        if self.type_load == 1:
+            year = None
+            cost_accounting_name = self.name
+            last_cost = None
+        else:
+            year = FiscalYear.get_current()
+            if year.begin.year == year.end.year:
+                cost_accounting_name = "%s %s" % (self.name, year.begin.year)
+            else:
+                cost_accounting_name = "%s %s/%s" % (self.name, year.begin.year, year.end.year)
+            costs = self.setcost_set.filter(year=year.last_fiscalyear)
+            if len(costs) > 0:
+                last_cost = costs[0].cost_accounting
+            else:
+                last_cost = None
+        if (year is None) or (year.status != 2):
+            cost_accounting = CostAccounting.objects.create(
+                name=cost_accounting_name, description=cost_accounting_name, last_costaccounting=last_cost)
+            return SetCost.objects.create(set=self, year=year, cost_accounting=cost_accounting)
+        else:
+            return None
+
+    def convert_cost(self):
+        if (len(self.setcost_set.all()) == 0) and (self.cost_accounting_id is not None):
+            if self.type_load == 1:
+                SetCost.objects.create(set=self, year=None, cost_accounting_id=self.cost_accounting_id)
+            else:
+                year = FiscalYear.get_current()
+                cost = self.cost_accounting
+                while (year is not None) and (cost is not None):
+                    SetCost.objects.create(set=self, year=year, cost_accounting=cost)
+                    year = year.last_fiscalyear
+                    cost = cost.last_costaccounting
 
     @property
     def budget_txt(self):
@@ -148,6 +199,26 @@ class Set(LucteriosModel):
     class Meta(object):
         verbose_name = _('class load')
         verbose_name_plural = _('class loads')
+
+
+class SetCost(LucteriosModel):
+    year = models.ForeignKey(FiscalYear, verbose_name=_('fiscal year'), null=True, default=None, db_index=True, on_delete=models.PROTECT)
+    set = models.ForeignKey(Set, verbose_name=_('class load'), null=False, default=None, db_index=True, on_delete=models.CASCADE)
+    cost_accounting = models.ForeignKey(CostAccounting, verbose_name=_('cost accounting'),
+                                        null=True, default=None, db_index=True, on_delete=models.PROTECT)
+
+    def __str__(self):
+        return six.text_type(self.cost_accounting)
+
+    @classmethod
+    def get_default_fields(cls):
+        return ["year", "set", "cost_accounting"]
+
+    class Meta(object):
+        verbose_name = _('cost of class load')
+        verbose_name_plural = _('costs of class load')
+        default_permissions = []
+        ordering = ['year_id', 'set_id']
 
 
 class Owner(Supporting):
@@ -904,3 +975,5 @@ class ExpenseRatio(LucteriosModel):
 def condominium_checkparam():
     Parameter.check_and_create(name='condominium-default-owner-account', typeparam=0, title=_("condominium-default-owner-account"),
                                args="{'Multi':False}", value='450')
+    for current_set in Set.objects.all():
+        current_set.convert_cost()

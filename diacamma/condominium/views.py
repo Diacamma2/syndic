@@ -249,3 +249,8 @@ def thirdaddon_condo(item, xfer):
             xfer.add_component(btn)
         except ObjectDoesNotExist:
             pass
+
+
+@signal_and_lock.Signal.decorate('finalize_year')
+def finalizeyear_condo(year):
+    pass

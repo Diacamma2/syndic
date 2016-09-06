@@ -45,8 +45,6 @@ class SetEditor(LucteriosEditor):
         currency_decimal = Params.getvalue("accounting-devise-prec")
         xfer.get_components('budget').prec = currency_decimal
         xfer.get_components('revenue_account').mask = current_system_account().get_revenue_mask()
-        sel = xfer.get_components('cost_accounting')
-        sel.set_select_query(CostAccounting.objects.filter(status=0))
 
     def show(self, xfer):
         partition = xfer.get_components('partition')

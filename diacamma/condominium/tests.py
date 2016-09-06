@@ -69,12 +69,12 @@ class SetOwnerTest(LucteriosTest):
         self.call('/diacamma.condominium/setAddModify', {}, False)
         self.assert_observer(
             'core.custom', 'diacamma.condominium', 'setAddModify')
-        self.assert_count_equal('COMPONENTS/*', 13)
+        self.assert_count_equal('COMPONENTS/*', 11)
         self.assert_xml_equal('COMPONENTS/EDIT[@name="revenue_account"]/REG_EXPR', r'^7[0-9][0-9][0-9a-zA-Z]*$')
 
         self.factory.xfer = SetAddModify()
         self.call('/diacamma.condominium/setAddModify',
-                  {'SAVE': 'YES', "name": "abc123", "budget": '1200', "revenue_account": '704', 'cost_accounting': 2, 'type_load': 1}, False)
+                  {'SAVE': 'YES', "name": "abc123", "budget": '1200', "revenue_account": '704', 'type_load': 1}, False)
         self.assert_observer(
             'core.acknowledge', 'diacamma.condominium', 'setAddModify')
 
@@ -379,7 +379,7 @@ class SetOwnerTest(LucteriosTest):
     def test_modify_partition(self):
         self.factory.xfer = SetAddModify()
         self.call('/diacamma.condominium/setAddModify',
-                  {'SAVE': 'YES', "name": "AAA", "budget": '1000', "revenue_account": '704', 'cost_accounting': 2}, False)
+                  {'SAVE': 'YES', "name": "AAA", "budget": '1000', "revenue_account": '704'}, False)
         self.assert_observer(
             'core.acknowledge', 'diacamma.condominium', 'setAddModify')
         self.factory.xfer = OwnerAdd()
@@ -429,6 +429,8 @@ class SetOwnerTest(LucteriosTest):
             'COMPONENTS/LABELFORM[@name="total_part"]', '0.00')
         self.assert_xml_equal(
             'COMPONENTS/LABELFORM[@name="sumexpense_txt"]', "0.00€")
+        self.assert_xml_equal(
+            'COMPONENTS/LABELFORM[@name="current_cost_accounting"]', "AAA 2015")
 
         self.factory.xfer = PartitionAddModify()
         self.call(
