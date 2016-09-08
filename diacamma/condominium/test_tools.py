@@ -28,15 +28,22 @@ from diacamma.condominium.models import Set, Owner, Partition, CallFunds,\
 from lucterios.CORE.models import Parameter
 from diacamma.accounting.test_tools import create_account
 from diacamma.accounting.models import FiscalYear
+from lucterios.CORE.parameters import Params
 
 
 def default_setowner():
-    create_account(['450'], 0, FiscalYear.get_current())
-    create_account(['704'], 3, FiscalYear.get_current())
+    if Params.getvalue("condominium-old-accounting"):
+        create_account(['450'], 0, FiscalYear.get_current())
+    else:
+        create_account(['4501', '4502', '4503', '4504'], 0, FiscalYear.get_current())
+    create_account(['120', '103'], 2, FiscalYear.get_current())
+    create_account(['702'], 3, FiscalYear.get_current())
     set1 = Set.objects.create(
-        name="AAA", budget=1000, revenue_account='704', cost_accounting_id=2)
+        name="AAA", budget=1000, revenue_account='701', type_load=0, cost_accounting_id=2)
     set2 = Set.objects.create(
-        name="BBB", budget=100, revenue_account='704', cost_accounting_id=0)
+        name="BBB", budget=100, revenue_account='701', type_load=0, cost_accounting_id=0)
+    set3 = Set.objects.create(
+        name="CCC", budget=500, revenue_account='702', type_load=1, cost_accounting_id=0)
     owner1 = Owner.objects.create(third_id=4)
     owner1.editor.before_save(None)
     owner1.save()
@@ -52,6 +59,9 @@ def default_setowner():
     Partition.objects.create(set=set2, owner=owner1, value=75.0)
     Partition.objects.create(set=set2, owner=owner2, value=0.0)
     Partition.objects.create(set=set2, owner=owner3, value=25.0)
+    Partition.objects.create(set=set3, owner=owner1, value=45.0)
+    Partition.objects.create(set=set3, owner=owner2, value=35.0)
+    Partition.objects.create(set=set3, owner=owner3, value=20.0)
 
 
 def add_simple_callfunds():
@@ -61,3 +71,8 @@ def add_simple_callfunds():
     CallDetail.objects.create(
         callfunds=call, set_id=2, price='25.00', designation='set 2')
     call.valid()
+
+
+def old_accounting():
+    Parameter.change_value('condominium-old-accounting', True)
+    Params.clear()

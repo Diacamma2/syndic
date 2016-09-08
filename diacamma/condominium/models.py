@@ -44,6 +44,7 @@ from diacamma.accounting.tools import format_devise, currency_round,\
     current_system_account, get_amount_sum, correct_accounting_code
 from diacamma.payoff.models import Supporting
 from django_fsm import FSMIntegerField, transition
+from lucterios.CORE.parameters import Params
 
 
 class Set(LucteriosModel):
@@ -110,7 +111,7 @@ class Set(LucteriosModel):
         else:
             costs = self.setcost_set.all()
         if len(costs) > 0:
-            cost = costs[0]
+            cost = costs[0].cost_accounting
         else:
             new_set_cost = self.create_new_cost()
             if new_set_cost is None:
@@ -540,7 +541,14 @@ class CallFundsSupporting(Supporting):
         return self.callfunds.get_total()
 
     def get_third_mask(self):
-        return current_system_account().get_societary_mask()
+        if Params.getvalue("condominium-old-accounting"):
+            return current_system_account().get_societary_mask()
+        else:
+            try:
+                account = Params.getvalue("condominium-default-owner-account%d" % (self.callfunds.type_call + 1))
+                return "^" + account + "[0-9a-zA-Z]*$"
+            except:
+                return current_system_account().get_societary_mask()
 
     def payoff_is_revenu(self):
         return True
@@ -550,7 +558,7 @@ class CallFundsSupporting(Supporting):
         return ["third", "callfunds.num", "callfunds.date", (_('total'), 'callfunds.total')]
 
     def support_validated(self, validate_date):
-        return self.callfunds
+        return self
 
     def get_tax(self):
         return 0
@@ -619,7 +627,7 @@ class CallFunds(LucteriosModel):
         last_call = None
         calls_by_owner = {}
         for owner in Owner.objects.all():
-            calls_by_owner[owner.id] = CallFunds.objects.create(num=new_num, date=self.date, owner=owner, comment=self.comment,
+            calls_by_owner[owner.id] = CallFunds.objects.create(num=new_num, date=self.date, owner=owner, comment=self.comment, type_call=self.type_call,
                                                                 status=1, supporting=CallFundsSupporting.objects.create(third=owner.third))
             last_call = calls_by_owner[owner.id]
         for calldetail in self.calldetail_set.all():
@@ -640,6 +648,8 @@ class CallFunds(LucteriosModel):
         for new_call in calls_by_owner.values():
             if new_call.get_total() < 0.0001:
                 new_call.delete()
+            else:
+                new_call.generate_accounting()
         self.delete()
         if last_call is not None:
             self.__dict__ = last_call.__dict__
@@ -649,6 +659,24 @@ class CallFunds(LucteriosModel):
     @transition(field=status, source=1, target=2)
     def close(self):
         pass
+
+    def generate_accounting(self):
+        if (self.owner is not None) and (self.status == 1) and not Params.getvalue("condominium-old-accounting"):
+            fiscal_year = FiscalYear.get_current()
+            owner_account_filter = self.supporting.get_third_mask()
+            detail_account_filter = None
+            if self.type_call == 0:
+                detail_account_filter = Params.getvalue("condominium-current-revenue-account")
+            if self.type_call == 1:
+                detail_account_filter = Params.getvalue("condominium-exceptional-reserve-account")
+            if self.type_call == 2:
+                detail_account_filter = Params.getvalue("condominium-advance-reserve-account")
+            owner_account = self.owner.third.get_account(fiscal_year, owner_account_filter)
+            detail_account = ChartsAccount.get_account(detail_account_filter, fiscal_year)
+            if detail_account is None:
+                raise LucteriosException(IMPORTANT, _("incorrect account for call of found"))
+            for calldetail in self.calldetail_set.all():
+                calldetail.generate_accounting(fiscal_year, detail_account, owner_account)
 
     def check_supporting(self):
         if (self.owner is not None) and (self.supporting is None):
@@ -669,6 +697,9 @@ class CallDetail(LucteriosModel):
     price = models.DecimalField(verbose_name=_('price'), max_digits=10, decimal_places=3, default=0.0, validators=[
         MinValueValidator(0.0), MaxValueValidator(9999999.999)])
 
+    def __str__(self):
+        return "%s - %s" % (self.callfunds, self.designation)
+
     @classmethod
     def get_default_fields(cls):
         return ["set", "designation", (_('price'), 'price_txt')]
@@ -680,6 +711,12 @@ class CallDetail(LucteriosModel):
     @property
     def price_txt(self):
         return format_devise(self.price, 5)
+
+    def generate_accounting(self, fiscal_year, detail_account, owner_account):
+        new_entry = EntryAccount.objects.create(year=fiscal_year, date_value=self.callfunds.date, designation=self.__str__(),
+                                                journal_id=2, costaccounting=self.set.current_cost_accounting)
+        EntryLineAccount.objects.create(account=detail_account, amount=self.price, entry=new_entry)
+        EntryLineAccount.objects.create(account=owner_account, amount=self.price, entry=new_entry, third=self.callfunds.owner.third)
 
     class Meta(object):
         verbose_name = _('detail of call')
@@ -975,5 +1012,24 @@ class ExpenseRatio(LucteriosModel):
 def condominium_checkparam():
     Parameter.check_and_create(name='condominium-default-owner-account', typeparam=0, title=_("condominium-default-owner-account"),
                                args="{'Multi':False}", value='450')
-    for current_set in Set.objects.all():
-        current_set.convert_cost()
+    Parameter.check_and_create(name='condominium-default-owner-account1', typeparam=0, title=_("condominium-default-owner-account1"),
+                               args="{'Multi':False}", value='4501')
+    Parameter.check_and_create(name='condominium-default-owner-account2', typeparam=0, title=_("condominium-default-owner-account2"),
+                               args="{'Multi':False}", value='4502')
+    Parameter.check_and_create(name='condominium-default-owner-account3', typeparam=0, title=_("condominium-default-owner-account3"),
+                               args="{'Multi':False}", value='4503')
+    Parameter.check_and_create(name='condominium-default-owner-account4', typeparam=0, title=_("condominium-default-owner-account4"),
+                               args="{'Multi':False}", value='4504')
+    Parameter.check_and_create(name='condominium-current-revenue-account', typeparam=0, title=_("condominium-current-revenue-account"),
+                               args="{'Multi':False}", value='701')
+    Parameter.check_and_create(name='condominium-exceptional-revenue-account', typeparam=0, title=_("condominium-exceptional-revenue-account"),
+                               args="{'Multi':False}", value='702')
+    Parameter.check_and_create(name='condominium-exceptional-reserve-account', typeparam=0, title=_("condominium-exceptional-reserve-account"),
+                               args="{'Multi':False}", value='120')
+    Parameter.check_and_create(name='condominium-advance-reserve-account', typeparam=0, title=_("condominium-advance-reserve-account"),
+                               args="{'Multi':False}", value='103')
+    if Parameter.check_and_create(name='condominium-old-accounting', typeparam=3, title=_("condominium-old-accounting"),
+                                  args="{}", value='False'):
+        Parameter.change_value('condominium-old-accounting', len(Owner.objects.all()) != 0)
+        for current_set in Set.objects.all():
+            current_set.convert_cost()

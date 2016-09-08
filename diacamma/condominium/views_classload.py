@@ -52,8 +52,14 @@ from diacamma.accounting.models import CostAccounting
 
 
 def fill_params(self, is_mini=False):
-    param_lists = ['condominium-default-owner-account']
-    Params.fill(self, param_lists, 1, self.get_max_row() + 1)
+    if Params.getvalue("condominium-old-accounting"):
+        param_lists = ['condominium-default-owner-account']
+    else:
+        param_lists = ['condominium-default-owner-account1', 'condominium-default-owner-account2',
+                       'condominium-default-owner-account3', 'condominium-default-owner-account4',
+                       'condominium-current-revenue-account', 'condominium-exceptional-revenue-account',
+                       'condominium-exceptional-reserve-account', 'condominium-advance-reserve-account']
+    Params.fill(self, param_lists, 1, self.get_max_row() + 1, 2)
     btn = XferCompButton('editparam')
     btn.set_location(1, self.get_max_row() + 1, 2, 1)
     btn.set_is_mini(is_mini)
@@ -214,8 +220,12 @@ class SetListCost(XferListEditor):
 @signal_and_lock.Signal.decorate('compte_no_found')
 def comptenofound_condo(known_codes, accompt_returned):
     set_unknown = Set.objects.exclude(revenue_account__in=known_codes).values_list('revenue_account', flat=True).distinct()
-    param_unknown = Parameter.objects.filter(name='condominium-default-owner-account').exclude(
-        value__in=known_codes).values_list('value', flat=True).distinct()
+    if Params.getvalue("condominium-old-accounting"):
+        account_filter = Q(name='condominium-default-owner-account')
+    else:
+        account_filter = Q(name='condominium-default-owner-account1') | Q(name='condominium-default-owner-account2') | Q(
+            name='condominium-default-owner-account3') | Q(name='condominium-default-owner-account4')
+    param_unknown = Parameter.objects.filter(account_filter).exclude(value__in=known_codes).values_list('value', flat=True).distinct()
     comptenofound = ""
     if (len(set_unknown) > 0):
         comptenofound = _("set") + ":" + ",".join(set_unknown) + " "

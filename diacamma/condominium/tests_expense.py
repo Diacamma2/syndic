@@ -31,7 +31,7 @@ from lucterios.framework.filetools import get_user_dir
 from diacamma.accounting.test_tools import initial_thirds, default_compta,\
     default_costaccounting
 from diacamma.payoff.test_tools import default_bankaccount
-from diacamma.condominium.test_tools import default_setowner
+from diacamma.condominium.test_tools import default_setowner, old_accounting
 from diacamma.condominium.views_expense import ExpenseList,\
     ExpenseAddModify, ExpenseDel, ExpenseShow, ExpenseDetailAddModify,\
     ExpenseTransition
@@ -41,12 +41,13 @@ from diacamma.accounting.views_entries import EntryAccountList,\
 from diacamma.accounting.views import ThirdShow
 
 
-class ExpenseTest(LucteriosTest):
+class ExpenseTestOldAccounting(LucteriosTest):
 
     def setUp(self):
         self.xfer_class = XferContainerAcknowledge
         initial_thirds()
         LucteriosTest.setUp(self)
+        old_accounting()
         default_compta()
         default_costaccounting()
         default_bankaccount()

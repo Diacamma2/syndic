@@ -58,7 +58,13 @@ class OwnerEditor(SupportingEditor):
     def before_save(self, xfer):
         accounts = self.item.third.accountthird_set.filter(code__regex=current_system_account().get_societary_mask())
         if len(accounts) == 0:
-            AccountThird.objects.create(third=self.item.third, code=Params.getvalue("condominium-default-owner-account"))
+            if Params.getvalue("condominium-old-accounting"):
+                AccountThird.objects.create(third=self.item.third, code=Params.getvalue("condominium-default-owner-account"))
+            else:
+                AccountThird.objects.create(third=self.item.third, code=Params.getvalue("condominium-default-owner-account1"))
+                AccountThird.objects.create(third=self.item.third, code=Params.getvalue("condominium-default-owner-account2"))
+                AccountThird.objects.create(third=self.item.third, code=Params.getvalue("condominium-default-owner-account3"))
+                AccountThird.objects.create(third=self.item.third, code=Params.getvalue("condominium-default-owner-account4"))
         return SupportingEditor.before_save(self, xfer)
 
     def edit(self, xfer):
