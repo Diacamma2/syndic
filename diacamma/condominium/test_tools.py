@@ -44,6 +44,8 @@ def default_setowner():
         name="BBB", budget=100, revenue_account='701', type_load=0, cost_accounting_id=0)
     set3 = Set.objects.create(
         name="CCC", budget=500, revenue_account='702', type_load=1, cost_accounting_id=0)
+    set4 = Set.objects.create(
+        name="OLD", budget=100, revenue_account='702', type_load=1, cost_accounting_id=0, is_active=False)
     owner1 = Owner.objects.create(third_id=4)
     owner1.editor.before_save(None)
     owner1.save()
@@ -62,6 +64,9 @@ def default_setowner():
     Partition.objects.create(set=set3, owner=owner1, value=45.0)
     Partition.objects.create(set=set3, owner=owner2, value=35.0)
     Partition.objects.create(set=set3, owner=owner3, value=20.0)
+    Partition.objects.create(set=set4, owner=owner1, value=45.0)
+    Partition.objects.create(set=set4, owner=owner2, value=35.0)
+    Partition.objects.create(set=set4, owner=owner3, value=20.0)
 
 
 def add_simple_callfunds():

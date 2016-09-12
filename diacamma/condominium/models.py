@@ -848,7 +848,7 @@ class Expense(Supporting):
             current_entry.delete()
         for payoff in self.payoff_set.all():
             payoff.delete()
-        for detail in self.expensedetail_set.all():
+        for detail in self.expensedetail_set.filter(entry__isnull=False):
             del_entry(detail.entry_id)
             detail.entry = None
             detail.save()
@@ -943,27 +943,39 @@ class ExpenseDetail(LucteriosModel):
 
     def generate_revenue_entry(self, is_asset, fiscal_year):
         self.generate_ratio(is_asset)
-        cost_accounting = self.set.cost_accounting_id
-        if cost_accounting == 0:
-            cost_accounting = None
-        detail_account = ChartsAccount.get_account(self.set.revenue_account, fiscal_year)
-        if detail_account is None:
-            raise LucteriosException(
-                IMPORTANT, _("code account %s unknown!") % self.set.revenue_account)
-        price = currency_round(self.price)
-        new_entry = EntryAccount.objects.create(
-            year=fiscal_year, date_value=self.expense.date, designation=self.__str__(),
-            journal=Journal.objects.get(id=3), costaccounting_id=cost_accounting)
-        EntryLineAccount.objects.create(account=detail_account, amount=is_asset * price, entry=new_entry)
-        for ratio in self.expenseratio_set.all():
-            third_account = self.expense.get_third_account(current_system_account().get_societary_mask(), fiscal_year, ratio.owner.third)
-            EntryLineAccount.objects.create(account=third_account, amount=ratio.value, entry=new_entry, third=ratio.owner.third)
-        no_change, debit_rest, credit_rest = new_entry.serial_control(new_entry.get_serial())
-        if not no_change or (abs(debit_rest) > 0.001) or (abs(credit_rest) > 0.001):
-            raise LucteriosException(GRAVE, _("Error in accounting generator!") +
-                                     "{[br/]} no_change=%s debit_rest=%.3f credit_rest=%.3f" % (no_change, debit_rest, credit_rest))
-        self.entry = new_entry
-        self.save()
+        revenue_code = None
+        reserve_code = None
+        if Params.getvalue("condominium-old-accounting"):
+            revenue_code = self.set.revenue_account
+        else:
+            if self.set.type_load == 1:
+                revenue_code = Params.getvalue("condominium-exceptional-revenue-account")
+                reserve_code = Params.getvalue("condominium-exceptional-reserve-account")
+        if revenue_code is not None:
+            cost_accounting = self.set.current_cost_accounting
+            revenue_account = ChartsAccount.get_account(revenue_code, fiscal_year)
+            if revenue_account is None:
+                raise LucteriosException(IMPORTANT, _("code account %s unknown!") % revenue_code)
+            price = currency_round(self.price)
+            new_entry = EntryAccount.objects.create(
+                year=fiscal_year, date_value=self.expense.date, designation=self.__str__(),
+                journal=Journal.objects.get(id=3), costaccounting=cost_accounting)
+            EntryLineAccount.objects.create(account=revenue_account, amount=is_asset * price, entry=new_entry)
+            if reserve_code is None:
+                for ratio in self.expenseratio_set.all():
+                    third_account = self.expense.get_third_account(current_system_account().get_societary_mask(), fiscal_year, ratio.owner.third)
+                    EntryLineAccount.objects.create(account=third_account, amount=ratio.value, entry=new_entry, third=ratio.owner.third)
+            else:
+                reserve_account = ChartsAccount.get_account(reserve_code, fiscal_year)
+                if revenue_account is None:
+                    raise LucteriosException(IMPORTANT, _("code account %s unknown!") % reserve_code)
+                EntryLineAccount.objects.create(account=reserve_account, amount=-1 * is_asset * price, entry=new_entry)
+            no_change, debit_rest, credit_rest = new_entry.serial_control(new_entry.get_serial())
+            if not no_change or (abs(debit_rest) > 0.001) or (abs(credit_rest) > 0.001):
+                raise LucteriosException(GRAVE, _("Error in accounting generator!") +
+                                         "{[br/]} no_change=%s debit_rest=%.3f credit_rest=%.3f" % (no_change, debit_rest, credit_rest))
+            self.entry = new_entry
+            self.save()
 
     def generate_ratio(self, is_asset):
         price = currency_round(self.price)
