@@ -59,7 +59,7 @@ def fill_params(self, is_mini=False):
                        'condominium-default-owner-account3', 'condominium-default-owner-account4',
                        'condominium-current-revenue-account', 'condominium-exceptional-revenue-account',
                        'condominium-exceptional-reserve-account', 'condominium-advance-reserve-account']
-    Params.fill(self, param_lists, 1, self.get_max_row() + 1, 2)
+    Params.fill(self, param_lists, 1, self.get_max_row() + 1, nb_col=2)
     btn = XferCompButton('editparam')
     btn.set_location(1, self.get_max_row() + 1, 2, 1)
     btn.set_is_mini(is_mini)

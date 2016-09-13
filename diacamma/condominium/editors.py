@@ -106,6 +106,8 @@ class OwnerEditor(SupportingEditor):
         btn.set_action(xfer.request, ActionsManage.get_action_url('accounting.Third', 'Show', xfer),
                        modal=FORMTYPE_MODAL, close=CLOSE_NO, params={'third': self.item.third.id})
         xfer.add_component(btn)
+        lblpartition = xfer.get_components('lbl_partition_set')
+        lblpartition.value = _("current class loads")
         partition = xfer.get_components('partition')
         partition.actions = []
         partition.delete_header('owner')

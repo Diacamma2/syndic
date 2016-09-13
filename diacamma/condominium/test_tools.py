@@ -23,15 +23,23 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from __future__ import unicode_literals
-from diacamma.condominium.models import Set, Owner, Partition, CallFunds,\
-    CallDetail
+from django.utils import six
+
+from lucterios.framework.tools import convert_date
 from lucterios.CORE.models import Parameter
-from diacamma.accounting.test_tools import create_account
-from diacamma.accounting.models import FiscalYear
 from lucterios.CORE.parameters import Params
+
+from diacamma.accounting.models import FiscalYear
+from diacamma.accounting.test_tools import create_account
+from diacamma.payoff.models import Payoff
+from diacamma.condominium.models import Set, Owner, Partition, CallFunds, CallDetail, Expense, ExpenseDetail
 
 
 def default_setowner():
+    def set_partition(setpart, owner, value):
+        part = Partition.objects.get(set=setpart, owner=owner)
+        part.value = value
+        part.save()
     if Params.getvalue("condominium-old-accounting"):
         create_account(['450'], 0, FiscalYear.get_current())
     else:
@@ -55,27 +63,51 @@ def default_setowner():
     owner3 = Owner.objects.create(third_id=7)
     owner3.editor.before_save(None)
     owner3.save()
-    Partition.objects.create(set=set1, owner=owner1, value=45.0)
-    Partition.objects.create(set=set1, owner=owner2, value=35.0)
-    Partition.objects.create(set=set1, owner=owner3, value=20.0)
-    Partition.objects.create(set=set2, owner=owner1, value=75.0)
-    Partition.objects.create(set=set2, owner=owner2, value=0.0)
-    Partition.objects.create(set=set2, owner=owner3, value=25.0)
-    Partition.objects.create(set=set3, owner=owner1, value=45.0)
-    Partition.objects.create(set=set3, owner=owner2, value=35.0)
-    Partition.objects.create(set=set3, owner=owner3, value=20.0)
-    Partition.objects.create(set=set4, owner=owner1, value=45.0)
-    Partition.objects.create(set=set4, owner=owner2, value=35.0)
-    Partition.objects.create(set=set4, owner=owner3, value=20.0)
+    set_partition(setpart=set1, owner=owner1, value=45.0)
+    set_partition(setpart=set1, owner=owner2, value=35.0)
+    set_partition(setpart=set1, owner=owner3, value=20.0)
+    set_partition(setpart=set2, owner=owner1, value=75.0)
+    set_partition(setpart=set2, owner=owner2, value=0.0)
+    set_partition(setpart=set2, owner=owner3, value=25.0)
+    set_partition(setpart=set3, owner=owner1, value=45.0)
+    set_partition(setpart=set3, owner=owner2, value=35.0)
+    set_partition(setpart=set3, owner=owner3, value=20.0)
+    set_partition(setpart=set4, owner=owner1, value=45.0)
+    set_partition(setpart=set4, owner=owner2, value=35.0)
+    set_partition(setpart=set4, owner=owner3, value=20.0)
 
 
-def add_simple_callfunds():
-    call = CallFunds.objects.create(date='2015-06-10', comment='abc 123')
-    CallDetail.objects.create(
-        callfunds=call, set_id=1, price='250.00', designation='set 1')
-    CallDetail.objects.create(
-        callfunds=call, set_id=2, price='25.00', designation='set 2')
-    call.valid()
+def add_test_callfunds(simple=True, with_payoff=False):
+    call1 = CallFunds.objects.create(date='2015-06-10', comment='abc 123', type_call=0)
+    CallDetail.objects.create(callfunds=call1, set_id=1, price='250.00', designation='set 1')
+    CallDetail.objects.create(callfunds=call1, set_id=2, price='25.00', designation='set 2')
+    call1.valid()  # => 5 6 7
+    if not simple:
+        call2 = CallFunds.objects.create(date='2015-07-14', comment='building', type_call=1)
+        CallDetail.objects.create(callfunds=call2, set_id=3, price='100.00', designation='set 3')
+        call2.valid()  # => 9 10 11
+    if with_payoff:
+        pay = Payoff(supporting_id=4, date='2015-06-15', mode=0, amount=100.0)
+        pay.save()
+        pay = Payoff(supporting_id=7, date='2015-07-21', mode=0, amount=30.0)
+        pay.save()
+
+
+def add_test_expenses(simple=True, with_payoff=False):
+    expense1 = Expense.objects.create(date=convert_date('2015-05-07'), comment='abc 123', expensetype=0, third_id=2)
+    ExpenseDetail.objects.create(expense=expense1, set_id=2, designation='set 2', expense_account='604', price='100')
+    six.print_(expense1.get_info_state())
+    expense1.valid()
+    if not simple:
+        expense2 = Expense.objects.create(date=convert_date('2015-08-28'), comment='building', expensetype=0, third_id=2)
+        ExpenseDetail.objects.create(expense=expense2, set_id=3, designation='set 1', expense_account='602', price='75')
+        six.print_(expense2.get_info_state())
+        expense2.valid()
+    if with_payoff:
+        pay = Payoff(supporting=expense1, date=convert_date('2015-05-11'), mode=0, amount=35.0)
+        pay.save()
+        pay = Payoff(supporting=expense2, date=convert_date('2015-08-30'), mode=0, amount=75.0)
+        pay.save()
 
 
 def old_accounting():

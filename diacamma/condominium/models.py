@@ -279,7 +279,7 @@ class Owner(Supporting):
 
     @classmethod
     def get_default_fields(cls):
-        return ["third", (_('property part'), 'property_part'), (_('initial state'), 'total_initial'), (_('total call for funds'), 'total_call'), (_('total payoff'), 'total_payed'), (_('total estimate'), 'total_estimate'), (_('total ventilated'), 'total_ventilated'), (_('total real'), 'total_real')]
+        return ["third", (_('property part'), 'property_part'), (_('initial state'), 'total_initial'), (_('total call for funds'), 'total_call'), (_('total payoff'), 'total_payed'), (_('total owner'), 'total_owner'), (_('total ventilated'), 'total_ventilated'), (_('estimated regularization'), 'total_regularization')]
 
     @classmethod
     def get_edit_fields(cls):
@@ -287,17 +287,15 @@ class Owner(Supporting):
 
     @classmethod
     def get_show_fields(cls):
-        # return ["third", "information", 'callfunds_set', ((_('total call for
-        # funds'), 'total_call'), (_('total estimate'), 'total_estimate')),
-        # 'partition_set', ((_('initial state'), 'total_initial'), (_('total
-        # ventilated'), 'total_ventilated')), ((_('total real'), 'total_real'),)]
         return {"": ["third", "information"],
                 _("001@Owning"): ['propertylot_set', 'partition_set'],
-                _("002@callfunds"): ['callfunds_set'],
-                _("003@Situation"): [('payoff_set',),
-                                     ((_('initial state'), 'total_initial'), (_('total real'), 'total_real')),
+                _("002@Situation"): [('payoff_set',),
                                      ((_('total call for funds'), 'total_call'), (_('total payed'), 'total_payed')),
-                                     ((_('total estimate'), 'total_estimate'), (_('total ventilated'), 'total_ventilated')), ]}
+                                     ((_('initial state'), 'total_initial'), (_('total owner'), 'total_owner'), ),
+                                     ((_('total ventilated'), 'total_ventilated'), (_('estimated regularization'), 'total_regularization'))],
+                _("003@Exceptional"): ['exceptionnal_set'],
+                _("004@callfunds"): ['callfunds_set'],
+                }
 
     @classmethod
     def get_print_fields(cls):
@@ -308,8 +306,11 @@ class Owner(Supporting):
                        "partition_set.value", (_("ratio"), 'partition_set.ratio'), (_('ventilated'), 'partition_set.ventilated_txt')])
         fields.extend(['propertylot_set.num', 'propertylot_set.value', 'propertylot_set.ratio', 'propertylot_set.description'])
         fields.extend(['payoff_set'])
-        fields.extend([(_('total call for funds'), 'total_call'), (_('total estimate'), 'total_estimate'), (_('initial state'), 'total_initial'), (_(
-            'total ventilated'), 'total_ventilated'), (_('total payed'), 'total_payed'), (_('total real'), 'total_real')])
+        fields.extend([(_('total call for funds'), 'total_call'), (_('total owner'), 'total_owner'), (_('initial state'), 'total_initial'), (_(
+            'total ventilated'), 'total_ventilated'), (_('total payed'), 'total_payed'), (_('estimated regularization'), 'total_regularization')])
+        fields.extend(["exceptionnal_set.set.str", "exceptionnal_set.value", (_("ratio"), 'exceptionnal_set.ratio'),
+                       (_('total call for funds'), 'exceptionnal_set.total_callfunds'), (_('ventilated'), 'exceptionnal_set.ventilated_txt'),
+                       (_('estimated regularization'), 'exceptionnal_set.total_regularization')])
         return fields
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
@@ -319,6 +320,14 @@ class Owner(Supporting):
         if is_new:
             for setitem in Set.objects.all():
                 Partition.objects.create(set=setitem, owner=self)
+
+    @property
+    def exceptionnal_set(self):
+        return PartitionExceptional.objects.filter(Q(owner=self) & Q(set__is_active=True) & Q(set__type_load=1))
+
+    @property
+    def partition_query(self):
+        return Q(set__is_active=True) & ~Q(set__type_load=1)
 
     @property
     def callfunds_query(self):
@@ -334,13 +343,13 @@ class Owner(Supporting):
 
     def get_total_call(self):
         val = 0
-        for callfunds in self.callfunds_set.filter(self.callfunds_query):
+        for callfunds in self.callfunds_set.filter(self.callfunds_query & ~Q(type_call=1)):
             val += currency_round(callfunds.get_total())
         return val
 
     def get_total_payed(self, ignore_payoff=-1):
         val = Supporting.get_total_payed(self, ignore_payoff=ignore_payoff)
-        for callfunds in self.callfunds_set.filter(self.callfunds_query):
+        for callfunds in self.callfunds_set.filter(self.callfunds_query & ~Q(type_call=1)):
             callfunds.check_supporting()
             val += currency_round(callfunds.supporting.get_total_payed(ignore_payoff))
         return val
@@ -377,22 +386,25 @@ class Owner(Supporting):
         return format_devise(self.get_total_initial(), 5)
 
     @property
-    def total_estimate(self):
+    def total_owner(self):
         return format_devise(-1 * self.get_total_rest_topay(), 5)
 
     def get_total(self):
         return self.get_total_call() - self.get_total_initial()
 
     def get_total_ventilated(self):
-        return self.get_total_payed() + self.get_total_initial() - self.third.get_total(self.date_end)
+        value = 0.0
+        for part in self.partition_set.filter(self.partition_query):
+            value += part.get_ventilated()
+        return value
 
     @property
     def total_ventilated(self):
         return format_devise(self.get_total_ventilated(), 5)
 
     @property
-    def total_real(self):
-        return format_devise(self.third.get_total(self.date_end), 5)
+    def total_regularization(self):
+        return format_devise(self.get_total_payed() - self.get_total_ventilated(), 5)
 
     def get_max_payoff(self, ignore_payoff=-1):
         return 1000000
@@ -418,7 +430,7 @@ class Owner(Supporting):
 
     @classmethod
     def get_payment_fields(cls):
-        return ["third", "information", 'callfunds_set', ((_('total estimate'), 'total_estimate'),)]
+        return ["third", "information", 'callfunds_set', ((_('total owner'), 'total_owner'),)]
 
     def get_payment_name(self):
         return _('codominium of %s') % six.text_type(self.third)
@@ -472,6 +484,25 @@ class Partition(LucteriosModel):
     def ventilated_txt(self):
         return format_devise(self.get_ventilated(), 5)
 
+    def get_callfunds(self):
+        value = 0
+        ratio = self.get_ratio()
+        if abs(ratio) > 0.01:
+            for calldetail in CallDetail.objects.filter(callfunds__owner=self.owner, set=self.set, callfunds__date__gte=self.set.date_begin, callfunds__date__lte=self.set.date_end):
+                value += currency_round(calldetail.price)
+        return value
+
+    @property
+    def total_callfunds(self):
+        return format_devise(self.get_callfunds(), 5)
+
+    def get_total_regularization(self):
+        return currency_round(self.get_callfunds() - self.get_ventilated())
+
+    @property
+    def total_regularization(self):
+        return format_devise(self.get_total_regularization(), 5)
+
     @property
     def ratio(self):
         return "%.1f %%" % self.get_ratio()
@@ -480,6 +511,24 @@ class Partition(LucteriosModel):
         verbose_name = _("class load")
         verbose_name_plural = _("class loads")
         default_permissions = []
+        ordering = ['owner__third_id', 'set_id']
+
+
+class PartitionExceptional(Partition):
+
+    @classmethod
+    def get_default_fields(cls):
+        return ["set", (_("ratio"), 'ratio'), (_('total call for funds'), 'total_callfunds'),
+                (_('ventilated'), 'ventilated_txt'), (_('estimated regularization'), 'total_regularization')]
+
+    def set_context(self, xfer):
+        self.set.set_dates(convert_date("1900-01-01"), convert_date("2199-12-31"))
+
+    class Meta(object):
+        verbose_name = _("exceptional class load")
+        verbose_name_plural = _("exceptional class loads")
+        default_permissions = []
+        proxy = True
         ordering = ['owner__third_id', 'set_id']
 
 
