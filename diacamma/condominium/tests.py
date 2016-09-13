@@ -728,7 +728,6 @@ class OwnerTest(PaymentTest):
         self.assert_xml_equal(
             'COMPONENTS/LABELFORM[@name="total_regularization"]', "25.00€")
 
-        self.print_xml('COMPONENTS/GRID[@name="exceptionnal"]')
         self.assert_count_equal('COMPONENTS/GRID[@name="exceptionnal"]/RECORD', 1)
         self.assert_count_equal('COMPONENTS/GRID[@name="exceptionnal"]/HEADER', 5)
         self.assert_xml_equal('COMPONENTS/GRID[@name="exceptionnal"]/RECORD[1]/VALUE[@name="set"]', "CCC")
