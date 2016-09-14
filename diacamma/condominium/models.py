@@ -45,6 +45,7 @@ from diacamma.accounting.tools import format_devise, currency_round,\
 from diacamma.payoff.models import Supporting
 from django_fsm import FSMIntegerField, transition
 from lucterios.CORE.parameters import Params
+from django.core.exceptions import ObjectDoesNotExist
 
 
 class Set(LucteriosModel):
@@ -74,13 +75,16 @@ class Set(LucteriosModel):
             self.date_end = six.text_type(FiscalYear.get_current().end)
         else:
             self.date_end = end_date
+        if isinstance(self.date_begin, six.text_type):
+            self.date_begin = convert_date(self.date_begin)
+        if isinstance(self.date_end, six.text_type):
+            self.date_end = convert_date(self.date_end)
         if self.date_end < self.date_begin:
             self.date_end = self.date_begin
 
     def set_context(self, xfer):
         if xfer is not None:
-            self.set_dates(convert_date(xfer.getparam("begin_date")), convert_date(
-                xfer.getparam("end_date")))
+            self.set_dates(xfer.getparam("begin_date"), xfer.getparam("end_date"))
 
     def __str__(self):
         return self.name
@@ -241,20 +245,26 @@ class Owner(Supporting):
             self.date_end = six.text_type(FiscalYear.get_current().end)
         else:
             self.date_end = end_date
-        if self.date_end < self.date_begin:
-            self.date_end = self.date_begin
         if isinstance(self.date_begin, six.text_type):
             self.date_begin = convert_date(self.date_begin)
         if isinstance(self.date_end, six.text_type):
             self.date_end = convert_date(self.date_end)
+        if self.date_end < self.date_begin:
+            self.date_end = self.date_begin
 
     def set_context(self, xfer):
         if xfer is not None:
-            self.set_dates(convert_date(xfer.getparam("begin_date")), convert_date(
-                xfer.getparam("end_date")))
+            self.set_dates(xfer.getparam("begin_date"), xfer.getparam("end_date"))
 
-    def get_third_mask(self):
-        return current_system_account().get_societary_mask()
+    def get_third_mask(self, type_owner=1):
+        if Params.getvalue("condominium-old-accounting"):
+            return current_system_account().get_societary_mask()
+        else:
+            try:
+                account = Params.getvalue("condominium-default-owner-account%d" % type_owner)
+                return "^" + account + "[0-9a-zA-Z]*$"
+            except:
+                return current_system_account().get_societary_mask()
 
     def default_date(self):
         if self.date_begin is None:
@@ -279,7 +289,11 @@ class Owner(Supporting):
 
     @classmethod
     def get_default_fields(cls):
-        return ["third", (_('property part'), 'property_part'), (_('initial state'), 'total_initial'), (_('total call for funds'), 'total_call'), (_('total payoff'), 'total_payed'), (_('total owner'), 'total_owner'), (_('total ventilated'), 'total_ventilated'), (_('estimated regularization'), 'total_regularization')]
+        return ["third", (_('property part'), 'property_part'), (_('current initial state'), 'total_current_initial'), (_('current total call for funds'), 'total_call'), (_('current total payoff'), 'total_payed'), (_('current total owner'), 'total_owner_current'), (_('current total ventilated'), 'total_ventilated'), (_('estimated regularization'), 'total_regularization')]
+
+    @classmethod
+    def get_show_fields_in_third(cls):
+        return [((_('current initial state'), 'total_current_initial'),), ((_('current total call for funds'), 'total_call'),), ((_('current total owner'), 'total_owner_current'),)]
 
     @classmethod
     def get_edit_fields(cls):
@@ -288,13 +302,14 @@ class Owner(Supporting):
     @classmethod
     def get_show_fields(cls):
         return {"": ["third", "information"],
-                _("001@Owning"): ['propertylot_set', 'partition_set'],
-                _("002@Situation"): [('payoff_set',),
-                                     ((_('total call for funds'), 'total_call'), (_('total payed'), 'total_payed')),
-                                     ((_('initial state'), 'total_initial'), (_('total owner'), 'total_owner'), ),
-                                     ((_('total ventilated'), 'total_ventilated'), (_('estimated regularization'), 'total_regularization'))],
-                _("003@Exceptional"): ['exceptionnal_set'],
-                _("004@callfunds"): ['callfunds_set'],
+                _("001@Summary"): ['propertylot_set', ((_('total owner'), 'thirdtotal'),)],
+                _("002@Situation"): [('partition_set',),
+                                     ((_('current total call for funds'), 'total_call'), (_('current total payoff'), 'total_payed')),
+                                     ((_('current initial state'), 'total_current_initial'), (_('current total ventilated'), 'total_ventilated')),
+                                     ((_('estimated regularization'), 'total_regularization'), (_('extra revenus/expenses'), 'total_extra')),
+                                     ((_('current total owner'), 'total_owner_current'), )],
+                _("003@Exceptional"): ['exceptionnal_set', ((_('exceptional initial state'), 'total_exceptional_initial'),), ((_('exceptional total owner'), 'total_owner_exceptional'), )],
+                _("004@callfunds"): ['callfunds_set', 'payoff_set'],
                 }
 
     @classmethod
@@ -306,7 +321,7 @@ class Owner(Supporting):
                        "partition_set.value", (_("ratio"), 'partition_set.ratio'), (_('ventilated'), 'partition_set.ventilated_txt')])
         fields.extend(['propertylot_set.num', 'propertylot_set.value', 'propertylot_set.ratio', 'propertylot_set.description'])
         fields.extend(['payoff_set'])
-        fields.extend([(_('total call for funds'), 'total_call'), (_('total owner'), 'total_owner'), (_('initial state'), 'total_initial'), (_(
+        fields.extend([(_('total call for funds'), 'total_call'), (_('total owner'), 'total_owner_current'), (_('initial state'), 'total_current_initial'), (_(
             'total ventilated'), 'total_ventilated'), (_('total payed'), 'total_payed'), (_('estimated regularization'), 'total_regularization')])
         fields.extend(["exceptionnal_set.set.str", "exceptionnal_set.value", (_("ratio"), 'exceptionnal_set.ratio'),
                        (_('total call for funds'), 'exceptionnal_set.total_callfunds'), (_('ventilated'), 'exceptionnal_set.ventilated_txt'),
@@ -322,12 +337,18 @@ class Owner(Supporting):
                 Partition.objects.create(set=setitem, owner=self)
 
     @property
+    def thirdtotal(self):
+        if self.date_begin is None:
+            self.set_dates()
+        return format_devise(self.third.get_total(self.date_end), 5)
+
+    @property
     def exceptionnal_set(self):
         return PartitionExceptional.objects.filter(Q(owner=self) & Q(set__is_active=True) & Q(set__type_load=1))
 
     @property
     def partition_query(self):
-        return Q(set__is_active=True) & ~Q(set__type_load=1)
+        return Q(set__is_active=True) & Q(set__type_load=0)
 
     @property
     def callfunds_query(self):
@@ -358,18 +379,19 @@ class Owner(Supporting):
     def total_call(self):
         return format_devise(self.get_total_call(), 5)
 
-    def get_total_initial(self):
+    def get_total_initial(self, owner_type=1):
         if self.date_begin is None:
             self.set_dates()
-        third_total = self.third.get_total(self.date_begin, False)
-        third_total -= get_amount_sum(EntryLineAccount.objects.filter(Q(third=self.third) & Q(
-            entry__date_value=self.date_begin) & Q(entry__journal__id=1) & Q(account__type_of_account=0)).aggregate(Sum('amount')))
-        third_total += get_amount_sum(EntryLineAccount.objects.filter(Q(third=self.third) & Q(
-            entry__date_value=self.date_begin) & Q(entry__journal__id=1) & Q(account__type_of_account=1)).aggregate(Sum('amount')))
+        third_total = get_amount_sum(EntryLineAccount.objects.filter(Q(third=self.third) & Q(entry__date_value__lt=self.date_begin) &
+                                                                     Q(account__code__regex=self.get_third_mask(owner_type))).aggregate(Sum('amount')))
+#         third_total -= get_amount_sum(EntryLineAccount.objects.filter(Q(third=self.third) & Q(entry__date_value=self.date_begin) &
+#                                                                       Q(entry__journal__id=1) & Q(account__type_of_account=0)).aggregate(Sum('amount')))
+#         third_total += get_amount_sum(EntryLineAccount.objects.filter(Q(third=self.third) & Q(entry__date_value=self.date_begin) &
+# Q(entry__journal__id=1) &
+# Q(account__type_of_account=1)).aggregate(Sum('amount')))
         return third_total
 
-    @property
-    def property_part(self):
+    def get_property_part(self):
         total_part = PropertyLot.get_total_part()
         if total_part > 0:
             total = self.propertylot_set.aggregate(sum=Sum('value'))
@@ -377,17 +399,41 @@ class Owner(Supporting):
                 value = total['sum']
             else:
                 value = 0
+            return (value, total_part)
+        else:
+            return (None, None)
+
+    @property
+    def property_part(self):
+        value, total_part = self.get_property_part()
+        if value is not None:
             return "%d/%d{[br/]}%.1f %%" % (value, total_part, 100.0 * float(value) / float(total_part))
         else:
             return "---"
 
     @property
-    def total_initial(self):
-        return format_devise(self.get_total_initial(), 5)
+    def total_current_initial(self):
+        return format_devise(self.get_total_initial(1), 5)
 
     @property
-    def total_owner(self):
-        return format_devise(-1 * self.get_total_rest_topay(), 5)
+    def total_exceptional_initial(self):
+        return format_devise(self.get_total_initial(2), 5)
+
+    @property
+    def total_owner_current(self):
+        if self.date_begin is None:
+            self.set_dates()
+        third_total = get_amount_sum(EntryLineAccount.objects.filter(Q(third=self.third) & Q(entry__date_value__lte=self.date_end) &
+                                                                     Q(account__code__regex=self.get_third_mask(1))).aggregate(Sum('amount')))
+        return format_devise(-1 * third_total, 5)
+
+    @property
+    def total_owner_exceptional(self):
+        if self.date_begin is None:
+            self.set_dates()
+        third_total = get_amount_sum(EntryLineAccount.objects.filter(Q(third=self.third) & Q(entry__date_value__lte=self.date_end) &
+                                                                     Q(account__code__regex=self.get_third_mask(2))).aggregate(Sum('amount')))
+        return format_devise(-1 * third_total, 5)
 
     def get_total(self):
         return self.get_total_call() - self.get_total_initial()
@@ -395,12 +441,35 @@ class Owner(Supporting):
     def get_total_ventilated(self):
         value = 0.0
         for part in self.partition_set.filter(self.partition_query):
+            part.set.set_dates(self.date_begin, self.date_end)
             value += part.get_ventilated()
         return value
 
     @property
     def total_ventilated(self):
         return format_devise(self.get_total_ventilated(), 5)
+
+    def get_total_extra(self):
+        value, total_part = self.get_property_part()
+        if value is not None:
+            try:
+                year = FiscalYear.objects.get(begin__lte=self.date_end, end__gte=self.date_end)
+                result = year.total_revenue - year.total_expense
+                for set_cost in SetCost.objects.filter(year=year, set__is_active=True):
+                    result -= set_cost.cost_accounting.get_total_revenue() - set_cost.cost_accounting.get_total_expense()
+                return result * value / total_part
+            except ObjectDoesNotExist:
+                return None
+        else:
+            return None
+
+    @property
+    def total_extra(self):
+        extra = self.get_total_extra()
+        if extra is None:
+            return extra
+        else:
+            return format_devise(self.get_total_extra(), 5)
 
     @property
     def total_regularization(self):
@@ -430,7 +499,7 @@ class Owner(Supporting):
 
     @classmethod
     def get_payment_fields(cls):
-        return ["third", "information", 'callfunds_set', ((_('total owner'), 'total_owner'),)]
+        return ["third", "information", 'callfunds_set', ((_('total owner'), 'total_owner_current'),)]
 
     def get_payment_name(self):
         return _('codominium of %s') % six.text_type(self.third)
@@ -467,17 +536,22 @@ class Partition(LucteriosModel):
 
     def set_context(self, xfer):
         if xfer is not None:
-            self.set.set_dates(convert_date(xfer.getparam("begin_date")), convert_date(
-                xfer.getparam("end_date")))
+            self.set.set_dates(xfer.getparam("begin_date"), xfer.getparam("end_date"))
 
     def get_ventilated(self):
         value = 0
         ratio = self.get_ratio()
         if abs(ratio) > 0.01:
-            for expensedetail in self.set.get_expenselist():
-                total = expensedetail.expenseratio_set.filter(owner=self.owner).aggregate(sum=Sum('value'))
-                if ('sum' in total.keys()) and (total['sum'] is not None):
-                    value += currency_round(total['sum'])
+            try:
+                year = FiscalYear.objects.get(begin__lte=self.set.date_end, end__gte=self.set.date_end)
+            except ObjectDoesNotExist:
+                year = FiscalYear.get_current()
+                if self.set.date_end < year.begin:
+                    return 0
+            result = 0
+            for set_cost in SetCost.objects.filter((Q(year=year) | Q(year__isnull=True)) & Q(set=self.set)):
+                result += set_cost.cost_accounting.get_total_expense()
+            value = result * ratio / 100.0
         return value
 
     @property
@@ -522,7 +596,10 @@ class PartitionExceptional(Partition):
                 (_('ventilated'), 'ventilated_txt'), (_('estimated regularization'), 'total_regularization')]
 
     def set_context(self, xfer):
-        self.set.set_dates(convert_date("1900-01-01"), convert_date("2199-12-31"))
+        if xfer is not None:
+            self.set.set_dates("1900-01-01", xfer.getparam("end_date"))
+        else:
+            self.set.set_dates("1900-01-01", "2199-12-31")
 
     class Meta(object):
         verbose_name = _("exceptional class load")
@@ -763,7 +840,7 @@ class CallDetail(LucteriosModel):
 
     def generate_accounting(self, fiscal_year, detail_account, owner_account):
         new_entry = EntryAccount.objects.create(year=fiscal_year, date_value=self.callfunds.date, designation=self.__str__(),
-                                                journal_id=2, costaccounting=self.set.current_cost_accounting)
+                                                journal_id=3, costaccounting=self.set.current_cost_accounting)
         EntryLineAccount.objects.create(account=detail_account, amount=self.price, entry=new_entry)
         EntryLineAccount.objects.create(account=owner_account, amount=self.price, entry=new_entry, third=self.callfunds.owner.third)
 
@@ -844,20 +921,15 @@ class Expense(Supporting):
             current_system_account().get_provider_mask(), fiscal_year)
         detail_sums = {}
         for detail in self.expensedetail_set.all():
-            cost_accounting = detail.set.cost_accounting_id
-            if cost_accounting == 0:
-                cost_accounting = None
+            cost_accounting = detail.set.current_cost_accounting.id
             if cost_accounting not in detail_sums.keys():
                 detail_sums[cost_accounting] = {}
-            detail_account = ChartsAccount.get_account(
-                detail.expense_account, fiscal_year)
+            detail_account = ChartsAccount.get_account(detail.expense_account, fiscal_year)
             if detail_account is None:
-                raise LucteriosException(
-                    IMPORTANT, _("code account %s unknown!") % detail.expense_account)
+                raise LucteriosException(IMPORTANT, _("code account %s unknown!") % detail.expense_account)
             if detail_account.id not in detail_sums[cost_accounting].keys():
                 detail_sums[cost_accounting][detail_account.id] = 0
-            detail_sums[cost_accounting][
-                detail_account.id] += currency_round(detail.price)
+            detail_sums[cost_accounting][detail_account.id] += currency_round(detail.price)
         entries = []
         for cost_accounting, detail_sum in detail_sums.items():
             new_entry = EntryAccount.objects.create(

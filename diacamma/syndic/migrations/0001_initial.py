@@ -43,7 +43,7 @@ def initial_values(*args):
     jnl2.name = _('spending')
     jnl2.save()
     jnl3 = Journal.objects.get(id=3)
-    jnl3.name = _('ventilation')
+    jnl3.name = _('revenue')
     jnl3.save()
 
 

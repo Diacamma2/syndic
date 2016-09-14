@@ -88,6 +88,8 @@ class CondominiumMigrate(MigrateAbstract):
                     set=self.set_list[ensemble], owner=self.owner_list[tiers])
                 self.partition_list[partid].value = part
                 self.partition_list[partid].save()
+        for current_set in set_mdl.objects.all():
+            current_set.convert_cost()
 
     def _callfunds(self):
         callfunds_mdl = apps.get_model("condominium", "CallFunds")
@@ -210,6 +212,7 @@ class CondominiumMigrate(MigrateAbstract):
                 self.print_debug(
                     "=> parameter of invoice %s - %s", (pname, param_value))
                 Parameter.change_value(pname, param_value)
+        Parameter.change_value('condominium-old-accounting', True)
 
     def run(self):
         try:

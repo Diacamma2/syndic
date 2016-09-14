@@ -238,9 +238,7 @@ def thirdaddon_condo(item, xfer):
             xfer.new_tab(_('Condominium'))
             old_item = xfer.item
             xfer.item = owner
-            fields = [((_('initial state'), 'total_initial'),), ((_('total call for funds'), 'total_call'),),
-                      ((_('total owner'), 'total_owner'),)]
-            xfer.filltab_from_model(0, 1, True, fields)
+            xfer.filltab_from_model(0, 1, True, Owner.get_show_fields_in_third())
             xfer.item = old_item
             btn = XferCompButton('condobtn')
             btn.set_location(0, 5, 2)
