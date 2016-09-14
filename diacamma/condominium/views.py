@@ -5,9 +5,11 @@ from django.utils.translation import ugettext_lazy as _
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils import six
 
-from lucterios.framework.xferadvance import TITLE_MODIFY, TITLE_ADD, TITLE_EDIT, TITLE_DELETE, TITLE_PRINT
+from lucterios.framework.xferadvance import TITLE_MODIFY, TITLE_ADD, TITLE_EDIT, TITLE_DELETE, TITLE_PRINT,\
+    TITLE_CANCEL, TITLE_OK
 from lucterios.framework.xferadvance import XferListEditor, XferShowEditor, XferAddEditor, XferDelete
-from lucterios.framework.xfercomponents import XferCompLabelForm, XferCompDate, XferCompGrid, XferCompButton
+from lucterios.framework.xfercomponents import XferCompLabelForm, XferCompDate, XferCompGrid, XferCompButton,\
+    XferCompImage, XferCompSelect
 from lucterios.framework.tools import FORMTYPE_NOMODAL, ActionsManage, MenuManage, WrapAction
 from lucterios.framework.tools import SELECT_SINGLE, CLOSE_NO, FORMTYPE_REFRESH, FORMTYPE_MODAL, CLOSE_YES, SELECT_MULTI
 from lucterios.framework.error import LucteriosException, IMPORTANT
@@ -16,7 +18,15 @@ from lucterios.CORE.xferprint import XferPrintAction, XferPrintReporting
 
 from lucterios.contacts.models import Individual, LegalEntity
 
-from diacamma.condominium.models import PropertyLot, Owner, Set
+from diacamma.condominium.models import PropertyLot, Owner, Set, CallFunds,\
+    Expense
+from lucterios.framework.xfergraphic import XferContainerCustom,\
+    XferContainerAcknowledge
+from lucterios.CORE.parameters import Params
+from diacamma.condominium.views_classload import fill_params
+from diacamma.accounting.models import ChartsAccount, AccountThird, FiscalYear
+from diacamma.payoff.models import Payoff
+from lucterios.CORE.models import Parameter
 
 
 @MenuManage.describ('condominium.change_set', FORMTYPE_NOMODAL, 'condominium', _('Manage of owners and property lots'))
@@ -191,6 +201,99 @@ class CurrentOwnePrint(OwnerReport):
     pass
 
 
+@MenuManage.describ('CORE.change_parameter')
+class CondominiumConvert(XferContainerAcknowledge):
+    icon = "condominium.png"
+    caption = _("Condominium conversion")
+
+    def fill_third_convert(self, dlg):
+        lbl = XferCompLabelForm('tle_third')
+        lbl.set_value_as_info(_('How do want to convert owner third account?'))
+        lbl.set_location(0, 0, 2)
+        dlg.add_component(lbl)
+        select_account = [('', None)]
+        for num_account in range(1, 5):
+            owner_account = Params.getvalue('condominium-default-owner-account%d' % num_account)
+            select_account.append((owner_account, owner_account))
+        row = 1
+        for code_item in AccountThird.objects.filter(code__regex=r"^45[0-9a-zA-Z]*$", third__status=0).values_list('code').distinct():
+            lbl = XferCompLabelForm('lbl_code_' + code_item[0])
+            lbl.set_value_as_name(code_item[0])
+            lbl.set_location(0, row)
+            dlg.add_component(lbl)
+            sel = XferCompSelect('code_' + code_item[0])
+            sel.set_location(1, row)
+            sel.set_value(dlg.getparam('code_' + code_item[0], ""))
+            sel.set_select(select_account)
+            dlg.add_component(sel)
+            row += 1
+
+    def get_thirds_convert(self):
+        thirds_convert = {}
+        for param_name, param_val in self.params.items():
+            if param_name.startswith('code_') and (param_val != ''):
+                thirds_convert[param_name[5:]] = param_val
+        return thirds_convert
+
+    def fillresponse(self):
+        if self.getparam("CONVERT") is None:
+            dlg = self.create_custom()
+            img = XferCompImage('img')
+            img.set_value(self.icon_path())
+            img.set_location(0, 0)
+            dlg.add_component(img)
+            lbl = XferCompLabelForm('title')
+            lbl.set_value_as_title(self.caption)
+            lbl.set_location(1, 0)
+            dlg.add_component(lbl)
+            dlg.new_tab(_("Third accounts"))
+            self.fill_third_convert(dlg)
+            dlg.new_tab(_("Parameters"))
+            fill_params(dlg, True, True)
+            dlg.add_action(self.get_action(TITLE_OK, 'images/ok.png'), modal=FORMTYPE_MODAL, close=CLOSE_YES, params={'CONVERT': 'YES'})
+            dlg.add_action(WrapAction(TITLE_CANCEL, 'images/cancel.png'))
+        else:
+            Parameter.change_value('condominium-old-accounting', False)
+            Params.clear()
+            thirds_convert = self.get_thirds_convert()
+            for owner in Owner.objects.all():
+                for num_account in range(1, 5):
+                    AccountThird.objects.create(third=owner.third, code=Params.getvalue("condominium-default-owner-account%d" % num_account))
+            for year in FiscalYear.objects.filter(status__lt=2):
+                year.getorcreate_chartaccount(Params.getvalue('condominium-default-owner-account1'),
+                                              'Copropriétaire - budget prévisionnel')
+                year.getorcreate_chartaccount(Params.getvalue('condominium-default-owner-account2'),
+                                              'Copropriétaire - travaux et opération exceptionnelles')
+                year.getorcreate_chartaccount(Params.getvalue('condominium-default-owner-account3'),
+                                              'Copropriétaire - avances')
+                year.getorcreate_chartaccount(Params.getvalue('condominium-default-owner-account4'),
+                                              'Copropriétaire - emprunts')
+                for code_init, code_target in thirds_convert.items():
+                    try:
+                        account_init = ChartsAccount.objects.get(year=year, code=code_init)
+                        account_target = ChartsAccount.objects.get(year=year, code=code_target)
+                        account_target.merge_objects(account_init)
+                    except:
+                        pass
+                for call_funds in CallFunds.objects.filter(status__gte=1, date__gte=year.begin, date__lte=year.end):
+                    if (call_funds.status == 2):
+                        call_funds.status = 1
+                        call_funds.save()
+                    call_funds.generate_accounting()
+                for expense in Expense.objects.filter(status__gte=1, date__gte=year.begin, date__lte=year.end):
+                    if (expense.status == 2):
+                        expense.status = 1
+                        expense.save()
+                    expense.reedit()
+                    expense.valid()
+                for pay_off in Payoff.objects.filter(date__gte=year.begin, date__lte=year.end):
+                    if pay_off.entry.close:
+                        pay_off.entry.close = False
+                        pay_off.entry.save()
+                    pay_off.save()
+            self.message(_("Data converted"))
+
+
 @signal_and_lock.Signal.decorate('summary')
 def summary_condo(xfer):
     is_right = WrapAction.is_permission(xfer.request, 'condominium.change_set')
@@ -219,6 +322,11 @@ def summary_condo(xfer):
         lab.set_value_as_header(_("There are %(set)d classes of loads for %(owner)d owners") % {'set': nb_set, 'owner': nb_owner})
         lab.set_location(0, row + 1, 4)
         xfer.add_component(lab)
+        if Params.getvalue("condominium-old-accounting"):
+            btn = XferCompButton('condoconv')
+            btn.set_location(0, row + 2, 4)
+            btn.set_action(xfer.request, CondominiumConvert.get_action(_('convertion'), ""), close=CLOSE_NO)
+            xfer.add_component(btn)
     if is_right or (len(owners) == 1):
         row = xfer.get_max_row() + 1
         lab = XferCompLabelForm('condosep')

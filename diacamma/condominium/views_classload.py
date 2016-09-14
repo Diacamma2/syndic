@@ -51,8 +51,8 @@ from diacamma.condominium.models import Set, Partition, ExpenseDetail, Owner,\
 from diacamma.accounting.models import CostAccounting
 
 
-def fill_params(self, is_mini=False):
-    if Params.getvalue("condominium-old-accounting"):
+def fill_params(self, is_mini=False, new_params=False):
+    if Params.getvalue("condominium-old-accounting") and not new_params:
         param_lists = ['condominium-default-owner-account']
     else:
         param_lists = ['condominium-default-owner-account1', 'condominium-default-owner-account2',

@@ -768,8 +768,8 @@ class OwnerTestOldAccounting(PaymentTest):
             'COMPONENTS/LABELFORM[@name="total_payed"]', "100.00€")
         self.assert_xml_equal(
             'COMPONENTS/LABELFORM[@name="total_owner_current"]', "100.00€")
-        self.assert_xml_equal(
-            'COMPONENTS/LABELFORM[@name="total_regularization"]', "100.00€")
+        self.assert_count_equal(
+            'COMPONENTS/LABELFORM[@name="total_regularization"]', 0)
         self.assert_count_equal('ACTIONS/ACTION', 4)
 
     def test_owner_situation(self):
@@ -784,7 +784,7 @@ class OwnerTestOldAccounting(PaymentTest):
         self.assert_xml_equal('COMPONENTS/LABELFORM[@name="total_payed"]', "100.00€")
         self.assert_xml_equal('COMPONENTS/LABELFORM[@name="total_owner_current"]', "21.25€")
         self.assert_xml_equal('COMPONENTS/LABELFORM[@name="total_ventilated"]', "75.00€")
-        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="total_regularization"]', "25.00€")
+        self.assert_count_equal('COMPONENTS/LABELFORM[@name="total_regularization"]', 0)
 
         self.assert_count_equal('COMPONENTS/GRID[@name="exceptionnal"]/RECORD', 1)
         self.assert_count_equal('COMPONENTS/GRID[@name="exceptionnal"]/HEADER', 5)
@@ -793,4 +793,4 @@ class OwnerTestOldAccounting(PaymentTest):
         self.assert_xml_equal('COMPONENTS/GRID[@name="exceptionnal"]/RECORD[1]/VALUE[@name="total_callfunds"]', "45.00€")
         self.assert_xml_equal('COMPONENTS/GRID[@name="exceptionnal"]/RECORD[1]/VALUE[@name="ventilated_txt"]', "33.75€")
         self.assert_xml_equal('COMPONENTS/GRID[@name="exceptionnal"]/RECORD[1]/VALUE[@name="total_regularization"]', "11.25€")
-        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="total_owner_exceptional"]', "21.25€")
+        self.assert_count_equal('COMPONENTS/LABELFORM[@name="total_owner_exceptional"]', 0)
