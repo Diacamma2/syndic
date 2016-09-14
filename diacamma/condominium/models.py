@@ -301,16 +301,21 @@ class Owner(Supporting):
 
     @classmethod
     def get_show_fields(cls):
-        return {"": ["third", "information"],
-                _("001@Summary"): ['propertylot_set', ((_('total owner'), 'thirdtotal'),)],
-                _("002@Situation"): [('partition_set',),
-                                     ((_('current total call for funds'), 'total_call'), (_('current total payoff'), 'total_payed')),
-                                     ((_('current initial state'), 'total_current_initial'), (_('current total ventilated'), 'total_ventilated')),
-                                     ((_('estimated regularization'), 'total_regularization'), (_('extra revenus/expenses'), 'total_extra')),
-                                     ((_('current total owner'), 'total_owner_current'), )],
-                _("003@Exceptional"): ['exceptionnal_set', ((_('exceptional initial state'), 'total_exceptional_initial'),), ((_('exceptional total owner'), 'total_owner_exceptional'), )],
-                _("004@callfunds"): ['callfunds_set', 'payoff_set'],
-                }
+        fields = {"": ["third", "information"],
+                  _("001@Summary"): ['propertylot_set', ((_('total owner'), 'thirdtotal'),)],
+                  _("002@Situation"): [('partition_set',),
+                                       ((_('current total call for funds'), 'total_call'), (_('current total payoff'), 'total_payed')),
+                                       ((_('current initial state'), 'total_current_initial'), (_('current total ventilated'), 'total_ventilated')),
+                                       ((_('estimated regularization'), 'total_regularization'), (_('extra revenus/expenses'), 'total_extra')),
+                                       ((_('current total owner'), 'total_owner_current'), )],
+                  _("003@Exceptional"): ['exceptionnal_set', ((_('exceptional initial state'), 'total_exceptional_initial'),), ((_('exceptional total owner'), 'total_owner_exceptional'), )],
+                  _("004@callfunds"): ['callfunds_set', 'payoff_set'],
+                  }
+        if Params.getvalue("condominium-old-accounting"):
+            del fields[_("002@Situation")][3]
+            del fields[_("003@Exceptional")][2]
+            del fields[_("003@Exceptional")][1]
+        return fields
 
     @classmethod
     def get_print_fields(cls):
