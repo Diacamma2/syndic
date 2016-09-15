@@ -31,6 +31,7 @@ from django.utils import six
 from lucterios.install.lucterios_migration import MigrateAbstract
 from lucterios.CORE.models import Parameter
 from diacamma.accounting.from_v1 import convert_code
+from lucterios.CORE.parameters import Params
 
 
 class CondominiumMigrate(MigrateAbstract):
@@ -213,6 +214,7 @@ class CondominiumMigrate(MigrateAbstract):
                     "=> parameter of invoice %s - %s", (pname, param_value))
                 Parameter.change_value(pname, param_value)
         Parameter.change_value('condominium-old-accounting', True)
+        Params.clear()
 
     def run(self):
         try:
