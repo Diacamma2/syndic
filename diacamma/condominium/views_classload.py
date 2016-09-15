@@ -242,17 +242,18 @@ def paramchange_condominium(params):
     if 'accounting-sizecode' in params:
         for set_item in Set.objects.all():
             if set_item.revenue_account != correct_accounting_code(set_item.revenue_account):
-                set_item.revenue_account = correct_accounting_code(
-                    set_item.revenue_account)
+                set_item.revenue_account = correct_accounting_code(set_item.revenue_account)
                 set_item.save()
         for exp_item in ExpenseDetail.objects.filter(expense__status=0):
             if exp_item.expense_account != correct_accounting_code(exp_item.expense_account):
-                exp_item.expense_account = correct_accounting_code(
-                    exp_item.expense_account)
+                exp_item.expense_account = correct_accounting_code(exp_item.expense_account)
                 exp_item.save()
-    if ('condominium-default-owner-account' in params) or ('accounting-sizecode' in params):
-        Parameter.change_value('condominium-default-owner-account', correct_accounting_code(
-            Params.getvalue('condominium-default-owner-account')))
+    accounts = ('condominium-default-owner-account', 'condominium-current-revenue-account',
+                'condominium-exceptional-revenue-account', 'condominium-exceptional-reserve-account',
+                'condominium-advance-reserve-account')
+    for account_item in accounts:
+        if (account_item in params) or ('accounting-sizecode' in params):
+            Parameter.change_value(account_item, correct_accounting_code(Params.getvalue(account_item)))
         Params.clear()
 
 

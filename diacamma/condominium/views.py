@@ -27,6 +27,7 @@ from diacamma.condominium.views_classload import fill_params
 from diacamma.accounting.models import ChartsAccount, AccountThird, FiscalYear
 from diacamma.payoff.models import Payoff
 from lucterios.CORE.models import Parameter
+from diacamma.accounting.tools import correct_accounting_code
 
 
 @MenuManage.describ('condominium.change_set', FORMTYPE_NOMODAL, 'condominium', _('Manage of owners and property lots'))
@@ -208,12 +209,12 @@ class CondominiumConvert(XferContainerAcknowledge):
 
     def fill_third_convert(self, dlg):
         lbl = XferCompLabelForm('tle_third')
-        lbl.set_value_as_info(_('How do want to convert owner third account?'))
+        lbl.set_value(_('How do want to convert owner third account?'))
         lbl.set_location(0, 0, 2)
         dlg.add_component(lbl)
         select_account = [('', None)]
         for num_account in range(1, 5):
-            owner_account = Params.getvalue('condominium-default-owner-account%d' % num_account)
+            owner_account = correct_accounting_code(Params.getvalue('condominium-default-owner-account%d' % num_account))
             select_account.append((owner_account, owner_account))
         row = 1
         for code_item in AccountThird.objects.filter(code__regex=r"^45[0-9a-zA-Z]*$", third__status=0).values_list('code').distinct():
@@ -246,6 +247,12 @@ class CondominiumConvert(XferContainerAcknowledge):
             lbl.set_value_as_title(self.caption)
             lbl.set_location(1, 0)
             dlg.add_component(lbl)
+            year_list = ["{[i]} - %s{[/i]}" % year for year in FiscalYear.objects.filter(status__lt=2)]
+            lab = XferCompLabelForm('info')
+            lab.set_value(
+                _("This conversion tool will change your account to respect French law about condominium.{[br/]}For the no-closed fiscal years:{[newline]}%s{[newline]}It will do:{[newline]} - To change accounting code for each owners.{[newline]} - To de-validate all your entity.{[br/]} - To delete all entity link to call of funds or expenses.{[br/]} - To de-archive call of funds or expenses.{[br/]} - To generate correct account for call of funds or expenses.{[br/]}{[center]}{[u]}{[b]}Warning: This action is  definitive.{[/b]}{[/u]}{[center]}") % '{[br/]}'.join(year_list))
+            lab.set_location(0, 1, 4)
+            dlg.add_component(lab)
             dlg.new_tab(_("Third accounts"))
             self.fill_third_convert(dlg)
             dlg.new_tab(_("Parameters"))
@@ -258,15 +265,16 @@ class CondominiumConvert(XferContainerAcknowledge):
             thirds_convert = self.get_thirds_convert()
             for owner in Owner.objects.all():
                 for num_account in range(1, 5):
-                    AccountThird.objects.create(third=owner.third, code=Params.getvalue("condominium-default-owner-account%d" % num_account))
+                    AccountThird.objects.create(third=owner.third,
+                                                code=correct_accounting_code(Params.getvalue("condominium-default-owner-account%d" % num_account)))
             for year in FiscalYear.objects.filter(status__lt=2):
-                year.getorcreate_chartaccount(Params.getvalue('condominium-default-owner-account1'),
+                year.getorcreate_chartaccount(correct_accounting_code(Params.getvalue('condominium-default-owner-account1')),
                                               'Copropriétaire - budget prévisionnel')
-                year.getorcreate_chartaccount(Params.getvalue('condominium-default-owner-account2'),
+                year.getorcreate_chartaccount(correct_accounting_code(Params.getvalue('condominium-default-owner-account2')),
                                               'Copropriétaire - travaux et opération exceptionnelles')
-                year.getorcreate_chartaccount(Params.getvalue('condominium-default-owner-account3'),
+                year.getorcreate_chartaccount(correct_accounting_code(Params.getvalue('condominium-default-owner-account3')),
                                               'Copropriétaire - avances')
-                year.getorcreate_chartaccount(Params.getvalue('condominium-default-owner-account4'),
+                year.getorcreate_chartaccount(correct_accounting_code(Params.getvalue('condominium-default-owner-account4')),
                                               'Copropriétaire - emprunts')
                 for code_init, code_target in thirds_convert.items():
                     try:
@@ -275,6 +283,11 @@ class CondominiumConvert(XferContainerAcknowledge):
                         account_target.merge_objects(account_init)
                     except:
                         pass
+                for entry in year.entryaccount_set.exclude(journal_id=1):
+                    entry.num = None
+                    entry.close = False
+                    entry.date_entry = None
+                    entry.save()
                 for call_funds in CallFunds.objects.filter(status__gte=1, date__gte=year.begin, date__lte=year.end):
                     if (call_funds.status == 2):
                         call_funds.status = 1
@@ -287,9 +300,6 @@ class CondominiumConvert(XferContainerAcknowledge):
                     expense.reedit()
                     expense.valid()
                 for pay_off in Payoff.objects.filter(date__gte=year.begin, date__lte=year.end):
-                    if pay_off.entry.close:
-                        pay_off.entry.close = False
-                        pay_off.entry.save()
                     pay_off.save()
             self.message(_("Data converted"))
 
@@ -323,9 +333,14 @@ def summary_condo(xfer):
         lab.set_location(0, row + 1, 4)
         xfer.add_component(lab)
         if Params.getvalue("condominium-old-accounting"):
+            lab = XferCompLabelForm('condoconvinfo')
+            lab.set_value_as_header(_("Your condominium account is not in respect of French law{[newline]}An conversion is necessary."))
+            lab.set_color('red')
+            lab.set_location(0, row + 2, 4)
+            xfer.add_component(lab)
             btn = XferCompButton('condoconv')
-            btn.set_location(0, row + 2, 4)
-            btn.set_action(xfer.request, CondominiumConvert.get_action(_('convertion'), ""), close=CLOSE_NO)
+            btn.set_location(0, row + 3, 4)
+            btn.set_action(xfer.request, CondominiumConvert.get_action(_('Convertion ...'), ""), close=CLOSE_NO)
             xfer.add_component(btn)
     if is_right or (len(owners) == 1):
         row = xfer.get_max_row() + 1

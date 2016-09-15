@@ -691,6 +691,16 @@ class CallFundsSupporting(Supporting):
     def support_validated(self, validate_date):
         return self
 
+    def default_costaccounting(self):
+        result = None
+        for detail in self.callfunds.calldetail_set.all():
+            new_costaccount = detail.set.current_cost_accounting
+            if result is None:
+                result = new_costaccount
+            elif new_costaccount != result:
+                return None
+        return result
+
     def get_tax(self):
         return 0
 
@@ -895,6 +905,16 @@ class Expense(Supporting):
         for expensedetail in self.expensedetail_set.all():
             val += currency_round(expensedetail.price)
         return val
+
+    def default_costaccounting(self):
+        result = None
+        for expensedetail in self.expensedetail_set.all():
+            new_costaccount = expensedetail.set.current_cost_accounting
+            if result is None:
+                result = new_costaccount
+            elif new_costaccount != result:
+                return None
+        return result
 
     def payoff_is_revenu(self):
         return self.expensetype == 1
@@ -1149,23 +1169,23 @@ class ExpenseRatio(LucteriosModel):
 @Signal.decorate('checkparam')
 def condominium_checkparam():
     Parameter.check_and_create(name='condominium-default-owner-account', typeparam=0, title=_("condominium-default-owner-account"),
-                               args="{'Multi':False}", value='450')
+                               args="{'Multi':False}", value=correct_accounting_code('450'))
     Parameter.check_and_create(name='condominium-default-owner-account1', typeparam=0, title=_("condominium-default-owner-account1"),
-                               args="{'Multi':False}", value='4501')
+                               args="{'Multi':False}", value=correct_accounting_code('4501'))
     Parameter.check_and_create(name='condominium-default-owner-account2', typeparam=0, title=_("condominium-default-owner-account2"),
-                               args="{'Multi':False}", value='4502')
+                               args="{'Multi':False}", value=correct_accounting_code('4502'))
     Parameter.check_and_create(name='condominium-default-owner-account3', typeparam=0, title=_("condominium-default-owner-account3"),
-                               args="{'Multi':False}", value='4503')
+                               args="{'Multi':False}", value=correct_accounting_code('4503'))
     Parameter.check_and_create(name='condominium-default-owner-account4', typeparam=0, title=_("condominium-default-owner-account4"),
-                               args="{'Multi':False}", value='4504')
+                               args="{'Multi':False}", value=correct_accounting_code('4504'))
     Parameter.check_and_create(name='condominium-current-revenue-account', typeparam=0, title=_("condominium-current-revenue-account"),
-                               args="{'Multi':False}", value='701')
+                               args="{'Multi':False}", value=correct_accounting_code('701'))
     Parameter.check_and_create(name='condominium-exceptional-revenue-account', typeparam=0, title=_("condominium-exceptional-revenue-account"),
-                               args="{'Multi':False}", value='702')
+                               args="{'Multi':False}", value=correct_accounting_code('702'))
     Parameter.check_and_create(name='condominium-exceptional-reserve-account', typeparam=0, title=_("condominium-exceptional-reserve-account"),
-                               args="{'Multi':False}", value='120')
+                               args="{'Multi':False}", value=correct_accounting_code('120'))
     Parameter.check_and_create(name='condominium-advance-reserve-account', typeparam=0, title=_("condominium-advance-reserve-account"),
-                               args="{'Multi':False}", value='103')
+                               args="{'Multi':False}", value=correct_accounting_code('103'))
     if Parameter.check_and_create(name='condominium-old-accounting', typeparam=3, title=_("condominium-old-accounting"),
                                   args="{}", value='False'):
         Parameter.change_value('condominium-old-accounting', len(Owner.objects.all()) != 0)

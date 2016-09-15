@@ -32,7 +32,8 @@ from lucterios.framework.xfercomponents import XferCompButton, XferCompLabelForm
 from lucterios.framework.tools import ActionsManage, FORMTYPE_MODAL, CLOSE_NO, SELECT_SINGLE, FORMTYPE_REFRESH
 from lucterios.CORE.parameters import Params
 
-from diacamma.accounting.tools import current_system_account
+from diacamma.accounting.tools import current_system_account,\
+    correct_accounting_code
 from diacamma.accounting.models import Third, AccountThird, FiscalYear, CostAccounting
 from diacamma.payoff.editors import SupportingEditor
 from diacamma.condominium.models import Set, CallDetail, CallFundsSupporting,\
@@ -59,12 +60,11 @@ class OwnerEditor(SupportingEditor):
         accounts = self.item.third.accountthird_set.filter(code__regex=current_system_account().get_societary_mask())
         if len(accounts) == 0:
             if Params.getvalue("condominium-old-accounting"):
-                AccountThird.objects.create(third=self.item.third, code=Params.getvalue("condominium-default-owner-account"))
+                AccountThird.objects.create(third=self.item.third, code=correct_accounting_code(Params.getvalue("condominium-default-owner-account")))
             else:
-                AccountThird.objects.create(third=self.item.third, code=Params.getvalue("condominium-default-owner-account1"))
-                AccountThird.objects.create(third=self.item.third, code=Params.getvalue("condominium-default-owner-account2"))
-                AccountThird.objects.create(third=self.item.third, code=Params.getvalue("condominium-default-owner-account3"))
-                AccountThird.objects.create(third=self.item.third, code=Params.getvalue("condominium-default-owner-account4"))
+                for num_account in range(1, 5):
+                    AccountThird.objects.create(third=self.item.third,
+                                                code=correct_accounting_code(Params.getvalue("condominium-default-owner-account%d" % num_account)))
         return SupportingEditor.before_save(self, xfer)
 
     def edit(self, xfer):
