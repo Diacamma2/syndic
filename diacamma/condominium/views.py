@@ -348,5 +348,5 @@ def thirdaddon_condo(item, xfer):
 
 
 @signal_and_lock.Signal.decorate('finalize_year')
-def finalizeyear_condo(year):
+def finalizeyear_condo(xfer):
     pass
