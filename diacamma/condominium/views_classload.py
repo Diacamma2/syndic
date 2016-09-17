@@ -191,6 +191,7 @@ class SetAssociate(XferAddEditor):
 
 
 @ActionsManage.affect_show(_('Costs'), "images/right.png")
+@ActionsManage.affect_grid(_('Costs'), "images/right.png", unique=SELECT_SINGLE)
 @MenuManage.describ('condominium.change_set')
 class SetListCost(XferListEditor):
     icon = "set.png"
@@ -208,6 +209,8 @@ class SetListCost(XferListEditor):
         lbl.set_location(1, 0)
         self.add_component(lbl)
         self.fill_grid(0, CostAccounting, 'costaccounting', CostAccounting.objects.filter(setcost__set=self.item).order_by('-setcost__year__begin'))
+        grid = self.get_components('costaccounting')
+        grid.delete_header("is_default")
         new_actions = []
         grid = self.get_components('costaccounting')
         for grid_action in grid.actions:

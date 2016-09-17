@@ -22,6 +22,12 @@ class Migration(migrations.Migration):
             },
             bases=('payoff.supporting',),
         ),
+        migrations.AddField(
+            model_name='callfundssupporting',
+            name='supporting_ptr',
+            field=models.OneToOneField(auto_created=True, default=None, on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, serialize=False, to='payoff.Supporting'),
+            preserve_default=False,
+        ),
         migrations.AlterModelOptions(
             name='partition',
             options={'default_permissions': [], 'ordering': ['owner__third_id', 'set_id'],

@@ -23,19 +23,19 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from __future__ import unicode_literals
-from django.utils import six
 
 from lucterios.framework.tools import convert_date
 from lucterios.CORE.models import Parameter
 from lucterios.CORE.parameters import Params
 
 from diacamma.accounting.models import FiscalYear
-from diacamma.accounting.test_tools import create_account
+from diacamma.accounting.test_tools import create_account, add_entry
 from diacamma.payoff.models import Payoff
-from diacamma.condominium.models import Set, Owner, Partition, CallFunds, CallDetail, Expense, ExpenseDetail
+from diacamma.condominium.models import Set, Owner, Partition, CallFunds, CallDetail, Expense, ExpenseDetail,\
+    PropertyLot
 
 
-def default_setowner():
+def default_setowner(with_lots=True):
     def set_partition(setpart, owner, value):
         part = Partition.objects.get(set=setpart, owner=owner)
         part.value = value
@@ -46,14 +46,7 @@ def default_setowner():
         create_account(['4501', '4502', '4503', '4504'], 0, FiscalYear.get_current())
     create_account(['120', '103'], 2, FiscalYear.get_current())
     create_account(['702'], 3, FiscalYear.get_current())
-    set1 = Set.objects.create(
-        name="AAA", budget=1000, revenue_account='701', type_load=0, cost_accounting_id=2)
-    set2 = Set.objects.create(
-        name="BBB", budget=100, revenue_account='701', type_load=0, cost_accounting_id=0)
-    set3 = Set.objects.create(
-        name="CCC", budget=500, revenue_account='702', type_load=1, cost_accounting_id=0)
-    set4 = Set.objects.create(
-        name="OLD", budget=100, revenue_account='702', type_load=1, cost_accounting_id=0, is_active=False)
+
     owner1 = Owner.objects.create(third_id=4)
     owner1.editor.before_save(None)
     owner1.save()
@@ -63,9 +56,27 @@ def default_setowner():
     owner3 = Owner.objects.create(third_id=7)
     owner3.editor.before_save(None)
     owner3.save()
-    set_partition(setpart=set1, owner=owner1, value=45.0)
-    set_partition(setpart=set1, owner=owner2, value=35.0)
-    set_partition(setpart=set1, owner=owner3, value=20.0)
+    if with_lots:
+        PropertyLot.objects.create(num=1, value=45.0, description="Appart A", owner=owner1)
+        PropertyLot.objects.create(num=2, value=35.0, description="Appart B", owner=owner2)
+        PropertyLot.objects.create(num=3, value=20.0, description="Appart C", owner=owner3)
+
+    set1 = Set.objects.create(
+        name="AAA", budget=1000, revenue_account='701', is_link_to_lots=with_lots, type_load=0, cost_accounting_id=2)
+    set2 = Set.objects.create(
+        name="BBB", budget=100, revenue_account='701', type_load=0, cost_accounting_id=0)
+    set3 = Set.objects.create(
+        name="CCC", budget=500, revenue_account='702', type_load=1, cost_accounting_id=0)
+    set4 = Set.objects.create(
+        name="OLD", budget=100, revenue_account='702', type_load=1, cost_accounting_id=0, is_active=False)
+
+    if with_lots:
+        set1.set_of_lots = PropertyLot.objects.all()
+        set1.save()
+    else:
+        set_partition(setpart=set1, owner=owner1, value=45.0)
+        set_partition(setpart=set1, owner=owner2, value=35.0)
+        set_partition(setpart=set1, owner=owner3, value=20.0)
     set_partition(setpart=set2, owner=owner1, value=75.0)
     set_partition(setpart=set2, owner=owner2, value=0.0)
     set_partition(setpart=set2, owner=owner3, value=25.0)
@@ -96,12 +107,10 @@ def add_test_callfunds(simple=True, with_payoff=False):
 def add_test_expenses(simple=True, with_payoff=False):
     expense1 = Expense.objects.create(date=convert_date('2015-05-07'), comment='abc 123', expensetype=0, third_id=2)
     ExpenseDetail.objects.create(expense=expense1, set_id=2, designation='set 2', expense_account='604', price='100')
-    six.print_(expense1.get_info_state())
     expense1.valid()
     if not simple:
         expense2 = Expense.objects.create(date=convert_date('2015-08-28'), comment='building', expensetype=0, third_id=2)
         ExpenseDetail.objects.create(expense=expense2, set_id=3, designation='set 1', expense_account='602', price='75')
-        six.print_(expense2.get_info_state())
         expense2.valid()
     if with_payoff:
         pay = Payoff(supporting=expense1, date=convert_date('2015-05-11'), mode=0, amount=35.0)
@@ -113,3 +122,15 @@ def add_test_expenses(simple=True, with_payoff=False):
 def old_accounting():
     Parameter.change_value('condominium-old-accounting', True)
     Params.clear()
+
+
+def init_compta():
+    year = FiscalYear.get_current()
+    if Params.getvalue("condominium-old-accounting"):
+        add_entry(year.id, 1, '2015-01-01', 'Report à nouveau',
+                  '-1|2|0|29.180000|None|\n-2|17|4|-23.450000|None|', True)
+    else:
+        add_entry(year.id, 1, '2015-01-01', 'Report à nouveau',
+                  '-1|2|0|29.180000|None|\n-2|17|4|-23.450000|None|\n-3|18|4|-5.730000|None|', True)
+    add_entry(year.id, 5, '2015-02-20', 'Frais bancaire',
+              '-1|2|0|-12.340000|None|\n-2|15|0|12.340000|None|', True)

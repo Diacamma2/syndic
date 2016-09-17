@@ -39,8 +39,10 @@ from diacamma.payoff.test_tools import default_bankaccount, default_paymentmetho
 from diacamma.payoff.views import PayableShow, PayableEmail
 
 from diacamma.condominium.views_classload import SetList, SetAddModify, SetDel, SetShow, PartitionAddModify, CondominiumConf
-from diacamma.condominium.views import OwnerAndPropertyLotList, OwnerAdd, OwnerDel, OwnerShow, PropertyLotAddModify
-from diacamma.condominium.test_tools import default_setowner, add_test_callfunds, old_accounting, add_test_expenses
+from diacamma.condominium.views import OwnerAndPropertyLotList, OwnerAdd, OwnerDel, OwnerShow, PropertyLotAddModify,\
+    CondominiumConvert
+from diacamma.condominium.test_tools import default_setowner, add_test_callfunds, old_accounting, add_test_expenses,\
+    init_compta
 
 
 class SetOwnerTest(LucteriosTest):
@@ -171,15 +173,15 @@ class SetOwnerTest(LucteriosTest):
         self.assert_xml_equal(
             'COMPONENTS/GRID[@name="owner"]/RECORD[1]/VALUE[@name="total_current_initial"]', '0.00€')
         self.assert_xml_equal(
-            'COMPONENTS/GRID[@name="owner"]/RECORD[1]/VALUE[@name="total_call"]', '0.00€')
+            'COMPONENTS/GRID[@name="owner"]/RECORD[1]/VALUE[@name="total_current_call"]', '0.00€')
         self.assert_xml_equal(
-            'COMPONENTS/GRID[@name="owner"]/RECORD[1]/VALUE[@name="total_payed"]', '0.00€')
+            'COMPONENTS/GRID[@name="owner"]/RECORD[1]/VALUE[@name="total_current_payoff"]', '0.00€')
         self.assert_xml_equal(
-            'COMPONENTS/GRID[@name="owner"]/RECORD[1]/VALUE[@name="total_ventilated"]', '0.00€')
+            'COMPONENTS/GRID[@name="owner"]/RECORD[1]/VALUE[@name="total_current_ventilated"]', '0.00€')
         self.assert_xml_equal(
-            'COMPONENTS/GRID[@name="owner"]/RECORD[1]/VALUE[@name="total_owner_current"]', '0.00€')
+            'COMPONENTS/GRID[@name="owner"]/RECORD[1]/VALUE[@name="total_current_owner"]', '0.00€')
         self.assert_xml_equal(
-            'COMPONENTS/GRID[@name="owner"]/RECORD[1]/VALUE[@name="total_regularization"]', '0.00€')
+            'COMPONENTS/GRID[@name="owner"]/RECORD[1]/VALUE[@name="total_current_regularization"]', '0.00€')
 
         self.factory.xfer = ThirdShow()
         self.call('/diacamma.accounting/thirdShow', {"third": 4}, False)
@@ -248,7 +250,7 @@ class SetOwnerTest(LucteriosTest):
             'COMPONENTS/GRID[@name="accountthird"]/RECORD[3]/VALUE[@name="code"]', '450')
 
     def test_add_propertylot(self):
-        default_setowner()
+        default_setowner(with_lots=False)
         self.factory.xfer = OwnerAndPropertyLotList()
         self.call('/diacamma.condominium/ownerAndPropertyLotList', {}, False)
         self.assert_observer(
@@ -564,7 +566,7 @@ class OwnerTest(PaymentTest):
         self.assert_observer(
             'core.custom', 'diacamma.condominium', 'ownerShow')
         self.assert_xml_equal(
-            'COMPONENTS/LABELFORM[@name="total_owner_current"]', "0.00€")
+            'COMPONENTS/LABELFORM[@name="total_current_owner"]', "0.00€")
         self.assert_count_equal('ACTIONS/ACTION', 3)
 
         self.factory.xfer = PayableShow()
@@ -582,7 +584,7 @@ class OwnerTest(PaymentTest):
         self.assert_observer(
             'core.custom', 'diacamma.condominium', 'ownerShow')
         self.assert_xml_equal(
-            'COMPONENTS/LABELFORM[@name="total_owner_current"]', "-131.25€")
+            'COMPONENTS/LABELFORM[@name="total_current_owner"]', "-131.25€")
         self.assert_count_equal('ACTIONS/ACTION', 3)
 
         self.factory.xfer = PayableShow()
@@ -603,11 +605,11 @@ class OwnerTest(PaymentTest):
         self.assert_xml_equal(
             'COMPONENTS/LABELFORM[@name="total_current_initial"]', "0.00€")
         self.assert_xml_equal(
-            'COMPONENTS/LABELFORM[@name="total_call"]', "131.25€")
+            'COMPONENTS/LABELFORM[@name="total_current_call"]', "131.25€")
         self.assert_xml_equal(
-            'COMPONENTS/LABELFORM[@name="total_payed"]', "0.00€")
+            'COMPONENTS/LABELFORM[@name="total_current_payoff"]', "0.00€")
         self.assert_xml_equal(
-            'COMPONENTS/LABELFORM[@name="total_owner_current"]', "-131.25€")
+            'COMPONENTS/LABELFORM[@name="total_current_owner"]', "-131.25€")
         self.assert_count_equal('ACTIONS/ACTION', 4)
         self.assert_action_equal('ACTIONS/ACTION[1]', (six.text_type(
             'Règlement'), 'diacamma.payoff/images/payments.png', 'diacamma.payoff', 'payableShow', 0, 1, 1))
@@ -619,7 +621,7 @@ class OwnerTest(PaymentTest):
             'core.custom', 'diacamma.payoff', 'supportingPaymentMethod')
         self.assert_count_equal('COMPONENTS/*', 20)
         self.assert_xml_equal(
-            'COMPONENTS/LABELFORM[@name="total_owner_current"]', "-131.25€")
+            'COMPONENTS/LABELFORM[@name="total_current_owner"]', "-131.25€")
         self.check_payment(1, "copropriete de Minimum", "131.25")
 
     def test_payment_paypal_owner(self):
@@ -634,11 +636,11 @@ class OwnerTest(PaymentTest):
         self.assert_xml_equal(
             'COMPONENTS/LABELFORM[@name="total_current_initial"]', "0.00€")
         self.assert_xml_equal(
-            'COMPONENTS/LABELFORM[@name="total_call"]', "131.25€")
+            'COMPONENTS/LABELFORM[@name="total_current_call"]', "131.25€")
         self.assert_xml_equal(
-            'COMPONENTS/LABELFORM[@name="total_payed"]', "100.00€")
+            'COMPONENTS/LABELFORM[@name="total_current_payoff"]', "100.00€")
         self.assert_xml_equal(
-            'COMPONENTS/LABELFORM[@name="total_owner_current"]', "-31.25€")
+            'COMPONENTS/LABELFORM[@name="total_current_owner"]', "-31.25€")
         self.assert_count_equal('ACTIONS/ACTION', 4)
 
     def test_payment_paypal_callfund(self):
@@ -653,11 +655,11 @@ class OwnerTest(PaymentTest):
         self.assert_xml_equal(
             'COMPONENTS/LABELFORM[@name="total_current_initial"]', "0.00€")
         self.assert_xml_equal(
-            'COMPONENTS/LABELFORM[@name="total_call"]', "131.25€")
+            'COMPONENTS/LABELFORM[@name="total_current_call"]', "131.25€")
         self.assert_xml_equal(
-            'COMPONENTS/LABELFORM[@name="total_payed"]', "100.00€")
+            'COMPONENTS/LABELFORM[@name="total_current_payoff"]', "100.00€")
         self.assert_xml_equal(
-            'COMPONENTS/LABELFORM[@name="total_owner_current"]', "-31.25€")
+            'COMPONENTS/LABELFORM[@name="total_current_owner"]', "-31.25€")
         self.assert_count_equal('ACTIONS/ACTION', 4)
 
     def test_send_owner(self):
@@ -671,7 +673,7 @@ class OwnerTest(PaymentTest):
         self.assert_observer(
             'core.custom', 'diacamma.condominium', 'ownerShow')
         self.assert_xml_equal(
-            'COMPONENTS/LABELFORM[@name="total_owner_current"]', "-131.25€")
+            'COMPONENTS/LABELFORM[@name="total_current_owner"]', "-131.25€")
         self.assert_count_equal('ACTIONS/ACTION', 5)
 
         server = TestReceiver()
@@ -710,23 +712,25 @@ class OwnerTest(PaymentTest):
     def test_owner_situation(self):
         add_test_callfunds(False, True)
         add_test_expenses(False, True)
+        init_compta()
 
         self.factory.xfer = OwnerShow()
         self.call('/diacamma.condominium/ownerShow', {'owner': 1}, False)
         self.assert_observer(
             'core.custom', 'diacamma.condominium', 'ownerShow')
         self.assert_xml_equal(
-            'COMPONENTS/LABELFORM[@name="total_current_initial"]', "0.00€")
+            'COMPONENTS/LABELFORM[@name="total_current_initial"]', "23.45€")
         self.assert_xml_equal(
-            'COMPONENTS/LABELFORM[@name="total_call"]', "131.25€")
+            'COMPONENTS/LABELFORM[@name="total_current_call"]', "131.25€")
         self.assert_xml_equal(
-            'COMPONENTS/LABELFORM[@name="total_payed"]', "100.00€")
+            'COMPONENTS/LABELFORM[@name="total_current_payoff"]', "100.00€")
         self.assert_xml_equal(
-            'COMPONENTS/LABELFORM[@name="total_owner_current"]', "-31.25€")
+            'COMPONENTS/LABELFORM[@name="total_current_owner"]', "-7.80€")
         self.assert_xml_equal(
-            'COMPONENTS/LABELFORM[@name="total_ventilated"]', "75.00€")
+            'COMPONENTS/LABELFORM[@name="total_current_ventilated"]', "75.00€")
         self.assert_xml_equal(
-            'COMPONENTS/LABELFORM[@name="total_regularization"]', "25.00€")
+            'COMPONENTS/LABELFORM[@name="total_current_regularization"]', "25.00€")
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="total_extra"]', "-5.55€")
 
         self.assert_count_equal('COMPONENTS/GRID[@name="exceptionnal"]/RECORD', 1)
         self.assert_count_equal('COMPONENTS/GRID[@name="exceptionnal"]/HEADER', 5)
@@ -734,8 +738,11 @@ class OwnerTest(PaymentTest):
         self.assert_xml_equal('COMPONENTS/GRID[@name="exceptionnal"]/RECORD[1]/VALUE[@name="ratio"]', "45.0 %")
         self.assert_xml_equal('COMPONENTS/GRID[@name="exceptionnal"]/RECORD[1]/VALUE[@name="total_callfunds"]', "45.00€")
         self.assert_xml_equal('COMPONENTS/GRID[@name="exceptionnal"]/RECORD[1]/VALUE[@name="ventilated_txt"]', "33.75€")
-        self.assert_xml_equal('COMPONENTS/GRID[@name="exceptionnal"]/RECORD[1]/VALUE[@name="total_regularization"]', "11.25€")
-        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="total_owner_exceptional"]', "-15.00€")
+        self.assert_xml_equal('COMPONENTS/GRID[@name="exceptionnal"]/RECORD[1]/VALUE[@name="total_current_regularization"]', "11.25€")
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="total_exceptional_initial"]', "5.73€")
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="total_exceptional_call"]', "45.00€")
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="total_exceptional_payoff"]', "30.00€")
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="total_exceptional_owner"]', "-9.27€")
 
 
 class OwnerTestOldAccounting(PaymentTest):
@@ -763,28 +770,30 @@ class OwnerTestOldAccounting(PaymentTest):
         self.assert_xml_equal(
             'COMPONENTS/LABELFORM[@name="total_current_initial"]', "0.00€")
         self.assert_xml_equal(
-            'COMPONENTS/LABELFORM[@name="total_call"]', "131.25€")
+            'COMPONENTS/LABELFORM[@name="total_current_call"]', "131.25€")
         self.assert_xml_equal(
-            'COMPONENTS/LABELFORM[@name="total_payed"]', "100.00€")
+            'COMPONENTS/LABELFORM[@name="total_current_payoff"]', "100.00€")
         self.assert_xml_equal(
-            'COMPONENTS/LABELFORM[@name="total_owner_current"]', "100.00€")
+            'COMPONENTS/LABELFORM[@name="total_current_owner"]', "100.00€")
         self.assert_count_equal(
-            'COMPONENTS/LABELFORM[@name="total_regularization"]', 0)
+            'COMPONENTS/LABELFORM[@name="total_current_regularization"]', 0)
         self.assert_count_equal('ACTIONS/ACTION', 4)
 
     def test_owner_situation(self):
         add_test_callfunds(False, True)
         add_test_expenses(False, True)
+        init_compta()
 
         self.factory.xfer = OwnerShow()
         self.call('/diacamma.condominium/ownerShow', {'owner': 1}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'ownerShow')
-        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="total_current_initial"]', "0.00€")
-        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="total_call"]', "131.25€")
-        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="total_payed"]', "100.00€")
-        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="total_owner_current"]', "21.25€")
-        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="total_ventilated"]', "75.00€")
-        self.assert_count_equal('COMPONENTS/LABELFORM[@name="total_regularization"]', 0)
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="total_current_initial"]', "23.45€")
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="total_current_call"]', "131.25€")
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="total_current_payoff"]', "100.00€")
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="total_current_owner"]', "44.70€")
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="total_current_ventilated"]', "75.00€")
+        self.assert_count_equal('COMPONENTS/LABELFORM[@name="total_current_regularization"]', 0)
+        self.assert_count_equal('COMPONENTS/LABELFORM[@name="total_extra"]', 0)
 
         self.assert_count_equal('COMPONENTS/GRID[@name="exceptionnal"]/RECORD', 1)
         self.assert_count_equal('COMPONENTS/GRID[@name="exceptionnal"]/HEADER', 5)
@@ -792,5 +801,54 @@ class OwnerTestOldAccounting(PaymentTest):
         self.assert_xml_equal('COMPONENTS/GRID[@name="exceptionnal"]/RECORD[1]/VALUE[@name="ratio"]', "45.0 %")
         self.assert_xml_equal('COMPONENTS/GRID[@name="exceptionnal"]/RECORD[1]/VALUE[@name="total_callfunds"]', "45.00€")
         self.assert_xml_equal('COMPONENTS/GRID[@name="exceptionnal"]/RECORD[1]/VALUE[@name="ventilated_txt"]', "33.75€")
-        self.assert_xml_equal('COMPONENTS/GRID[@name="exceptionnal"]/RECORD[1]/VALUE[@name="total_regularization"]', "11.25€")
-        self.assert_count_equal('COMPONENTS/LABELFORM[@name="total_owner_exceptional"]', 0)
+        self.assert_xml_equal('COMPONENTS/GRID[@name="exceptionnal"]/RECORD[1]/VALUE[@name="total_current_regularization"]', "11.25€")
+        self.assert_count_equal('COMPONENTS/LABELFORM[@name="total_exceptional_initial"]', 0)
+        self.assert_count_equal('COMPONENTS/LABELFORM[@name="total_exceptional_call"]', 0)
+        self.assert_count_equal('COMPONENTS/LABELFORM[@name="total_exceptional_payoff"]', 0)
+        self.assert_count_equal('COMPONENTS/LABELFORM[@name="total_exceptional_owner"]', 0)
+
+    def test_conversion(self):
+        add_test_callfunds(False, True)
+        add_test_expenses(False, True)
+        init_compta()
+
+        self.factory.xfer = CondominiumConvert()
+        self.call('/diacamma.condominium/condominiumConvert', {}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'condominiumConvert')
+        self.assert_count_equal('COMPONENTS/*', 25)
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="lbl_code_450"]', "{[b]}450{[/b]}")
+        self.assert_count_equal('COMPONENTS/SELECT[@name="code_450"]/CASE', 5)
+
+        self.factory.xfer = CondominiumConvert()
+        self.call('/diacamma.condominium/condominiumConvert', {'CONVERT': 'YES', 'code_450': '4501'}, False)
+        self.assert_observer('core.dialogbox', 'diacamma.condominium', 'condominiumConvert')
+
+        self.factory.xfer = OwnerShow()
+        self.call('/diacamma.condominium/ownerShow', {'owner': 1}, False)
+        self.assert_observer(
+            'core.custom', 'diacamma.condominium', 'ownerShow')
+        self.assert_xml_equal(
+            'COMPONENTS/LABELFORM[@name="total_current_initial"]', "23.45€")
+        self.assert_xml_equal(
+            'COMPONENTS/LABELFORM[@name="total_current_call"]', "131.25€")
+        self.assert_xml_equal(
+            'COMPONENTS/LABELFORM[@name="total_current_payoff"]', "100.00€")
+        self.assert_xml_equal(
+            'COMPONENTS/LABELFORM[@name="total_current_owner"]', "-7.80€")
+        self.assert_xml_equal(
+            'COMPONENTS/LABELFORM[@name="total_current_ventilated"]', "75.00€")
+        self.assert_xml_equal(
+            'COMPONENTS/LABELFORM[@name="total_current_regularization"]', "25.00€")
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="total_extra"]', "-5.55€")
+
+        self.assert_count_equal('COMPONENTS/GRID[@name="exceptionnal"]/RECORD', 1)
+        self.assert_count_equal('COMPONENTS/GRID[@name="exceptionnal"]/HEADER', 5)
+        self.assert_xml_equal('COMPONENTS/GRID[@name="exceptionnal"]/RECORD[1]/VALUE[@name="set"]', "CCC")
+        self.assert_xml_equal('COMPONENTS/GRID[@name="exceptionnal"]/RECORD[1]/VALUE[@name="ratio"]', "45.0 %")
+        self.assert_xml_equal('COMPONENTS/GRID[@name="exceptionnal"]/RECORD[1]/VALUE[@name="total_callfunds"]', "45.00€")
+        self.assert_xml_equal('COMPONENTS/GRID[@name="exceptionnal"]/RECORD[1]/VALUE[@name="ventilated_txt"]', "33.75€")
+        self.assert_xml_equal('COMPONENTS/GRID[@name="exceptionnal"]/RECORD[1]/VALUE[@name="total_current_regularization"]', "11.25€")
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="total_exceptional_initial"]', "0.00€")
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="total_exceptional_call"]', "45.00€")
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="total_exceptional_payoff"]', "30.00€")
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="total_exceptional_owner"]', "-15.00€")

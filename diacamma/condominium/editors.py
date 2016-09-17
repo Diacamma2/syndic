@@ -99,7 +99,6 @@ class OwnerEditor(SupportingEditor):
     def show(self, xfer):
         xfer.params['supporting'] = self.item.id
         third = xfer.get_components('third')
-        third.colspan -= 1
         xfer.tab = third.tab
         btn = XferCompButton('show_third')
         btn.set_location(third.col + third.colspan, third.row)

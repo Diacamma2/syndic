@@ -10,24 +10,22 @@ from lucterios.framework.xferadvance import TITLE_MODIFY, TITLE_ADD, TITLE_EDIT,
 from lucterios.framework.xferadvance import XferListEditor, XferShowEditor, XferAddEditor, XferDelete
 from lucterios.framework.xfercomponents import XferCompLabelForm, XferCompDate, XferCompGrid, XferCompButton,\
     XferCompImage, XferCompSelect
+from lucterios.framework.xfergraphic import XferContainerAcknowledge
 from lucterios.framework.tools import FORMTYPE_NOMODAL, ActionsManage, MenuManage, WrapAction
 from lucterios.framework.tools import SELECT_SINGLE, CLOSE_NO, FORMTYPE_REFRESH, FORMTYPE_MODAL, CLOSE_YES, SELECT_MULTI
 from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.framework import signal_and_lock
+from lucterios.CORE.parameters import Params
 from lucterios.CORE.xferprint import XferPrintAction, XferPrintReporting
+from lucterios.CORE.models import Parameter
 
 from lucterios.contacts.models import Individual, LegalEntity
 
-from diacamma.condominium.models import PropertyLot, Owner, Set, CallFunds,\
-    Expense
-from lucterios.framework.xfergraphic import XferContainerCustom,\
-    XferContainerAcknowledge
-from lucterios.CORE.parameters import Params
-from diacamma.condominium.views_classload import fill_params
-from diacamma.accounting.models import ChartsAccount, AccountThird, FiscalYear
-from diacamma.payoff.models import Payoff
-from lucterios.CORE.models import Parameter
+from diacamma.accounting.models import AccountThird, FiscalYear
 from diacamma.accounting.tools import correct_accounting_code
+
+from diacamma.condominium.models import PropertyLot, Owner, Set, SetCost, convert_accounting
+from diacamma.condominium.views_classload import fill_params
 
 
 @MenuManage.describ('condominium.change_set', FORMTYPE_NOMODAL, 'condominium', _('Manage of owners and property lots'))
@@ -262,45 +260,22 @@ class CondominiumConvert(XferContainerAcknowledge):
         else:
             Parameter.change_value('condominium-old-accounting', False)
             Params.clear()
-            thirds_convert = self.get_thirds_convert()
-            for owner in Owner.objects.all():
-                for num_account in range(1, 5):
-                    AccountThird.objects.create(third=owner.third,
-                                                code=correct_accounting_code(Params.getvalue("condominium-default-owner-account%d" % num_account)))
-            for year in FiscalYear.objects.filter(status__lt=2):
-                year.getorcreate_chartaccount(correct_accounting_code(Params.getvalue('condominium-default-owner-account1')),
-                                              'Copropriétaire - budget prévisionnel')
-                year.getorcreate_chartaccount(correct_accounting_code(Params.getvalue('condominium-default-owner-account2')),
-                                              'Copropriétaire - travaux et opération exceptionnelles')
-                year.getorcreate_chartaccount(correct_accounting_code(Params.getvalue('condominium-default-owner-account3')),
-                                              'Copropriétaire - avances')
-                year.getorcreate_chartaccount(correct_accounting_code(Params.getvalue('condominium-default-owner-account4')),
-                                              'Copropriétaire - emprunts')
-                for code_init, code_target in thirds_convert.items():
-                    try:
-                        account_init = ChartsAccount.objects.get(year=year, code=code_init)
-                        account_target = ChartsAccount.objects.get(year=year, code=code_target)
-                        account_target.merge_objects(account_init)
-                    except:
-                        pass
-                for entry in year.entryaccount_set.exclude(journal_id=1):
-                    entry.num = None
-                    entry.close = False
-                    entry.date_entry = None
-                    entry.save()
-                for call_funds in CallFunds.objects.filter(status__gte=1, date__gte=year.begin, date__lte=year.end):
-                    if (call_funds.status == 2):
-                        call_funds.status = 1
-                        call_funds.save()
-                    call_funds.generate_accounting()
-                for expense in Expense.objects.filter(status__gte=1, date__gte=year.begin, date__lte=year.end):
-                    if (expense.status == 2):
-                        expense.status = 1
-                        expense.save()
-                    expense.reedit()
-                    expense.valid()
-                for pay_off in Payoff.objects.filter(date__gte=year.begin, date__lte=year.end):
-                    pay_off.save()
+            try:
+                thirds_convert = self.get_thirds_convert()
+                for set_cost in SetCost.objects.filter(year__status=2, cost_accounting__status=0):
+                    set_cost.cost_accounting.is_protected = True
+                    set_cost.cost_accounting.save()
+                    if (set_cost.year.status == 2) and (set_cost.cost_accounting.status == 0):
+                        set_cost.cost_accounting.close()
+                for owner in Owner.objects.all():
+                    for num_account in range(1, 5):
+                        AccountThird.objects.create(third=owner.third,
+                                                    code=correct_accounting_code(Params.getvalue("condominium-default-owner-account%d" % num_account)))
+                for year in FiscalYear.objects.filter(status__lt=2):
+                    convert_accounting(year, thirds_convert)
+            except:
+                Params.clear()
+                raise
             self.message(_("Data converted"))
 
 
@@ -320,7 +295,7 @@ def summary_condo(xfer):
         lab.set_location(0, row + 1, 2)
         xfer.add_component(lab)
         grid = XferCompGrid("part")
-        grid.set_model(owners[0].partition_set.all(), ["set", "value", (_("ratio"), 'ratio')])
+        grid.set_model(owners[0].partition_set.filter(set__is_active=True), ["set", "value", (_("ratio"), 'ratio')])
         grid.set_location(0, row + 2, 4)
         grid.set_size(200, 500)
         xfer.add_component(grid)
