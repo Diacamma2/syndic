@@ -196,6 +196,44 @@ class Set(LucteriosModel):
                 part.value = value
                 part.save()
 
+    def check_close(self):
+        for set_cost in self.setcost_set.all():
+            set_cost.cost_accounting.check_before_close()
+        ret = None
+        if not Params.getvalue("condominium-old-accounting") and (self.type_load == 1):
+            cost = self.setcost_set.all()[0]
+            result = currency_round(CallDetail.objects.filter(set=self).aggregate(sum=Sum('price'))['sum'])
+            result -= cost.cost_accounting.get_total_expense()
+            if abs(result) > 0.0001:
+                ret = format_devise(result, 5)
+        return ret
+
+    def close(self, with_ventil=False):
+        if with_ventil and (self.type_load == 1):
+            cost = self.setcost_set.all()[0]
+            result = currency_round(CallDetail.objects.filter(set=self).aggregate(sum=Sum('price'))['sum'])
+            result -= cost.cost_accounting.get_total_expense()
+            if abs(result) > 0.0001:
+                fiscal_year = FiscalYear.get_current()
+                close_entry = EntryAccount(year=fiscal_year, designation=_("Ventilation for %s") % self,
+                                           journal_id=5, costaccounting=cost.cost_accounting)
+                close_entry.check_date()
+                close_entry.save()
+                amount = 0
+                for part in self.partition_set.all():
+                    value = currency_round(result * part.get_ratio() / 100.0)
+                    if abs(value) > 0.0001:
+                        owner_account = part.owner.third.get_account(fiscal_year, part.owner.get_third_mask(2))
+                        EntryLineAccount.objects.create(account=owner_account, amount=-1 * value, entry=close_entry, third=part.owner.third)
+                        amount -= value
+                reserve_account = ChartsAccount.get_account(Params.getvalue("condominium-exceptional-reserve-account"), fiscal_year)
+                EntryLineAccount.objects.create(account=reserve_account, amount=amount, entry=close_entry)
+                close_entry.closed()
+        for set_cost in self.setcost_set.all():
+            set_cost.cost_accounting.close()
+        self.is_active = False
+        self.save()
+
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         self.revenue_account = correct_accounting_code(self.revenue_account)
         self.refresh_ratio_link_lots()

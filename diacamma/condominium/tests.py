@@ -38,11 +38,14 @@ from diacamma.accounting.views import ThirdShow
 from diacamma.payoff.test_tools import default_bankaccount, default_paymentmethod, PaymentTest
 from diacamma.payoff.views import PayableShow, PayableEmail
 
-from diacamma.condominium.views_classload import SetList, SetAddModify, SetDel, SetShow, PartitionAddModify, CondominiumConf
+from diacamma.condominium.views_classload import SetList, SetAddModify, SetDel, SetShow, PartitionAddModify, CondominiumConf,\
+    SetClose
 from diacamma.condominium.views import OwnerAndPropertyLotList, OwnerAdd, OwnerDel, OwnerShow, PropertyLotAddModify,\
     CondominiumConvert
 from diacamma.condominium.test_tools import default_setowner, add_test_callfunds, old_accounting, add_test_expenses,\
     init_compta
+from diacamma.accounting.models import EntryAccount, ChartsAccount
+from diacamma.accounting.views_entries import EntryAccountList
 
 
 class SetOwnerTest(LucteriosTest):
@@ -744,6 +747,64 @@ class OwnerTest(PaymentTest):
         self.assert_xml_equal('COMPONENTS/LABELFORM[@name="total_exceptional_payoff"]', "30.00€")
         self.assert_xml_equal('COMPONENTS/LABELFORM[@name="total_exceptional_owner"]', "-9.27€")
 
+    def test_close_classload(self):
+        add_test_callfunds(False, True)
+        add_test_expenses(False, True)
+        init_compta()
+
+        chart = ChartsAccount.objects.get(id=21)
+        self.assertEqual('120', chart.name)
+        self.assertEqual(25.0, chart.get_current_total())
+
+        self.factory.xfer = EntryAccountList()
+        self.call('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '5', 'filter': '0'}, False)
+        self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
+        self.assert_count_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD', 1)
+        self.assert_xml_equal("COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit:{[/b]} 350.00€ - {[b]}Charge:{[/b]} 187.34€ = {[b]}Résultat:{[/b]} 162.66€ | {[b]}Trésorie:{[/b]} 256.84€ - {[b]}Validé:{[/b]} 16.84€{[/center]}')
+
+        self.factory.xfer = SetShow()
+        self.call('/diacamma.condominium/setShow', {'set': 3}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'setShow')
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="is_active"]', 'Oui')
+
+        self.factory.xfer = SetClose()
+        self.call('/diacamma.condominium/setClose', {'set': 3}, False)
+        self.assert_observer('core.exception', 'diacamma.condominium', 'setClose')
+
+        for entry in EntryAccount.objects.filter(year_id=1, close=False):
+            entry.closed()
+
+        self.factory.xfer = SetClose()
+        self.call('/diacamma.condominium/setClose', {'set': 3}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'setClose')
+        self.assert_count_equal('COMPONENTS/*', 5)
+
+        self.factory.xfer = SetClose()
+        self.call('/diacamma.condominium/setClose', {'set': 3, 'ventilate': True, 'CLOSE': 'YES'}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'setClose')
+
+        self.factory.xfer = SetShow()
+        self.call('/diacamma.condominium/setShow', {'set': 3}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'setShow')
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="is_active"]', 'Non')
+
+        self.factory.xfer = EntryAccountList()
+        self.call('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '5', 'filter': '0'}, False)
+        self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
+        self.assert_count_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD', 2)
+        self.assert_xml_equal("COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit:{[/b]} 350.00€ - {[b]}Charge:{[/b]} 187.34€ = {[b]}Résultat:{[/b]} 162.66€ | {[b]}Trésorie:{[/b]} 256.84€ - {[b]}Validé:{[/b]} 256.84€{[/center]}')
+
+        self.assert_xml_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD[2]/VALUE[@name="costaccounting"]', 'CCC')
+        description = self.get_first_xpath('COMPONENTS/GRID[@name="entryaccount"]/RECORD[2]/VALUE[@name="description"]').text
+        self.assertTrue('[4502 Minimum]' in description, description)
+        self.assertTrue('[4502 Dalton William]' in description, description)
+        self.assertTrue('[4502 Dalton Joe]' in description, description)
+        self.assertTrue('[120] 120' in description, description)
+
+        chart = ChartsAccount.objects.get(id=21)
+        self.assertEqual('120', chart.name)
+        self.assertEqual(0.0, chart.get_current_total())
+
 
 class OwnerTestOldAccounting(PaymentTest):
 
@@ -852,3 +913,45 @@ class OwnerTestOldAccounting(PaymentTest):
         self.assert_xml_equal('COMPONENTS/LABELFORM[@name="total_exceptional_call"]', "45.00€")
         self.assert_xml_equal('COMPONENTS/LABELFORM[@name="total_exceptional_payoff"]', "30.00€")
         self.assert_xml_equal('COMPONENTS/LABELFORM[@name="total_exceptional_owner"]', "-15.00€")
+
+    def test_close_classload(self):
+        add_test_callfunds(False, True)
+        add_test_expenses(False, True)
+        init_compta()
+
+        self.factory.xfer = EntryAccountList()
+        self.call('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '5', 'filter': '0'}, False)
+        self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
+        self.assert_count_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD', 1)
+        self.assert_xml_equal("COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit:{[/b]} 175.00€ - {[b]}Charge:{[/b]} 187.34€ = {[b]}Résultat:{[/b]} -12.34€ | {[b]}Trésorie:{[/b]} 256.84€ - {[b]}Validé:{[/b]} 16.84€{[/center]}')
+
+        self.factory.xfer = SetShow()
+        self.call('/diacamma.condominium/setShow', {'set': 3}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'setShow')
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="is_active"]', 'Oui')
+
+        self.factory.xfer = SetClose()
+        self.call('/diacamma.condominium/setClose', {'set': 3}, False)
+        self.assert_observer('core.exception', 'diacamma.condominium', 'setClose')
+
+        for entry in EntryAccount.objects.filter(year_id=1, close=False):
+            entry.closed()
+
+        self.factory.xfer = SetClose()
+        self.call('/diacamma.condominium/setClose', {'set': 3}, False)
+        self.assert_observer('core.dialogbox', 'diacamma.condominium', 'setClose')
+
+        self.factory.xfer = SetClose()
+        self.call('/diacamma.condominium/setClose', {'set': 3, 'CONFIRME': 'YES'}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'setClose')
+
+        self.factory.xfer = SetShow()
+        self.call('/diacamma.condominium/setShow', {'set': 3}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'setShow')
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="is_active"]', 'Non')
+
+        self.factory.xfer = EntryAccountList()
+        self.call('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '5', 'filter': '0'}, False)
+        self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
+        self.assert_count_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD', 1)
+        self.assert_xml_equal("COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit:{[/b]} 175.00€ - {[b]}Charge:{[/b]} 187.34€ = {[b]}Résultat:{[/b]} -12.34€ | {[b]}Trésorie:{[/b]} 256.84€ - {[b]}Validé:{[/b]} 256.84€{[/center]}')

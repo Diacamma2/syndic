@@ -154,10 +154,38 @@ class SetClose(XferContainerAcknowledge):
     field_id = 'set'
     caption = _("Close class load")
 
-    def fillresponse(self):
-        if self.confirme(_('Do you want to close this class load?')):
-            self.item.is_active = False
-            self.item.save()
+    def fillresponse(self, ventilate=False):
+        msg = self.item.check_close()
+        if msg is not None:
+            if self.getparam('CLOSE') is None:
+                dlg = self.create_custom(self.model)
+                img = XferCompImage('img')
+                img.set_value(self.icon_path())
+                img.set_location(0, 0)
+                dlg.add_component(img)
+                lbl = XferCompLabelForm('title')
+                lbl.set_value_as_title(self.caption)
+                lbl.set_location(1, 0, 2)
+                dlg.add_component(lbl)
+                lbl = XferCompLabelForm('info')
+                lbl.set_value(_('This class load has a difference of %s between those call of funds and those expenses.') % msg)
+                lbl.set_location(1, 1)
+                dlg.add_component(lbl)
+                lbl = XferCompLabelForm('question')
+                lbl.set_value(_('Do you want to ventilate this amount for each owner?'))
+                lbl.set_underlined()
+                lbl.set_location(1, 2)
+                dlg.add_component(lbl)
+                lbl = XferCompCheck('ventilate')
+                lbl.set_value(ventilate)
+                lbl.set_location(2, 2)
+                dlg.add_component(lbl)
+                dlg.add_action(self.get_action(TITLE_OK, 'images/ok.png'), modal=FORMTYPE_MODAL, close=CLOSE_YES, params={'CLOSE': 'YES'})
+                dlg.add_action(WrapAction(TITLE_CANCEL, 'images/cancel.png'))
+            else:
+                self.item.close(ventilate)
+        elif self.confirme(_('Do you want to close this class load?')):
+            self.item.close()
 
 
 @ActionsManage.affect_grid(TITLE_MODIFY, "images/edit.png", unique=SELECT_SINGLE, condition=lambda xfer, gridname='': isinstance(xfer.item, Set) and not xfer.item.is_link_to_lots and xfer.item.is_active)
