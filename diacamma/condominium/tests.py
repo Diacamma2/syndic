@@ -712,6 +712,87 @@ class OwnerTest(PaymentTest):
         finally:
             server.stop()
 
+    def test_check_operation(self):
+        self.assertEqual('{[font color="green"]}Crédit: 0.00€{[/font]}',
+                         ChartsAccount.objects.get(id=21).current_total, '120')
+        self.assertEqual('{[font color="green"]}Crédit: 0.00€{[/font]}',
+                         ChartsAccount.objects.get(id=4).current_total, '401')
+        self.assertEqual('{[font color="green"]}Crédit: 0.00€{[/font]}',
+                         ChartsAccount.objects.get(id=17).current_total, '4501')
+        self.assertEqual('{[font color="green"]}Crédit: 0.00€{[/font]}',
+                         ChartsAccount.objects.get(id=18).current_total, '4502')
+        self.assertEqual('{[font color="green"]}Crédit: 0.00€{[/font]}',
+                         ChartsAccount.objects.get(id=2).current_total, '512')
+        self.assertEqual('{[font color="green"]}Crédit: 0.00€{[/font]}',
+                         ChartsAccount.objects.get(id=3).current_total, '531')
+        self.assertEqual('{[font color="green"]}Crédit: 0.00€{[/font]}',
+                         ChartsAccount.objects.get(id=8).current_total, '701')
+        self.assertEqual('{[font color="green"]}Crédit: 0.00€{[/font]}',
+                         ChartsAccount.objects.get(id=23).current_total, '702')
+
+        add_test_callfunds(False, True)
+        self.assertEqual('{[font color="green"]}Crédit: 100.00€{[/font]}',
+                         ChartsAccount.objects.get(id=21).current_total, '120')
+
+        self.assertEqual('{[font color="green"]}Crédit: 0.00€{[/font]}',
+                         ChartsAccount.objects.get(id=4).current_total, '401')
+        self.assertEqual('{[font color="blue"]}Débit: 175.00€{[/font]}',
+                         ChartsAccount.objects.get(id=17).current_total, '4501')
+        self.assertEqual('{[font color="blue"]}Débit: 70.00€{[/font]}',
+                         ChartsAccount.objects.get(id=18).current_total, '4502')
+
+        self.assertEqual('{[font color="green"]}Crédit: 0.00€{[/font]}',
+                         ChartsAccount.objects.get(id=2).current_total, '512')
+        self.assertEqual('{[font color="blue"]}Débit: 130.00€{[/font]}',
+                         ChartsAccount.objects.get(id=3).current_total, '531')
+
+        self.assertEqual('{[font color="green"]}Crédit: 275.00€{[/font]}',
+                         ChartsAccount.objects.get(id=8).current_total, '701')
+        self.assertEqual('{[font color="green"]}Crédit: 0.00€{[/font]}',
+                         ChartsAccount.objects.get(id=23).current_total, '702')
+
+        add_test_expenses(False, True)
+        self.assertEqual('{[font color="green"]}Crédit: 25.00€{[/font]}',
+                         ChartsAccount.objects.get(id=21).current_total, '120')
+
+        self.assertEqual('{[font color="green"]}Crédit: 65.00€{[/font]}',
+                         ChartsAccount.objects.get(id=4).current_total, '401')
+        self.assertEqual('{[font color="blue"]}Débit: 175.00€{[/font]}',
+                         ChartsAccount.objects.get(id=17).current_total, '4501')
+        self.assertEqual('{[font color="blue"]}Débit: 70.00€{[/font]}',
+                         ChartsAccount.objects.get(id=18).current_total, '4502')
+
+        self.assertEqual('{[font color="green"]}Crédit: 0.00€{[/font]}',
+                         ChartsAccount.objects.get(id=2).current_total, '512')
+        self.assertEqual('{[font color="blue"]}Débit: 20.00€{[/font]}',
+                         ChartsAccount.objects.get(id=3).current_total, '531')
+
+        self.assertEqual('{[font color="green"]}Crédit: 275.00€{[/font]}',
+                         ChartsAccount.objects.get(id=8).current_total, '701')
+        self.assertEqual('{[font color="green"]}Crédit: 75.00€{[/font]}',
+                         ChartsAccount.objects.get(id=23).current_total, '702')
+
+        init_compta()
+        self.assertEqual('{[font color="green"]}Crédit: 25.00€{[/font]}',
+                         ChartsAccount.objects.get(id=21).current_total, '120')
+
+        self.assertEqual('{[font color="green"]}Crédit: 65.00€{[/font]}',
+                         ChartsAccount.objects.get(id=4).current_total, '401')
+        self.assertEqual('{[font color="blue"]}Débit: 151.55€{[/font]}',
+                         ChartsAccount.objects.get(id=17).current_total, '4501')
+        self.assertEqual('{[font color="blue"]}Débit: 64.27€{[/font]}',
+                         ChartsAccount.objects.get(id=18).current_total, '4502')
+
+        self.assertEqual('{[font color="blue"]}Débit: 16.84€{[/font]}',
+                         ChartsAccount.objects.get(id=2).current_total, '512')
+        self.assertEqual('{[font color="blue"]}Débit: 20.00€{[/font]}',
+                         ChartsAccount.objects.get(id=3).current_total, '531')
+
+        self.assertEqual('{[font color="green"]}Crédit: 275.00€{[/font]}',
+                         ChartsAccount.objects.get(id=8).current_total, '701')
+        self.assertEqual('{[font color="green"]}Crédit: 75.00€{[/font]}',
+                         ChartsAccount.objects.get(id=23).current_total, '702')
+
     def test_owner_situation(self):
         add_test_callfunds(False, True)
         add_test_expenses(False, True)
@@ -760,7 +841,7 @@ class OwnerTest(PaymentTest):
         self.call('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '5', 'filter': '0'}, False)
         self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
         self.assert_count_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD', 1)
-        self.assert_xml_equal("COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit:{[/b]} 350.00€ - {[b]}Charge:{[/b]} 187.34€ = {[b]}Résultat:{[/b]} 162.66€ | {[b]}Trésorie:{[/b]} 256.84€ - {[b]}Validé:{[/b]} 16.84€{[/center]}')
+        self.assert_xml_equal("COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit:{[/b]} 350.00€ - {[b]}Charge:{[/b]} 187.34€ = {[b]}Résultat:{[/b]} 162.66€ | {[b]}Trésorie:{[/b]} 36.84€ - {[b]}Validé:{[/b]} 16.84€{[/center]}')
 
         self.factory.xfer = SetShow()
         self.call('/diacamma.condominium/setShow', {'set': 3}, False)
@@ -792,7 +873,7 @@ class OwnerTest(PaymentTest):
         self.call('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '5', 'filter': '0'}, False)
         self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
         self.assert_count_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD', 2)
-        self.assert_xml_equal("COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit:{[/b]} 350.00€ - {[b]}Charge:{[/b]} 187.34€ = {[b]}Résultat:{[/b]} 162.66€ | {[b]}Trésorie:{[/b]} 256.84€ - {[b]}Validé:{[/b]} 256.84€{[/center]}')
+        self.assert_xml_equal("COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit:{[/b]} 350.00€ - {[b]}Charge:{[/b]} 187.34€ = {[b]}Résultat:{[/b]} 162.66€ | {[b]}Trésorie:{[/b]} 36.84€ - {[b]}Validé:{[/b]} 36.84€{[/center]}')
 
         self.assert_xml_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD[2]/VALUE[@name="costaccounting"]', 'CCC')
         description = self.get_first_xpath('COMPONENTS/GRID[@name="entryaccount"]/RECORD[2]/VALUE[@name="description"]').text
@@ -914,6 +995,26 @@ class OwnerTestOldAccounting(PaymentTest):
         self.assert_xml_equal('COMPONENTS/LABELFORM[@name="total_exceptional_payoff"]', "30.00€")
         self.assert_xml_equal('COMPONENTS/LABELFORM[@name="total_exceptional_owner"]', "-15.00€")
 
+        self.assertEqual('{[font color="green"]}Crédit: 25.00€{[/font]}',
+                         ChartsAccount.objects.get(year_id=1, code='120').current_total, '120')
+
+        self.assertEqual('{[font color="green"]}Crédit: 65.00€{[/font]}',
+                         ChartsAccount.objects.get(year_id=1, code='401').current_total, '401')
+        self.assertEqual('{[font color="blue"]}Débit: 151.55€{[/font]}',
+                         ChartsAccount.objects.get(year_id=1, code='4501').current_total, '4501')
+        self.assertEqual('{[font color="blue"]}Débit: 70.00€{[/font]}',
+                         ChartsAccount.objects.get(year_id=1, code='4502').current_total, '4502')
+
+        self.assertEqual('{[font color="blue"]}Débit: 11.11€{[/font]}',
+                         ChartsAccount.objects.get(year_id=1, code='512').current_total, '512')
+        self.assertEqual('{[font color="blue"]}Débit: 20.00€{[/font]}',
+                         ChartsAccount.objects.get(year_id=1, code='531').current_total, '531')
+
+        self.assertEqual('{[font color="green"]}Crédit: 275.00€{[/font]}',
+                         ChartsAccount.objects.get(year_id=1, code='701').current_total, '701')
+        self.assertEqual('{[font color="green"]}Crédit: 75.00€{[/font]}',
+                         ChartsAccount.objects.get(year_id=1, code='702').current_total, '702')
+
     def test_close_classload(self):
         add_test_callfunds(False, True)
         add_test_expenses(False, True)
@@ -923,7 +1024,7 @@ class OwnerTestOldAccounting(PaymentTest):
         self.call('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '5', 'filter': '0'}, False)
         self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
         self.assert_count_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD', 1)
-        self.assert_xml_equal("COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit:{[/b]} 175.00€ - {[b]}Charge:{[/b]} 187.34€ = {[b]}Résultat:{[/b]} -12.34€ | {[b]}Trésorie:{[/b]} 256.84€ - {[b]}Validé:{[/b]} 16.84€{[/center]}')
+        self.assert_xml_equal("COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit:{[/b]} 175.00€ - {[b]}Charge:{[/b]} 187.34€ = {[b]}Résultat:{[/b]} -12.34€ | {[b]}Trésorie:{[/b]} 31.11€ - {[b]}Validé:{[/b]} 11.11€{[/center]}')
 
         self.factory.xfer = SetShow()
         self.call('/diacamma.condominium/setShow', {'set': 3}, False)
@@ -954,4 +1055,4 @@ class OwnerTestOldAccounting(PaymentTest):
         self.call('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '5', 'filter': '0'}, False)
         self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
         self.assert_count_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD', 1)
-        self.assert_xml_equal("COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit:{[/b]} 175.00€ - {[b]}Charge:{[/b]} 187.34€ = {[b]}Résultat:{[/b]} -12.34€ | {[b]}Trésorie:{[/b]} 256.84€ - {[b]}Validé:{[/b]} 256.84€{[/center]}')
+        self.assert_xml_equal("COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit:{[/b]} 175.00€ - {[b]}Charge:{[/b]} 187.34€ = {[b]}Résultat:{[/b]} -12.34€ | {[b]}Trésorie:{[/b]} 31.11€ - {[b]}Validé:{[/b]} 31.11€{[/center]}')

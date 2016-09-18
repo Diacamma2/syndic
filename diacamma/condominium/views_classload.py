@@ -183,9 +183,15 @@ class SetClose(XferContainerAcknowledge):
                 dlg.add_action(self.get_action(TITLE_OK, 'images/ok.png'), modal=FORMTYPE_MODAL, close=CLOSE_YES, params={'CLOSE': 'YES'})
                 dlg.add_action(WrapAction(TITLE_CANCEL, 'images/cancel.png'))
             else:
-                self.item.close(ventilate)
+                if self.item.type_load == 0:
+                    self.item.close_current(ventilate)
+                else:
+                    self.item.close_exceptional(ventilate)
         elif self.confirme(_('Do you want to close this class load?')):
-            self.item.close()
+            if self.item.type_load == 0:
+                self.item.close_current()
+            else:
+                self.item.close_exceptional()
 
 
 @ActionsManage.affect_grid(TITLE_MODIFY, "images/edit.png", unique=SELECT_SINGLE, condition=lambda xfer, gridname='': isinstance(xfer.item, Set) and not xfer.item.is_link_to_lots and xfer.item.is_active)

@@ -201,34 +201,42 @@ class Set(LucteriosModel):
             set_cost.cost_accounting.check_before_close()
         ret = None
         if not Params.getvalue("condominium-old-accounting") and (self.type_load == 1):
-            cost = self.setcost_set.all()[0]
+            cost = self.setcost_set.all().order_by('year__begin')[0]
             result = currency_round(CallDetail.objects.filter(set=self).aggregate(sum=Sum('price'))['sum'])
             result -= cost.cost_accounting.get_total_expense()
             if abs(result) > 0.0001:
                 ret = format_devise(result, 5)
         return ret
 
-    def close(self, with_ventil=False):
-        if with_ventil and (self.type_load == 1):
-            cost = self.setcost_set.all()[0]
-            result = currency_round(CallDetail.objects.filter(set=self).aggregate(sum=Sum('price'))['sum'])
-            result -= cost.cost_accounting.get_total_expense()
-            if abs(result) > 0.0001:
-                fiscal_year = FiscalYear.get_current()
-                close_entry = EntryAccount(year=fiscal_year, designation=_("Ventilation for %s") % self,
-                                           journal_id=5, costaccounting=cost.cost_accounting)
-                close_entry.check_date()
-                close_entry.save()
-                amount = 0
-                for part in self.partition_set.all():
-                    value = currency_round(result * part.get_ratio() / 100.0)
-                    if abs(value) > 0.0001:
-                        owner_account = part.owner.third.get_account(fiscal_year, part.owner.get_third_mask(2))
-                        EntryLineAccount.objects.create(account=owner_account, amount=-1 * value, entry=close_entry, third=part.owner.third)
-                        amount -= value
-                reserve_account = ChartsAccount.get_account(Params.getvalue("condominium-exceptional-reserve-account"), fiscal_year)
-                EntryLineAccount.objects.create(account=reserve_account, amount=amount, entry=close_entry)
-                close_entry.closed()
+    def close_exceptional(self, with_ventil=False):
+        self.close(2, Params.getvalue("condominium-exceptional-reserve-account"), with_ventil and (self.type_load == 1))
+
+    def close_current(self, with_ventil=False):
+        self.close(1, Params.getvalue("condominium-current-revenue-account"), with_ventil and (self.type_load == 0))
+
+    def ventilate_costaccounting(self, cost_accounting, type_owner, initial_code):
+        result = currency_round(CallDetail.objects.filter(set=self).aggregate(sum=Sum('price'))['sum'])
+        result -= cost_accounting.get_total_expense()
+        if abs(result) > 0.0001:
+            fiscal_year = FiscalYear.get_current()
+            close_entry = EntryAccount(year=fiscal_year, designation=_("Ventilation for %s") % self, journal_id=5, costaccounting=cost_accounting)
+            close_entry.check_date()
+            close_entry.save()
+            amount = 0
+            for part in self.partition_set.all():
+                value = currency_round(result * part.get_ratio() / 100.0)
+                if abs(value) > 0.0001:
+                    owner_account = part.owner.third.get_account(fiscal_year, part.owner.get_third_mask(type_owner))
+                    EntryLineAccount.objects.create(account=owner_account, amount=-1 * value, entry=close_entry, third=part.owner.third)
+                    amount -= value
+            reserve_account = ChartsAccount.get_account(initial_code, fiscal_year)
+            EntryLineAccount.objects.create(account=reserve_account, amount=amount, entry=close_entry)
+            close_entry.closed()
+
+    def close(self, type_owner, initial_code, with_ventil):
+        if with_ventil:
+            cost = self.setcost_set.all().order_by('year__begin')[0]
+            self.ventilate_costaccounting(cost.cost_accounting, type_owner, initial_code)
         for set_cost in self.setcost_set.all():
             set_cost.cost_accounting.close()
         self.is_active = False
@@ -1061,12 +1069,13 @@ class Expense(Supporting):
     transitionname__reedit = _("Re-edit")
 
     @transition(field=status, source=1, target=0, conditions=[lambda item:item.check_if_can_reedit()])
-    def reedit(self):
+    def reedit(self, clean_payoff=True):
         def del_entry(entry_id):
             current_entry = EntryAccount.objects.get(id=entry_id)
             current_entry.delete()
-        for payoff in self.payoff_set.all():
-            payoff.delete()
+        if clean_payoff:
+            for payoff in self.payoff_set.all():
+                payoff.delete()
         for detail in self.expensedetail_set.filter(entry__isnull=False):
             old_entityid = detail.entry_id
             detail.entry = None
@@ -1276,7 +1285,7 @@ def convert_accounting(year, thirds_convert):
         if (expense.status == 2):
             expense.status = 1
             expense.save()
-        expense.reedit()
+        expense.reedit(clean_payoff=False)
         expense.num = None
         expense.save()
         expense_list.append(expense)

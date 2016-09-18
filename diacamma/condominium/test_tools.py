@@ -89,33 +89,41 @@ def default_setowner(with_lots=True):
 
 
 def add_test_callfunds(simple=True, with_payoff=False):
-    call1 = CallFunds.objects.create(date='2015-06-10', comment='abc 123', type_call=0)
+    call1 = CallFunds.objects.create(date='2015-06-10', comment='uvw 987', type_call=0)
     CallDetail.objects.create(callfunds=call1, set_id=1, price='250.00', designation='set 1')
     CallDetail.objects.create(callfunds=call1, set_id=2, price='25.00', designation='set 2')
     call1.valid()  # => 5 6 7
     if not simple:
-        call2 = CallFunds.objects.create(date='2015-07-14', comment='building', type_call=1)
+        call2 = CallFunds.objects.create(date='2015-07-14', comment='working...', type_call=1)
         CallDetail.objects.create(callfunds=call2, set_id=3, price='100.00', designation='set 3')
         call2.valid()  # => 9 10 11
     if with_payoff:
         pay = Payoff(supporting_id=4, date='2015-06-15', mode=0, amount=100.0)
+        pay.editor.before_save(None)
         pay.save()
         pay = Payoff(supporting_id=7, date='2015-07-21', mode=0, amount=30.0)
+        pay.editor.before_save(None)
         pay.save()
 
 
 def add_test_expenses(simple=True, with_payoff=False):
-    expense1 = Expense.objects.create(date=convert_date('2015-05-07'), comment='abc 123', expensetype=0, third_id=2)
+    expense1 = Expense(date=convert_date('2015-05-07'), comment='opq 666', expensetype=0, third_id=2)
+    expense1.editor.before_save(None)
+    expense1.save()
     ExpenseDetail.objects.create(expense=expense1, set_id=2, designation='set 2', expense_account='604', price='100')
     expense1.valid()
     if not simple:
-        expense2 = Expense.objects.create(date=convert_date('2015-08-28'), comment='building', expensetype=0, third_id=2)
+        expense2 = Expense(date=convert_date('2015-08-28'), comment='creation', expensetype=0, third_id=2)
+        expense2.editor.before_save(None)
+        expense2.save()
         ExpenseDetail.objects.create(expense=expense2, set_id=3, designation='set 1', expense_account='602', price='75')
         expense2.valid()
     if with_payoff:
-        pay = Payoff(supporting=expense1, date=convert_date('2015-05-11'), mode=0, amount=35.0)
+        pay = Payoff(supporting_id=expense1.id, date='2015-05-11', mode=0, amount=35.0)
+        pay.editor.before_save(None)
         pay.save()
-        pay = Payoff(supporting=expense2, date=convert_date('2015-08-30'), mode=0, amount=75.0)
+        pay = Payoff(supporting_id=expense2.id, date='2015-08-30', mode=0, amount=75.0)
+        pay.editor.before_save(None)
         pay.save()
 
 
@@ -128,7 +136,7 @@ def init_compta():
     year = FiscalYear.get_current()
     if Params.getvalue("condominium-old-accounting"):
         add_entry(year.id, 1, '2015-01-01', 'Report à nouveau',
-                  '-1|2|0|29.180000|None|\n-2|17|4|-23.450000|None|', True)
+                  '-1|2|0|23.450000|None|\n-2|17|4|-23.450000|None|', True)
     else:
         add_entry(year.id, 1, '2015-01-01', 'Report à nouveau',
                   '-1|2|0|29.180000|None|\n-2|17|4|-23.450000|None|\n-3|18|4|-5.730000|None|', True)

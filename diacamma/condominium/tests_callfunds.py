@@ -37,6 +37,7 @@ from diacamma.condominium.views_callfunds import CallFundsList,\
     CallFundsTransition, CallFundsPrint
 from diacamma.accounting.views_entries import EntryAccountList
 from diacamma.payoff.views import PayoffAddModify
+from diacamma.accounting.models import ChartsAccount
 
 
 class CallFundsTest(LucteriosTest):
@@ -549,6 +550,55 @@ class CallFundsTest(LucteriosTest):
         self.assertTrue('[4503 Minimum]' in description, description)
         self.assert_xml_equal("COMPONENTS/LABELFORM[@name='result']",
                               '{[center]}{[b]}Produit:{[/b]} 0.00€ - {[b]}Charge:{[/b]} 0.00€ = {[b]}Résultat:{[/b]} 0.00€ | {[b]}Trésorie:{[/b]} 100.00€ - {[b]}Validé:{[/b]} 0.00€{[/center]}')
+
+    def test_payoff(self):
+        self.assertEqual('{[font color="green"]}Crédit: 0.00€{[/font]}',
+                         ChartsAccount.objects.get(id=17).current_total, '4501')
+        self.assertEqual('{[font color="green"]}Crédit: 0.00€{[/font]}',
+                         ChartsAccount.objects.get(id=2).current_total, '512')
+        self.assertEqual('{[font color="green"]}Crédit: 0.00€{[/font]}',
+                         ChartsAccount.objects.get(id=3).current_total, '531')
+        self.factory.xfer = EntryAccountList()
+        self.call('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '-1', 'filter': '0'}, False)
+        self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
+        self.assert_count_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD', 0)
+        self.assert_xml_equal("COMPONENTS/LABELFORM[@name='result']",
+                              '{[center]}{[b]}Produit:{[/b]} 0.00€ - {[b]}Charge:{[/b]} 0.00€ = {[b]}Résultat:{[/b]} 0.00€ | {[b]}Trésorie:{[/b]} 0.00€ - {[b]}Validé:{[/b]} 0.00€{[/center]}')
+
+        self.factory.xfer = CallFundsAddModify()
+        self.call('/diacamma.condominium/callFundsAddModify', {'SAVE': 'YES', "date": '2015-06-10', "type_call": 0, "comment": 'abc 123'}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'callFundsAddModify')
+        self.factory.xfer = CallDetailAddModify()
+        self.call('/diacamma.condominium/callDetailAddModify', {'SAVE': 'YES', 'callfunds': 1, 'set': 1, 'price': '250.00', 'comment': 'set 1'}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'callDetailAddModify')
+        self.factory.xfer = CallDetailAddModify()
+        self.call('/diacamma.condominium/callDetailAddModify', {'SAVE': 'YES', 'callfunds': 1, 'set': 2, 'price': '25.00', 'comment': 'set 2'}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'callDetailAddModify')
+
+        self.factory.xfer = CallFundsTransition()
+        self.call(
+            '/diacamma.condominium/callFundsTransition', {'CONFIRME': 'YES', 'callfunds': 1, 'TRANSITION': 'valid'}, False)
+        self.assert_observer(
+            'core.acknowledge', 'diacamma.condominium', 'callFundsTransition')
+
+        self.assertEqual('{[font color="blue"]}Débit: 275.00€{[/font]}',
+                         ChartsAccount.objects.get(id=17).current_total, '4501')
+        self.assertEqual('{[font color="green"]}Crédit: 0.00€{[/font]}',
+                         ChartsAccount.objects.get(id=2).current_total, '512')
+        self.assertEqual('{[font color="green"]}Crédit: 0.00€{[/font]}',
+                         ChartsAccount.objects.get(id=3).current_total, '531')
+
+        self.factory.xfer = PayoffAddModify()
+        self.call('/diacamma.payoff/payoffAddModify', {'SAVE': 'YES', 'supporting': 4, 'amount': '100.0',
+                                                       'payer': "Nous", 'date': '2015-04-03', 'mode': 0, 'reference': 'abc', 'bank_account': 0}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.payoff', 'payoffAddModify')
+
+        self.assertEqual('{[font color="blue"]}Débit: 175.00€{[/font]}',
+                         ChartsAccount.objects.get(id=17).current_total, '4501')
+        self.assertEqual('{[font color="green"]}Crédit: 0.00€{[/font]}',
+                         ChartsAccount.objects.get(id=2).current_total, '512')
+        self.assertEqual('{[font color="blue"]}Débit: 100.00€{[/font]}',
+                         ChartsAccount.objects.get(id=3).current_total, '531')
 
 
 class CallFundsTestOldAccounting(LucteriosTest):

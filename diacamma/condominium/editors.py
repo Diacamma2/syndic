@@ -131,6 +131,10 @@ class CallFundsSupportingEditor(SupportingEditor):
 
 class CallFundsEditor(LucteriosEditor):
 
+    def before_save(self, xfer):
+        if self.item.supporting is not None:
+            self.item.supporting.edit.before_save(xfer)
+
     def edit(self, xfer):
         xfer.change_to_readonly('status')
         if len(self.item.calldetail_set.all()) > 0:

@@ -39,6 +39,7 @@ from diacamma.payoff.views import SupportingThirdValid, PayoffAddModify
 from diacamma.accounting.views_entries import EntryAccountList,\
     EntryAccountClose
 from diacamma.accounting.views import ThirdShow
+from diacamma.accounting.models import ChartsAccount
 
 
 class ExpenseTest(LucteriosTest):
@@ -374,6 +375,13 @@ class ExpenseTest(LucteriosTest):
         self.assert_count_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD', 0)
 
     def test_payoff(self):
+        self.assertEqual('{[font color="green"]}Crédit: 0.00€{[/font]}',
+                         ChartsAccount.objects.get(id=4).current_total, '401')
+        self.assertEqual('{[font color="green"]}Crédit: 0.00€{[/font]}',
+                         ChartsAccount.objects.get(id=2).current_total, '512')
+        self.assertEqual('{[font color="green"]}Crédit: 0.00€{[/font]}',
+                         ChartsAccount.objects.get(id=3).current_total, '531')
+
         self.factory.xfer = ExpenseAddModify()
         self.call('/diacamma.condominium/expenseAddModify', {'SAVE': 'YES', 'expensetype': 0, "date": '2015-06-10', "comment": 'abc 123'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseAddModify')
@@ -412,6 +420,13 @@ class ExpenseTest(LucteriosTest):
         self.call('/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 4, 'TRANSITION': 'valid'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseTransition')
 
+        self.assertEqual('{[font color="green"]}Crédit: 180.00€{[/font]}',
+                         ChartsAccount.objects.get(id=4).current_total, '401')
+        self.assertEqual('{[font color="green"]}Crédit: 0.00€{[/font]}',
+                         ChartsAccount.objects.get(id=2).current_total, '512')
+        self.assertEqual('{[font color="green"]}Crédit: 0.00€{[/font]}',
+                         ChartsAccount.objects.get(id=3).current_total, '531')
+
         self.factory.xfer = ThirdShow()
         self.call('/diacamma.accounting/thirdShow', {"third": 3}, False)
         self.assert_observer('core.custom', 'diacamma.accounting', 'thirdShow')
@@ -423,6 +438,13 @@ class ExpenseTest(LucteriosTest):
         self.call('/diacamma.payoff/payoffAddModify', {'SAVE': 'YES', 'supporting': 4, 'amount': '180.0',
                                                        'payer': "Nous", 'date': '2015-04-03', 'mode': 0, 'reference': 'abc', 'bank_account': 0}, False)
         self.assert_observer('core.acknowledge', 'diacamma.payoff', 'payoffAddModify')
+
+        self.assertEqual('{[font color="green"]}Crédit: 0.00€{[/font]}',
+                         ChartsAccount.objects.get(id=4).current_total, '401')
+        self.assertEqual('{[font color="green"]}Crédit: 0.00€{[/font]}',
+                         ChartsAccount.objects.get(id=2).current_total, '512')
+        self.assertEqual('{[font color="green"]}Crédit: 180.00€{[/font]}',
+                         ChartsAccount.objects.get(id=3).current_total, '531')
 
         self.factory.xfer = ThirdShow()
         self.call('/diacamma.accounting/thirdShow', {"third": 3}, False)

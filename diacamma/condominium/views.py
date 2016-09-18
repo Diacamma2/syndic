@@ -9,7 +9,7 @@ from lucterios.framework.xferadvance import TITLE_MODIFY, TITLE_ADD, TITLE_EDIT,
     TITLE_CANCEL, TITLE_OK
 from lucterios.framework.xferadvance import XferListEditor, XferShowEditor, XferAddEditor, XferDelete
 from lucterios.framework.xfercomponents import XferCompLabelForm, XferCompDate, XferCompGrid, XferCompButton,\
-    XferCompImage, XferCompSelect
+    XferCompImage, XferCompSelect, XferCompCheck
 from lucterios.framework.xfergraphic import XferContainerAcknowledge
 from lucterios.framework.tools import FORMTYPE_NOMODAL, ActionsManage, MenuManage, WrapAction
 from lucterios.framework.tools import SELECT_SINGLE, CLOSE_NO, FORMTYPE_REFRESH, FORMTYPE_MODAL, CLOSE_YES, SELECT_MULTI
@@ -21,11 +21,13 @@ from lucterios.CORE.models import Parameter
 
 from lucterios.contacts.models import Individual, LegalEntity
 
-from diacamma.accounting.models import AccountThird, FiscalYear
-from diacamma.accounting.tools import correct_accounting_code
+from diacamma.accounting.models import AccountThird, FiscalYear, EntryAccount,\
+    EntryLineAccount, ChartsAccount
+from diacamma.accounting.tools import correct_accounting_code, format_devise
 
 from diacamma.condominium.models import PropertyLot, Owner, Set, SetCost, convert_accounting
 from diacamma.condominium.views_classload import fill_params
+from django.db.models.aggregates import Sum
 
 
 @MenuManage.describ('condominium.change_set', FORMTYPE_NOMODAL, 'condominium', _('Manage of owners and property lots'))
@@ -349,4 +351,48 @@ def thirdaddon_condo(item, xfer):
 
 @signal_and_lock.Signal.decorate('finalize_year')
 def finalizeyear_condo(xfer):
-    pass
+    year = FiscalYear.get_current(xfer.getparam('year'))
+    if year is not None:
+        ventilate = xfer.getparam("ventilate", False)
+        if xfer.observer_name == "core.custom":
+            result = year.total_revenue - year.total_expense
+            if abs(result) > 0.001:
+                row = xfer.get_max_row() + 1
+                lbl = XferCompLabelForm('info')
+                lbl.set_value(_('This fiscal year has a result no null equals to %s.') % format_devise(result, 5))
+                lbl.set_location(0, row, 2)
+                xfer.add_component(lbl)
+                lbl = XferCompLabelForm('question')
+                lbl.set_value(_('Do you want to ventilate this amount for each owner?'))
+                lbl.set_location(0, row + 1)
+                xfer.add_component(lbl)
+                lbl = XferCompCheck('ventilate')
+                lbl.set_value(ventilate)
+                lbl.set_location(1, row + 1)
+                xfer.add_component(lbl)
+        elif xfer.observer_name == "core.acknowledge":
+            for set_cost in year.setcost_set.filter(year=year, set__is_active=True, set__type_load=0):
+                if ventilate:
+                    set_cost.set.ventilate_costaccounting(set_cost.cost_accounting, 1,
+                                                          Params.getvalue("condominium-current-revenue-account"))
+                set_cost.cost_accounting.close()
+            if ventilate:
+                result = year.total_revenue - year.total_expense
+                if abs(result) > 0.001:
+                    total_part = PropertyLot.get_total_part()
+                    if total_part > 0:
+                        close_entry = EntryAccount(year=year, designation=_("Ventilation for %s") % year, journal_id=5)
+                        close_entry.check_date()
+                        close_entry.save()
+                        amount = 0
+                        for owner in Owner.objects.all():
+                            total = owner.propertylot_set.aggregate(sum=Sum('value'))
+                            if ('sum' in total.keys()) and (total['sum'] is not None):
+                                value = total['sum']
+                                if abs(value) > 0.0001:
+                                    owner_account = owner.third.get_account(year, owner.get_third_mask(1))
+                                    EntryLineAccount.objects.create(account=owner_account, amount=-1 * value, entry=close_entry, third=owner.third)
+                                    amount -= value
+                        reserve_account = ChartsAccount.get_account(Params.getvalue("condominium-current-revenue-account"), year)
+                        EntryLineAccount.objects.create(account=reserve_account, amount=amount, entry=close_entry)
+                        close_entry.closed()
