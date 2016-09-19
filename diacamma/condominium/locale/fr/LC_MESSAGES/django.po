@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-09-18 21:35+0000\n"
+"POT-Creation-Date: 2016-09-19 21:41+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -72,7 +72,7 @@ msgid "set of lots"
 msgstr "ensemble de lots"
 
 #: models.py:94 models.py:102 models.py:377 models.py:379 models.py:607
-#: models.py:954 models.py:961 models.py:1126 models.py:1133
+#: models.py:954 models.py:961 models.py:1127 models.py:1134
 #: printmodel/Owner_0001.py:245
 msgid "expense"
 msgstr "dépense"
@@ -184,7 +184,7 @@ msgid "total"
 msgstr "total"
 
 #: models.py:378 models.py:381 models.py:607 models.py:678 models.py:707
-#: models.py:1148 printmodel/Owner_0001.py:245 views.py:300
+#: models.py:1149 printmodel/Owner_0001.py:245 views.py:300
 msgid "ratio"
 msgstr "ratio"
 
@@ -198,7 +198,7 @@ msgstr "ventilé"
 msgid "total call for funds"
 msgstr "total des appels de fonds"
 
-#: models.py:568 models.py:598 models.py:700 models.py:796 models.py:1236
+#: models.py:568 models.py:598 models.py:700 models.py:796 models.py:1237
 #: printmodel/Owner_0001.py:31
 msgid "owner"
 msgstr "propriétaire"
@@ -216,12 +216,12 @@ msgstr "copropriété de %s"
 msgid "your situation"
 msgstr "votre situation"
 
-#: models.py:596 models.py:914 models.py:1135 printmodel/CallFunds_0001.py:111
+#: models.py:596 models.py:914 models.py:1136 printmodel/CallFunds_0001.py:111
 #: printmodel/Owner_0001.py:245 views_classload.py:268
 msgid "set"
 msgstr "ensemble"
 
-#: models.py:599 models.py:697 models.py:1237 printmodel/Owner_0001.py:245
+#: models.py:599 models.py:697 models.py:1238 printmodel/Owner_0001.py:245
 msgid "value"
 msgstr "valeur"
 
@@ -295,11 +295,11 @@ msgstr "reste à payer"
 msgid "\"%s\" cannot be deleted!"
 msgstr "\"%s\" ne peut être supprimé!"
 
-#: models.py:837 models.py:1086
+#: models.py:837 models.py:1087
 msgid "Valid"
 msgstr "Valider"
 
-#: models.py:876 models.py:1103
+#: models.py:876 models.py:1104
 msgid "Closed"
 msgstr "Clôturer"
 
@@ -316,16 +316,16 @@ msgstr "appel de fonds"
 msgid "calls of funds"
 msgstr "appels de fonds"
 
-#: models.py:915 models.py:1136 printmodel/CallFunds_0001.py:112
+#: models.py:915 models.py:1137 printmodel/CallFunds_0001.py:112
 msgid "designation"
 msgstr "désignation"
 
-#: models.py:916 models.py:926 models.py:1138 models.py:1148
+#: models.py:916 models.py:926 models.py:1139 models.py:1149
 #: printmodel/CallFunds_0001.py:113
 msgid "price"
 msgstr "prix"
 
-#: models.py:919 models.py:1141
+#: models.py:919 models.py:1142
 msgid "entry"
 msgstr "écriture"
 
@@ -349,12 +349,12 @@ msgstr "avoir de dépense"
 msgid "entries"
 msgstr "écritures"
 
-#: models.py:1035 models.py:1185 models.py:1198
+#: models.py:1035 models.py:1186 models.py:1199
 #, python-format
 msgid "code account %s unknown!"
 msgstr "code comptable %s inconnu!"
 
-#: models.py:1054 models.py:1202
+#: models.py:1054 models.py:1203
 msgid "Error in accounting generator!"
 msgstr "Erreur dans la génération comptable!"
 
@@ -362,59 +362,59 @@ msgstr "Erreur dans la génération comptable!"
 msgid "Re-edit"
 msgstr "Ré-éditer"
 
-#: models.py:1127
+#: models.py:1128
 msgid "expenses"
 msgstr "dépenses"
 
-#: models.py:1137
+#: models.py:1138
 msgid "account"
 msgstr "compte"
 
-#: models.py:1227 models.py:1234 models.py:1244
+#: models.py:1228 models.py:1235 models.py:1245
 msgid "detail of expense"
 msgstr "détail de dépense"
 
-#: models.py:1228 models.py:1245
+#: models.py:1229 models.py:1246
 msgid "details of expense"
 msgstr "détails de dépense"
 
-#: models.py:1299
+#: models.py:1300
 msgid "condominium-default-owner-account"
 msgstr "compte de proprietaire par défaut"
 
-#: models.py:1301
+#: models.py:1302
 msgid "condominium-default-owner-account1"
 msgstr "compte courant de proprietaire par défaut"
 
-#: models.py:1303
+#: models.py:1304
 msgid "condominium-default-owner-account2"
 msgstr "compte exceptionnel de proprietaire par défaut"
 
-#: models.py:1305
+#: models.py:1306
 msgid "condominium-default-owner-account3"
 msgstr "compte d'avance de proprietaire par défaut"
 
-#: models.py:1307
+#: models.py:1308
 msgid "condominium-default-owner-account4"
 msgstr "compte de prêt de proprietaire par défaut"
 
-#: models.py:1309
+#: models.py:1310
 msgid "condominium-current-revenue-account"
 msgstr "compte de revenue courant"
 
-#: models.py:1311
+#: models.py:1312
 msgid "condominium-exceptional-revenue-account"
 msgstr "compte de revenue exceptionnel"
 
-#: models.py:1313
+#: models.py:1314
 msgid "condominium-exceptional-reserve-account"
 msgstr "compte de reserve de l'exceptionnel"
 
-#: models.py:1315
+#: models.py:1316
 msgid "condominium-advance-reserve-account"
 msgstr "compte de reserve de l'avance"
 
-#: models.py:1317
+#: models.py:1318
 msgid "condominium-old-accounting"
 msgstr "vieille comptabilité?"
 
@@ -621,7 +621,7 @@ msgstr "Convertion ..."
 #: views.py:362
 #, python-format
 msgid "This fiscal year has a result no null equals to %s."
-msgstr "Cet exercice has un résultat non nul égal à %s"
+msgstr "Cet exercice a un résultat non nul égal à %s"
 
 #: views.py:366 views_classload.py:175
 msgid "Do you want to ventilate this amount for each owner?"
@@ -823,7 +823,3 @@ msgstr "Supprimer un détail de dépense"
 #: views_expense.py:120
 msgid "Show set"
 msgstr "Voir l'ensemble"
-
-#, fuzzy
-#~ msgid "Ventilation for result of %s"
-#~ msgstr "Ventilation pour %s"

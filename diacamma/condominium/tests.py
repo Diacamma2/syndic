@@ -44,8 +44,9 @@ from diacamma.condominium.views import OwnerAndPropertyLotList, OwnerAdd, OwnerD
     CondominiumConvert
 from diacamma.condominium.test_tools import default_setowner, add_test_callfunds, old_accounting, add_test_expenses,\
     init_compta
-from diacamma.accounting.models import EntryAccount, ChartsAccount
+from diacamma.accounting.models import EntryAccount, ChartsAccount, FiscalYear
 from diacamma.accounting.views_entries import EntryAccountList
+from diacamma.accounting.views_accounts import FiscalYearClose, FiscalYearBegin
 
 
 class SetOwnerTest(LucteriosTest):
@@ -885,6 +886,29 @@ class OwnerTest(PaymentTest):
         chart = ChartsAccount.objects.get(id=21)
         self.assertEqual('120', chart.name)
         self.assertEqual(0.0, chart.get_current_total())
+
+    def test_close_year(self):
+        add_test_callfunds(False, True)
+        add_test_expenses(False, True)
+        init_compta()
+
+        self.factory.xfer = FiscalYearBegin()
+        self.call('/diacamma.accounting/fiscalYearBegin', {'CONFIRME': 'YES', 'year': '1'}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.accounting', 'fiscalYearBegin')
+        FiscalYear.objects.create(begin='2016-01-01', end='2016-12-31', status=0)
+        for entry in EntryAccount.objects.filter(year_id=1, close=False):
+            entry.closed()
+
+        self.factory.xfer = FiscalYearClose()
+        self.call('/diacamma.accounting/fiscalYearClose',
+                  {'year': '1', 'type_of_account': '-1'}, False)
+        self.assert_observer('core.custom', 'diacamma.accounting', 'fiscalYearClose')
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="title_condo"]', 'Cet exercice a un résultat non nul égal à 162.66€')
+
+        self.factory.xfer = FiscalYearClose()
+        self.call('/diacamma.accounting/fiscalYearClose',
+                  {'year': '1', 'type_of_account': '-1', 'CONFIRME': 'YES', 'ventilate': True}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.accounting', 'fiscalYearClose')
 
 
 class OwnerTestOldAccounting(PaymentTest):

@@ -358,11 +358,11 @@ def finalizeyear_condo(xfer):
             result = year.total_revenue - year.total_expense
             if abs(result) > 0.001:
                 row = xfer.get_max_row() + 1
-                lbl = XferCompLabelForm('info')
+                lbl = XferCompLabelForm('title_condo')
                 lbl.set_value(_('This fiscal year has a result no null equals to %s.') % format_devise(result, 5))
                 lbl.set_location(0, row, 2)
                 xfer.add_component(lbl)
-                lbl = XferCompLabelForm('question')
+                lbl = XferCompLabelForm('question_condo')
                 lbl.set_value(_('Do you want to ventilate this amount for each owner?'))
                 lbl.set_location(0, row + 1)
                 xfer.add_component(lbl)
