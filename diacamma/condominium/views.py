@@ -358,6 +358,8 @@ def finalizeyear_condo(xfer):
     if year is not None:
         ventilate = xfer.getparam("ventilate", 0)
         if xfer.observer_name == "core.custom":
+            if year.check_to_close() > 0:
+                raise LucteriosException(IMPORTANT, _("This fiscal year has entries not closed!"))
             result = year.total_revenue - year.total_expense
             if abs(result) > 0.001:
                 row = xfer.get_max_row() + 1

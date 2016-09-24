@@ -215,7 +215,10 @@ class Set(LucteriosModel):
         self.close(1, Params.getvalue("condominium-current-revenue-account"), with_ventil and (self.type_load == 0))
 
     def ventilate_costaccounting(self, cost_accounting, type_owner, initial_code):
-        result = currency_round(CallDetail.objects.filter(set=self).aggregate(sum=Sum('price'))['sum'])
+        if type_owner == 2:
+            result = currency_round(CallDetail.objects.filter(set=self).aggregate(sum=Sum('price'))['sum'])
+        else:
+            result = cost_accounting.get_total_revenue()
         result -= cost_accounting.get_total_expense()
         if abs(result) > 0.0001:
             fiscal_year = FiscalYear.get_current()
@@ -340,7 +343,12 @@ class Owner(Supporting):
 
     @classmethod
     def get_default_fields(cls):
-        return ["third", (_('property part'), 'property_part'), (_('current initial state'), 'total_current_initial'), (_('current total call for funds'), 'total_current_call'), (_('current total payoff'), 'total_current_payoff'), (_('current total owner'), 'total_current_owner'), (_('current total ventilated'), 'total_current_ventilated'), (_('estimated regularization'), 'total_current_regularization')]
+        fields = ["third", (_('property part'), 'property_part'), (_('current initial state'), 'total_current_initial'), (_('current total call for funds'), 'total_current_call'),
+                  (_('current total payoff'), 'total_current_payoff'), (_('current total owner'), 'total_current_owner'),
+                  (_('current total ventilated'), 'total_current_ventilated')]
+        if not Params.getvalue("condominium-old-accounting"):
+            fields.append((_('estimated regularization'), 'total_current_regularization'))
+        return fields
 
     @classmethod
     def get_show_fields_in_third(cls):
