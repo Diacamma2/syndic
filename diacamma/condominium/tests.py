@@ -34,19 +34,16 @@ from lucterios.framework.filetools import get_user_dir
 
 from diacamma.accounting.test_tools import initial_thirds, default_compta, default_costaccounting
 from diacamma.accounting.views import ThirdShow
+from diacamma.accounting.models import EntryAccount, FiscalYear
+from diacamma.accounting.views_entries import EntryAccountList
+from diacamma.accounting.views_accounts import FiscalYearClose, FiscalYearBegin, FiscalYearReportLastYear
 
 from diacamma.payoff.test_tools import default_bankaccount, default_paymentmethod, PaymentTest
 from diacamma.payoff.views import PayableShow, PayableEmail
 
-from diacamma.condominium.views_classload import SetList, SetAddModify, SetDel, SetShow, PartitionAddModify, CondominiumConf,\
-    SetClose
-from diacamma.condominium.views import OwnerAndPropertyLotList, OwnerAdd, OwnerDel, OwnerShow, PropertyLotAddModify,\
-    CondominiumConvert
-from diacamma.condominium.test_tools import default_setowner, add_test_callfunds, old_accounting, add_test_expenses,\
-    init_compta
-from diacamma.accounting.models import EntryAccount, ChartsAccount, FiscalYear
-from diacamma.accounting.views_entries import EntryAccountList
-from diacamma.accounting.views_accounts import FiscalYearClose, FiscalYearBegin
+from diacamma.condominium.views_classload import SetList, SetAddModify, SetDel, SetShow, PartitionAddModify, CondominiumConf, SetClose
+from diacamma.condominium.views import OwnerAndPropertyLotList, OwnerAdd, OwnerDel, OwnerShow, PropertyLotAddModify, CondominiumConvert
+from diacamma.condominium.test_tools import default_setowner, add_test_callfunds, old_accounting, add_test_expenses, init_compta
 
 
 class SetOwnerTest(LucteriosTest):
@@ -714,85 +711,49 @@ class OwnerTest(PaymentTest):
             server.stop()
 
     def test_check_operation(self):
-        self.assertEqual('{[font color="green"]}Crédit: 0.00€{[/font]}',
-                         ChartsAccount.objects.get(id=21).current_total, '120')
-        self.assertEqual('{[font color="green"]}Crédit: 0.00€{[/font]}',
-                         ChartsAccount.objects.get(id=4).current_total, '401')
-        self.assertEqual('{[font color="green"]}Crédit: 0.00€{[/font]}',
-                         ChartsAccount.objects.get(id=17).current_total, '4501')
-        self.assertEqual('{[font color="green"]}Crédit: 0.00€{[/font]}',
-                         ChartsAccount.objects.get(id=18).current_total, '4502')
-        self.assertEqual('{[font color="green"]}Crédit: 0.00€{[/font]}',
-                         ChartsAccount.objects.get(id=2).current_total, '512')
-        self.assertEqual('{[font color="green"]}Crédit: 0.00€{[/font]}',
-                         ChartsAccount.objects.get(id=3).current_total, '531')
-        self.assertEqual('{[font color="green"]}Crédit: 0.00€{[/font]}',
-                         ChartsAccount.objects.get(id=8).current_total, '701')
-        self.assertEqual('{[font color="green"]}Crédit: 0.00€{[/font]}',
-                         ChartsAccount.objects.get(id=23).current_total, '702')
+        self.check_account(year_id=1, code='103', value=0.0)
+        self.check_account(year_id=1, code='120', value=0.0)
+        self.check_account(year_id=1, code='401', value=0.0)
+        self.check_account(year_id=1, code='4501', value=0.0)
+        self.check_account(year_id=1, code='4502', value=0.0)
+        self.check_account(year_id=1, code='512', value=0.0)
+        self.check_account(year_id=1, code='531', value=0.0)
+        self.check_account(year_id=1, code='701', value=0.0)
+        self.check_account(year_id=1, code='702', value=0.0)
 
         add_test_callfunds(False, True)
-        self.assertEqual('{[font color="green"]}Crédit: 100.00€{[/font]}',
-                         ChartsAccount.objects.get(id=21).current_total, '120')
-
-        self.assertEqual('{[font color="green"]}Crédit: 0.00€{[/font]}',
-                         ChartsAccount.objects.get(id=4).current_total, '401')
-        self.assertEqual('{[font color="blue"]}Débit: 175.00€{[/font]}',
-                         ChartsAccount.objects.get(id=17).current_total, '4501')
-        self.assertEqual('{[font color="blue"]}Débit: 70.00€{[/font]}',
-                         ChartsAccount.objects.get(id=18).current_total, '4502')
-
-        self.assertEqual('{[font color="green"]}Crédit: 0.00€{[/font]}',
-                         ChartsAccount.objects.get(id=2).current_total, '512')
-        self.assertEqual('{[font color="blue"]}Débit: 130.00€{[/font]}',
-                         ChartsAccount.objects.get(id=3).current_total, '531')
-
-        self.assertEqual('{[font color="green"]}Crédit: 275.00€{[/font]}',
-                         ChartsAccount.objects.get(id=8).current_total, '701')
-        self.assertEqual('{[font color="green"]}Crédit: 0.00€{[/font]}',
-                         ChartsAccount.objects.get(id=23).current_total, '702')
+        self.check_account(year_id=1, code='120', value=100.0)
+        self.check_account(year_id=1, code='401', value=0.0)
+        self.check_account(year_id=1, code='4501', value=175.0)
+        self.check_account(year_id=1, code='4502', value=70.0)
+        self.check_account(year_id=1, code='512', value=0.0)
+        self.check_account(year_id=1, code='531', value=130.0)
+        self.check_account(year_id=1, code='701', value=275.0)
+        self.check_account(year_id=1, code='702', value=0.0)
 
         add_test_expenses(False, True)
-        self.assertEqual('{[font color="green"]}Crédit: 25.00€{[/font]}',
-                         ChartsAccount.objects.get(id=21).current_total, '120')
-
-        self.assertEqual('{[font color="green"]}Crédit: 65.00€{[/font]}',
-                         ChartsAccount.objects.get(id=4).current_total, '401')
-        self.assertEqual('{[font color="blue"]}Débit: 175.00€{[/font]}',
-                         ChartsAccount.objects.get(id=17).current_total, '4501')
-        self.assertEqual('{[font color="blue"]}Débit: 70.00€{[/font]}',
-                         ChartsAccount.objects.get(id=18).current_total, '4502')
-
-        self.assertEqual('{[font color="green"]}Crédit: 0.00€{[/font]}',
-                         ChartsAccount.objects.get(id=2).current_total, '512')
-        self.assertEqual('{[font color="blue"]}Débit: 20.00€{[/font]}',
-                         ChartsAccount.objects.get(id=3).current_total, '531')
-
-        self.assertEqual('{[font color="green"]}Crédit: 275.00€{[/font]}',
-                         ChartsAccount.objects.get(id=8).current_total, '701')
-        self.assertEqual('{[font color="green"]}Crédit: 75.00€{[/font]}',
-                         ChartsAccount.objects.get(id=23).current_total, '702')
+        self.check_account(year_id=1, code='120', value=25.0)
+        self.check_account(year_id=1, code='401', value=65.0)
+        self.check_account(year_id=1, code='4501', value=175.0)
+        self.check_account(year_id=1, code='4502', value=70.0)
+        self.check_account(year_id=1, code='512', value=0.0)
+        self.check_account(year_id=1, code='531', value=20.0)
+        self.check_account(year_id=1, code='701', value=275.0)
+        self.check_account(year_id=1, code='702', value=75.0)
 
         init_compta()
-        self.assertEqual('{[font color="green"]}Crédit: 25.00€{[/font]}',
-                         ChartsAccount.objects.get(id=21).current_total, '120')
-
-        self.assertEqual('{[font color="green"]}Crédit: 65.00€{[/font]}',
-                         ChartsAccount.objects.get(id=4).current_total, '401')
-        self.assertEqual('{[font color="blue"]}Débit: 151.55€{[/font]}',
-                         ChartsAccount.objects.get(id=17).current_total, '4501')
-        self.assertEqual('{[font color="blue"]}Débit: 64.27€{[/font]}',
-                         ChartsAccount.objects.get(id=18).current_total, '4502')
-
-        self.assertEqual('{[font color="blue"]}Débit: 16.84€{[/font]}',
-                         ChartsAccount.objects.get(id=2).current_total, '512')
-        self.assertEqual('{[font color="blue"]}Débit: 20.00€{[/font]}',
-                         ChartsAccount.objects.get(id=3).current_total, '531')
-
-        self.assertEqual('{[font color="green"]}Crédit: 275.00€{[/font]}',
-                         ChartsAccount.objects.get(id=8).current_total, '701')
-        self.assertEqual('{[font color="green"]}Crédit: 75.00€{[/font]}',
-                         ChartsAccount.objects.get(id=23).current_total, '702')
+        self.check_account(year_id=1, code='103', value=0.0)
+        self.check_account(year_id=1, code='120', value=25.0)
+        self.check_account(year_id=1, code='401', value=65.0)
+        self.check_account(year_id=1, code='4501', value=151.55)
+        self.check_account(year_id=1, code='4502', value=64.27)
+        self.check_account(year_id=1, code='512', value=16.84)
+        self.check_account(year_id=1, code='531', value=20.0)
+        self.check_account(year_id=1, code='602', value=75.0)
+        self.check_account(year_id=1, code='604', value=100.0)
+        self.check_account(year_id=1, code='627', value=12.34)
+        self.check_account(year_id=1, code='701', value=275.0)
+        self.check_account(year_id=1, code='702', value=75.0)
 
     def test_owner_situation(self):
         add_test_callfunds(False, True)
@@ -834,9 +795,7 @@ class OwnerTest(PaymentTest):
         add_test_expenses(False, True)
         init_compta()
 
-        chart = ChartsAccount.objects.get(id=21)
-        self.assertEqual('120', chart.name)
-        self.assertEqual(25.0, chart.get_current_total())
+        self.check_account(year_id=1, code='120', value=25.0)
 
         self.factory.xfer = EntryAccountList()
         self.call('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '5', 'filter': '0'}, False)
@@ -883,11 +842,16 @@ class OwnerTest(PaymentTest):
         self.assertTrue('[4502 Dalton Joe]' in description, description)
         self.assertTrue('[120] 120' in description, description)
 
-        chart = ChartsAccount.objects.get(id=21)
-        self.assertEqual('120', chart.name)
-        self.assertEqual(0.0, chart.get_current_total())
+        self.check_account(year_id=1, code='120', value=0.00)
+        self.check_account(year_id=1, code='401', value=65.0)
+        self.check_account(year_id=1, code='4501', value=151.55)
+        self.check_account(year_id=1, code='4502', value=39.27)
+        self.check_account(year_id=1, code='512', value=16.84)
+        self.check_account(year_id=1, code='531', value=20.0)
+        self.check_account(year_id=1, code='701', value=275.0)
+        self.check_account(year_id=1, code='702', value=75.0)
 
-    def test_close_year(self):
+    def test_close_year_owner(self):
         add_test_callfunds(False, True)
         add_test_expenses(False, True)
         init_compta()
@@ -895,7 +859,7 @@ class OwnerTest(PaymentTest):
         self.factory.xfer = FiscalYearBegin()
         self.call('/diacamma.accounting/fiscalYearBegin', {'CONFIRME': 'YES', 'year': '1'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.accounting', 'fiscalYearBegin')
-        FiscalYear.objects.create(begin='2016-01-01', end='2016-12-31', status=0)
+        FiscalYear.objects.create(begin='2016-01-01', end='2016-12-31', status=0, last_fiscalyear_id=1)
         for entry in EntryAccount.objects.filter(year_id=1, close=False):
             entry.closed()
 
@@ -904,11 +868,111 @@ class OwnerTest(PaymentTest):
                   {'year': '1', 'type_of_account': '-1'}, False)
         self.assert_observer('core.custom', 'diacamma.accounting', 'fiscalYearClose')
         self.assert_xml_equal('COMPONENTS/LABELFORM[@name="title_condo"]', 'Cet exercice a un résultat non nul égal à 162.66€')
+        self.assert_count_equal('COMPONENTS/SELECT[@name="ventilate"]/CASE', 6)
 
         self.factory.xfer = FiscalYearClose()
         self.call('/diacamma.accounting/fiscalYearClose',
-                  {'year': '1', 'type_of_account': '-1', 'CONFIRME': 'YES', 'ventilate': True}, False)
+                  {'year': '1', 'type_of_account': '-1', 'CONFIRME': 'YES', 'ventilate': 0}, False)
         self.assert_observer('core.acknowledge', 'diacamma.accounting', 'fiscalYearClose')
+
+        self.check_account(year_id=1, code='103', value=0.0)
+        self.check_account(year_id=1, code='120', value=25.0)
+        self.check_account(year_id=1, code='401', value=65.0)
+        self.check_account(year_id=1, code='4501', value=0.0)
+        self.check_account(year_id=1, code='4502', value=0.0)
+        self.check_account(year_id=1, code='450', value=53.16)
+        self.check_account(year_id=1, code='512', value=16.84)
+        self.check_account(year_id=1, code='531', value=20.0)
+        self.check_account(year_id=1, code='602', value=75.0)
+        self.check_account(year_id=1, code='604', value=100.0)
+        self.check_account(year_id=1, code='627', value=12.34)
+        self.check_account(year_id=1, code='702', value=75.0)
+        self.check_account(year_id=1, code='701', value=112.34)
+
+        self.factory.xfer = FiscalYearReportLastYear()
+        self.call('/diacamma.accounting/fiscalYearReportLastYear',
+                  {'CONFIRME': 'YES', 'year': "2", 'type_of_account': '-1'}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.accounting', 'fiscalYearReportLastYear')
+
+        self.check_account(year_id=2, code='103', value=None)
+        self.check_account(year_id=2, code='110', value=None)
+        self.check_account(year_id=2, code='119', value=None)
+        self.check_account(year_id=2, code='120', value=25.0)
+        self.check_account(year_id=1, code='129', value=None)
+        self.check_account(year_id=2, code='401', value=65.0)
+        self.check_account(year_id=2, code='450', value=0.0)
+        self.check_account(year_id=2, code='4501', value=-11.11)
+        self.check_account(year_id=2, code='4502', value=64.27)
+        self.check_account(year_id=2, code='512', value=16.84)
+        self.check_account(year_id=2, code='531', value=20.0)
+        self.check_account(year_id=2, code='602', value=None)
+        self.check_account(year_id=2, code='604', value=None)
+        self.check_account(year_id=2, code='627', value=None)
+        self.check_account(year_id=2, code='701', value=None)
+        self.check_account(year_id=2, code='702', value=None)
+
+    def test_close_year_reserve(self):
+        add_test_callfunds(False, True)
+        add_test_expenses(False, True)
+        init_compta()
+
+        self.factory.xfer = FiscalYearBegin()
+        self.call('/diacamma.accounting/fiscalYearBegin', {'CONFIRME': 'YES', 'year': '1'}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.accounting', 'fiscalYearBegin')
+        FiscalYear.objects.create(begin='2016-01-01', end='2016-12-31', status=0, last_fiscalyear_id=1)
+        for entry in EntryAccount.objects.filter(year_id=1, close=False):
+            entry.closed()
+
+        self.factory.xfer = FiscalYearClose()
+        self.call('/diacamma.accounting/fiscalYearClose',
+                  {'year': '1', 'type_of_account': '-1'}, False)
+        self.assert_observer('core.custom', 'diacamma.accounting', 'fiscalYearClose')
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="title_condo"]', 'Cet exercice a un résultat non nul égal à 162.66€')
+        self.assert_count_equal('COMPONENTS/SELECT[@name="ventilate"]/CASE', 6)
+
+        self.factory.xfer = FiscalYearClose()
+        self.call('/diacamma.accounting/fiscalYearClose',
+                  {'year': '1', 'type_of_account': '-1', 'CONFIRME': 'YES', 'ventilate': '22'}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.accounting', 'fiscalYearClose')
+
+        self.check_account(year_id=1, code='103', value=162.66)
+        self.check_account(year_id=1, code='110', value=0.0)
+        self.check_account(year_id=1, code='119', value=0.0)
+        self.check_account(year_id=1, code='120', value=25.0)
+        self.check_account(year_id=1, code='129', value=None)
+        self.check_account(year_id=1, code='401', value=65.0)
+        self.check_account(year_id=1, code='4501', value=0.0)
+        self.check_account(year_id=1, code='4502', value=0.0)
+        self.check_account(year_id=1, code='450', value=215.82)
+        self.check_account(year_id=1, code='512', value=16.84)
+        self.check_account(year_id=1, code='531', value=20.0)
+        self.check_account(year_id=1, code='602', value=75.0)
+        self.check_account(year_id=1, code='604', value=100.0)
+        self.check_account(year_id=1, code='627', value=12.34)
+        self.check_account(year_id=1, code='702', value=75.0)
+        self.check_account(year_id=1, code='701', value=112.34)
+
+        self.factory.xfer = FiscalYearReportLastYear()
+        self.call('/diacamma.accounting/fiscalYearReportLastYear',
+                  {'CONFIRME': 'YES', 'year': "2", 'type_of_account': '-1'}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.accounting', 'fiscalYearReportLastYear')
+
+        self.check_account(year_id=2, code='103', value=162.66)
+        self.check_account(year_id=2, code='110', value=None)
+        self.check_account(year_id=2, code='119', value=None)
+        self.check_account(year_id=2, code='120', value=25.0)
+        self.check_account(year_id=1, code='129', value=None)
+        self.check_account(year_id=2, code='401', value=65.0)
+        self.check_account(year_id=2, code='450', value=0.0)
+        self.check_account(year_id=2, code='4501', value=151.55)
+        self.check_account(year_id=2, code='4502', value=64.27)
+        self.check_account(year_id=2, code='512', value=16.84)
+        self.check_account(year_id=2, code='531', value=20.0)
+        self.check_account(year_id=2, code='602', value=None)
+        self.check_account(year_id=2, code='604', value=None)
+        self.check_account(year_id=2, code='627', value=None)
+        self.check_account(year_id=2, code='701', value=None)
+        self.check_account(year_id=2, code='702', value=None)
 
 
 class OwnerTestOldAccounting(PaymentTest):
@@ -1019,25 +1083,14 @@ class OwnerTestOldAccounting(PaymentTest):
         self.assert_xml_equal('COMPONENTS/LABELFORM[@name="total_exceptional_payoff"]', "30.00€")
         self.assert_xml_equal('COMPONENTS/LABELFORM[@name="total_exceptional_owner"]', "-15.00€")
 
-        self.assertEqual('{[font color="green"]}Crédit: 25.00€{[/font]}',
-                         ChartsAccount.objects.get(year_id=1, code='120').current_total, '120')
-
-        self.assertEqual('{[font color="green"]}Crédit: 65.00€{[/font]}',
-                         ChartsAccount.objects.get(year_id=1, code='401').current_total, '401')
-        self.assertEqual('{[font color="blue"]}Débit: 151.55€{[/font]}',
-                         ChartsAccount.objects.get(year_id=1, code='4501').current_total, '4501')
-        self.assertEqual('{[font color="blue"]}Débit: 70.00€{[/font]}',
-                         ChartsAccount.objects.get(year_id=1, code='4502').current_total, '4502')
-
-        self.assertEqual('{[font color="blue"]}Débit: 11.11€{[/font]}',
-                         ChartsAccount.objects.get(year_id=1, code='512').current_total, '512')
-        self.assertEqual('{[font color="blue"]}Débit: 20.00€{[/font]}',
-                         ChartsAccount.objects.get(year_id=1, code='531').current_total, '531')
-
-        self.assertEqual('{[font color="green"]}Crédit: 275.00€{[/font]}',
-                         ChartsAccount.objects.get(year_id=1, code='701').current_total, '701')
-        self.assertEqual('{[font color="green"]}Crédit: 75.00€{[/font]}',
-                         ChartsAccount.objects.get(year_id=1, code='702').current_total, '702')
+        self.check_account(year_id=1, code='120', value=25.00)
+        self.check_account(year_id=1, code='401', value=65.00)
+        self.check_account(year_id=1, code='4501', value=151.55)
+        self.check_account(year_id=1, code='4502', value=70.00)
+        self.check_account(year_id=1, code='512', value=11.11)
+        self.check_account(year_id=1, code='531', value=20.00)
+        self.check_account(year_id=1, code='701', value=275.00)
+        self.check_account(year_id=1, code='702', value=75.00)
 
     def test_close_classload(self):
         add_test_callfunds(False, True)

@@ -1,13 +1,10 @@
 code;name
-102;Provisions pour travaux décidés	
+102;Provisions pour travaux décidés
+103;Avances	
 1031;Avances de trésorerie	
 1032;Avances travaux au titre de l'article 18.6e alinéa de la loi susvisée
 1033;Autres avances	
-110;Report à nouveau (créditeur)	
-119;Report à nouveau (débiteur)	
-12;Solde en attente sur travaux et opérations exceptionnelles
-120;Résultat de l'exercice (excédent)	
-129;Résultat de l'exercice (perte)	
+120;Solde en attente sur travaux et opérations exceptionnelles
 131;Subventions accordées en instance de versement	
 401;Fournisseurs - Factures parvenues	
 408;Fournisseurs - Factures non parvenues	
@@ -27,13 +24,13 @@ code;name
 605;Matériel
 606;Fournitures
 611;Nettoyage des locaux
-612;Location immobilières		
+612;Location immobilières
 613;Location mobilières
 614;Contrats de maintenance		
 615;Entretien et petites réparations		
 616;Primes d'assurances		
 621;Rénumération du syndic sur gestion copropriété		
-6213;Frais postaux et télécommunications
+6213;Frais postaux
 622;Autres honoraires du syndic		
 624;Frais du conseil syndical		
 627;Frais des services bancaires

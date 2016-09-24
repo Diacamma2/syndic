@@ -223,14 +223,19 @@ class Set(LucteriosModel):
             close_entry.check_date()
             close_entry.save()
             amount = 0
-            for part in self.partition_set.all():
+            last_line = None
+            for part in self.partition_set.all().order_by('value'):
                 value = currency_round(result * part.get_ratio() / 100.0)
                 if abs(value) > 0.0001:
                     owner_account = part.owner.third.get_account(fiscal_year, part.owner.get_third_mask(type_owner))
-                    EntryLineAccount.objects.create(account=owner_account, amount=-1 * value, entry=close_entry, third=part.owner.third)
-                    amount -= value
+                    last_line = EntryLineAccount.objects.create(account=owner_account, amount=-1 * value, entry=close_entry, third=part.owner.third)
+                    amount += value
+            diff = currency_round(result - amount)
+            if abs(diff) > 0.0001:
+                last_line.amount -= diff
+                last_line.save()
             reserve_account = ChartsAccount.get_account(initial_code, fiscal_year)
-            EntryLineAccount.objects.create(account=reserve_account, amount=amount, entry=close_entry)
+            EntryLineAccount.objects.create(account=reserve_account, amount=-1 * result, entry=close_entry)
             close_entry.closed()
 
     def close(self, type_owner, initial_code, with_ventil):
@@ -1246,6 +1251,40 @@ class ExpenseRatio(LucteriosModel):
         verbose_name_plural = _('details of expense')
         default_permissions = []
         ordering = ['owner__third_id']
+
+
+def ventilate_result(year, ventilate):
+    result = year.total_revenue - year.total_expense
+    if abs(result) > 0.001:
+        total_part = PropertyLot.get_total_part()
+        if total_part > 0:
+            close_entry = EntryAccount(year=year, designation=_("Ventilation for %s") % year, journal_id=5)
+            close_entry.check_date()
+            close_entry.save()
+            if ventilate == 0:
+                amount = 0
+                biggerowner_val = 0
+                biggerowner_line = None
+                for owner in Owner.objects.all():
+                    total = owner.propertylot_set.aggregate(sum=Sum('value'))
+                    if ('sum' in total.keys()) and (total['sum'] is not None):
+                        value = currency_round(result * total['sum'] / total_part)
+                        if abs(value) > 0.0001:
+                            owner_account = owner.third.get_account(year, owner.get_third_mask(1))
+                            last_line = EntryLineAccount.objects.create(account=owner_account, amount=-1 * value, entry=close_entry, third=owner.third)
+                            if biggerowner_val < total['sum']:
+                                biggerowner_val = total['sum']
+                                biggerowner_line = last_line
+                            amount += value
+                diff = currency_round(result - amount)
+                if abs(diff) > 0.0001:
+                    biggerowner_line.amount -= diff
+                    biggerowner_line.save()
+            else:
+                EntryLineAccount.objects.create(account_id=ventilate, amount=result, entry=close_entry)
+            reserve_account = ChartsAccount.get_account(Params.getvalue("condominium-current-revenue-account"), year)
+            EntryLineAccount.objects.create(account=reserve_account, amount=-1 * result, entry=close_entry)
+            close_entry.closed()
 
 
 def convert_accounting(year, thirds_convert):
