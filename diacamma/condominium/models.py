@@ -549,7 +549,7 @@ class Owner(Supporting):
 
     @property
     def total_current_regularization(self):
-        return format_devise(self.get_total_payed() - self.get_total_current_ventilated(), 5)
+        return format_devise(self.get_total_call() - self.get_total_current_ventilated(), 5)
 
     @property
     def total_exceptional_call(self):

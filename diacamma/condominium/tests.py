@@ -775,7 +775,7 @@ class OwnerTest(PaymentTest):
         self.assert_xml_equal(
             'COMPONENTS/LABELFORM[@name="total_current_ventilated"]', "75.00€")
         self.assert_xml_equal(
-            'COMPONENTS/LABELFORM[@name="total_current_regularization"]', "25.00€")
+            'COMPONENTS/LABELFORM[@name="total_current_regularization"]', "56.25€")
         self.assert_xml_equal('COMPONENTS/LABELFORM[@name="total_extra"]', "-5.55€")
 
         self.assert_count_equal('COMPONENTS/GRID[@name="exceptionnal"]/RECORD', 1)
@@ -1068,7 +1068,7 @@ class OwnerTestOldAccounting(PaymentTest):
         self.assert_xml_equal(
             'COMPONENTS/LABELFORM[@name="total_current_ventilated"]', "75.00€")
         self.assert_xml_equal(
-            'COMPONENTS/LABELFORM[@name="total_current_regularization"]', "25.00€")
+            'COMPONENTS/LABELFORM[@name="total_current_regularization"]', "56.25€")
         self.assert_xml_equal('COMPONENTS/LABELFORM[@name="total_extra"]', "-5.55€")
 
         self.assert_count_equal('COMPONENTS/GRID[@name="exceptionnal"]/RECORD', 1)
