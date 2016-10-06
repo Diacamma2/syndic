@@ -394,14 +394,14 @@ class Owner(Supporting):
                        "exceptionnal_set.value", (_("ratio"), 'exceptionnal_set.ratio'), (_('ventilated'), 'exceptionnal_set.ventilated_txt')])
         fields.extend(['propertylot_set.num', 'propertylot_set.value', 'propertylot_set.ratio', 'propertylot_set.description'])
         fields.extend(['payoff_set'])
-        fields.extend([((_('current total call for funds'), 'total_current_call'), (_('current total payoff'), 'total_current_payoff')),
-                       ((_('current initial state'), 'total_current_initial'), (_('current total ventilated'), 'total_current_ventilated')),
-                       ((_('estimated regularization'), 'total_current_regularization'), (_('extra revenus/expenses'), 'total_extra')),
-                       ((_('current total owner'), 'total_current_owner'), )])
-        fields.extend([((_('exceptional initial state'), 'total_exceptional_initial'),),
-                       ((_('exceptional total call for funds'), 'total_exceptional_call'),),
-                       ((_('exceptional total payoff'), 'total_exceptional_payoff'),),
-                       ((_('exceptional total owner'), 'total_exceptional_owner'), )])
+        fields.extend([(_('current total call for funds'), 'total_current_call'), (_('current total payoff'), 'total_current_payoff'),
+                       (_('current initial state'), 'total_current_initial'), (_('current total ventilated'), 'total_current_ventilated'),
+                       (_('estimated regularization'), 'total_current_regularization'), (_('extra revenus/expenses'), 'total_extra'),
+                       (_('current total owner'), 'total_current_owner')])
+        fields.extend([(_('exceptional initial state'), 'total_exceptional_initial'),
+                       (_('exceptional total call for funds'), 'total_exceptional_call'),
+                       (_('exceptional total payoff'), 'total_exceptional_payoff'),
+                       (_('exceptional total owner'), 'total_exceptional_owner')])
         return fields
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):

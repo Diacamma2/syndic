@@ -63,114 +63,156 @@ value = """
 {[b]}%(info)s{[/b]}: #information
 </text>
 
-<table height="70.0" width="105.0" top="45.0" left="40.0" padding="1.0" spacing="0.0" border_color="black" border_style="" border_width="0.2">
-    <columns width="80.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="right" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
+<text height="10.0" width="75.0" top="45.0" left="00.0" padding="1.0" spacing="0.0" border_color="black" border_style="" border_width="0.2" text_align="left" line_height="11" font_family="sans-serif" font_weight="" font_size="11">
+{[b]}%(current)s{[/b]}
+</text>
+<table height="40.0" width="75.0" top="55.0" left="00.0" padding="1.0" spacing="0.0" border_color="black" border_style="" border_width="0.2">
+    <columns width="50.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="right" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
     </columns>
     <columns width="25.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="right" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
     {[i]}%(value)s{[/i]}
     </columns>
     <rows>
-        <cell border_color="black" border_style="" border_width="0.2" text_align="right" line_height="11" font_family="sans-serif" font_weight="" font_size="11">
-        {[b]}%(total_call)s{[/b]}
+        <cell border_color="black" border_style="" border_width="0.2" text_align="right" line_height="11" font_family="sans-serif" font_weight="" font_size="10">
+        {[b]}%(total_current_initial)s{[/b]}
         </cell>
-        <cell border_color="black" border_style="" border_width="0.2" text_align="right" line_height="11" font_family="sans-serif" font_weight="" font_size="11">
-        #total_call{[br/]}
-        </cell>
-    </rows>
-    <rows>
-        <cell border_color="black" border_style="" border_width="0.2" text_align="right" line_height="11" font_family="sans-serif" font_weight="" font_size="11">
-        {[b]}%(total_estimate)s{[/b]}
-        </cell>
-        <cell border_color="black" border_style="" border_width="0.2" text_align="right" line_height="11" font_family="sans-serif" font_weight="" font_size="11">
-        #total_estimate
+        <cell border_color="black" border_style="" border_width="0.2" text_align="right" line_height="11" font_family="sans-serif" font_weight="" font_size="10">
+        #total_current_initial
         </cell>
     </rows>
     <rows>
-        <cell border_color="black" border_style="" border_width="0.2" text_align="right" line_height="11" font_family="sans-serif" font_weight="" font_size="11">
-        {[b]}%(total_initial)s{[/b]}
+        <cell border_color="black" border_style="" border_width="0.2" text_align="right" line_height="11" font_family="sans-serif" font_weight="" font_size="10">
+        {[b]}%(total_current_call)s{[/b]}
         </cell>
-        <cell border_color="black" border_style="" border_width="0.2" text_align="right" line_height="11" font_family="sans-serif" font_weight="" font_size="11">
-        #total_initial
-        </cell>
-    </rows>
-    <rows>
-        <cell border_color="black" border_style="" border_width="0.2" text_align="right" line_height="11" font_family="sans-serif" font_weight="" font_size="11">
-        {[b]}%(total_ventilated)s{[/b]}
-        </cell>
-        <cell border_color="black" border_style="" border_width="0.2" text_align="right" line_height="11" font_family="sans-serif" font_weight="" font_size="11">
-        #total_ventilated
+        <cell border_color="black" border_style="" border_width="0.2" text_align="right" line_height="11" font_family="sans-serif" font_weight="" font_size="10">
+        #total_current_call{[br/]}
         </cell>
     </rows>
     <rows>
-        <cell border_color="black" border_style="" border_width="0.2" text_align="right" line_height="11" font_family="sans-serif" font_weight="" font_size="11">
-        {[b]}%(total_payed)s{[/b]}
+        <cell border_color="black" border_style="" border_width="0.2" text_align="right" line_height="11" font_family="sans-serif" font_weight="" font_size="10">
+        {[b]}%(total_current_payoff)s{[/b]}
         </cell>
-        <cell border_color="black" border_style="" border_width="0.2" text_align="right" line_height="11" font_family="sans-serif" font_weight="" font_size="11">
-        #total_payed
+        <cell border_color="black" border_style="" border_width="0.2" text_align="right" line_height="11" font_family="sans-serif" font_weight="" font_size="10">
+        #total_current_payoff
         </cell>
     </rows>
     <rows>
-        <cell border_color="black" border_style="" border_width="0.2" text_align="right" line_height="11" font_family="sans-serif" font_weight="" font_size="11">
-        {[b]}%(total_real)s{[/b]}
+        <cell border_color="black" border_style="" border_width="0.2" text_align="right" line_height="11" font_family="sans-serif" font_weight="" font_size="10">
+        {[b]}%(total_current_owner)s{[/b]}
         </cell>
-        <cell border_color="black" border_style="" border_width="0.2" text_align="right" line_height="11" font_family="sans-serif" font_weight="" font_size="11">
-        #total_real
+        <cell border_color="black" border_style="" border_width="0.2" text_align="right" line_height="11" font_family="sans-serif" font_weight="" font_size="10">
+        #total_current_owner
+        </cell>
+    </rows>
+    <rows>
+        <cell border_color="black" border_style="" border_width="0.2" text_align="right" line_height="11" font_family="sans-serif" font_weight="" font_size="10">
+        {[b]}%(total_current_regularization)s{[/b]}
+        </cell>
+        <cell border_color="black" border_style="" border_width="0.2" text_align="right" line_height="11" font_family="sans-serif" font_weight="" font_size="10">
+        #total_current_regularization
+        </cell>
+    </rows>
+    <rows>
+        <cell border_color="black" border_style="" border_width="0.2" text_align="right" line_height="11" font_family="sans-serif" font_weight="" font_size="10">
+        {[b]}%(total_current_ventilated)s{[/b]}
+        </cell>
+        <cell border_color="black" border_style="" border_width="0.2" text_align="right" line_height="11" font_family="sans-serif" font_weight="" font_size="10">
+        #total_current_ventilated
         </cell>
     </rows>
 </table>
 
-<text height="10.0" width="100.0" top="115.0" left="25.0" padding="1.0" spacing="0.0" border_color="black" border_style="" border_width="0.2" text_align="left" line_height="11" font_family="sans-serif" font_weight="" font_size="11">
-{[b]}%(call of funds)s{[/b]}
+<text height="10.0" width="75.0" top="45.0" left="100.0" padding="1.0" spacing="0.0" border_color="black" border_style="" border_width="0.2" text_align="left" line_height="11" font_family="sans-serif" font_weight="" font_size="11">
+{[b]}%(exceptional)s{[/b]}
 </text>
-<table height="20.0" width="150.0" top="125.0" left="20.0" padding="1.0" spacing="0.1" border_color="black" border_style="" border_width="0.2">
-    <columns width="10.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
-    {[b]}%(num)s{[/b]}
+<table height="40.0" width="75.0" top="55.0" left="100.0" padding="1.0" spacing="0.0" border_color="black" border_style="" border_width="0.2">
+    <columns width="50.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="right" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
     </columns>
-    <columns width="25.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
-    {[b]}%(date)s{[/b]}
+    <columns width="25.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="right" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
+    {[i]}%(value)s{[/i]}
     </columns>
-    <columns width="90.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
-    {[b]}%(comment)s{[/b]}
-    </columns>
-    <columns width="25.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
-    {[b]}%(total)s{[/b]}
-    </columns>
-    <rows data="callfunds_set">
-        <cell display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="start" line_height="7" font_family="sans-serif" font_weight="" font_size="7">
-#num
+    <rows>
+        <cell border_color="black" border_style="" border_width="0.2" text_align="right" line_height="11" font_family="sans-serif" font_weight="" font_size="10">
+        {[b]}%(total_exceptional_initial)s{[/b]}
         </cell>
-        <cell display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="start" line_height="7" font_family="sans-serif" font_weight="" font_size="7">
-#date
+        <cell border_color="black" border_style="" border_width="0.2" text_align="right" line_height="11" font_family="sans-serif" font_weight="" font_size="10">
+        #total_exceptional_initial
         </cell>
-        <cell display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="start" line_height="7" font_family="sans-serif" font_weight="" font_size="7">
-#comment
+    </rows>
+    <rows>
+        <cell border_color="black" border_style="" border_width="0.2" text_align="right" line_height="11" font_family="sans-serif" font_weight="" font_size="10">
+        {[b]}%(total_exceptional_call)s{[/b]}
         </cell>
-        <cell display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="start" line_height="7" font_family="sans-serif" font_weight="" font_size="7">
-#total
+        <cell border_color="black" border_style="" border_width="0.2" text_align="right" line_height="11" font_family="sans-serif" font_weight="" font_size="10">
+        #total_exceptional_call{[br/]}
+        </cell>
+    </rows>
+    <rows>
+        <cell border_color="black" border_style="" border_width="0.2" text_align="right" line_height="11" font_family="sans-serif" font_weight="" font_size="10">
+        {[b]}%(total_exceptional_payoff)s{[/b]}
+        </cell>
+        <cell border_color="black" border_style="" border_width="0.2" text_align="right" line_height="11" font_family="sans-serif" font_weight="" font_size="10">
+        #total_exceptional_payoff
+        </cell>
+    </rows>
+    <rows>
+        <cell border_color="black" border_style="" border_width="0.2" text_align="right" line_height="11" font_family="sans-serif" font_weight="" font_size="10">
+        {[b]}%(total_exceptional_owner)s{[/b]}
+        </cell>
+        <cell border_color="black" border_style="" border_width="0.2" text_align="right" line_height="11" font_family="sans-serif" font_weight="" font_size="10">
+        #total_exceptional_owner
         </cell>
     </rows>
 </table>
-
-<text height="10.0" width="100.0" top="145.0" left="25.0" padding="1.0" spacing="1.0" border_color="black" border_style="" border_width="0.2" text_align="left" line_height="11" font_family="sans-serif" font_weight="" font_size="11">
-{[b]}%(partition)s{[/b]}
-</text>
-<table height="20.0" width="150.0" top="155.0" left="20.0" padding="1.0" spacing="0.1" border_color="black" border_style="" border_width="0.2">
-    <columns width="50.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
+<table height="40.0" width="76.0" top="100.0" left="100.0" padding="1.0" spacing="0.0" border_color="black" border_style="" border_width="0.2">
+    <columns width="30.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
     {[b]}%(set)s{[/b]}
     </columns>
-    <columns width="20.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
-    {[b]}%(budget)s{[/b]}
-    </columns>
-    <columns width="20.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
-    {[b]}%(expense)s{[/b]}
-    </columns>
-    <columns width="20.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
-    {[b]}%(value)s{[/b]}
-    </columns>
-    <columns width="20.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
+    <columns width="12.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
     {[b]}%(ratio)s{[/b]}
     </columns>
-    <columns width="20.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
+    <columns width="17.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
+    {[b]}%(total_callfunds)s{[/b]}
+    </columns>
+    <columns width="17.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
+    {[b]}%(ventilated)s{[/b]}
+    </columns>
+    <rows data="exceptionnal_set">
+        <cell display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="start" line_height="7" font_family="sans-serif" font_weight="" font_size="7">
+#set
+        </cell>
+        <cell display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="start" line_height="7" font_family="sans-serif" font_weight="" font_size="7">
+#ratio
+        </cell>
+        <cell display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="start" line_height="7" font_family="sans-serif" font_weight="" font_size="7">
+#total_callfunds
+        </cell>
+        <cell display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="start" line_height="7" font_family="sans-serif" font_weight="" font_size="7">
+#ventilated_txt
+        </cell>
+    </rows>
+</table>
+
+<text height="10.0" width="110.0" top="120.0" left="00.0" padding="1.0" spacing="0.0" border_color="black" border_style="" border_width="0.2" text_align="left" line_height="11" font_family="sans-serif" font_weight="" font_size="11">
+{[b]}%(partition)s{[/b]}
+</text>
+<table height="50.0" width="110.0" top="130.0" left="00.0" padding="1.0" spacing="0.0" border_color="black" border_style="" border_width="0.2">
+    <columns width="30.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
+    {[b]}%(set)s{[/b]}
+    </columns>
+    <columns width="17.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
+    {[b]}%(budget)s{[/b]}
+    </columns>
+    <columns width="17.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
+    {[b]}%(expense)s{[/b]}
+    </columns>
+    <columns width="17.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
+    {[b]}%(value)s{[/b]}
+    </columns>
+    <columns width="12.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
+    {[b]}%(ratio)s{[/b]}
+    </columns>
+    <columns width="17.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
     {[b]}%(ventilated)s{[/b]}
     </columns>
     <rows data="partition_set">
@@ -195,10 +237,80 @@ value = """
     </rows>
 </table>
 
-<text height="10.0" width="100.0" top="175.0" left="25.0" padding="1.0" spacing="1.0" border_color="black" border_style="" border_width="0.2" text_align="left" line_height="11" font_family="sans-serif" font_weight="" font_size="11">
+<text height="10.0" width="70.0" top="120.0" left="120.0" padding="1.0" spacing="0.0" border_color="black" border_style="" border_width="0.2" text_align="left" line_height="11" font_family="sans-serif" font_weight="" font_size="11">
+{[b]}%(property)s{[/b]}
+</text>
+<table height="30.0" width="70.0" top="130.0" left="120.0" padding="1.0" spacing="0.0" border_color="black" border_style="" border_width="0.2">
+    <columns width="10.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
+    {[b]}%(num)s{[/b]}
+    </columns>
+    <columns width="15.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
+    {[b]}%(value)s{[/b]}
+    </columns>
+    <columns width="12.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
+    {[b]}%(ratio)s{[/b]}
+    </columns>
+    <columns width="33.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
+    {[b]}%(description)s{[/b]}
+    </columns>
+    <rows data="propertylot_set">
+        <cell display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="start" line_height="7" font_family="sans-serif" font_weight="" font_size="7">
+#num
+        </cell>
+        <cell display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="start" line_height="7" font_family="sans-serif" font_weight="" font_size="7">
+#value
+        </cell>
+        <cell display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="start" line_height="7" font_family="sans-serif" font_weight="" font_size="7">
+#ratio
+        </cell>
+        <cell display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="start" line_height="7" font_family="sans-serif" font_weight="" font_size="7">
+#description
+        </cell>
+    </rows>
+</table>
+
+<text height="10.0" width="175.0" top="150.0" left="10.0" padding="1.0" spacing="0.0" border_color="black" border_style="" border_width="0.2" text_align="left" line_height="11" font_family="sans-serif" font_weight="" font_size="11">
+{[b]}%(call of funds)s{[/b]}
+</text>
+<table height="20.0" width="175.0" top="160.0" left="10.0" padding="1.0" spacing="0.1" border_color="black" border_style="" border_width="0.2">
+    <columns width="10.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
+    {[b]}%(num)s{[/b]}
+    </columns>
+    <columns width="25.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
+    {[b]}%(date)s{[/b]}
+    </columns>
+    <columns width="90.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
+    {[b]}%(comment)s{[/b]}
+    </columns>
+    <columns width="25.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
+    {[b]}%(total)s{[/b]}
+    </columns>
+    <columns width="25.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
+    {[b]}%(rest_to_pay)s{[/b]}
+    </columns>
+    <rows data="callfunds_set">
+        <cell display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="start" line_height="7" font_family="sans-serif" font_weight="" font_size="7">
+#num
+        </cell>
+        <cell display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="start" line_height="7" font_family="sans-serif" font_weight="" font_size="7">
+#date
+        </cell>
+        <cell display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="start" line_height="7" font_family="sans-serif" font_weight="" font_size="7">
+#comment
+        </cell>
+        <cell display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="start" line_height="7" font_family="sans-serif" font_weight="" font_size="7">
+#total
+        </cell>
+        <cell display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="start" line_height="7" font_family="sans-serif" font_weight="" font_size="7">
+#supporting.total_rest_topay
+        </cell>
+    </rows>
+</table>
+
+<text height="10.0" width="150.0" top="180.0" left="20.0" padding="1.0" spacing="1.0" border_color="black" border_style="" border_width="0.2" text_align="left" line_height="11" font_family="sans-serif" font_weight="" font_size="11">
 {[b]}%(payoff)s{[/b]}
 </text>
-<table height="20.0" width="150.0" top="185.0" left="20.0" padding="1.0" spacing="0.1" border_color="black" border_style="" border_width="0.2">
+<table height="20.0" width="150.0" top="190.0" left="20.0" padding="1.0" spacing="0.1" border_color="black" border_style="" border_width="0.2">
     <columns width="25.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
     {[b]}%(date)s{[/b]}
     </columns>
@@ -239,9 +351,22 @@ value = """
     </rows>
 </table>
 
-
 </body>
 </model>""" % {'title': _('Owner situation'), 'info': _('information'), 'call of funds': _('call of funds'), 'num': _('numeros'), 'date': _('date'), 'comment': _('comment'), 'total': _('total'),
-               'partition': _('partition'), 'set': _('set'), 'budget': _('budget'), 'expense': _('expense'), 'value': _('value'), 'ratio': _('ratio'), 'ventilated': _('ventilated'),
+               'exceptional': _('exceptional'), 'current': _('current'),
+               'partition': _('partition'), 'set': _('set'), 'budget': _('budget'), 'expense': _('expense'), 'value': _('value'), 'ratio': _('ratio'),
+               'ventilated': _('ventilated'), 'total_callfunds': _('total call for funds'), 'rest_to_pay': _('rest to pay'),
+               'property': _('property lot'), 'num': _('numeros'), 'value': _('value'), 'ratio': _("ratio"), 'description': _('description'),
                'payoff': _('payoff'), 'amount': _('amount'), 'payer': _('payer'), 'mode': _('mode'), 'bank_account': _('bank account'), 'reference': _('reference'),
-               'total_call': _('total call for funds'), 'total_estimate': _('total estimate'), 'total_initial': _('initial state'), 'total_ventilated': _('total ventilated'), 'total_payed': _('total payed'), 'total_real': _('total real')}
+               'total_current_initial': _('current initial state'),
+               'total_current_call': _('current total call for funds'),
+               'total_current_payoff': _('current total payoff'),
+               'total_current_regularization': _('estimated regularization'),
+               'total_current_ventilated': _('current total ventilated'),
+               'total_current_owner': _('current total owner'),
+
+               'total_exceptional_initial': _('exceptional initial state'),
+               'total_exceptional_call': _('exceptional total call for funds'),
+               'total_exceptional_payoff': _('exceptional total payoff'),
+               'total_exceptional_owner': _('exceptional total owner'),
+               }

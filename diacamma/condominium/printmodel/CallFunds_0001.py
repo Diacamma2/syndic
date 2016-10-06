@@ -89,7 +89,7 @@ value = """
 <text height="20.0" width="100.0" top="190.0" left="0.0" padding="1.0" spacing="0.0" border_color="black" border_style="" border_width="0.2" text_align="left" line_height="9" font_family="sans-serif" font_weight="" font_size="9">
 #comment
 </text>
-<text height="5.0" width="60.0" top="215.0" left="20.0" padding="1.0" spacing="0.0" border_color="black" border_style="" border_width="0.2" text_align="center" line_height="9" font_family="sans-serif" font_weight="" font_size="9">
+<text height="5.0" width="130.0" top="215.0" left="00.0" padding="1.0" spacing="0.0" border_color="black" border_style="" border_width="0.2" text_align="center" line_height="9" font_family="sans-serif" font_weight="" font_size="9">
 {[u]}{[i]}%(situation)s{[/i]}{[/u]}
 </text>
 <text height="15.0" width="50.0" top="220.0" left="00.0" padding="1.0" spacing="0.0" border_color="black" border_style="" border_width="0.2" text_align="right" line_height="9" font_family="sans-serif" font_weight="" font_size="9">
@@ -99,11 +99,25 @@ value = """
 {[i]}%(total_estimate)s{[/i]}{[br/]}
 </text>
 <text height="15.0" width="15.0" top="220.0" left="50.0" padding="1.0" spacing="0.0" border_color="black" border_style="" border_width="0.2" text_align="right" line_height="9" font_family="sans-serif" font_weight="" font_size="9">
-#owner.total_initial{[br/]}
-#owner.total_call{[br/]}
-#owner.total_payed{[br/]}
-#owner.total_estimate{[br/]}
+#owner.total_current_initial{[br/]}
+#owner.total_current_call{[br/]}
+#owner.total_current_payoff{[br/]}
+#owner.total_current_owner{[br/]}
 </text>
+
+<text height="15.0" width="60.0" top="220.0" left="70.0" padding="1.0" spacing="0.0" border_color="black" border_style="" border_width="0.2" text_align="right" line_height="9" font_family="sans-serif" font_weight="" font_size="9">
+{[i]}%(total_excep_initial)s{[/i]}{[br/]}
+{[i]}%(total_excep_call)s{[/i]}{[br/]}
+{[i]}%(total_excep_payed)s{[/i]}{[br/]}
+{[i]}%(total_excep_estimate)s{[/i]}{[br/]}
+</text>
+<text height="15.0" width="15.0" top="220.0" left="130.0" padding="1.0" spacing="0.0" border_color="black" border_style="" border_width="0.2" text_align="right" line_height="9" font_family="sans-serif" font_weight="" font_size="9">
+#owner.total_exceptional_initial{[br/]}
+#owner.total_exceptional_call{[br/]}
+#owner.total_exceptional_payoff{[br/]}
+#owner.total_exceptional_owner{[br/]}
+</text>
+
 </body>
 </model>
 """ % {
@@ -112,9 +126,13 @@ value = """
         'designation': _('designation'),
         'price': _('price'),
         'situation': _('situation at #owner.date_current'),
-        'total_initial': _('initial state'),
-        'total_call': _('total call for funds'),
-        'total_payed': _('total payed'),
-        'total_estimate': _('total estimate'),
+        'total_initial': _('current initial state'),
+        'total_call': _('current total call for funds'),
+        'total_payed': _('current total payoff'),
+        'total_estimate': _('current total owner'),
+        'total_excep_initial': _('exceptional initial state'),
+        'total_excep_call': _('exceptional total call for funds'),
+        'total_excep_payed': _('exceptional total payoff'),
+        'total_excep_estimate': _('exceptional total owner'),
         'total': _('total'),
 }
