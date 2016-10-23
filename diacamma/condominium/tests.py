@@ -91,12 +91,11 @@ class SetOwnerTest(LucteriosTest):
         self.call('/diacamma.condominium/setAddModify', {}, False)
         self.assert_observer(
             'core.custom', 'diacamma.condominium', 'setAddModify')
-        self.assert_count_equal('COMPONENTS/*', 11)
-        self.assert_xml_equal('COMPONENTS/EDIT[@name="revenue_account"]/REG_EXPR', r'^7[0-9][0-9][0-9a-zA-Z]*$')
+        self.assert_count_equal('COMPONENTS/*', 7)
 
         self.factory.xfer = SetAddModify()
         self.call('/diacamma.condominium/setAddModify',
-                  {'SAVE': 'YES', "name": "abc123", "budget": '1200', "revenue_account": '704', 'type_load': 1}, False)
+                  {'SAVE': 'YES', "name": "abc123", "revenue_account": '704', 'type_load': 1}, False)
         self.assert_observer(
             'core.acknowledge', 'diacamma.condominium', 'setAddModify')
 
@@ -109,7 +108,7 @@ class SetOwnerTest(LucteriosTest):
         self.assert_xml_equal(
             'COMPONENTS/GRID[@name="set"]/RECORD[1]/VALUE[@name="name"]', 'abc123')
         self.assert_xml_equal(
-            'COMPONENTS/GRID[@name="set"]/RECORD[1]/VALUE[@name="budget_txt"]', '1200.00€')
+            'COMPONENTS/GRID[@name="set"]/RECORD[1]/VALUE[@name="budget_txt"]', '0.00€')
         self.assert_xml_equal(
             'COMPONENTS/GRID[@name="set"]/RECORD[1]/VALUE[@name="type_load"]', 'charge exceptionnelle')
         self.assert_xml_equal(
@@ -356,7 +355,7 @@ class SetOwnerTest(LucteriosTest):
 
         self.factory.xfer = SetAddModify()
         self.call('/diacamma.condominium/setAddModify',
-                  {'SAVE': 'YES', "name": "AAA", "budget": '1000', "revenue_account": '704', 'cost_accounting': 2}, False)
+                  {'SAVE': 'YES', "name": "AAA"}, False)
         self.assert_observer(
             'core.acknowledge', 'diacamma.condominium', 'setAddModify')
         self.factory.xfer = OwnerAdd()
@@ -366,7 +365,7 @@ class SetOwnerTest(LucteriosTest):
             'core.acknowledge', 'diacamma.condominium', 'ownerAddModify')
         self.factory.xfer = SetAddModify()
         self.call('/diacamma.condominium/setAddModify',
-                  {'SAVE': 'YES', "name": "BBB", "budget": '200', "revenue_account": '705', 'cost_accounting': 0}, False)
+                  {'SAVE': 'YES', "name": "BBB"}, False)
         self.assert_observer(
             'core.acknowledge', 'diacamma.condominium', 'setAddModify')
         self.factory.xfer = OwnerAdd()
@@ -394,7 +393,7 @@ class SetOwnerTest(LucteriosTest):
         self.assert_xml_equal(
             'COMPONENTS/GRID[@name="set"]/RECORD[1]/VALUE[@name="name"]', 'AAA')
         self.assert_xml_equal(
-            'COMPONENTS/GRID[@name="set"]/RECORD[1]/VALUE[@name="budget_txt"]', '1000.00€')
+            'COMPONENTS/GRID[@name="set"]/RECORD[1]/VALUE[@name="budget_txt"]', '0.00€')
         self.assert_xml_equal(
             'COMPONENTS/GRID[@name="set"]/RECORD[1]/VALUE[@name="type_load"]', 'charge courante')
         self.assert_xml_equal(
@@ -404,7 +403,7 @@ class SetOwnerTest(LucteriosTest):
         self.assert_xml_equal(
             'COMPONENTS/GRID[@name="set"]/RECORD[2]/VALUE[@name="name"]', 'BBB')
         self.assert_xml_equal(
-            'COMPONENTS/GRID[@name="set"]/RECORD[2]/VALUE[@name="budget_txt"]', '200.00€')
+            'COMPONENTS/GRID[@name="set"]/RECORD[2]/VALUE[@name="budget_txt"]', '0.00€')
         self.assert_xml_equal(
             'COMPONENTS/GRID[@name="set"]/RECORD[2]/VALUE[@name="type_load"]', 'charge courante')
         self.assert_xml_equal(

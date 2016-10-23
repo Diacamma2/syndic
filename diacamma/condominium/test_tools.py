@@ -63,13 +63,16 @@ def default_setowner(with_lots=True):
 
     set1 = Set.objects.create(
         name="AAA", budget=1000, revenue_account='701', is_link_to_lots=with_lots, type_load=0, cost_accounting_id=2)
+    set1.convert_budget()
     set2 = Set.objects.create(
         name="BBB", budget=100, revenue_account='701', type_load=0, cost_accounting_id=0)
+    set2.convert_budget()
     set3 = Set.objects.create(
         name="CCC", budget=500, revenue_account='702', type_load=1, cost_accounting_id=0)
+    set3.convert_budget()
     set4 = Set.objects.create(
         name="OLD", budget=100, revenue_account='702', type_load=1, cost_accounting_id=0, is_active=False)
-
+    set4.convert_budget()
     if with_lots:
         set1.set_of_lots = PropertyLot.objects.all()
         set1.save()

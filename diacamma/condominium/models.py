@@ -31,21 +31,21 @@ from django.db.models.aggregates import Sum, Max
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.utils.translation import ugettext_lazy as _
 from django.utils import six, formats
+from django.core.exceptions import ObjectDoesNotExist
+from django_fsm import FSMIntegerField, transition
 
 from lucterios.framework.models import LucteriosModel, get_value_converted
 from lucterios.framework.error import LucteriosException, IMPORTANT, GRAVE
 from lucterios.framework.tools import convert_date
 from lucterios.framework.signal_and_lock import Signal
 from lucterios.CORE.models import Parameter
+from lucterios.CORE.parameters import Params
 
 from diacamma.accounting.models import CostAccounting, EntryAccount, Journal,\
-    ChartsAccount, EntryLineAccount, FiscalYear
+    ChartsAccount, EntryLineAccount, FiscalYear, Budget
 from diacamma.accounting.tools import format_devise, currency_round,\
     current_system_account, get_amount_sum, correct_accounting_code
 from diacamma.payoff.models import Supporting, Payoff
-from django_fsm import FSMIntegerField, transition
-from lucterios.CORE.parameters import Params
-from django.core.exceptions import ObjectDoesNotExist
 
 
 class Set(LucteriosModel):
@@ -95,7 +95,10 @@ class Set(LucteriosModel):
 
     @classmethod
     def get_edit_fields(cls):
-        return ["name", "budget", "type_load", 'is_link_to_lots', "revenue_account"]
+        fields = ["name", "type_load", 'is_link_to_lots']
+        if Params.getvalue("condominium-old-accounting"):
+            fields.append("revenue_account")
+        return fields
 
     @classmethod
     def get_show_fields(cls):
@@ -124,13 +127,13 @@ class Set(LucteriosModel):
                 cost = new_set_cost.cost_accounting
         return cost
 
-    def create_new_cost(self):
+    def create_new_cost(self, year=None):
         if self.type_load == 1:
             year = None
             cost_accounting_name = self.name
             last_cost = None
         else:
-            year = FiscalYear.get_current()
+            year = FiscalYear.get_current(year)
             if year.begin.year == year.end.year:
                 cost_accounting_name = "%s %s" % (self.name, year.begin.year)
             else:
@@ -161,7 +164,32 @@ class Set(LucteriosModel):
 
     @property
     def budget_txt(self):
-        return format_devise(self.budget, 5)
+        return format_devise(self.get_current_budget(), 5)
+
+    def get_current_budget(self):
+        if self.type_load == 1:
+            account = Params.getvalue("condominium-exceptional-revenue-account")
+            costs = self.setcost_set.all()
+        else:
+            account = Params.getvalue("condominium-current-revenue-account")
+            costs = self.setcost_set.filter(year=FiscalYear.get_current())
+        revenue = 0
+        if len(costs) == 1:
+            cost = costs[0].cost_accounting
+            for budget in Budget.objects.filter(cost_accounting=cost, code=account):
+                revenue += budget.amount
+        return revenue
+
+    def convert_budget(self):
+        if self.type_load == 1:
+            account = Params.getvalue("condominium-exceptional-revenue-account")
+            year = None
+        else:
+            account = Params.getvalue("condominium-current-revenue-account")
+            year = FiscalYear.get_current()
+        cost = self.current_cost_accounting
+        Budget.objects.create(cost_accounting=cost, year=year, code='601', amount=-1 * self.budget)
+        Budget.objects.create(cost_accounting=cost, year=year, code=account, amount=self.budget)
 
     @property
     def total_part(self):
@@ -1367,3 +1395,6 @@ def condominium_checkparam():
         Parameter.change_value('condominium-old-accounting', len(Owner.objects.all()) != 0)
         for current_set in Set.objects.all():
             current_set.convert_cost()
+    for setitem in Set.objects.filter(is_active=True):
+        if len(setitem.budget_set.all()) == 0:
+            setitem.convert_budget()

@@ -32,13 +32,11 @@ from lucterios.framework.xferadvance import XferListEditor, TITLE_MODIFY, TITLE_
 from lucterios.framework.xferadvance import XferAddEditor
 from lucterios.framework.xferadvance import XferShowEditor
 from lucterios.framework.xferadvance import XferDelete
-from lucterios.framework.tools import ActionsManage, MenuManage, WrapAction,\
-    FORMTYPE_REFRESH
-from lucterios.framework.tools import FORMTYPE_NOMODAL, FORMTYPE_MODAL, CLOSE_NO, CLOSE_YES, SELECT_SINGLE, SELECT_MULTI
-from lucterios.framework.xfercomponents import XferCompButton, XferCompImage,\
-    XferCompLabelForm, XferCompCheck
-from lucterios.framework.xfergraphic import XferContainerCustom,\
-    XferContainerAcknowledge
+from lucterios.framework.tools import ActionsManage, MenuManage, WrapAction, FORMTYPE_REFRESH,\
+    CLOSE_NO, SELECT_SINGLE
+from lucterios.framework.tools import FORMTYPE_NOMODAL, FORMTYPE_MODAL, CLOSE_YES, SELECT_MULTI
+from lucterios.framework.xfercomponents import XferCompButton, XferCompImage, XferCompLabelForm, XferCompCheck
+from lucterios.framework.xfergraphic import XferContainerCustom, XferContainerAcknowledge
 from lucterios.framework import signal_and_lock
 from lucterios.CORE.models import Parameter
 from lucterios.CORE.parameters import Params
@@ -46,9 +44,10 @@ from lucterios.CORE.views import ParamEdit
 from lucterios.CORE.xferprint import XferPrintAction
 
 from diacamma.accounting.tools import correct_accounting_code
-from diacamma.condominium.models import Set, Partition, ExpenseDetail, Owner,\
-    PropertyLot
-from diacamma.accounting.models import CostAccounting
+from diacamma.accounting.models import CostAccounting, FiscalYear, Budget
+from diacamma.accounting.views_budget import BudgetList
+
+from diacamma.condominium.models import Set, Partition, ExpenseDetail, Owner, PropertyLot, SetCost
 
 
 def fill_params(self, is_mini=False, new_params=False):
@@ -103,6 +102,8 @@ class SetList(XferListEditor):
         chk.set_location(1, self.get_max_row())
         chk.set_action(self.request, self.get_action(), close=CLOSE_NO, modal=FORMTYPE_REFRESH)
         self.add_component(chk)
+        grid = self.get_components("set")
+        grid.add_action(self.request, ClassCategoryBudget.get_action(), close=CLOSE_NO, unique=SELECT_SINGLE)
 
 
 @ActionsManage.affect_list(TITLE_PRINT, "images/print.png", close=CLOSE_NO)
@@ -135,6 +136,10 @@ class SetShow(XferShowEditor):
     model = Set
     field_id = 'set'
     caption = _("Show class load")
+
+    def fillresponse(self):
+        XferShowEditor.fillresponse(self)
+        self.add_action(ClassCategoryBudget.get_action(), pos_act=0, close=CLOSE_NO)
 
 
 @ActionsManage.affect_grid(TITLE_DELETE, "images/delete.png", unique=SELECT_MULTI)
@@ -234,6 +239,13 @@ class SetListCost(XferListEditor):
     caption = _("Costs accounting of a class load")
 
     def fillresponse(self):
+        current_year = FiscalYear.get_current()
+        if self.item.type_load == 0:
+            for year_item in FiscalYear.objects.filter(begin__gte=current_year.begin):
+                costs = self.item.setcost_set.filter(year=year_item)
+                if len(costs) == 0:
+                    self.item.create_new_cost(year=year_item.id)
+
         img = XferCompImage('img')
         img.set_value(self.icon_path())
         img.set_location(0, 0)
@@ -251,7 +263,51 @@ class SetListCost(XferListEditor):
             if grid_action[0].icon_path.endswith('images/print.png'):
                 new_actions.append(grid_action)
         grid.actions = new_actions
+        grid.add_action(self.request, ClassCategoryBudget.get_action(), close=CLOSE_NO, unique=SELECT_SINGLE)
         self.add_action(WrapAction(TITLE_CLOSE, 'images/close.png'))
+
+
+@MenuManage.describ('accounting.change_budget')
+class ClassCategoryBudget(XferContainerAcknowledge):
+    icon = "diacamma.accounting/images/account.png"
+    model = CostAccounting
+    field_id = 'costaccounting'
+    caption = _("Budget")
+
+    def fillresponse(self):
+        if (self.item.id is None) and (self.getparam('set') is not None):
+            set_item = Set.objects.get(id=self.getparam('set', 0))
+            self.item = set_item.current_cost_accounting
+        params = {'cost_accounting': self.item.id, 'readonly': (self.item.status == 1)}
+        set_costs = SetCost.objects.filter(cost_accounting=self.item)
+        if (len(set_costs) == 1) and (set_costs[0].year_id is not None):
+            params['year'] = set_costs[0].year_id
+        self.redirect_action(BudgetList.get_action(), close=CLOSE_YES, params=params)
+
+
+@signal_and_lock.Signal.decorate('editbudget')
+def editbudget_condo(xfer):
+    if xfer.getparam('set') is not None:
+        cost = xfer.getparam('cost_accounting')
+        if cost is not None:
+            cost_item = CostAccounting.objects.get(id=cost)
+            if cost_item.status == 0:
+                year = None
+                set_costs = SetCost.objects.filter(cost_accounting=cost_item)
+                if len(set_costs) == 1:
+                    year = set_costs[0].year_id
+                set_item = Set.objects.get(id=xfer.getparam('set', 0))
+                if set_item.type_load == 1:
+                    account = Params.getvalue("condominium-exceptional-revenue-account")
+                else:
+                    account = Params.getvalue("condominium-current-revenue-account")
+                for budget in Budget.objects.filter(cost_accounting_id=cost, code=account):
+                    budget.delete()
+                revenue = -1 * Budget.get_total(year=None, cost=cost)
+                Budget.objects.create(cost_accounting_id=cost, code=account, year_id=year, amount=revenue)
+    if xfer.getparam('type_of_account') is not None:
+        xfer.params['readonly'] = True
+    return
 
 
 @signal_and_lock.Signal.decorate('compte_no_found')

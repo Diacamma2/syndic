@@ -43,9 +43,9 @@ from diacamma.condominium.models import Set, CallDetail, CallFundsSupporting,\
 class SetEditor(LucteriosEditor):
 
     def edit(self, xfer):
-        currency_decimal = Params.getvalue("accounting-devise-prec")
-        xfer.get_components('budget').prec = currency_decimal
-        xfer.get_components('revenue_account').mask = current_system_account().get_revenue_mask()
+        revenue_account = xfer.get_components('revenue_account')
+        if revenue_account is not None:
+            revenue_account.mask = current_system_account().get_revenue_mask()
 
     def show(self, xfer):
         partition = xfer.get_components('partition')
@@ -168,7 +168,7 @@ class CallDetailEditor(LucteriosEditor):
         set_comp.get_reponse_xml()
         current_set = Set.objects.get(id=set_comp.value)
         if current_set.type_load == 0:
-            xfer.get_components('price').value = current_set.budget / 4
+            xfer.get_components('price').value = current_set.get_current_budget() / 4
         elif current_set.type_load == 1:
             already_called = 0
             call_details = CallDetail.objects.filter(set_id=set_comp.value)
@@ -176,7 +176,7 @@ class CallDetailEditor(LucteriosEditor):
                 call_details = call_details.exclude(id=self.item.id)
             for detail in call_details:
                 already_called += detail.price
-            xfer.get_components('price').value = current_set.budget - already_called
+            xfer.get_components('price').value = max(0, float(current_set.get_current_budget()) - float(already_called))
 
 
 class ExpenseEditor(SupportingEditor):
