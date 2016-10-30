@@ -1395,6 +1395,9 @@ def condominium_checkparam():
         Parameter.change_value('condominium-old-accounting', len(Owner.objects.all()) != 0)
         for current_set in Set.objects.all():
             current_set.convert_cost()
-    for setitem in Set.objects.filter(is_active=True):
-        if len(setitem.budget_set.all()) == 0:
-            setitem.convert_budget()
+    try:
+        for setitem in Set.objects.filter(is_active=True):
+            if len(setitem.budget_set.all()) == 0:
+                setitem.convert_budget()
+    except AttributeError:
+        pass
