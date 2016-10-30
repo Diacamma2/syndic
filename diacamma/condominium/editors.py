@@ -163,7 +163,7 @@ class CallDetailEditor(LucteriosEditor):
             type_load = 0
         set_list = Set.objects.filter(is_active=True, type_load=type_load)
         if len(set_list) == 0:
-            raise LucteriosException(IMPORTANT, _('No category of class defined!'))
+            raise LucteriosException(IMPORTANT, _('No category of charge defined!'))
         set_comp.set_select_query(set_list)
         set_comp.set_action(xfer.request, xfer.get_action(), close=CLOSE_NO, modal=FORMTYPE_REFRESH)
         xfer.get_components('price').prec = Params.getvalue("accounting-devise-prec")

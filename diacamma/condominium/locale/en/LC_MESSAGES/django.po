@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-10-23 16:37+0000\n"
+"POT-Creation-Date: 2016-10-30 11:49+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -22,13 +22,17 @@ msgstr ""
 msgid "Diacamma condominium"
 msgstr "Diacamma condominium"
 
-#: editors.py:77
+#: editors.py:76
 msgid "third"
 msgstr "third"
 
-#: editors.py:109
+#: editors.py:108
 msgid "current class loads"
 msgstr "current class loads"
+
+#: editors.py:166
+msgid "No category of charge defined!"
+msgstr "No category of charge defined!"
 
 #: models.py:52
 msgid "name"
@@ -187,7 +191,8 @@ msgid "004@callfunds"
 msgstr "004@Call of funds"
 
 #: models.py:417 models.py:808 models.py:852 models.py:860 models.py:1009
-#: models.py:1023 printmodel/CallFunds_0001.py:137 printmodel/Owner_0001.py:355
+#: models.py:1023 printmodel/CallFunds_0001.py:137
+#: printmodel/Owner_0001.py:355
 msgid "total"
 msgstr "total"
 
