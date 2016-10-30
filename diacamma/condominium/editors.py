@@ -30,14 +30,13 @@ from django.utils import six
 from lucterios.framework.editors import LucteriosEditor
 from lucterios.framework.xfercomponents import XferCompButton, XferCompLabelForm, XferCompSelect
 from lucterios.framework.tools import ActionsManage, FORMTYPE_MODAL, CLOSE_NO, SELECT_SINGLE, FORMTYPE_REFRESH
+from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.CORE.parameters import Params
 
-from diacamma.accounting.tools import current_system_account,\
-    correct_accounting_code
-from diacamma.accounting.models import Third, AccountThird, FiscalYear, CostAccounting
+from diacamma.accounting.tools import current_system_account, correct_accounting_code
+from diacamma.accounting.models import Third, AccountThird, FiscalYear
 from diacamma.payoff.editors import SupportingEditor
-from diacamma.condominium.models import Set, CallDetail, CallFundsSupporting,\
-    Owner
+from diacamma.condominium.models import Set, CallDetail, CallFundsSupporting, Owner
 
 
 class SetEditor(LucteriosEditor):
@@ -162,7 +161,10 @@ class CallDetailEditor(LucteriosEditor):
             type_load = 1
         else:
             type_load = 0
-        set_comp.set_select_query(Set.objects.filter(is_active=True, type_load=type_load))
+        set_list = Set.objects.filter(is_active=True, type_load=type_load)
+        if len(set_list) == 0:
+            raise LucteriosException(IMPORTANT, _('No category of class defined!'))
+        set_comp.set_select_query(set_list)
         set_comp.set_action(xfer.request, xfer.get_action(), close=CLOSE_NO, modal=FORMTYPE_REFRESH)
         xfer.get_components('price').prec = Params.getvalue("accounting-devise-prec")
         set_comp.get_reponse_xml()
