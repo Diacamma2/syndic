@@ -133,7 +133,8 @@ class Set(LucteriosModel):
             cost_accounting_name = self.name
             last_cost = None
         else:
-            year = FiscalYear.get_current(year)
+            if isinstance(year, int):
+                year = FiscalYear.get_current(year)
             if year.begin.year == year.end.year:
                 cost_accounting_name = "%s %s" % (self.name, year.begin.year)
             else:
