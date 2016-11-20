@@ -18,7 +18,7 @@ from lucterios.CORE.xferprint import XferPrintReporting
 from diacamma.condominium.models import CallFunds, CallDetail
 
 
-@MenuManage.describ('condominium.change_callfunds', FORMTYPE_NOMODAL, 'condominium', _('Manage of calls of funds'))
+@MenuManage.describ('condominium.change_callfunds', FORMTYPE_NOMODAL, 'condominium.manage', _('Manage of calls of funds'))
 class CallFundsList(XferListEditor):
     icon = "callfunds.png"
     model = CallFunds

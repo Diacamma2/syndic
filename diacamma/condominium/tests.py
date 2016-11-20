@@ -43,7 +43,11 @@ from diacamma.payoff.views import PayableShow, PayableEmail
 
 from diacamma.condominium.views_classload import SetList, SetAddModify, SetDel, SetShow, PartitionAddModify, CondominiumConf, SetClose
 from diacamma.condominium.views import OwnerAndPropertyLotList, OwnerAdd, OwnerDel, OwnerShow, PropertyLotAddModify, CondominiumConvert
-from diacamma.condominium.test_tools import default_setowner, add_test_callfunds, old_accounting, add_test_expenses, init_compta
+from diacamma.condominium.test_tools import default_setowner, add_test_callfunds, old_accounting, add_test_expenses, init_compta,\
+    add_years
+from diacamma.condominium.views_report import FinancialStatus,\
+    GeneralManageAccounting, CurrentManageAccounting,\
+    ExceptionalManageAccounting
 
 
 class SetOwnerTest(LucteriosTest):
@@ -545,6 +549,40 @@ class SetOwnerTest(LucteriosTest):
         self.assert_count_equal('COMPONENTS/GRID[@name="set"]/RECORD', 1)
         self.assert_xml_equal(
             'COMPONENTS/GRID[@name="set"]/RECORD[1]/VALUE[@name="partition_set"]', "Minimum : 16.7 %{[br/]}Dalton William : 33.3 %{[br/]}Dalton Joe : 50.0 %")
+
+
+class ReportTest(PaymentTest):
+
+    def setUp(self):
+        self.xfer_class = XferContainerAcknowledge
+        initial_thirds()
+        LucteriosTest.setUp(self)
+        default_compta()
+        default_costaccounting()
+        default_bankaccount()
+        default_setowner()
+        rmtree(get_user_dir(), True)
+        add_years()
+
+    def test_financial(self):
+        self.factory.xfer = FinancialStatus()
+        self.call('/diacamma.condominium/financialStatus', {'year': 1}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'financialStatus')
+
+    def test_general(self):
+        self.factory.xfer = GeneralManageAccounting()
+        self.call('/diacamma.condominium/generalManageAccounting', {'year': 1}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'generalManageAccounting')
+
+    def test_current(self):
+        self.factory.xfer = CurrentManageAccounting()
+        self.call('/diacamma.condominium/currentManageAccounting', {'year': 1}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'currentManageAccounting')
+
+    def test_exceptionnal(self):
+        self.factory.xfer = ExceptionalManageAccounting()
+        self.call('/diacamma.condominium/exceptionalManageAccounting', {'year': 1}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'exceptionalManageAccounting')
 
 
 class OwnerTest(PaymentTest):

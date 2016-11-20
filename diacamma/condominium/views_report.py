@@ -26,20 +26,23 @@ from __future__ import unicode_literals
 
 from django.utils.translation import ugettext_lazy as _
 from django.db.models import Q
+from django.utils import six
 
-from lucterios.framework.tools import MenuManage, FORMTYPE_NOMODAL, convert_date,\
-    CLOSE_NO, FORMTYPE_REFRESH, WrapAction
+from lucterios.framework.tools import MenuManage, FORMTYPE_NOMODAL, convert_date, CLOSE_NO, FORMTYPE_REFRESH, WrapAction
 from lucterios.framework.xfergraphic import XferContainerCustom
-from lucterios.framework.xfercomponents import XferCompImage, XferCompSelect,\
-    XferCompGrid, XferCompLabelForm
-from lucterios.framework.xferadvance import TITLE_CLOSE
+from lucterios.framework.xfercomponents import XferCompImage, XferCompSelect, XferCompGrid, XferCompLabelForm
+from lucterios.framework.xferadvance import TITLE_CLOSE, TITLE_PRINT
+from lucterios.CORE.parameters import Params
 
 from diacamma.accounting.models import FiscalYear, EntryAccount
-from diacamma.accounting.views_reports import convert_query_to_account, get_spaces
+from diacamma.accounting.views_reports import convert_query_to_account, get_spaces,\
+    FiscalYearReportPrint
 from diacamma.accounting.tools import current_system_account, format_devise
 from diacamma.condominium.models import Set
-from django.utils import six
-from lucterios.CORE.parameters import Params
+
+
+MenuManage.add_sub("condominium.print", "condominium", "diacamma.condominium/images/report.png",
+                   _("Report"), _("Report of condominium"), 20)
 
 
 class CondominiumReport(XferContainerCustom):
@@ -66,7 +69,7 @@ class CondominiumReport(XferContainerCustom):
             self.item.end = new_end
         img = XferCompImage('img')
         img.set_value(self.icon_path())
-        img.set_location(0, 0, 1, 3)
+        img.set_location(0, 0, 1, 5)
         self.add_component(img)
 
         if self.item.last_fiscalyear is not None:
@@ -99,12 +102,14 @@ class CondominiumReport(XferContainerCustom):
         pass
 
     def fill_buttons(self):
+        self.add_action(FiscalYearReportPrint.get_action(TITLE_PRINT, "images/print.png"),
+                        close=CLOSE_NO, params={"modulename": __name__, 'classname': self.__class__.__name__})
         self.add_action(WrapAction(TITLE_CLOSE, 'images/close.png'))
 
 
-@MenuManage.describ('condominium.change_owner', FORMTYPE_NOMODAL, 'condominium', _('Show financial status report'))
+@MenuManage.describ('condominium.change_owner', FORMTYPE_NOMODAL, 'condominium.print', _('Show financial status report'))
 class FinancialStatus(CondominiumReport):
-    icon = "owner.png"
+    icon = "report.png"
     caption = _("Financial status")
 
     def define_gridheader(self):
@@ -255,9 +260,9 @@ class ManageAccounting(CondominiumReport):
         return line_idx, total1, total2, totalb
 
 
-@MenuManage.describ('condominium.change_owner', FORMTYPE_NOMODAL, 'condominium', _('Show General manage accounting report'))
+@MenuManage.describ('condominium.change_owner', FORMTYPE_NOMODAL, 'condominium.print', _('Show General manage accounting report'))
 class GeneralManageAccounting(ManageAccounting):
-    icon = "owner.png"
+    icon = "report.png"
     caption = _("General manage accounting")
 
     def fill_body(self):
@@ -281,18 +286,18 @@ class GeneralManageAccounting(ManageAccounting):
         self.next_year = None
         self.next_year_again = None
         current_query = Q(entry__costaccounting__setcost__set__type_load=1) & Q(entry__costaccounting__setcost__set__is_active=True)
-        query_budget = Q(code__regex=current_system_account().get_expence_mask()) & Q(cost_accounting__setcost__set__type_load=1) & Q(cost_accounting__setcost__set__is_active=True)
+        query_budget = Q(year=self.item) & Q(code__regex=current_system_account().get_expence_mask()) & Q(cost_accounting__setcost__set__type_load=1) & Q(cost_accounting__setcost__set__is_active=True)
         budget_query = [query_budget]
         line__except_dep, _total1_except_dep, _total2_except_dep, _totalb_except_dep = self.fill_part_of_grid(Q(account__type_of_account=4) & current_query, budget_query, line__current_rec + 1, _('Exceptional depency'))
 
-        query_budget = Q(code__regex=current_system_account().get_revenue_mask()) & Q(cost_accounting__setcost__set__type_load=1) & Q(cost_accounting__setcost__set__is_active=True)
+        query_budget = Q(year=self.item) & Q(code__regex=current_system_account().get_revenue_mask()) & Q(cost_accounting__setcost__set__type_load=1) & Q(cost_accounting__setcost__set__is_active=True)
         budget_query = [query_budget]
         _line__except_rec, _total1_except_rec, _total2_except_rec, _totalb_except_rec = self.fill_part_of_grid(Q(account__type_of_account=3) & current_query, budget_query, line__except_dep + 1, _('Exceptional revenue'))
 
 
-@MenuManage.describ('condominium.change_owner', FORMTYPE_NOMODAL, 'condominium', _('Show Current manage accounting report'))
+@MenuManage.describ('condominium.change_owner', FORMTYPE_NOMODAL, 'condominium.print', _('Show Current manage accounting report'))
 class CurrentManageAccounting(ManageAccounting):
-    icon = "owner.png"
+    icon = "report.png"
     caption = _("Current manage accounting")
 
     def fill_body(self):
@@ -336,25 +341,39 @@ class CurrentManageAccounting(ManageAccounting):
             self.grid.set_value(line_idx, 'budget_n2', "{[b]}%s{[/b]}" % format_devise(totalb[2], 5))
 
 
-@MenuManage.describ('condominium.change_owner', FORMTYPE_NOMODAL, 'condominium', _('Show Exeptional manage accounting report'))
-class ExeptionalManageAccounting(ManageAccounting):
-    icon = "owner.png"
-    caption = _("Exeptional manage accounting")
+@MenuManage.describ('condominium.change_owner', FORMTYPE_NOMODAL, 'condominium.print', _('Show Exeptional manage accounting report'))
+class ExceptionalManageAccounting(ManageAccounting):
+    icon = "report.png"
+    caption = _("Exceptional manage accounting")
+
+    def fill_header(self):
+        CondominiumReport.fill_header(self)
+        self.remove_component('lblyear_1')
+        self.remove_component('year_1')
+        self.next_year = None
+        self.next_year_again = None
+        self.item.last_fiscalyear = None
+
+    def define_gridheader(self):
+        ManageAccounting.define_gridheader(self)
+        self.grid.add_header('calloffund', _('call of funds'))
+        self.grid.add_header('result', _('result general'))
 
     def fill_body(self):
         line_idx = 0
         total1 = 0
         total2 = 0
-        self.next_year = None
-        self.next_year_again = None
         totalb = [0]
         revenue_account = Params.getvalue("condominium-exceptional-revenue-account")
-        for classloaditem in Set.objects.filter(type_load=0, is_active=True):
+        for classloaditem in Set.objects.filter(type_load=1, is_active=True):
             current_request = Q(account__code__regex=current_system_account().get_expence_mask())
             current_request |= Q(account__code__regex=current_system_account().get_revenue_mask()) & ~Q(account__code=revenue_account)
             current_request &= Q(entry__costaccounting__setcost__set=classloaditem)
-            query_budget = [~Q(code=revenue_account) & Q(cost_accounting=classloaditem.setcost_set.filter(year=self.item).first().cost_accounting)]
+            query_budget = [~Q(code=revenue_account) & Q(cost_accounting=classloaditem.current_cost_accounting) & Q(year=self.item)]
             line__current_dep, subtotal1, subtotal2, subtotalb = self.fill_part_of_grid(current_request, query_budget, line_idx, six.text_type(classloaditem), sign_value=False)
+            total_call = classloaditem.get_total_calloffund(self.item)
+            self.grid.set_value(line__current_dep - 1, 'calloffund', "{[u]}%s{[/u]}" % format_devise(total_call, 5))
+            self.grid.set_value(line__current_dep - 1, 'result', "{[u]}%s{[/u]}" % format_devise(total_call - subtotal1, 5))
             line_idx = line__current_dep + 1
             total1 += subtotal1
             total2 += subtotal2
@@ -362,5 +381,3 @@ class ExeptionalManageAccounting(ManageAccounting):
         self.grid.set_value(line_idx, 'design', get_spaces(5) + "{[b]}%s{[/b]}" % _('total'))
         self.grid.set_value(line_idx, 'year_n', "{[b]}%s{[/b]}" % format_devise(total1, 5))
         self.grid.set_value(line_idx, 'budget_n', "{[b]}%s{[/b]}" % format_devise(totalb[0], 5))
-        if self.item.last_fiscalyear is not None:
-            self.grid.set_value(line_idx, 'year_n_1', "{[b]}%s{[/b]}" % format_devise(total2, 5))

@@ -145,3 +145,12 @@ def init_compta():
                   '-1|2|0|29.180000|None|\n-2|17|4|-23.450000|None|\n-3|18|4|-5.730000|None|', True)
     add_entry(year.id, 5, '2015-02-20', 'Frais bancaire',
               '-1|2|0|-12.340000|None|\n-2|15|0|12.340000|None|', True)
+
+
+def add_years():
+    year_N_1 = FiscalYear.objects.create(begin='2014-01-01', end='2014-12-31', status=2)
+    year = FiscalYear.get_current()
+    year.last_fiscalyear = year_N_1
+    year.save()
+    year_N1 = FiscalYear.objects.create(begin='2016-01-01', end='2016-12-31', status=0, last_fiscalyear=year)
+    FiscalYear.objects.create(begin='2017-01-01', end='2017-12-31', status=0, last_fiscalyear=year_N1)

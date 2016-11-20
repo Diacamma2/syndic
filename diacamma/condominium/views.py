@@ -28,7 +28,7 @@ from diacamma.condominium.models import PropertyLot, Owner, Set, SetCost, conver
 from diacamma.condominium.views_classload import fill_params
 
 
-@MenuManage.describ('condominium.change_set', FORMTYPE_NOMODAL, 'condominium', _('Manage of owners and property lots'))
+@MenuManage.describ('condominium.change_set', FORMTYPE_NOMODAL, 'condominium.manage', _('Manage of owners and property lots'))
 class OwnerAndPropertyLotList(XferListEditor):
     icon = "owner.png"
     model = Owner

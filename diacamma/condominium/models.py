@@ -133,7 +133,7 @@ class Set(LucteriosModel):
             cost_accounting_name = self.name
             last_cost = None
         else:
-            if isinstance(year, int):
+            if isinstance(year, int) or (year is None):
                 year = FiscalYear.get_current(year)
             if year.begin.year == year.end.year:
                 cost_accounting_name = "%s %s" % (self.name, year.begin.year)
@@ -183,14 +183,25 @@ class Set(LucteriosModel):
 
     def convert_budget(self):
         if self.type_load == 1:
-            account = Params.getvalue("condominium-exceptional-revenue-account")
             year = None
         else:
-            account = Params.getvalue("condominium-current-revenue-account")
             year = FiscalYear.get_current()
         cost = self.current_cost_accounting
-        Budget.objects.create(cost_accounting=cost, year=year, code='601', amount=-1 * self.budget)
-        Budget.objects.create(cost_accounting=cost, year=year, code=account, amount=self.budget)
+        Budget.objects.create(cost_accounting=cost, year=year, code='601', amount=self.budget)
+        self.change_budget_product(cost)
+
+    def change_budget_product(self, cost_item, year=None):
+        set_costs = SetCost.objects.filter(cost_accounting=cost_item)
+        if (year is None) and (len(set_costs) == 1):
+            year = set_costs[0].year_id
+        if self.type_load == 1:
+            account = Params.getvalue("condominium-exceptional-revenue-account")
+        else:
+            account = Params.getvalue("condominium-current-revenue-account")
+        for budget in Budget.objects.filter(cost_accounting=cost_item, code=account, year_id=year):
+            budget.delete()
+        revenue = -1 * Budget.get_total(year=year, cost=cost_item.id)
+        Budget.objects.create(cost_accounting=cost_item, code=account, year_id=year, amount=revenue)
 
     @property
     def total_part(self):
@@ -278,6 +289,12 @@ class Set(LucteriosModel):
             set_cost.cost_accounting.close()
         self.is_active = False
         self.save()
+
+    def get_total_calloffund(self, year):
+        value = 0
+        for calldetail in CallDetail.objects.filter(set=self, callfunds__date__gte=year.begin, callfunds__date__lte=year.end):
+            value += currency_round(calldetail.price)
+        return value
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         self.revenue_account = correct_accounting_code(self.revenue_account)

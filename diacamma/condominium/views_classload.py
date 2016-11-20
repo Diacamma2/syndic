@@ -35,7 +35,8 @@ from lucterios.framework.xferadvance import XferDelete
 from lucterios.framework.tools import ActionsManage, MenuManage, WrapAction, FORMTYPE_REFRESH,\
     CLOSE_NO, SELECT_SINGLE
 from lucterios.framework.tools import FORMTYPE_NOMODAL, FORMTYPE_MODAL, CLOSE_YES, SELECT_MULTI
-from lucterios.framework.xfercomponents import XferCompButton, XferCompImage, XferCompLabelForm, XferCompCheck
+from lucterios.framework.xfercomponents import XferCompButton, XferCompImage, XferCompLabelForm, XferCompCheck,\
+    XferCompSelect
 from lucterios.framework.xfergraphic import XferContainerCustom, XferContainerAcknowledge
 from lucterios.framework import signal_and_lock
 from lucterios.CORE.models import Parameter
@@ -44,10 +45,11 @@ from lucterios.CORE.views import ParamEdit
 from lucterios.CORE.xferprint import XferPrintAction
 
 from diacamma.accounting.tools import correct_accounting_code
-from diacamma.accounting.models import CostAccounting, FiscalYear, Budget
+from diacamma.accounting.models import CostAccounting, FiscalYear
 from diacamma.accounting.views_budget import BudgetList
 
 from diacamma.condominium.models import Set, Partition, ExpenseDetail, Owner, PropertyLot, SetCost
+from django.utils import six
 
 
 def fill_params(self, is_mini=False, new_params=False):
@@ -76,11 +78,15 @@ class CondominiumConf(XferContainerCustom):
         fill_params(self)
 
 
-MenuManage.add_sub("condominium", "core.general", "diacamma.condominium/images/condominium.png",
-                   _("condominium"), _("Manage of condominium"), 30)
+MenuManage.add_sub("condominium", None, "diacamma.condominium/images/condominium.png",
+                   _("condominium"), _("Manage of condominium"), 20)
 
 
-@MenuManage.describ('condominium.change_set', FORMTYPE_NOMODAL, 'condominium', _('Manage of class loads'))
+MenuManage.add_sub("condominium.manage", "condominium", "diacamma.condominium/images/condominium.png",
+                   _("Manage"), _("Manage of condominium"), 10)
+
+
+@MenuManage.describ('condominium.change_set', FORMTYPE_NOMODAL, 'condominium.manage', _('Manage of class loads'))
 class SetList(XferListEditor):
     icon = "set.png"
     model = Set
@@ -291,22 +297,33 @@ def editbudget_condo(xfer):
         cost = xfer.getparam('cost_accounting')
         if cost is not None:
             cost_item = CostAccounting.objects.get(id=cost)
-            if cost_item.status == 0:
-                year = None
-                set_costs = SetCost.objects.filter(cost_accounting=cost_item)
-                if len(set_costs) == 1:
-                    year = set_costs[0].year_id
-                set_item = Set.objects.get(id=xfer.getparam('set', 0))
-                if set_item.type_load == 1:
-                    account = Params.getvalue("condominium-exceptional-revenue-account")
+            set_item = Set.objects.get(id=xfer.getparam('set', 0))
+            year = None
+            if set_item.type_load == 1:
+                title_cost = xfer.get_components('title_cost')
+                xfer.remove_component('title_year')
+                lbl = XferCompLabelForm('lblyear')
+                lbl.set_location(1, title_cost.row - 1)
+                lbl.set_value_as_name(_('year'))
+                xfer.add_component(lbl)
+                year = xfer.getparam('year', 0)
+                select_year = XferCompSelect('year')
+                select_year.set_location(2, title_cost.row - 1)
+                select_year.set_select_query(FiscalYear.objects.all())
+                select_year.set_value(year)
+                select_year.set_needed(False)
+                select_year.set_action(xfer.request, xfer.__class__.get_action(), close=CLOSE_NO, modal=FORMTYPE_REFRESH)
+                xfer.add_component(select_year)
+                if year != 0:
+                    current_year = FiscalYear.get_current(year)
+                    xfer.params['readonly'] = six.text_type(current_year.status == 2)
                 else:
-                    account = Params.getvalue("condominium-current-revenue-account")
-                for budget in Budget.objects.filter(cost_accounting_id=cost, code=account):
-                    budget.delete()
-                revenue = -1 * Budget.get_total(year=None, cost=cost)
-                Budget.objects.create(cost_accounting_id=cost, code=account, year_id=year, amount=revenue)
+                    year = None
+                    xfer.params['readonly'] = 'True'
+            if (cost_item.status == 0) and not xfer.getparam('readonly', False):
+                set_item.change_budget_product(cost_item, year)
     if xfer.getparam('type_of_account') is not None:
-        xfer.params['readonly'] = True
+        xfer.params['readonly'] = 'True'
     return
 
 

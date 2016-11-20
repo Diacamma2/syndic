@@ -18,7 +18,7 @@ from diacamma.accounting.models import FiscalYear
 from diacamma.condominium.views_classload import SetShow
 
 
-@MenuManage.describ('condominium.change_expense', FORMTYPE_NOMODAL, 'condominium', _('Manage of expenses'))
+@MenuManage.describ('condominium.change_expense', FORMTYPE_NOMODAL, 'condominium.manage', _('Manage of expenses'))
 class ExpenseList(XferListEditor):
     icon = "expense.png"
     model = Expense
