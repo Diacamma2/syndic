@@ -182,13 +182,10 @@ class Set(LucteriosModel):
         return revenue
 
     def convert_budget(self):
-        if self.type_load == 1:
-            year = None
-        else:
-            year = FiscalYear.get_current()
+        year = FiscalYear.get_current()
         cost = self.current_cost_accounting
-        Budget.objects.create(cost_accounting=cost, year=year, code='601', amount=self.budget)
-        self.change_budget_product(cost)
+        Budget.objects.create(cost_accounting=cost, year=year, code='600', amount=self.budget)
+        self.change_budget_product(cost, year.id)
 
     def change_budget_product(self, cost_item, year=None):
         set_costs = SetCost.objects.filter(cost_accounting=cost_item)
@@ -201,7 +198,8 @@ class Set(LucteriosModel):
         for budget in Budget.objects.filter(cost_accounting=cost_item, code=account, year_id=year):
             budget.delete()
         revenue = -1 * Budget.get_total(year=year, cost=cost_item.id)
-        Budget.objects.create(cost_accounting=cost_item, code=account, year_id=year, amount=revenue)
+        if abs(revenue) > 0.0001:
+            Budget.objects.create(cost_accounting=cost_item, code=account, year_id=year, amount=revenue)
 
     @property
     def total_part(self):
@@ -1413,9 +1411,10 @@ def condominium_checkparam():
         Parameter.change_value('condominium-old-accounting', len(Owner.objects.all()) != 0)
         for current_set in Set.objects.all():
             current_set.convert_cost()
-    try:
-        for setitem in Set.objects.filter(is_active=True):
-            if len(setitem.budget_set.all()) == 0:
-                setitem.convert_budget()
-    except AttributeError:
-        pass
+    set_list = Set.objects.filter(is_active=True)
+    for setitem in set_list:
+        if len(setitem.current_cost_accounting.budget_set.all()) == 0:
+            setitem.convert_budget()
+    for budget_item in Budget.objects.filter(year__isnull=True):
+        budget_item.year = FiscalYear.get_current()
+        budget_item.save()

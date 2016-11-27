@@ -166,7 +166,7 @@ class FinancialStatus(CondominiumReport):
             except IndexError:
                 last_ids.append(0)
         current_filter = Q(account__type_of_account__in=(0, 1)) & ~Q(account__code__regex=current_system_account().get_cash_mask())
-        current_filter &= (Q(entry__year__status=0) | ~(Q(entry__journal=5) & Q(entry__id__in=tuple(last_ids))))
+        current_filter &= (~Q(entry__year__status=2) | ~(Q(entry__journal=5) & Q(entry__id__in=tuple(last_ids))))
         line__creance, total1_creance, total2_creance = self.fill_part_of_grid('left', current_filter, line_idx + 2, _('Créance'), sign_value=-1, with_third=True)
         line__dette, total1_dette, total2_dette = self.fill_part_of_grid('right', current_filter, line_idx + 2, _('Dettes'), sign_value=1, with_third=True)
         line_idx = max(line__creance, line__dette)
