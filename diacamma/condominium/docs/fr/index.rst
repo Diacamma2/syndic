@@ -9,9 +9,11 @@ Sommaire:
 .. toctree::
    :maxdepth: 2
 
-   sets.rst
+   owners.rst
+   classloads.rst
    call_of_funds.rst
    payoff.rst
    expense.rst
+   report.rst
 
 

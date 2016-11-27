@@ -28,6 +28,7 @@ Création de votre premier exercice comptable
 --------------------------------------------
 
 	Menu *Administration/Modules (conf.)/Configuration comptables*
+
 	Menu *Finance/Comptabilité/plan comptable*
 
 Ouvrer votre premier exercice comptable et rendez le actifs.
@@ -40,17 +41,21 @@ Réglage de votre copropriété
 
 Vérifiez que ces paramètres correspondent à votre utilisation.
 
-Définition des ensembles, des lots et des tantièmes
----------------------------------------------------
+Définition des catégories de charges, des lots et des tantièmes
+---------------------------------------------------------------
 
-	Menu *Général/Copropriété/Les ensembles et les copropriétaires*
+	Menu *Copropriété/Les propriétaires et les lots*
 
-Ajoutez vos ensembles de lots à votre copropriété, vos copropriétaires et définisez pour chaque ensemble la cote part de chaque propriétaire.
+	Menu *Copropriété/Les catégories de charges*
+
+Déclarez vos copropriétaires ainsi que les lots de votre copropriétés.
+Ajoutez vos catégories de charges et définisez pour chacunes les cotes parts ou les lots associés.
 
 Mise à jours comptable
 ----------------------
 
 	Menu *Finance/Comptabilité/écritures comptable*
+
 	Menu *Finance/Comptabilité/Modèle d'écriture*
 
 Si vous mettez en place *Diacamma Syndic* au cours de votre exercice, vous devrez également saisir votre report à nouveau de l'exercice précédent ainsi que ressaisir les écritures du début d'année.
@@ -70,7 +75,9 @@ Les responsables
 ----------------
 
 	Menu *Général/Nos coordonnées*
+
 	Menu *Administration/Modules (conf.)/Configuration des contacts*
+
 	Menu *Association/Adhérents/Adhérents cotisants*
 
 Dans la fenêtre de vos coordonnées, vous pouvez associé des personnes comme résponsable de votre structure comme les copropriétaire membre du conseil d'administration.
@@ -85,6 +92,7 @@ La gestions documentaire
 ------------------------
 
 	Menu *Administration/Modules (conf.)/Dossier*
+
 	Menu *Bureautique/Documents/Documents*
 
 Définissez vos différents dossier vous permettant d'importer vos documents à classer et à partager.

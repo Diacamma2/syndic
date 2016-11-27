@@ -28,6 +28,7 @@ Creating your first fiscal year
 -------------------------------
 
 	Menu *Management/Modules (conf.)/Accounting Configuration*   
+
 	Menu *Financial/Bookkeeping/charts of account*   
 
 Craft your first fiscal year and make it active.
@@ -40,17 +41,21 @@ Adjusting your condominium
 
 Ensure that these settings match your use.
 
-Definition of sets, owners and ratio
------------------------------------
+Definition of class loads, owners and ratio
+-------------------------------------------
 
-	Menu *General/condominium/Sets and owners*
+	Menu *condominium/Owners and lots*
 
-Add your sets to your condominium, your co-owners and define for each set the rating from each owner.
+	Menu *condominium/class loads*
+
+Add your co-owners and define lots of your condomium.
+Add your class loads and define for each the rating from each owner.
 
 Accounting update
 -----------------
 
 	Menu *Financial/Bookkeeping/accounting entries*   
+
 	Menu *Financial/Bookkeeping/Model of entry*   
 
 If you implement *Diacamma asso* during your exercise, you will also need to enter your retained earnings of the previous year and reenter the writings of earlier this year.
@@ -71,7 +76,9 @@ The responsibles
 ----------------
 
 	Menu *General/Our details*   
+
 	Menu *Management/Modules (conf.)/Contacts Configuration*   
+
 	Menu *Association/Members/Subscribe adherents*   
 
 In the window of your contact, you can associate membership as part of your structure.
@@ -87,6 +94,7 @@ Documents management
 -------------------- 
 
 	Menu *Management/Modules (conf.)/Folders*   
+
 	Menu *Office/Document management/Document management*  
 
 Define your different file allows you to import your documents to classify and share.
