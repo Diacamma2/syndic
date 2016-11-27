@@ -654,7 +654,7 @@ class Partition(LucteriosModel):
     owner = models.ForeignKey(
         Owner, verbose_name=_('owner'), null=False, db_index=True, on_delete=models.CASCADE)
     value = models.DecimalField(_('value'), max_digits=7, decimal_places=2, default=0.0, validators=[
-        MinValueValidator(0.0), MaxValueValidator(1000.00)])
+        MinValueValidator(0.0), MaxValueValidator(100000.00)])
 
     def __str__(self):
         return "%s : %s" % (self.owner, self.ratio)
@@ -751,7 +751,7 @@ class PartitionExceptional(Partition):
 
 class PropertyLot(LucteriosModel):
     num = models.IntegerField(verbose_name=_('numeros'), null=False, default=1)
-    value = models.IntegerField(_('value'), default=0, validators=[MinValueValidator(0), MaxValueValidator(10000)])
+    value = models.IntegerField(_('value'), default=0, validators=[MinValueValidator(0), MaxValueValidator(1000000)])
     description = models.TextField(_('description'), null=True, default="")
     owner = models.ForeignKey(
         Owner, verbose_name=_('owner'), null=False, db_index=True, on_delete=models.CASCADE)
