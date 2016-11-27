@@ -1363,6 +1363,7 @@ def convert_accounting(year, thirds_convert):
     for call_funds in CallFunds.objects.filter(status__gte=1, date__gte=year.begin, date__lte=year.end):
         if (call_funds.status == 2):
             call_funds.status = 1
+        call_funds.check_supporting()
         type_call = 0
         for call_detail in call_funds.calldetail_set.all():
             if call_detail.set.type_load == 1:
