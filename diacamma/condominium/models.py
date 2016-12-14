@@ -215,11 +215,14 @@ class Set(LucteriosModel):
         return self.expensedetail_set.filter(expense__date__gte=self.date_begin, expense__date__lte=self.date_end)
 
     def get_sumexpense(self):
-        total = self.get_expenselist().aggregate(sum=Sum('price'))
-        if 'sum' in total.keys():
-            return total['sum']
-        else:
-            return 0
+        total = 0
+        for expense_detail in self.get_expenselist():
+            if expense_detail.expense.status != 0:
+                if expense_detail.expense.expensetype == 0:
+                    total += expense_detail.price
+                else:
+                    total -= expense_detail.price
+        return total
 
     @property
     def sumexpense_txt(self):
@@ -936,9 +939,10 @@ class CallFunds(LucteriosModel):
     def close(self):
         pass
 
-    def generate_accounting(self):
+    def generate_accounting(self, fiscal_year=None):
         if (self.owner is not None) and (self.status == 1) and not Params.getvalue("condominium-old-accounting"):
-            fiscal_year = FiscalYear.get_current()
+            if fiscal_year is None:
+                fiscal_year = FiscalYear.get_current()
             owner_account_filter = self.supporting.get_third_mask()
             detail_account_filter = None
             if self.type_call == 0:
@@ -1371,7 +1375,7 @@ def convert_accounting(year, thirds_convert):
                 break
         call_funds.type_call = type_call
         call_funds.save()
-        call_funds.generate_accounting()
+        call_funds.generate_accounting(year)
     expense_list = []
     for expense in Expense.objects.filter(status__gte=1, date__gte=year.begin, date__lte=year.end):
         if (expense.status == 2):
