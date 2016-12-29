@@ -58,14 +58,23 @@ value = """
 <text height="20.0" width="100.0" top="25.0" left="80.0" padding="1.0" spacing="0.0" border_color="black" border_style="" border_width="0.2" text_align="center" line_height="11" font_family="sans-serif" font_weight="" font_size="11">
 {[b]}#owner.third.contact.str{[/b]}{[br/]}#owner.third.contact.address{[br/]}#owner.third.contact.postal_code #owner.third.contact.city
 </text>
-<table height="100.0" width="150.0" top="70.0" left="20.0" padding="1.0" spacing="0.0" border_color="black" border_style="" border_width="0.2">
-    <columns width="25.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
+<table height="100.0" width="170.0" top="70.0" left="10.0" padding="1.0" spacing="0.0" border_color="black" border_style="" border_width="0.2">
+    <columns width="20.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
     {[b]}%(set)s{[/b]}
     </columns>
-    <columns width="100.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
+    <columns width="82.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
     {[b]}%(designation)s{[/b]}
     </columns>
-    <columns width="25.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
+    <columns width="17.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
+    {[b]}%(totalamount)s{[/b]}
+    </columns>
+    <columns width="17.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
+    {[b]}%(partsum)s{[/b]}
+    </columns>
+    <columns width="17.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
+    {[b]}%(partition)s{[/b]}
+    </columns>
+    <columns width="17.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
     {[b]}%(price)s{[/b]}
     </columns>
     <rows data="calldetail_set">
@@ -74,6 +83,15 @@ value = """
         </cell>
         <cell display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="start" line_height="7" font_family="sans-serif" font_weight="" font_size="7">
 #designation
+        </cell>
+        <cell display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="end" line_height="7" font_family="sans-serif" font_weight="" font_size="7">
+#total_amount
+        </cell>
+        <cell display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="end" line_height="7" font_family="sans-serif" font_weight="" font_size="7">
+#set.total_part
+        </cell>
+        <cell display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="end" line_height="7" font_family="sans-serif" font_weight="" font_size="7">
+#owner_part
         </cell>
         <cell display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="end" line_height="7" font_family="sans-serif" font_weight="" font_size="7">
 #price_txt
@@ -124,7 +142,10 @@ value = """
         'callfunds': _('call of funds'),
         'set': _('set'),
         'designation': _('designation'),
-        'price': _('price'),
+        'totalamount': _('total'),
+        'partsum': _('sum'),
+        'partition': _('partition'),
+        'price': _('amount'),
         'situation': _('situation at #owner.date_current'),
         'total_initial': _('current initial state'),
         'total_call': _('current total call for funds'),

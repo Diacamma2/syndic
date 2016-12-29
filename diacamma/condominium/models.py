@@ -974,7 +974,7 @@ class CallDetail(LucteriosModel):
     set = models.ForeignKey(
         Set, verbose_name=_('set'), null=False, db_index=True, on_delete=models.PROTECT)
     designation = models.TextField(verbose_name=_('designation'))
-    price = models.DecimalField(verbose_name=_('price'), max_digits=10, decimal_places=3, default=0.0, validators=[
+    price = models.DecimalField(verbose_name=_('amount'), max_digits=10, decimal_places=3, default=0.0, validators=[
         MinValueValidator(0.0), MaxValueValidator(9999999.999)])
     entry = models.ForeignKey(
         EntryAccount, verbose_name=_('entry'), null=True, on_delete=models.PROTECT)
@@ -984,7 +984,7 @@ class CallDetail(LucteriosModel):
 
     @classmethod
     def get_default_fields(cls):
-        return ["set", "designation", (_('price'), 'price_txt')]
+        return ["set", "designation", (_('total'), 'total_amount'), (_('sum'), 'set.total_part'), (_('partition'), 'owner_part'), (_('amount'), 'price_txt')]
 
     @classmethod
     def get_edit_fields(cls):
@@ -993,6 +993,29 @@ class CallDetail(LucteriosModel):
     @property
     def price_txt(self):
         return format_devise(self.price, 5)
+
+    @property
+    def total_amount(self):
+        totamount = 0
+        num = -1
+        index = 0
+        for det in self.callfunds.calldetail_set.filter(set=self.set):
+            if det.id == self.id:
+                num = index
+            index += 1
+        for fund in CallFunds.objects.filter(date=self.callfunds.date, num=self.callfunds.num):
+            details = fund.calldetail_set.filter(set=self.set)
+            if len(details) > num:
+                det = details[num]
+                totamount += det.price
+        return format_devise(totamount, 5)
+
+    @property
+    def owner_part(self):
+        value = 0
+        for part in Partition.objects.filter(set=self.set, owner=self.callfunds.owner):
+            value = part.value
+        return value
 
     def generate_accounting(self, fiscal_year, detail_account, owner_account):
         self.entry = EntryAccount.objects.create(year=fiscal_year, date_value=self.callfunds.date, designation=self.__str__(),

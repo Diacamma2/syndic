@@ -151,6 +151,10 @@ class CallFundsEditor(LucteriosEditor):
             finally:
                 xfer.item = old_item
                 xfer.model = old_model
+        if self.item.status == 0:
+            grid = xfer.get_components("calldetail")
+            grid.delete_header('total_amount')
+            grid.delete_header('owner_part')
 
 
 class CallDetailEditor(LucteriosEditor):
