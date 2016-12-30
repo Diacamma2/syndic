@@ -34,7 +34,7 @@ from diacamma.payoff.test_tools import default_bankaccount
 from diacamma.condominium.test_tools import default_setowner, old_accounting
 from diacamma.condominium.views_callfunds import CallFundsList,\
     CallFundsAddModify, CallFundsDel, CallFundsShow, CallDetailAddModify,\
-    CallFundsTransition, CallFundsPrint
+    CallFundsTransition, CallFundsPrint, CallFundsAddCurrent
 from diacamma.accounting.views_entries import EntryAccountList
 from diacamma.payoff.views import PayoffAddModify
 from diacamma.accounting.models import ChartsAccount
@@ -58,7 +58,7 @@ class CallFundsTest(LucteriosTest):
         self.assert_observer(
             'core.custom', 'diacamma.condominium', 'callFundsList')
         self.assert_count_equal('COMPONENTS/GRID[@name="callfunds"]/RECORD', 0)
-        self.assert_count_equal('COMPONENTS/GRID[@name="callfunds"]/HEADER', 7)
+        self.assert_count_equal('COMPONENTS/GRID[@name="callfunds"]/HEADER', 6)
 
         self.factory.xfer = CallFundsAddModify()
         self.call('/diacamma.condominium/callFundsAddModify', {}, False)
@@ -73,7 +73,7 @@ class CallFundsTest(LucteriosTest):
             'core.acknowledge', 'diacamma.condominium', 'callFundsAddModify')
 
         self.factory.xfer = CallFundsList()
-        self.call('/diacamma.condominium/callFundsList', {}, False)
+        self.call('/diacamma.condominium/callFundsList', {'status_filter': 1}, False)
         self.assert_observer(
             'core.custom', 'diacamma.condominium', 'callFundsList')
         self.assert_count_equal('COMPONENTS/GRID[@name="callfunds"]/RECORD', 0)
@@ -98,7 +98,7 @@ class CallFundsTest(LucteriosTest):
         self.assert_observer(
             'core.custom', 'diacamma.condominium', 'callFundsList')
         self.assert_count_equal('COMPONENTS/GRID[@name="callfunds"]/RECORD', 0)
-        self.assert_count_equal('COMPONENTS/GRID[@name="callfunds"]/HEADER', 7)
+        self.assert_count_equal('COMPONENTS/GRID[@name="callfunds"]/HEADER', 6)
 
     def test_add(self):
         self.factory.xfer = CallFundsAddModify()
@@ -144,6 +144,29 @@ class CallFundsTest(LucteriosTest):
         self.assert_count_equal('ACTIONS/ACTION', 3)
         self.assert_count_equal('COMPONENTS/GRID[@name="calldetail"]/RECORD', 2)
         self.assert_xml_equal('COMPONENTS/LABELFORM[@name="total"]', '275.00€')
+
+    def test_add_default_current(self):
+        self.factory.xfer = CallFundsList()
+        self.call('/diacamma.condominium/callFundsList', {'status_filter': 0}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'callFundsList')
+        self.assert_count_equal('COMPONENTS/GRID[@name="callfunds"]/RECORD', 0)
+
+        self.factory.xfer = CallFundsAddCurrent()
+        self.call('/diacamma.condominium/callFundsAddCurrent', {'CONFIRME': 'YES'}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'callFundsAddCurrent')
+
+        self.factory.xfer = CallFundsList()
+        self.call('/diacamma.condominium/callFundsList', {'status_filter': 0}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'callFundsList')
+        self.assert_count_equal('COMPONENTS/GRID[@name="callfunds"]/RECORD', 4)
+        self.assert_xml_equal('COMPONENTS/GRID[@name="callfunds"]/RECORD[1]/VALUE[@name="date"]', "1 janvier 2015")
+        self.assert_xml_equal('COMPONENTS/GRID[@name="callfunds"]/RECORD[2]/VALUE[@name="date"]', "1 avril 2015")
+        self.assert_xml_equal('COMPONENTS/GRID[@name="callfunds"]/RECORD[3]/VALUE[@name="date"]', "1 juillet 2015")
+        self.assert_xml_equal('COMPONENTS/GRID[@name="callfunds"]/RECORD[4]/VALUE[@name="date"]', "1 octobre 2015")
+        self.assert_xml_equal('COMPONENTS/GRID[@name="callfunds"]/RECORD[1]/VALUE[@name="total"]', "275.00€")
+        self.assert_xml_equal('COMPONENTS/GRID[@name="callfunds"]/RECORD[2]/VALUE[@name="total"]', "275.00€")
+        self.assert_xml_equal('COMPONENTS/GRID[@name="callfunds"]/RECORD[3]/VALUE[@name="total"]', "275.00€")
+        self.assert_xml_equal('COMPONENTS/GRID[@name="callfunds"]/RECORD[4]/VALUE[@name="total"]', "275.00€")
 
     def test_valid_current(self):
         self.factory.xfer = EntryAccountList()

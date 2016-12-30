@@ -9,13 +9,17 @@ from lucterios.framework.xferadvance import XferListEditor, TITLE_ADD, TITLE_MOD
 from lucterios.framework.xferadvance import XferAddEditor
 from lucterios.framework.xferadvance import XferShowEditor
 from lucterios.framework.xferadvance import XferDelete
-from lucterios.framework.tools import FORMTYPE_NOMODAL, ActionsManage, MenuManage, FORMTYPE_REFRESH, CLOSE_NO, SELECT_SINGLE, CLOSE_YES, SELECT_MULTI
+from lucterios.framework.tools import FORMTYPE_NOMODAL, ActionsManage, MenuManage, FORMTYPE_REFRESH, CLOSE_NO, SELECT_SINGLE, CLOSE_YES, SELECT_MULTI,\
+    same_day_months_after
 from lucterios.framework.xfercomponents import XferCompLabelForm, XferCompSelect
 from lucterios.framework.error import LucteriosException, IMPORTANT
 
 from lucterios.CORE.xferprint import XferPrintReporting
 
-from diacamma.condominium.models import CallFunds, CallDetail
+from diacamma.condominium.models import CallFunds, CallDetail, Set
+from lucterios.framework.xfergraphic import XferContainerAcknowledge
+from diacamma.accounting.models import FiscalYear
+from lucterios.framework.models import get_value_converted
 
 
 @MenuManage.describ('condominium.change_callfunds', FORMTYPE_NOMODAL, 'condominium.manage', _('Manage of calls of funds'))
@@ -26,7 +30,7 @@ class CallFundsList(XferListEditor):
     caption = _("Calls of funds")
 
     def fillresponse_header(self):
-        status_filter = self.getparam('status_filter', 1)
+        status_filter = self.getparam('status_filter', 0)
         self.params['status_filter'] = status_filter
         lbl = XferCompLabelForm('lbl_filter')
         lbl.set_value_as_name(_('Filter by type'))
@@ -47,6 +51,33 @@ class CallFundsList(XferListEditor):
         if self.getparam('status_filter', 1) == 0:
             callfunds_grid = self.get_components('callfunds')
             callfunds_grid.delete_header('supporting.total_rest_topay')
+
+
+def CallFundsAddCurrent_cond(xfer):
+    if xfer.getparam('status_filter', 1) == 0:
+        year = FiscalYear.get_current()
+        calls = CallFunds.objects.filter(date__gte=year.begin, date__lte=year.end, type_call=0)
+        return len(calls) == 0
+    else:
+        return False
+
+
+@ActionsManage.affect_list(_('Add current'), "images/add.png", condition=CallFundsAddCurrent_cond)
+@MenuManage.describ('condominium.add_callfunds')
+class CallFundsAddCurrent(XferContainerAcknowledge):
+    icon = "callfunds.png"
+    model = CallFunds
+    field_id = 'callfunds'
+    caption = _("Add call of funds")
+
+    def fillresponse(self):
+        if self.confirme(_('Do you want create current call of funds of this year?')):
+            year = FiscalYear.get_current()
+            for num in range(4):
+                date = same_day_months_after(year.begin, 3 * num)
+                new_call = CallFunds.objects.create(date=date, comment=_("Call of funds #%(num)d of year from %(begin)s to %(end)s") % {'num': num + 1, 'begin': get_value_converted(year.begin), 'end': get_value_converted(year.end)}, type_call=0, status=0)
+                for category in Set.objects.filter(type_load=0, is_active=True):
+                    CallDetail.objects.create(set=category, callfunds=new_call, price=category.get_current_budget() / 4, designation=_("%(type)s - #%(num)d") % {'type': _('current'), 'num': num + 1})
 
 
 @ActionsManage.affect_grid(TITLE_ADD, "images/add.png", condition=lambda xfer, gridname='': xfer.getparam('status_filter', 1) == 0)

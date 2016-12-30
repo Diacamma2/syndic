@@ -102,7 +102,7 @@ class Set(LucteriosModel):
 
     @classmethod
     def get_show_fields(cls):
-        return [("name", ), ("revenue_account", (_('cost accounting'), 'current_cost_accounting')), ("type_load", 'is_active'), ('is_link_to_lots', (_('partition sum'), 'total_part')), 'partition_set', ((_('budget'), "budget_txt"), (_('expense'), 'sumexpense_txt'),)]
+        return [("name", ), ("revenue_account", (_('cost accounting'), 'current_cost_accounting')), ("type_load", 'is_active'), ('is_link_to_lots', (_('tantime sum'), 'total_part')), 'partition_set', ((_('budget'), "budget_txt"), (_('expense'), 'sumexpense_txt'),)]
 
     def _do_insert(self, manager, using, fields, update_pk, raw):
         new_id = LucteriosModel._do_insert(
@@ -390,7 +390,7 @@ class Owner(Supporting):
 
     @classmethod
     def get_default_fields(cls):
-        fields = ["third", (_('property part'), 'property_part'), (_('current initial state'), 'total_current_initial'), (_('current total call for funds'), 'total_current_call'),
+        fields = ["third", (_('property tantime'), 'property_part'), (_('current initial state'), 'total_current_initial'), (_('current total call for funds'), 'total_current_call'),
                   (_('current total payoff'), 'total_current_payoff'), (_('current total owner'), 'total_current_owner'),
                   (_('current total ventilated'), 'total_current_ventilated')]
         if not Params.getvalue("condominium-old-accounting"):
@@ -656,7 +656,7 @@ class Partition(LucteriosModel):
         Set, verbose_name=_('set'), null=False, db_index=True, on_delete=models.CASCADE)
     owner = models.ForeignKey(
         Owner, verbose_name=_('owner'), null=False, db_index=True, on_delete=models.CASCADE)
-    value = models.DecimalField(_('value'), max_digits=7, decimal_places=2, default=0.0, validators=[
+    value = models.DecimalField(_('tantime'), max_digits=7, decimal_places=2, default=0.0, validators=[
         MinValueValidator(0.0), MaxValueValidator(100000.00)])
 
     def __str__(self):
@@ -754,7 +754,7 @@ class PartitionExceptional(Partition):
 
 class PropertyLot(LucteriosModel):
     num = models.IntegerField(verbose_name=_('numeros'), null=False, default=1)
-    value = models.IntegerField(_('value'), default=0, validators=[MinValueValidator(0), MaxValueValidator(1000000)])
+    value = models.IntegerField(_('tantime'), default=0, validators=[MinValueValidator(0), MaxValueValidator(1000000)])
     description = models.TextField(_('description'), null=True, default="")
     owner = models.ForeignKey(
         Owner, verbose_name=_('owner'), null=False, db_index=True, on_delete=models.CASCADE)
@@ -917,10 +917,11 @@ class CallFunds(LucteriosModel):
                     new_detail = CallDetail.objects.create(
                         set=calldetail.set, designation=calldetail.designation)
                     new_detail.callfunds = calls_by_owner[part.owner.id]
-                    new_detail.price = currency_round(float(
-                        calldetail.price) * part.get_ratio() / 100.0)
+                    new_detail.price = currency_round(float(calldetail.price) * part.get_ratio() / 100.0)
                     amount -= new_detail.price
                     new_detail.save()
+            if new_detail is None:
+                raise LucteriosException(IMPORTANT, _("Category of charge not fill!"))
             if abs(amount) > 0.0001:
                 new_detail.price += amount
                 new_detail.save()
@@ -984,7 +985,7 @@ class CallDetail(LucteriosModel):
 
     @classmethod
     def get_default_fields(cls):
-        return ["set", "designation", (_('total'), 'total_amount'), (_('sum'), 'set.total_part'), (_('partition'), 'owner_part'), (_('amount'), 'price_txt')]
+        return ["set", "designation", (_('total'), 'total_amount'), (_('tantime sum'), 'set.total_part'), (_('tantime'), 'owner_part'), (_('amount'), 'price_txt')]
 
     @classmethod
     def get_edit_fields(cls):

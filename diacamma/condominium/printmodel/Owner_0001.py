@@ -354,9 +354,9 @@ value = """
 </body>
 </model>""" % {'title': _('Owner situation'), 'info': _('information'), 'call of funds': _('call of funds'), 'num': _('numeros'), 'date': _('date'), 'comment': _('comment'), 'total': _('total'),
                'exceptional': _('exceptional'), 'current': _('current'),
-               'partition': _('partition'), 'set': _('set'), 'budget': _('budget'), 'expense': _('expense'), 'value': _('value'), 'ratio': _('ratio'),
+               'partition': _('partition'), 'set': _('set'), 'budget': _('budget'), 'expense': _('expense'), 'value': _('tantime'), 'ratio': _('ratio'),
                'ventilated': _('ventilated'), 'total_callfunds': _('total call for funds'), 'rest_to_pay': _('rest to pay'),
-               'property': _('property lot'), 'num': _('numeros'), 'value': _('value'), 'ratio': _("ratio"), 'description': _('description'),
+               'property': _('property lot'), 'num': _('numeros'), 'value': _('tantime'), 'ratio': _("ratio"), 'description': _('description'),
                'payoff': _('payoff'), 'amount': _('amount'), 'payer': _('payer'), 'mode': _('mode'), 'bank_account': _('bank account'), 'reference': _('reference'),
                'total_current_initial': _('current initial state'),
                'total_current_call': _('current total call for funds'),

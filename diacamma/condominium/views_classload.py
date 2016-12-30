@@ -50,6 +50,8 @@ from diacamma.accounting.views_budget import BudgetList
 
 from diacamma.condominium.models import Set, Partition, ExpenseDetail, Owner, PropertyLot, SetCost
 from django.utils import six
+from diacamma.accounting.views_reports import CostAccountingReport,\
+    CostAccountingIncomeStatement
 
 
 def fill_params(self, is_mini=False, new_params=False):
@@ -108,8 +110,6 @@ class SetList(XferListEditor):
         chk.set_location(1, self.get_max_row())
         chk.set_action(self.request, self.get_action(), close=CLOSE_NO, modal=FORMTYPE_REFRESH)
         self.add_component(chk)
-        grid = self.get_components("set")
-        grid.add_action(self.request, ClassCategoryBudget.get_action(), close=CLOSE_NO, unique=SELECT_SINGLE)
 
 
 @ActionsManage.affect_list(TITLE_PRINT, "images/print.png", close=CLOSE_NO)
@@ -236,7 +236,6 @@ class SetAssociate(XferAddEditor):
 
 
 @ActionsManage.affect_show(_('Costs'), "images/right.png")
-@ActionsManage.affect_grid(_('Costs'), "images/right.png", unique=SELECT_SINGLE)
 @MenuManage.describ('condominium.change_set')
 class SetListCost(XferListEditor):
     icon = "set.png"
@@ -273,6 +272,24 @@ class SetListCost(XferListEditor):
         self.add_action(WrapAction(TITLE_CLOSE, 'images/close.png'))
 
 
+@ActionsManage.affect_grid(_("Report"), 'images/print.png', unique=SELECT_SINGLE)
+@MenuManage.describ('condominium.change_set')
+class ClassCategoryCosts(XferContainerAcknowledge):
+    icon = "set.png"
+    model = Set
+    field_id = 'set'
+    caption = _("Report")
+
+    def fillresponse(self):
+        year_item = FiscalYear.get_current()
+        if self.item.type_load == 0:
+            if len(self.item.setcost_set.filter(year=year_item)) == 0:
+                self.item.create_new_cost(year=year_item.id)
+        cost_item = self.item.setcost_set.filter(year=year_item)[0]
+        params = {'costaccounting': cost_item.cost_accounting.id}
+        self.redirect_action(CostAccountingIncomeStatement.get_action(), close=CLOSE_YES, params=params)
+
+
 @MenuManage.describ('accounting.change_budget')
 class ClassCategoryBudget(XferContainerAcknowledge):
     icon = "diacamma.accounting/images/account.png"
@@ -296,30 +313,40 @@ def editbudget_condo(xfer):
     if xfer.getparam('set') is not None:
         cost = xfer.getparam('cost_accounting')
         if cost is not None:
-            cost_item = CostAccounting.objects.get(id=cost)
             set_item = Set.objects.get(id=xfer.getparam('set', 0))
-            year = None
-            if set_item.type_load == 1:
-                title_cost = xfer.get_components('title_cost')
-                xfer.remove_component('title_year')
-                lbl = XferCompLabelForm('lblyear')
-                lbl.set_location(1, title_cost.row - 1)
-                lbl.set_value_as_name(_('year'))
-                xfer.add_component(lbl)
-                year = xfer.getparam('year', 0)
-                select_year = XferCompSelect('year')
-                select_year.set_location(2, title_cost.row - 1)
-                select_year.set_select_query(FiscalYear.objects.all())
-                select_year.set_value(year)
-                select_year.set_needed(False)
-                select_year.set_action(xfer.request, xfer.__class__.get_action(), close=CLOSE_NO, modal=FORMTYPE_REFRESH)
-                xfer.add_component(select_year)
-                if year != 0:
-                    current_year = FiscalYear.get_current(year)
-                    xfer.params['readonly'] = six.text_type(current_year.status == 2)
-                else:
-                    year = None
-                    xfer.params['readonly'] = 'True'
+            title_cost = xfer.get_components('title_cost')
+            xfer.remove_component('title_year')
+            lbl = XferCompLabelForm('lblyear')
+            lbl.set_location(1, title_cost.row - 1)
+            lbl.set_value_as_name(_('year'))
+            xfer.add_component(lbl)
+            year = xfer.getparam('year', 0)
+            select_year = XferCompSelect('year')
+            select_year.set_location(2, title_cost.row - 1)
+            select_year.set_select_query(FiscalYear.objects.all())
+            select_year.set_value(year)
+            select_year.set_needed(set_item.type_load == 0)
+            select_year.set_action(xfer.request, xfer.__class__.get_action(), close=CLOSE_NO, modal=FORMTYPE_REFRESH)
+            xfer.add_component(select_year)
+            btn = XferCompButton('confyear')
+            btn.set_location(3, title_cost.row - 1)
+            btn.set_action(xfer.request, ActionsManage.get_action_url(FiscalYear.get_long_name(), 'configuration', xfer), close=CLOSE_NO)
+            btn.set_is_mini(True)
+            xfer.add_component(btn)
+            if year != 0:
+                current_year = FiscalYear.get_current(year)
+                xfer.params['readonly'] = six.text_type(current_year.status == 2)
+                if set_item.type_load == 0:
+                    if len(set_item.setcost_set.filter(year=current_year)) == 0:
+                        set_item.create_new_cost(year=current_year.id)
+                setcost_item = set_item.setcost_set.filter(year=current_year)[0]
+                cost_item = setcost_item.cost_accounting
+                xfer.params['cost_accounting'] = cost_item.id
+                title_cost.set_value("{[b]}%s{[/b]} : %s" % (_('cost accounting'), cost_item))
+            else:
+                year = None
+                xfer.params['readonly'] = 'True'
+                cost_item = CostAccounting.objects.get(id=cost)
             if (cost_item.status == 0) and not xfer.getparam('readonly', False):
                 set_item.change_budget_product(cost_item, year)
     if xfer.getparam('type_of_account') is not None:
