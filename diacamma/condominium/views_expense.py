@@ -16,6 +16,7 @@ from lucterios.framework.xfergraphic import XferContainerAcknowledge
 from diacamma.condominium.models import Expense, ExpenseDetail
 from diacamma.accounting.models import FiscalYear
 from diacamma.condominium.views_classload import SetShow
+from diacamma.payoff.views import PayoffAddModify
 
 
 @MenuManage.describ('condominium.change_expense', FORMTYPE_NOMODAL, 'condominium.manage', _('Manage of expenses'))
@@ -95,6 +96,18 @@ class ExpenseTransition(XferTransition):
     icon = "expense.png"
     model = Expense
     field_id = 'expense'
+
+
+@ActionsManage.affect_grid(_('payoff'), '', close=CLOSE_NO, unique=SELECT_MULTI, condition=lambda xfer, gridname='': xfer.getparam('status_filter', -1) == 1)
+@MenuManage.describ('payoff.add_payoff')
+class ExpenseMultiPay(XferContainerAcknowledge):
+    caption = _("Multi-pay expense")
+    icon = "expense.png"
+    model = Expense
+    field_id = 'expense'
+
+    def fillresponse(self, expense):
+        self.redirect_action(PayoffAddModify.get_action("", ""), params={"supportings": expense, 'repartition': "1"})
 
 
 @ActionsManage.affect_grid(TITLE_ADD, "images/add.png", condition=lambda xfer, gridname='': xfer.item.status == 0)

@@ -505,6 +505,9 @@ class Owner(Supporting):
         else:
             return "---"
 
+    def get_current_date(self):
+        return date(2100, 12, 31)
+
     def get_total_call(self, type_call=0):
         val = 0
         for callfunds in self.callfunds_set.filter(self.callfunds_query & Q(type_call=type_call)):
@@ -829,6 +832,9 @@ class CallFundsSupporting(Supporting):
     def support_validated(self, validate_date):
         return self
 
+    def get_current_date(self):
+        return self.callfunds.date
+
     def default_costaccounting(self):
         result = None
         for detail in self.callfunds.calldetail_set.all():
@@ -1071,6 +1077,9 @@ class Expense(Supporting):
         for expensedetail in self.expensedetail_set.all():
             val += currency_round(expensedetail.price)
         return val
+
+    def get_current_date(self):
+        return self.date
 
     def default_costaccounting(self):
         result = None

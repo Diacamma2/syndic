@@ -40,7 +40,7 @@ from diacamma.payoff.views import SupportingThirdValid, PayoffAddModify
 from diacamma.condominium.test_tools import default_setowner, old_accounting
 from diacamma.condominium.views_expense import ExpenseList,\
     ExpenseAddModify, ExpenseDel, ExpenseShow, ExpenseDetailAddModify,\
-    ExpenseTransition
+    ExpenseTransition, ExpenseMultiPay
 
 
 class ExpenseTest(PaymentTest):
@@ -574,6 +574,152 @@ class ExpenseTest(PaymentTest):
         self.call('/diacamma.condominium/expenseShow', {'expense': 4}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
         self.assert_count_equal('ACTIONS/ACTION', 2)
+
+    def test_payoff_multi(self):
+        self.check_account(year_id=1, code='401', value=0.0)
+        self.check_account(year_id=1, code='512', value=0.0)
+        self.check_account(year_id=1, code='531', value=0.0)
+
+        self.factory.xfer = ExpenseAddModify()
+        self.call('/diacamma.condominium/expenseAddModify', {'SAVE': 'YES', 'expensetype': 0, "date": '2015-06-10', "comment": 'abc 123'}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseAddModify')
+        self.factory.xfer = SupportingThirdValid()
+        self.call('/diacamma.payoff/supportingThirdValid', {'supporting': 4, 'third': 3}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.payoff', 'supportingThirdValid')
+        self.factory.xfer = ExpenseDetailAddModify()
+        self.call('/diacamma.condominium/expenseDetailAddModify',
+                  {'SAVE': 'YES', 'expense': 4, 'set': 1, 'price': '150.00', 'comment': 'set 1', 'expense_account': '604'}, False)
+
+        self.factory.xfer = ExpenseAddModify()
+        self.call('/diacamma.condominium/expenseAddModify', {'SAVE': 'YES', 'expensetype': 0, "date": '2015-06-15', "comment": 'def 456'}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseAddModify')
+        self.factory.xfer = SupportingThirdValid()
+        self.call('/diacamma.payoff/supportingThirdValid', {'supporting': 5, 'third': 3}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.payoff', 'supportingThirdValid')
+        self.factory.xfer = ExpenseDetailAddModify()
+        self.call('/diacamma.condominium/expenseDetailAddModify',
+                  {'SAVE': 'YES', 'expense': 5, 'set': 2, 'price': '30.00', 'comment': 'set 2', 'expense_account': '627'}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseDetailAddModify')
+
+        self.factory.xfer = ExpenseTransition()
+        self.call('/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 4, 'TRANSITION': 'valid'}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseTransition')
+        self.factory.xfer = ExpenseTransition()
+        self.call('/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 5, 'TRANSITION': 'valid'}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseTransition')
+
+        self.check_account(year_id=1, code='401', value=180.0)
+        self.check_account(year_id=1, code='512', value=0.0)
+        self.check_account(year_id=1, code='531', value=0.0)
+
+        self.factory.xfer = ExpenseMultiPay()
+        self.call('/diacamma.invoice/billMultiPay', {'expense': '4;5'}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.invoice', 'billMultiPay')
+        self.assert_attrib_equal("ACTION", "id", "diacamma.payoff/payoffAddModify")
+        self.assert_count_equal("ACTION/PARAM", 2)
+        self.assert_xml_equal("ACTION/PARAM[@name='supportings']", '4;5')
+        self.assert_xml_equal("ACTION/PARAM[@name='repartition']", '1')
+
+        self.factory.xfer = PayoffAddModify()
+        self.call('/diacamma.payoff/payoffAddModify', {'supportings': '4;5', "repartition": "1"}, False)
+        self.assert_observer('core.custom', 'diacamma.payoff', 'payoffAddModify')
+        self.assert_xml_equal('COMPONENTS/FLOAT[@name="amount"]', "180.00")
+        self.assert_attrib_equal('COMPONENTS/FLOAT[@name="amount"]', 'max', "180.0")
+        self.assert_count_equal('COMPONENTS/SELECT[@name="repartition"]/CASE', 2)
+        self.assert_xml_equal('COMPONENTS/SELECT[@name="repartition"]', "1")
+
+        self.factory.xfer = PayoffAddModify()
+        self.call('/diacamma.payoff/payoffAddModify', {'SAVE': 'YES', 'supportings': '4;5', 'amount': '120.0', 'date': '2015-06-23', 'mode': 0, 'reference': '', 'bank_account': 0, "repartition": 0}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.payoff', 'payoffAddModify')
+
+        self.check_account(year_id=1, code='401', value=60.0)
+        self.check_account(year_id=1, code='512', value=0.0)
+        self.check_account(year_id=1, code='531', value=-120.0)
+
+        self.factory.xfer = ExpenseShow()
+        self.call('/diacamma.condominium/expenseShow', {'expense': 4}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="total"]', '150.00€')
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="total_rest_topay"]', '50.00€')
+
+        self.factory.xfer = ExpenseShow()
+        self.call('/diacamma.condominium/expenseShow', {'expense': 5}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="total"]', '30.00€')
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="total_rest_topay"]', '10.00€')
+
+    def test_payoff_multi_bydate(self):
+        self.check_account(year_id=1, code='401', value=0.0)
+        self.check_account(year_id=1, code='512', value=0.0)
+        self.check_account(year_id=1, code='531', value=0.0)
+
+        self.factory.xfer = ExpenseAddModify()
+        self.call('/diacamma.condominium/expenseAddModify', {'SAVE': 'YES', 'expensetype': 0, "date": '2015-06-15', "comment": 'abc 123'}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseAddModify')
+        self.factory.xfer = SupportingThirdValid()
+        self.call('/diacamma.payoff/supportingThirdValid', {'supporting': 4, 'third': 3}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.payoff', 'supportingThirdValid')
+        self.factory.xfer = ExpenseDetailAddModify()
+        self.call('/diacamma.condominium/expenseDetailAddModify',
+                  {'SAVE': 'YES', 'expense': 4, 'set': 1, 'price': '150.00', 'comment': 'set 1', 'expense_account': '604'}, False)
+
+        self.factory.xfer = ExpenseAddModify()
+        self.call('/diacamma.condominium/expenseAddModify', {'SAVE': 'YES', 'expensetype': 0, "date": '2015-06-10', "comment": 'def 456'}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseAddModify')
+        self.factory.xfer = SupportingThirdValid()
+        self.call('/diacamma.payoff/supportingThirdValid', {'supporting': 5, 'third': 3}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.payoff', 'supportingThirdValid')
+        self.factory.xfer = ExpenseDetailAddModify()
+        self.call('/diacamma.condominium/expenseDetailAddModify',
+                  {'SAVE': 'YES', 'expense': 5, 'set': 2, 'price': '30.00', 'comment': 'set 2', 'expense_account': '627'}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseDetailAddModify')
+
+        self.factory.xfer = ExpenseTransition()
+        self.call('/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 4, 'TRANSITION': 'valid'}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseTransition')
+        self.factory.xfer = ExpenseTransition()
+        self.call('/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 5, 'TRANSITION': 'valid'}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseTransition')
+
+        self.check_account(year_id=1, code='401', value=180.0)
+        self.check_account(year_id=1, code='512', value=0.0)
+        self.check_account(year_id=1, code='531', value=0.0)
+
+        self.factory.xfer = ExpenseMultiPay()
+        self.call('/diacamma.invoice/billMultiPay', {'expense': '4;5'}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.invoice', 'billMultiPay')
+        self.assert_attrib_equal("ACTION", "id", "diacamma.payoff/payoffAddModify")
+        self.assert_count_equal("ACTION/PARAM", 2)
+        self.assert_xml_equal("ACTION/PARAM[@name='supportings']", '4;5')
+        self.assert_xml_equal("ACTION/PARAM[@name='repartition']", '1')
+
+        self.factory.xfer = PayoffAddModify()
+        self.call('/diacamma.payoff/payoffAddModify', {'supportings': '4;5', "repartition": "1"}, False)
+        self.assert_observer('core.custom', 'diacamma.payoff', 'payoffAddModify')
+        self.assert_xml_equal('COMPONENTS/FLOAT[@name="amount"]', "180.00")
+        self.assert_attrib_equal('COMPONENTS/FLOAT[@name="amount"]', 'max', "180.0")
+        self.assert_count_equal('COMPONENTS/SELECT[@name="repartition"]/CASE', 2)
+        self.assert_xml_equal('COMPONENTS/SELECT[@name="repartition"]', "1")
+
+        self.factory.xfer = PayoffAddModify()
+        self.call('/diacamma.payoff/payoffAddModify', {'SAVE': 'YES', 'supportings': '4;5', 'amount': '120.0', 'date': '2015-06-23', 'mode': 0, 'reference': '', 'bank_account': 0, "repartition": 1}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.payoff', 'payoffAddModify')
+
+        self.check_account(year_id=1, code='401', value=60.0)
+        self.check_account(year_id=1, code='512', value=0.0)
+        self.check_account(year_id=1, code='531', value=-120.0)
+
+        self.factory.xfer = ExpenseShow()
+        self.call('/diacamma.condominium/expenseShow', {'expense': 4}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="total"]', '150.00€')
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="total_rest_topay"]', '60.00€')
+
+        self.factory.xfer = ExpenseShow()
+        self.call('/diacamma.condominium/expenseShow', {'expense': 5}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="total"]', '30.00€')
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="total_rest_topay"]', '0.00€')
 
     def test_reedit_fail1(self):
         self.factory.xfer = ExpenseAddModify()
