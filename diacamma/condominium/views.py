@@ -23,6 +23,8 @@ from lucterios.contacts.models import Individual, LegalEntity
 
 from diacamma.accounting.models import AccountThird, FiscalYear
 from diacamma.accounting.tools import correct_accounting_code, format_devise
+from diacamma.payoff.views import PayoffAddModify
+from diacamma.payoff.models import Payoff
 
 from diacamma.condominium.models import PropertyLot, Owner, Set, SetCost, convert_accounting, ventilate_result
 from diacamma.condominium.views_classload import fill_params
@@ -125,6 +127,44 @@ class OwnerShow(XferShowEditor):
                         close=CLOSE_NO, params={'item_name': self.field_id}, pos_act=0)
         self.add_action(ActionsManage.get_action_url('payoff.Supporting', 'Email', self),
                         close=CLOSE_NO, params={'item_name': self.field_id}, pos_act=0)
+
+
+@ActionsManage.affect_other(_('payoff'), 'images/add.png', close=CLOSE_NO)
+@MenuManage.describ('payoff.add_payoff')
+class OwnerMultiPay(XferContainerAcknowledge):
+    caption = _("Multi-pay owner")
+    icon = "set.png"
+    model = Owner
+    field_id = 'owner'
+
+    def fillresponse(self, begin_date, end_date):
+        self.item.set_dates(begin_date, end_date)
+        supportings = [six.text_type(self.item.id)]
+        for call_fund in self.item.callfunds_set.filter(date__gte=self.item.date_begin, date__lte=self.item.date_end):
+            if call_fund.supporting.get_total_rest_topay() > 0.0001:
+                supportings.append(six.text_type(call_fund.supporting_id))
+        self.redirect_action(PayoffAddModify.get_action("", ""), params={"supportings": ";".join(supportings), 'NO_REPARTITION': 'yes', 'repartition': "1"})
+
+
+@ActionsManage.affect_other(_('ventilate'), 'images/edit.png', close=CLOSE_NO)
+@MenuManage.describ('payoff.add_payoff')
+class OwnerVentilatePay(XferContainerAcknowledge):
+    caption = _("Multi-pay owner")
+    icon = "set.png"
+    model = Owner
+    field_id = 'owner'
+
+    def fillresponse(self, begin_date, end_date):
+        self.item.set_dates(begin_date, end_date)
+        supportings = [six.text_type(self.item.id)]
+        for call_fund in self.item.callfunds_set.filter(date__gte=self.item.date_begin, date__lte=self.item.date_end):
+            if call_fund.supporting.get_total_rest_topay() > 0.0001:
+                supportings.append(six.text_type(call_fund.supporting_id))
+        payoffs = self.item.payoff_set.filter(date__gte=self.item.date_begin, date__lte=self.item.date_end, entry__close=False).order_by('date')
+        if (len(payoffs) > 0) and (len(supportings) > 1) and self.confirme(_('Do you want to ventilate general payoff on calls of funds ?')):
+            for payoff in payoffs:
+                Payoff.multi_save(supportings, payoff.amount, payoff.mode, payoff.payer, payoff.reference, payoff.bank_account_id, payoff.date, 1)
+                payoff.delete()
 
 
 @ActionsManage.affect_show(TITLE_PRINT, "images/print.png", close=CLOSE_NO)

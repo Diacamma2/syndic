@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-14 19:46+0000\n"
+"POT-Creation-Date: 2017-01-15 21:43+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -30,7 +30,7 @@ msgstr "third"
 msgid "current class loads"
 msgstr "current class loads"
 
-#: editors.py:170
+#: editors.py:183
 msgid "No category of charge defined!"
 msgstr "No category of charge defined!"
 
@@ -58,12 +58,12 @@ msgstr "is link to lots"
 msgid "type of load"
 msgstr "type of load"
 
-#: models.py:60 models.py:868 printmodel/Owner_0001.py:356
+#: models.py:60 models.py:875 printmodel/Owner_0001.py:356
 #: views_callfunds.py:80
 msgid "current"
 msgstr "current load"
 
-#: models.py:60 models.py:868 printmodel/Owner_0001.py:356
+#: models.py:60 models.py:875 printmodel/Owner_0001.py:356
 msgid "exceptional"
 msgstr "exceptional load"
 
@@ -75,26 +75,26 @@ msgstr "is active"
 msgid "set of lots"
 msgstr "set of lots"
 
-#: models.py:94 models.py:105 models.py:437 models.py:439 models.py:670
-#: models.py:1045 models.py:1052 models.py:1221 models.py:1228
+#: models.py:94 models.py:105 models.py:437 models.py:439 models.py:677
+#: models.py:1052 models.py:1059 models.py:1228 models.py:1235
 #: printmodel/Owner_0001.py:357
 msgid "expense"
 msgstr "expense"
 
-#: models.py:105 models.py:994 printmodel/CallFunds_0001.py:146
+#: models.py:105 models.py:1001 printmodel/CallFunds_0001.py:146
 msgid "tantime sum"
 msgstr "tantime sum"
 
-#: models.py:266 models.py:1350
+#: models.py:266 models.py:1357
 #, python-format
 msgid "Ventilation for %s"
 msgstr "Ventilation for %s"
 
-#: models.py:306 models.py:312 models.py:731
+#: models.py:306 models.py:312 models.py:738
 msgid "class load"
 msgstr "class load"
 
-#: models.py:307 models.py:732
+#: models.py:307 models.py:739
 msgid "class loads"
 msgstr "class loads"
 
@@ -142,7 +142,7 @@ msgstr "current total owner"
 msgid "current total ventilated"
 msgstr "current total ventilated"
 
-#: models.py:397 models.py:415 models.py:446 models.py:742
+#: models.py:397 models.py:415 models.py:446 models.py:749
 #: printmodel/Owner_0001.py:364
 msgid "estimated regularization"
 msgstr "estimated regularization"
@@ -151,7 +151,7 @@ msgstr "estimated regularization"
 msgid "001@Summary"
 msgstr "001@Summary"
 
-#: models.py:411 models.py:434 models.py:648
+#: models.py:411 models.py:434 models.py:655
 msgid "total owner"
 msgstr "total owner"
 
@@ -191,8 +191,8 @@ msgstr "exceptional total owner"
 msgid "004@callfunds"
 msgstr "004@Call of funds"
 
-#: models.py:436 models.py:830 models.py:877 models.py:885 models.py:994
-#: models.py:1059 models.py:1073 printmodel/CallFunds_0001.py:145
+#: models.py:436 models.py:837 models.py:884 models.py:892 models.py:1001
+#: models.py:1066 models.py:1080 printmodel/CallFunds_0001.py:145
 #: printmodel/CallFunds_0001.py:158 printmodel/Owner_0001.py:355
 #: views_report.py:148 views_report.py:149 views_report.py:173
 #: views_report.py:174 views_report.py:182 views_report.py:183
@@ -200,22 +200,22 @@ msgstr "004@Call of funds"
 msgid "total"
 msgstr "total"
 
-#: models.py:438 models.py:441 models.py:670 models.py:741 models.py:770
-#: models.py:1243 printmodel/Owner_0001.py:357 printmodel/Owner_0001.py:359
-#: views.py:298
+#: models.py:438 models.py:441 models.py:677 models.py:748 models.py:777
+#: models.py:1250 printmodel/Owner_0001.py:357 printmodel/Owner_0001.py:359
+#: views.py:338
 msgid "ratio"
 msgstr "ratio"
 
-#: models.py:438 models.py:441 models.py:670 models.py:742
+#: models.py:438 models.py:441 models.py:677 models.py:749
 #: printmodel/Owner_0001.py:358
 msgid "ventilated"
 msgstr "ventilated"
 
-#: models.py:440 models.py:741 printmodel/Owner_0001.py:358
+#: models.py:440 models.py:748 printmodel/Owner_0001.py:358
 msgid "total call for funds"
 msgstr "total call for funds"
 
-#: models.py:631 models.py:661 models.py:763 models.py:862 models.py:1331
+#: models.py:631 models.py:668 models.py:770 models.py:869 models.py:1338
 #: printmodel/Owner_0001.py:31
 msgid "owner"
 msgstr "owner"
@@ -224,229 +224,229 @@ msgstr "owner"
 msgid "owners"
 msgstr "owners"
 
-#: models.py:651
+#: models.py:658
 #, python-format
 msgid "codominium of %s"
 msgstr "codominium of %s"
 
-#: models.py:654
+#: models.py:661
 msgid "your situation"
 msgstr "your situation"
 
-#: models.py:659 models.py:982 models.py:1230 printmodel/CallFunds_0001.py:143
+#: models.py:666 models.py:989 models.py:1237 printmodel/CallFunds_0001.py:143
 #: printmodel/Owner_0001.py:357 views_classload.py:368
 msgid "set"
 msgstr "category of loads"
 
-#: models.py:662 models.py:760 models.py:994 printmodel/CallFunds_0001.py:147
+#: models.py:669 models.py:767 models.py:1001 printmodel/CallFunds_0001.py:147
 #: printmodel/Owner_0001.py:357 printmodel/Owner_0001.py:359
 msgid "tantime"
 msgstr "tantime"
 
-#: models.py:751
+#: models.py:758
 msgid "exceptional class load"
 msgstr "exceptional class load"
 
-#: models.py:752
+#: models.py:759
 msgid "exceptional class loads"
 msgstr "exceptional class loads"
 
-#: models.py:759 models.py:864 models.py:1041 printmodel/Owner_0001.py:355
+#: models.py:766 models.py:871 models.py:1048 printmodel/Owner_0001.py:355
 #: printmodel/Owner_0001.py:359
 msgid "numeros"
 msgstr "numeros"
 
-#: models.py:761 printmodel/Owner_0001.py:359
+#: models.py:768 printmodel/Owner_0001.py:359
 msgid "description"
 msgstr "description"
 
-#: models.py:801 printmodel/Owner_0001.py:359
+#: models.py:808 printmodel/Owner_0001.py:359
 msgid "property lot"
 msgstr "property lot"
 
-#: models.py:802
+#: models.py:809
 msgid "property lots"
 msgstr "property lots"
 
-#: models.py:865 models.py:1042 printmodel/Owner_0001.py:355
+#: models.py:872 models.py:1049 printmodel/Owner_0001.py:355
 msgid "date"
 msgstr "date"
 
-#: models.py:866 models.py:1043 printmodel/Owner_0001.py:355
+#: models.py:873 models.py:1050 printmodel/Owner_0001.py:355
 msgid "comment"
 msgstr "comment"
 
-#: models.py:867
+#: models.py:874
 msgid "type of call"
 msgstr "type of call"
 
-#: models.py:868
+#: models.py:875
 msgid "cash advance"
 msgstr "cash advance"
 
-#: models.py:869 models.py:1046
+#: models.py:876 models.py:1053
 msgid "status"
 msgstr "status"
 
-#: models.py:870 models.py:1047
+#: models.py:877 models.py:1054
 msgid "building"
 msgstr "building"
 
-#: models.py:870 models.py:1047
+#: models.py:877 models.py:1054
 msgid "valid"
 msgstr "valid"
 
-#: models.py:870 models.py:1047
+#: models.py:877 models.py:1054
 msgid "ended"
 msgstr "ended"
 
-#: models.py:873
+#: models.py:880
 #, python-format
 msgid "call of funds #%(num)d - %(date)s"
 msgstr "call of funds #%(num)d - %(date)s"
 
-#: models.py:877 printmodel/Owner_0001.py:358
+#: models.py:884 printmodel/Owner_0001.py:358
 msgid "rest to pay"
 msgstr "rest to pay"
 
-#: models.py:900 models.py:1108
+#: models.py:907 models.py:1115
 #, python-format
 msgid "\"%s\" cannot be deleted!"
 msgstr "\"%s\" cannot be deleted!"
 
-#: models.py:903 models.py:1181
+#: models.py:910 models.py:1188
 msgid "Valid"
 msgstr "Valid"
 
-#: models.py:930
+#: models.py:937
 msgid "Category of charge not fill!"
 msgstr "Category of charge not fill!"
 
-#: models.py:943 models.py:1198
+#: models.py:950 models.py:1205
 msgid "Closed"
 msgstr "Closed"
 
-#: models.py:964
+#: models.py:971
 msgid "incorrect account for call of found"
 msgstr "Incorrect account for call of found!"
 
-#: models.py:974 models.py:980 printmodel/CallFunds_0001.py:31
+#: models.py:981 models.py:987 printmodel/CallFunds_0001.py:31
 #: printmodel/CallFunds_0001.py:142 printmodel/Owner_0001.py:355
 #: views_report.py:359
 msgid "call of funds"
 msgstr "call of funds"
 
-#: models.py:975
+#: models.py:982
 msgid "calls of funds"
 msgstr "calls of funds"
 
-#: models.py:983 models.py:1231 printmodel/CallFunds_0001.py:144
+#: models.py:990 models.py:1238 printmodel/CallFunds_0001.py:144
 msgid "designation"
 msgstr "designation"
 
-#: models.py:984 models.py:994 printmodel/CallFunds_0001.py:148
+#: models.py:991 models.py:1001 printmodel/CallFunds_0001.py:148
 #: printmodel/Owner_0001.py:360
 msgid "amount"
 msgstr "amount"
 
-#: models.py:987 models.py:1236
+#: models.py:994 models.py:1243
 msgid "entry"
 msgstr "entry"
 
-#: models.py:1035
+#: models.py:1042
 msgid "detail of call"
 msgstr "detail of call"
 
-#: models.py:1036
+#: models.py:1043
 msgid "details of call"
 msgstr "details of call"
 
-#: models.py:1044
+#: models.py:1051
 msgid "expense type"
 msgstr "expense type"
 
-#: models.py:1045 models.py:1054
+#: models.py:1052 models.py:1061
 msgid "asset of expense"
 msgstr "asset of expense"
 
-#: models.py:1048
+#: models.py:1055
 msgid "entries"
 msgstr "entries"
 
-#: models.py:1129 models.py:1280 models.py:1293
+#: models.py:1136 models.py:1287 models.py:1300
 #, python-format
 msgid "code account %s unknown!"
 msgstr "code account %s unknown!"
 
-#: models.py:1148 models.py:1297
+#: models.py:1155 models.py:1304
 msgid "Error in accounting generator!"
 msgstr "Error in accounting generator!"
 
-#: models.py:1163
+#: models.py:1170
 msgid "Re-edit"
 msgstr "Re-edit"
 
-#: models.py:1222
+#: models.py:1229
 msgid "expenses"
 msgstr "expenses"
 
-#: models.py:1232
+#: models.py:1239
 msgid "account"
 msgstr "account"
 
-#: models.py:1233 models.py:1243
+#: models.py:1240 models.py:1250
 msgid "price"
 msgstr "price"
 
-#: models.py:1322 models.py:1329 models.py:1339
+#: models.py:1329 models.py:1336 models.py:1346
 msgid "detail of expense"
 msgstr "detail of expense"
 
-#: models.py:1323 models.py:1340
+#: models.py:1330 models.py:1347
 msgid "details of expense"
 msgstr "details of expense"
 
-#: models.py:1332
+#: models.py:1339
 msgid "value"
 msgstr "value"
 
-#: models.py:1429
+#: models.py:1436
 msgid "condominium-default-owner-account"
 msgstr "default owner account"
 
-#: models.py:1431
+#: models.py:1438
 msgid "condominium-default-owner-account1"
 msgstr "default owner current account"
 
-#: models.py:1433
+#: models.py:1440
 msgid "condominium-default-owner-account2"
 msgstr "default owner exceptionnal account"
 
-#: models.py:1435
+#: models.py:1442
 msgid "condominium-default-owner-account3"
 msgstr "default owner advance account"
 
-#: models.py:1437
+#: models.py:1444
 msgid "condominium-default-owner-account4"
 msgstr "default owner loan account"
 
-#: models.py:1439
+#: models.py:1446
 msgid "condominium-current-revenue-account"
 msgstr "current revenue account"
 
-#: models.py:1441
+#: models.py:1448
 msgid "condominium-exceptional-revenue-account"
 msgstr "exceptional revenue account"
 
-#: models.py:1443
+#: models.py:1450
 msgid "condominium-exceptional-reserve-account"
 msgstr "exceptional reserve account"
 
-#: models.py:1445
+#: models.py:1452
 msgid "condominium-advance-reserve-account"
 msgstr "advance reserve account"
 
-#: models.py:1447
+#: models.py:1454
 msgid "condominium-old-accounting"
 msgstr "is old accounting"
 
@@ -462,7 +462,7 @@ msgstr "Owner situation"
 msgid "partition"
 msgstr "partition"
 
-#: printmodel/Owner_0001.py:360 views_expense.py:101
+#: printmodel/Owner_0001.py:360 views.py:132 views_expense.py:101
 msgid "payoff"
 msgstr "payoff"
 
@@ -482,92 +482,104 @@ msgstr "bank account"
 msgid "reference"
 msgstr "reference"
 
-#: views.py:31
+#: views.py:33
 msgid "Manage of owners and property lots"
 msgstr "Manage of owners and property lots"
 
-#: views.py:36
+#: views.py:38
 msgid "Owners and property lots"
 msgstr "Owners and property lots"
 
-#: views.py:39 views_classload.py:408
+#: views.py:41 views_classload.py:408
 msgid "Owners"
 msgstr "Owners"
 
-#: views.py:43 views_classload.py:411
+#: views.py:45 views_classload.py:411
 msgid "Property lots"
 msgstr "Property lots"
 
-#: views.py:49
+#: views.py:51
 #, python-format
 msgid "Total of lot parts: %d"
 msgstr "Total of lot tantimes: %d"
 
-#: views.py:56
+#: views.py:58
 msgid "Print owners and property lots"
 msgstr "Print owners and property lots"
 
-#: views.py:70
+#: views.py:72
 msgid "Add owner"
 msgstr "Add owner"
 
-#: views.py:80
+#: views.py:82
 msgid "Modify owner"
 msgstr "Modify owner"
 
-#: views.py:89
+#: views.py:91
 msgid "Delete owner"
 msgstr "Delete owner"
 
-#: views.py:98
+#: views.py:100
 msgid "Show owner"
 msgstr "Show owner"
 
-#: views.py:103
+#: views.py:105
 msgid "initial date"
 msgstr "initial date"
 
-#: views.py:113
+#: views.py:115
 msgid "current date"
 msgstr "current date"
 
-#: views.py:137
+#: views.py:135 views.py:152
+msgid "Multi-pay owner"
+msgstr "Multi-pay owner"
+
+#: views.py:149
+msgid "ventilate"
+msgstr "ventilate"
+
+#: views.py:164
+msgid "Do you want to ventilate general payoff on calls of funds ?"
+msgstr "Do you want to ventilate general payoff on calls of funds ?"
+
+#: views.py:177
 msgid "Print owner"
 msgstr "Print owner"
 
-#: views.py:154
+#: views.py:194
 msgid "Add property lot"
 msgstr "Add property lot"
 
-#: views.py:155
+#: views.py:195
 msgid "Modify property lot"
 msgstr "Modify property lot"
 
-#: views.py:164
+#: views.py:204
 msgid "Delete property lot"
 msgstr "Delete property lot"
 
-#: views.py:184
+#: views.py:224
 msgid "View situation of your condominium."
 msgstr "View situation of your condominium."
 
-#: views.py:186
+#: views.py:226
 msgid "Your condominium"
 msgstr "Your condominium"
 
-#: views.py:191
+#: views.py:231
 msgid "Bad access!"
 msgstr "Bad access!"
 
-#: views.py:206
+#: views.py:246
 msgid "Condominium conversion"
 msgstr "Condominium conversion"
 
-#: views.py:210
+#: views.py:250
 msgid "How do want to convert owner third account?"
 msgstr "How do want to convert owner third account?"
 
-#: views.py:251
+#: views.py:291
 #, python-format
 msgid ""
 "This conversion tool will change your account to respect French law about "
@@ -588,32 +600,32 @@ msgstr ""
 "{[center]}{[u]}{[b]}Warning: This action is  definitive.{[/b]}{[/u]}"
 "{[center]}"
 
-#: views.py:254
+#: views.py:294
 msgid "Third accounts"
 msgstr "Third accounts"
 
-#: views.py:256
+#: views.py:296
 msgid "Parameters"
 msgstr "Parameters"
 
-#: views.py:279
+#: views.py:319
 msgid "Data converted"
 msgstr "Condominium accounting data converted"
 
-#: views.py:289 views.py:336 views_classload.py:373
+#: views.py:329 views.py:376 views_classload.py:373
 msgid "Condominium"
 msgstr "Condominium"
 
-#: views.py:294
+#: views.py:334
 msgid "You are a owner"
 msgstr "You are a owner"
 
-#: views.py:307
+#: views.py:347
 #, python-format
 msgid "There are %(set)d classes of loads for %(owner)d owners"
 msgstr "There are %(set)d classes of loads for %(owner)d owners"
 
-#: views.py:312
+#: views.py:352
 msgid ""
 "Your condominium account is not in respect of French law{[newline]}An "
 "conversion is necessary."
@@ -621,24 +633,24 @@ msgstr ""
 "Your condominium account is not in respect of French law{[newline]}An "
 "conversion is necessary."
 
-#: views.py:318
+#: views.py:358
 msgid "Convertion ..."
 msgstr "Convertion ..."
 
-#: views.py:362
+#: views.py:402
 msgid "This fiscal year has entries not closed!"
 msgstr "This fiscal year has entries not closed!"
 
-#: views.py:367
+#: views.py:407
 #, python-format
 msgid "This fiscal year has a result no null equals to %s."
 msgstr "This fiscal year has a result no null equals to %s."
 
-#: views.py:371
+#: views.py:411
 msgid "Where do you want to ventilate this amount?"
 msgstr "Where do you want to ventilate this amount?"
 
-#: views.py:374
+#: views.py:414
 msgid "For each owner"
 msgstr "For each owner"
 

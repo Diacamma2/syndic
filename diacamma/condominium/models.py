@@ -640,6 +640,13 @@ class Owner(Supporting):
     def get_payable_without_tax(self):
         return currency_round(max(0, self.get_total_rest_topay()))
 
+    def get_total_rest_topay(self):
+        val = Supporting.get_total_rest_topay(self)
+        for callfunds in self.callfunds_set.filter(self.callfunds_query & ~Q(type_call=1)):
+            callfunds.check_supporting()
+            val -= currency_round(callfunds.supporting.get_total_rest_topay())
+        return val
+
     def payoff_have_payment(self):
         return (self.get_total_rest_topay() > 0.001)
 

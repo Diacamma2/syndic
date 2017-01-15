@@ -648,9 +648,8 @@ class OwnerTest(PaymentTest):
             'COMPONENTS/LABELFORM[@name="total_current_payoff"]', "0.00€")
         self.assert_xml_equal(
             'COMPONENTS/LABELFORM[@name="total_current_owner"]', "-131.25€")
-        self.assert_count_equal('ACTIONS/ACTION', 4)
-        self.assert_action_equal('ACTIONS/ACTION[1]', (six.text_type(
-            'Règlement'), 'diacamma.payoff/images/payments.png', 'diacamma.payoff', 'payableShow', 0, 1, 1))
+        self.assert_count_equal('ACTIONS/ACTION', 3)
+        self.assert_action_equal('ACTIONS/ACTION[1]', (six.text_type('Règlement'), 'diacamma.payoff/images/payments.png', 'diacamma.payoff', 'payableShow', 0, 1, 1))
 
         self.factory.xfer = PayableShow()
         self.call('/diacamma.payoff/supportingPaymentMethod',
@@ -679,7 +678,7 @@ class OwnerTest(PaymentTest):
             'COMPONENTS/LABELFORM[@name="total_current_payoff"]', "100.00€")
         self.assert_xml_equal(
             'COMPONENTS/LABELFORM[@name="total_current_owner"]', "-31.25€")
-        self.assert_count_equal('ACTIONS/ACTION', 4)
+        self.assert_count_equal('ACTIONS/ACTION', 3)
 
     def test_payment_paypal_callfund(self):
         default_paymentmethod()
@@ -698,7 +697,7 @@ class OwnerTest(PaymentTest):
             'COMPONENTS/LABELFORM[@name="total_current_payoff"]', "100.00€")
         self.assert_xml_equal(
             'COMPONENTS/LABELFORM[@name="total_current_owner"]', "-31.25€")
-        self.assert_count_equal('ACTIONS/ACTION', 4)
+        self.assert_count_equal('ACTIONS/ACTION', 3)
 
     def test_send_owner(self):
         from lucterios.mailing.tests import configSMTP, TestReceiver
@@ -712,7 +711,7 @@ class OwnerTest(PaymentTest):
             'core.custom', 'diacamma.condominium', 'ownerShow')
         self.assert_xml_equal(
             'COMPONENTS/LABELFORM[@name="total_current_owner"]', "-131.25€")
-        self.assert_count_equal('ACTIONS/ACTION', 5)
+        self.assert_count_equal('ACTIONS/ACTION', 4)
 
         server = TestReceiver()
         server.start(1025)
@@ -1044,7 +1043,7 @@ class OwnerTestOldAccounting(PaymentTest):
             'COMPONENTS/LABELFORM[@name="total_current_owner"]', "100.00€")
         self.assert_count_equal(
             'COMPONENTS/LABELFORM[@name="total_current_regularization"]', 0)
-        self.assert_count_equal('ACTIONS/ACTION', 4)
+        self.assert_count_equal('ACTIONS/ACTION', 3)
 
     def test_owner_situation(self):
         add_test_callfunds(False, True)

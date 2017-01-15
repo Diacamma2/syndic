@@ -112,9 +112,22 @@ class OwnerEditor(SupportingEditor):
         lots = xfer.get_components('propertylot')
         lots.actions = []
         lots.delete_header('owner')
+        xfer.get_components('payoff').colspan = 2
         callfunds = xfer.get_components('callfunds')
         callfunds.actions = []
+        callfunds.colspan = 2
         callfunds.add_action(xfer.request, ActionsManage.get_action_url('condominium.CallFunds', 'Show', xfer), close=CLOSE_NO, unique=SELECT_SINGLE)
+
+        xfer.tab = callfunds.tab
+        row = xfer.get_max_row() + 1
+        btn = XferCompButton('add_multipayoff')
+        btn.set_location(callfunds.col, row)
+        btn.set_action(xfer.request, ActionsManage.get_action_url('condominium.Owner', 'MultiPay', xfer), modal=FORMTYPE_MODAL, close=CLOSE_NO)
+        xfer.add_component(btn)
+        btn = XferCompButton('add_ventilatePayoff')
+        btn.set_location(callfunds.col + 1, row)
+        btn.set_action(xfer.request, ActionsManage.get_action_url('condominium.Owner', 'VentilatePay', xfer), modal=FORMTYPE_MODAL, close=CLOSE_NO)
+        xfer.add_component(btn)
 
 
 class PartitionEditor(LucteriosEditor):
