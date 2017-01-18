@@ -99,6 +99,13 @@ class CallFundsShow(XferShowEditor):
     field_id = 'callfunds'
     caption = _("Show call of funds")
 
+    def fillresponse(self):
+        XferShowEditor.fillresponse(self)
+        self.add_action(ActionsManage.get_action_url('payoff.Supporting', 'Show', self),
+                        close=CLOSE_NO, params={'item_name': 'callfundssupporting', 'callfundssupporting': self.item.supporting_id}, pos_act=0)
+        self.add_action(ActionsManage.get_action_url('payoff.Supporting', 'Email', self),
+                        close=CLOSE_NO, params={'item_name': 'callfundssupporting', 'callfundssupporting': self.item.supporting_id}, pos_act=0)
+
 
 @ActionsManage.affect_grid(TITLE_PRINT, "images/print.png", unique=SELECT_MULTI, condition=lambda xfer, gridname='': xfer.getparam('status_filter', 1) > 0)
 @ActionsManage.affect_show(TITLE_PRINT, "images/print.png", close=CLOSE_NO, condition=lambda xfer: xfer.item.status in (1, 2))

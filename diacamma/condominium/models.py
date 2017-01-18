@@ -638,7 +638,7 @@ class Owner(Supporting):
         return 0.0
 
     def get_payable_without_tax(self):
-        return currency_round(max(0, self.get_total_rest_topay()))
+        return currency_round(max(0, Supporting.get_total_rest_topay(self)))
 
     def get_total_rest_topay(self):
         val = Supporting.get_total_rest_topay(self)
@@ -648,7 +648,7 @@ class Owner(Supporting):
         return val
 
     def payoff_have_payment(self):
-        return (self.get_total_rest_topay() > 0.001)
+        return (Supporting.get_total_rest_topay(self) > 0.001)
 
     @classmethod
     def get_payment_fields(cls):
@@ -834,7 +834,7 @@ class CallFundsSupporting(Supporting):
 
     @classmethod
     def get_payment_fields(cls):
-        return ["third", "callfunds.num", "callfunds.date", (_('total'), 'callfunds.total')]
+        return ["callfunds.num", "callfunds.date", "callfunds.comment", "third", ((_('total'), 'callfunds.total'),)]
 
     def support_validated(self, validate_date):
         return self
@@ -859,7 +859,7 @@ class CallFundsSupporting(Supporting):
         return self.get_total_rest_topay()
 
     def payoff_have_payment(self):
-        return (self.status == 1) and (self.get_total_rest_topay() > 0.001)
+        return (self.callfunds.status == 1) and (self.get_total_rest_topay() > 0.001)
 
     class Meta(object):
         default_permissions = []
@@ -976,6 +976,12 @@ class CallFunds(LucteriosModel):
         if (self.owner is not None) and (self.supporting is None):
             self.supporting = CallFundsSupporting.objects.create(third=self.owner.third)
             self.save()
+
+    def payoff_have_payment(self):
+        if (self.supporting is not None):
+            return self.supporting.payoff_have_payment()
+        else:
+            return False
 
     class Meta(object):
         verbose_name = _('call of funds')

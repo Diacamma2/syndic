@@ -43,11 +43,8 @@ from diacamma.payoff.views import PayableShow, PayableEmail
 
 from diacamma.condominium.views_classload import SetList, SetAddModify, SetDel, SetShow, PartitionAddModify, CondominiumConf, SetClose
 from diacamma.condominium.views import OwnerAndPropertyLotList, OwnerAdd, OwnerDel, OwnerShow, PropertyLotAddModify, CondominiumConvert
-from diacamma.condominium.test_tools import default_setowner, add_test_callfunds, old_accounting, add_test_expenses, init_compta,\
-    add_years
-from diacamma.condominium.views_report import FinancialStatus,\
-    GeneralManageAccounting, CurrentManageAccounting,\
-    ExceptionalManageAccounting
+from diacamma.condominium.test_tools import default_setowner, add_test_callfunds, old_accounting, add_test_expenses, init_compta, add_years
+from diacamma.condominium.views_report import FinancialStatus, GeneralManageAccounting, CurrentManageAccounting, ExceptionalManageAccounting
 
 
 class SetOwnerTest(LucteriosTest):
@@ -648,7 +645,7 @@ class OwnerTest(PaymentTest):
             'COMPONENTS/LABELFORM[@name="total_current_payoff"]', "0.00€")
         self.assert_xml_equal(
             'COMPONENTS/LABELFORM[@name="total_current_owner"]', "-131.25€")
-        self.assert_count_equal('ACTIONS/ACTION', 3)
+        self.assert_count_equal('ACTIONS/ACTION', 4)
         self.assert_action_equal('ACTIONS/ACTION[1]', (six.text_type('Règlement'), 'diacamma.payoff/images/payments.png', 'diacamma.payoff', 'payableShow', 0, 1, 1))
 
         self.factory.xfer = PayableShow()
@@ -678,7 +675,7 @@ class OwnerTest(PaymentTest):
             'COMPONENTS/LABELFORM[@name="total_current_payoff"]', "100.00€")
         self.assert_xml_equal(
             'COMPONENTS/LABELFORM[@name="total_current_owner"]', "-31.25€")
-        self.assert_count_equal('ACTIONS/ACTION', 3)
+        self.assert_count_equal('ACTIONS/ACTION', 4)
 
     def test_payment_paypal_callfund(self):
         default_paymentmethod()
@@ -697,7 +694,7 @@ class OwnerTest(PaymentTest):
             'COMPONENTS/LABELFORM[@name="total_current_payoff"]', "100.00€")
         self.assert_xml_equal(
             'COMPONENTS/LABELFORM[@name="total_current_owner"]', "-31.25€")
-        self.assert_count_equal('ACTIONS/ACTION', 3)
+        self.assert_count_equal('ACTIONS/ACTION', 4)
 
     def test_send_owner(self):
         from lucterios.mailing.tests import configSMTP, TestReceiver
@@ -709,9 +706,8 @@ class OwnerTest(PaymentTest):
         self.call('/diacamma.condominium/ownerShow', {'owner': 1}, False)
         self.assert_observer(
             'core.custom', 'diacamma.condominium', 'ownerShow')
-        self.assert_xml_equal(
-            'COMPONENTS/LABELFORM[@name="total_current_owner"]', "-131.25€")
-        self.assert_count_equal('ACTIONS/ACTION', 4)
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="total_current_owner"]', "-131.25€")
+        self.assert_count_equal('ACTIONS/ACTION', 5)
 
         server = TestReceiver()
         server.start(1025)
@@ -720,29 +716,23 @@ class OwnerTest(PaymentTest):
             self.factory.xfer = PayableEmail()
             self.call('/diacamma.payoff/payableEmail',
                       {'item_name': 'owner', 'owner': 1}, False)
-            self.assert_observer(
-                'core.custom', 'diacamma.payoff', 'payableEmail')
+            self.assert_observer('core.custom', 'diacamma.payoff', 'payableEmail')
             self.assert_count_equal('COMPONENTS/*', 9)
 
             self.factory.xfer = PayableEmail()
             self.call('/diacamma.payoff/payableEmail',
                       {'owner': 1, 'OK': 'YES', 'item_name': 'owner', 'subject': 'my bill', 'message': 'this is a bill.', 'model': 8, 'withpayment': 1}, False)
-            self.assert_observer(
-                'core.acknowledge', 'diacamma.payoff', 'payableEmail')
+            self.assert_observer('core.acknowledge', 'diacamma.payoff', 'payableEmail')
             self.assertEqual(1, server.count())
-            self.assertEqual(
-                'mr-sylvestre@worldcompany.com', server.get(0)[1])
-            self.assertEqual(
-                ['Minimum@worldcompany.com', 'mr-sylvestre@worldcompany.com'], server.get(0)[2])
+            self.assertEqual('mr-sylvestre@worldcompany.com', server.get(0)[1])
+            self.assertEqual(['Minimum@worldcompany.com', 'mr-sylvestre@worldcompany.com'], server.get(0)[2])
             msg, msg_file = server.check_first_message('my bill', 2, {'To': 'Minimum@worldcompany.com'})
             self.assertEqual('text/html', msg.get_content_type())
             self.assertEqual('base64', msg.get('Content-Transfer-Encoding', ''))
             self.check_email_msg(msg, 1, "copropriete de Minimum", "131.25")
 
-            self.assertTrue(
-                'copropriete_de_Minimum.pdf' in msg_file.get('Content-Type', ''), msg_file.get('Content-Type', ''))
-            self.assertEqual(
-                "%PDF".encode('ascii', 'ignore'), b64decode(msg_file.get_payload())[:4])
+            self.assertTrue('copropriete_de_Minimum.pdf' in msg_file.get('Content-Type', ''), msg_file.get('Content-Type', ''))
+            self.assertEqual("%PDF".encode('ascii', 'ignore'), b64decode(msg_file.get_payload())[:4])
         finally:
             server.stop()
 
@@ -1043,7 +1033,7 @@ class OwnerTestOldAccounting(PaymentTest):
             'COMPONENTS/LABELFORM[@name="total_current_owner"]', "100.00€")
         self.assert_count_equal(
             'COMPONENTS/LABELFORM[@name="total_current_regularization"]', 0)
-        self.assert_count_equal('ACTIONS/ACTION', 3)
+        self.assert_count_equal('ACTIONS/ACTION', 4)
 
     def test_owner_situation(self):
         add_test_callfunds(False, True)
