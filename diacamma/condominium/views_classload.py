@@ -26,17 +26,16 @@ from __future__ import unicode_literals
 
 from django.utils.translation import ugettext_lazy as _
 from django.db.models import Q
+from django.utils import six
 
 from lucterios.framework.xferadvance import XferListEditor, TITLE_MODIFY, TITLE_PRINT, TITLE_ADD, TITLE_DELETE, TITLE_EDIT,\
     TITLE_OK, TITLE_CANCEL, TITLE_CLOSE
 from lucterios.framework.xferadvance import XferAddEditor
 from lucterios.framework.xferadvance import XferShowEditor
 from lucterios.framework.xferadvance import XferDelete
-from lucterios.framework.tools import ActionsManage, MenuManage, WrapAction, FORMTYPE_REFRESH,\
-    CLOSE_NO, SELECT_SINGLE
+from lucterios.framework.tools import ActionsManage, MenuManage, WrapAction, FORMTYPE_REFRESH, CLOSE_NO, SELECT_SINGLE
 from lucterios.framework.tools import FORMTYPE_NOMODAL, FORMTYPE_MODAL, CLOSE_YES, SELECT_MULTI
-from lucterios.framework.xfercomponents import XferCompButton, XferCompImage, XferCompLabelForm, XferCompCheck,\
-    XferCompSelect
+from lucterios.framework.xfercomponents import XferCompButton, XferCompImage, XferCompLabelForm, XferCompCheck, XferCompSelect
 from lucterios.framework.xfergraphic import XferContainerCustom, XferContainerAcknowledge
 from lucterios.framework import signal_and_lock
 from lucterios.CORE.models import Parameter
@@ -47,11 +46,9 @@ from lucterios.CORE.xferprint import XferPrintAction
 from diacamma.accounting.tools import correct_accounting_code
 from diacamma.accounting.models import CostAccounting, FiscalYear
 from diacamma.accounting.views_budget import BudgetList
+from diacamma.accounting.views_reports import CostAccountingIncomeStatement
 
 from diacamma.condominium.models import Set, Partition, ExpenseDetail, Owner, PropertyLot, SetCost
-from django.utils import six
-from diacamma.accounting.views_reports import CostAccountingReport,\
-    CostAccountingIncomeStatement
 
 
 def fill_params(self, is_mini=False, new_params=False):
@@ -71,6 +68,17 @@ def fill_params(self, is_mini=False, new_params=False):
     self.add_component(btn)
 
 
+@MenuManage.describ('CORE.change_parameter')
+class CondominiumCheckOwner(XferContainerAcknowledge):
+    icon = "owner.png"
+    caption = _("Condominium check owner")
+
+    def fillresponse(self):
+        if self.confirme(_('Do you want to check account of owners?')):
+            for owner in Owner.objects.all():
+                owner.check_account()
+
+
 @MenuManage.describ('CORE.change_parameter', FORMTYPE_MODAL, 'contact.conf', _('Management of parameters of condominium'))
 class CondominiumConf(XferContainerCustom):
     icon = "condominium.png"
@@ -78,6 +86,10 @@ class CondominiumConf(XferContainerCustom):
 
     def fillresponse(self):
         fill_params(self)
+        btn = XferCompButton('checkowner')
+        btn.set_location(3, self.get_max_row(), 2, 1)
+        btn.set_action(self.request, CondominiumCheckOwner.get_action(_('check owner'), 'diacamma.condominium/images/owner.png'), close=CLOSE_NO)
+        self.add_component(btn)
 
 
 MenuManage.add_sub("condominium", None, "diacamma.condominium/images/condominium.png",

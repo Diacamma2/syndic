@@ -41,10 +41,8 @@ from lucterios.framework.signal_and_lock import Signal
 from lucterios.CORE.models import Parameter
 from lucterios.CORE.parameters import Params
 
-from diacamma.accounting.models import CostAccounting, EntryAccount, Journal,\
-    ChartsAccount, EntryLineAccount, FiscalYear, Budget
-from diacamma.accounting.tools import format_devise, currency_round,\
-    current_system_account, get_amount_sum, correct_accounting_code
+from diacamma.accounting.models import CostAccounting, EntryAccount, Journal, ChartsAccount, EntryLineAccount, FiscalYear, Budget, AccountThird
+from diacamma.accounting.tools import format_devise, currency_round, current_system_account, get_amount_sum, correct_accounting_code
 from diacamma.payoff.models import Supporting, Payoff
 
 
@@ -659,6 +657,13 @@ class Owner(Supporting):
 
     def get_docname(self):
         return _('your situation')
+
+    def check_account(self):
+        if Params.getvalue("condominium-old-accounting"):
+            AccountThird.objects.get_or_create(third=self.third, code=correct_accounting_code(Params.getvalue("condominium-default-owner-account")))
+        else:
+            for num_account in range(1, 5):
+                AccountThird.objects.get_or_create(third=self.third, code=correct_accounting_code(Params.getvalue("condominium-default-owner-account%d" % num_account)))
 
 
 class Partition(LucteriosModel):

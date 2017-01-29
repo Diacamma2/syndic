@@ -33,8 +33,8 @@ from lucterios.framework.tools import ActionsManage, FORMTYPE_MODAL, CLOSE_NO, S
 from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.CORE.parameters import Params
 
-from diacamma.accounting.tools import current_system_account, correct_accounting_code
-from diacamma.accounting.models import Third, AccountThird, FiscalYear
+from diacamma.accounting.tools import current_system_account
+from diacamma.accounting.models import Third, FiscalYear
 from diacamma.payoff.editors import SupportingEditor
 from diacamma.condominium.models import Set, CallDetail, CallFundsSupporting, Owner
 
@@ -56,14 +56,7 @@ class SetEditor(LucteriosEditor):
 class OwnerEditor(SupportingEditor):
 
     def before_save(self, xfer):
-        accounts = self.item.third.accountthird_set.filter(code__regex=current_system_account().get_societary_mask())
-        if len(accounts) == 0:
-            if Params.getvalue("condominium-old-accounting"):
-                AccountThird.objects.create(third=self.item.third, code=correct_accounting_code(Params.getvalue("condominium-default-owner-account")))
-            else:
-                for num_account in range(1, 5):
-                    AccountThird.objects.create(third=self.item.third,
-                                                code=correct_accounting_code(Params.getvalue("condominium-default-owner-account%d" % num_account)))
+        self.item.check_account()
         return SupportingEditor.before_save(self, xfer)
 
     def edit(self, xfer):

@@ -62,7 +62,7 @@ class SetOwnerTest(LucteriosTest):
         self.factory.xfer = CondominiumConf()
         self.call('/diacamma.condominium/condominiumConf', {}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'condominiumConf')
-        self.assert_count_equal('COMPONENTS/*', 17)
+        self.assert_count_equal('COMPONENTS/*', 18)
         self.assert_xml_equal('COMPONENTS/LABELFORM[@name="condominium-default-owner-account1"]', '4501')
         self.assert_xml_equal('COMPONENTS/LABELFORM[@name="condominium-default-owner-account2"]', '4502')
         self.assert_xml_equal('COMPONENTS/LABELFORM[@name="condominium-default-owner-account3"]', '4503')
@@ -77,7 +77,7 @@ class SetOwnerTest(LucteriosTest):
         self.factory.xfer = CondominiumConf()
         self.call('/diacamma.condominium/condominiumConf', {}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'condominiumConf')
-        self.assert_count_equal('COMPONENTS/*', 3)
+        self.assert_count_equal('COMPONENTS/*', 4)
         self.assert_xml_equal('COMPONENTS/LABELFORM[@name="condominium-default-owner-account"]', '450')
 
     def test_add_set(self):

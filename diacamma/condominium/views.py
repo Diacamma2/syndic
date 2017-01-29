@@ -308,9 +308,7 @@ class CondominiumConvert(XferContainerAcknowledge):
                     if (set_cost.year.status == 2) and (set_cost.cost_accounting.status == 0):
                         set_cost.cost_accounting.close()
                 for owner in Owner.objects.all():
-                    for num_account in range(1, 5):
-                        AccountThird.objects.create(third=owner.third,
-                                                    code=correct_accounting_code(Params.getvalue("condominium-default-owner-account%d" % num_account)))
+                    owner.check_account()
                 for year in FiscalYear.objects.filter(status__lt=2):
                     convert_accounting(year, thirds_convert)
             except:
