@@ -55,8 +55,8 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(
                     primary_key=True, verbose_name='ID', serialize=False, auto_created=True)),
-                ('value', models.DecimalField(decimal_places=2, verbose_name='value', max_digits=7, default=0.0, validators=[
-                 django.core.validators.MinValueValidator(0.0), django.core.validators.MaxValueValidator(1000.0)])),
+                ('value', models.DecimalField(decimal_places=2, verbose_name='tantime', max_digits=7, default=0.0, validators=[
+                 django.core.validators.MinValueValidator(0.0), django.core.validators.MaxValueValidator(100000.0)])),
                 ('owner', models.ForeignKey(to='condominium.Owner',
                                             on_delete=models.PROTECT, verbose_name='owner')),
                 ('set', models.ForeignKey(to='condominium.Set',
@@ -93,7 +93,7 @@ class Migration(migrations.Migration):
                     primary_key=True, auto_created=True, serialize=False, verbose_name='ID')),
                 ('designation', models.TextField(verbose_name='designation')),
                 ('price', models.DecimalField(max_digits=10, validators=[django.core.validators.MinValueValidator(
-                    0.0), django.core.validators.MaxValueValidator(9999999.999)], verbose_name='price', default=0.0, decimal_places=3)),
+                    0.0), django.core.validators.MaxValueValidator(9999999.999)], verbose_name='amount', default=0.0, decimal_places=3)),
                 ('callfunds', models.ForeignKey(null=True, default=None, verbose_name='call of funds',
                                                 to='condominium.CallFunds', on_delete=models.PROTECT)),
                 ('set', models.ForeignKey(on_delete=models.CASCADE,
