@@ -134,20 +134,19 @@ class Set(LucteriosModel):
             if isinstance(year, int) or (year is None):
                 year = FiscalYear.get_current(year)
             if year.begin.year == year.end.year:
-                cost_accounting_name = "%s %s" % (self.name, year.begin.year)
+                cost_accounting_name = "[%d]%s %s" % (self.id, self.name, year.begin.year)
             else:
-                cost_accounting_name = "%s %s/%s" % (self.name, year.begin.year, year.end.year)
+                cost_accounting_name = "[%d]%s %s/%s" % (self.id, self.name, year.begin.year, year.end.year)
             costs = self.setcost_set.filter(year=year.last_fiscalyear)
             if len(costs) > 0:
                 last_cost = costs[0].cost_accounting
             else:
                 last_cost = None
-        if (year is None) or (year.status != 2):
-            cost_accounting = CostAccounting.objects.create(name=cost_accounting_name, description=cost_accounting_name,
-                                                            last_costaccounting=last_cost, is_protected=True)
-            return SetCost.objects.create(set=self, year=year, cost_accounting=cost_accounting)
-        else:
-            return None
+        cost_accounting = CostAccounting.objects.create(name=cost_accounting_name, description=cost_accounting_name,
+                                                        last_costaccounting=last_cost, is_protected=True)
+        if (year is not None) and (year.status == 2):
+            cost_accounting.close()
+        return SetCost.objects.create(set=self, year=year, cost_accounting=cost_accounting)
 
     def convert_cost(self):
         if (len(self.setcost_set.all()) == 0) and (self.cost_accounting_id is not None):
