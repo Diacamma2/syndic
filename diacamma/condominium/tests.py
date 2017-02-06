@@ -45,6 +45,7 @@ from diacamma.condominium.views_classload import SetList, SetAddModify, SetDel, 
 from diacamma.condominium.views import OwnerAndPropertyLotList, OwnerAdd, OwnerDel, OwnerShow, PropertyLotAddModify, CondominiumConvert
 from diacamma.condominium.test_tools import default_setowner, add_test_callfunds, old_accounting, add_test_expenses, init_compta, add_years
 from diacamma.condominium.views_report import FinancialStatus, GeneralManageAccounting, CurrentManageAccounting, ExceptionalManageAccounting
+from diacamma.accounting.views_other import CostAccountingList
 
 
 class SetOwnerTest(LucteriosTest):
@@ -54,7 +55,6 @@ class SetOwnerTest(LucteriosTest):
         initial_thirds()
         LucteriosTest.setUp(self)
         default_compta()
-        default_costaccounting()
         default_bankaccount()
         rmtree(get_user_dir(), True)
 
@@ -81,54 +81,80 @@ class SetOwnerTest(LucteriosTest):
         self.assert_xml_equal('COMPONENTS/LABELFORM[@name="condominium-default-owner-account"]', '450')
 
     def test_add_set(self):
+        self.factory.xfer = CostAccountingList()
+        self.call('/diacamma.accounting/costAccountingList', {}, False)
+        self.assert_observer('core.custom', 'diacamma.accounting', 'costAccountingList')
+        self.assert_count_equal('COMPONENTS/GRID[@name="costaccounting"]/RECORD', 0)
+
         self.factory.xfer = SetList()
         self.call('/diacamma.condominium/setList', {}, False)
-        self.assert_observer(
-            'core.custom', 'diacamma.condominium', 'setList')
+        self.assert_observer('core.custom', 'diacamma.condominium', 'setList')
         self.assert_count_equal('COMPONENTS/GRID[@name="set"]/RECORD', 0)
         self.assert_count_equal('COMPONENTS/GRID[@name="set"]/HEADER', 5)
 
         self.factory.xfer = SetAddModify()
         self.call('/diacamma.condominium/setAddModify', {}, False)
-        self.assert_observer(
-            'core.custom', 'diacamma.condominium', 'setAddModify')
+        self.assert_observer('core.custom', 'diacamma.condominium', 'setAddModify')
         self.assert_count_equal('COMPONENTS/*', 7)
 
         self.factory.xfer = SetAddModify()
-        self.call('/diacamma.condominium/setAddModify',
-                  {'SAVE': 'YES', "name": "abc123", "revenue_account": '704', 'type_load': 1}, False)
-        self.assert_observer(
-            'core.acknowledge', 'diacamma.condominium', 'setAddModify')
+        self.call('/diacamma.condominium/setAddModify', {'SAVE': 'YES', "name": "abc123", 'type_load': 1}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'setAddModify')
+
+        self.factory.xfer = SetShow()
+        self.call('/diacamma.condominium/setShow', {"set": 1}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'setShow')
+        self.assert_count_equal('COMPONENTS/*', 19)
+
+        self.factory.xfer = SetAddModify()
+        self.call('/diacamma.condominium/setAddModify', {'SAVE': 'YES', "name": "xyz987", 'type_load': 0}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'setAddModify')
+
+        self.factory.xfer = SetShow()
+        self.call('/diacamma.condominium/setShow', {"set": 2}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'setShow')
 
         self.factory.xfer = SetList()
         self.call('/diacamma.condominium/setList', {}, False)
-        self.assert_observer(
-            'core.custom', 'diacamma.condominium', 'setList')
-        self.assert_count_equal('COMPONENTS/GRID[@name="set"]/RECORD', 1)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'setList')
+        self.assert_count_equal('COMPONENTS/GRID[@name="set"]/RECORD', 2)
         self.assert_count_equal('COMPONENTS/GRID[@name="set"]/HEADER', 5)
-        self.assert_xml_equal(
-            'COMPONENTS/GRID[@name="set"]/RECORD[1]/VALUE[@name="name"]', 'abc123')
-        self.assert_xml_equal(
-            'COMPONENTS/GRID[@name="set"]/RECORD[1]/VALUE[@name="budget_txt"]', '0.00€')
-        self.assert_xml_equal(
-            'COMPONENTS/GRID[@name="set"]/RECORD[1]/VALUE[@name="type_load"]', 'charge exceptionnelle')
-        self.assert_xml_equal(
-            'COMPONENTS/GRID[@name="set"]/RECORD[1]/VALUE[@name="partition_set"]', None)
-        self.assert_xml_equal(
-            'COMPONENTS/GRID[@name="set"]/RECORD[1]/VALUE[@name="sumexpense_txt"]', "0.00€")
+        self.assert_xml_equal('COMPONENTS/GRID[@name="set"]/RECORD[1]/VALUE[@name="name"]', 'abc123')
+        self.assert_xml_equal('COMPONENTS/GRID[@name="set"]/RECORD[1]/VALUE[@name="budget_txt"]', '0.00€')
+        self.assert_xml_equal('COMPONENTS/GRID[@name="set"]/RECORD[1]/VALUE[@name="type_load"]', 'charge exceptionnelle')
+        self.assert_xml_equal('COMPONENTS/GRID[@name="set"]/RECORD[1]/VALUE[@name="partition_set"]', None)
+        self.assert_xml_equal('COMPONENTS/GRID[@name="set"]/RECORD[1]/VALUE[@name="sumexpense_txt"]', "0.00€")
+        self.assert_xml_equal('COMPONENTS/GRID[@name="set"]/RECORD[2]/VALUE[@name="name"]', 'xyz987')
+        self.assert_xml_equal('COMPONENTS/GRID[@name="set"]/RECORD[2]/VALUE[@name="budget_txt"]', '0.00€')
+        self.assert_xml_equal('COMPONENTS/GRID[@name="set"]/RECORD[2]/VALUE[@name="type_load"]', 'charge courante')
+        self.assert_xml_equal('COMPONENTS/GRID[@name="set"]/RECORD[2]/VALUE[@name="partition_set"]', None)
+        self.assert_xml_equal('COMPONENTS/GRID[@name="set"]/RECORD[2]/VALUE[@name="sumexpense_txt"]', "0.00€")
+
+        self.factory.xfer = CostAccountingList()
+        self.call('/diacamma.accounting/costAccountingList', {}, False)
+        self.assert_observer('core.custom', 'diacamma.accounting', 'costAccountingList')
+        self.assert_count_equal('COMPONENTS/GRID[@name="costaccounting"]/RECORD', 2)
+        self.assert_xml_equal('COMPONENTS/GRID[@name="costaccounting"]/RECORD[1]/VALUE[@name="name"]', '[1]abc123')
+        self.assert_xml_equal('COMPONENTS/GRID[@name="costaccounting"]/RECORD[2]/VALUE[@name="name"]', '[2]xyz987 2015')
 
         self.factory.xfer = SetDel()
-        self.call('/diacamma.condominium/setDel',
-                  {'CONFIRME': 'YES', "set": 1}, False)
-        self.assert_observer(
-            'core.acknowledge', 'diacamma.condominium', 'setDel')
+        self.call('/diacamma.condominium/setDel', {'CONFIRME': 'YES', "set": 1}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'setDel')
+
+        self.factory.xfer = SetDel()
+        self.call('/diacamma.condominium/setDel', {'CONFIRME': 'YES', "set": 2}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'setDel')
 
         self.factory.xfer = SetList()
         self.call('/diacamma.condominium/setList', {}, False)
-        self.assert_observer(
-            'core.custom', 'diacamma.condominium', 'setList')
+        self.assert_observer('core.custom', 'diacamma.condominium', 'setList')
         self.assert_count_equal('COMPONENTS/GRID[@name="set"]/RECORD', 0)
         self.assert_count_equal('COMPONENTS/GRID[@name="set"]/HEADER', 5)
+
+        self.factory.xfer = CostAccountingList()
+        self.call('/diacamma.accounting/costAccountingList', {}, False)
+        self.assert_observer('core.custom', 'diacamma.accounting', 'costAccountingList')
+        self.assert_count_equal('COMPONENTS/GRID[@name="costaccounting"]/RECORD', 0)
 
     def test_add_owner(self):
         self.factory.xfer = OwnerAndPropertyLotList()
@@ -436,116 +462,76 @@ class SetOwnerTest(LucteriosTest):
 
     def test_modify_partition(self):
         self.factory.xfer = SetAddModify()
-        self.call('/diacamma.condominium/setAddModify',
-                  {'SAVE': 'YES', "name": "AAA", "budget": '1000', "revenue_account": '704'}, False)
-        self.assert_observer(
-            'core.acknowledge', 'diacamma.condominium', 'setAddModify')
+        self.call('/diacamma.condominium/setAddModify', {'SAVE': 'YES', "name": "AAA", "budget": '1000'}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'setAddModify')
         self.factory.xfer = OwnerAdd()
         self.call('/diacamma.condominium/ownerAddModify',
                   {'SAVE': 'YES', "third": 4}, False)
-        self.assert_observer(
-            'core.acknowledge', 'diacamma.condominium', 'ownerAddModify')
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'ownerAddModify')
         self.factory.xfer = OwnerAdd()
-        self.call('/diacamma.condominium/ownerAddModify',
-                  {'SAVE': 'YES', "third": 5}, False)
-        self.assert_observer(
-            'core.acknowledge', 'diacamma.condominium', 'ownerAddModify')
+        self.call('/diacamma.condominium/ownerAddModify', {'SAVE': 'YES', "third": 5}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'ownerAddModify')
         self.factory.xfer = OwnerAdd()
-        self.call('/diacamma.condominium/ownerAddModify',
-                  {'SAVE': 'YES', "third": 7}, False)
-        self.assert_observer(
-            'core.acknowledge', 'diacamma.condominium', 'ownerAddModify')
+        self.call('/diacamma.condominium/ownerAddModify', {'SAVE': 'YES', "third": 7}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'ownerAddModify')
 
         self.factory.xfer = SetShow()
         self.call('/diacamma.condominium/setShow', {'set': 1}, False)
-        self.assert_observer(
-            'core.custom', 'diacamma.condominium', 'setShow')
-        self.assert_count_equal('COMPONENTS/*', 21)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'setShow')
+        self.assert_count_equal('COMPONENTS/*', 19)
         self.assert_count_equal('COMPONENTS/GRID[@name="partition"]/RECORD', 3)
         self.assert_count_equal('COMPONENTS/GRID[@name="partition"]/HEADER', 4)
-        self.assert_count_equal(
-            'COMPONENTS/GRID[@name="partition"]/ACTIONS/ACTION', 1)
-        self.assert_xml_equal(
-            'COMPONENTS/GRID[@name="partition"]/RECORD[1]/VALUE[@name="value"]', '0.00')
-        self.assert_xml_equal(
-            'COMPONENTS/GRID[@name="partition"]/RECORD[1]/VALUE[@name="ratio"]', '0.0 %')
-        self.assert_xml_equal(
-            'COMPONENTS/GRID[@name="partition"]/RECORD[1]/VALUE[@name="ventilated_txt"]', '0.00€')
-        self.assert_xml_equal(
-            'COMPONENTS/GRID[@name="partition"]/RECORD[2]/VALUE[@name="value"]', '0.00')
-        self.assert_xml_equal(
-            'COMPONENTS/GRID[@name="partition"]/RECORD[2]/VALUE[@name="ratio"]', '0.0 %')
-        self.assert_xml_equal(
-            'COMPONENTS/GRID[@name="partition"]/RECORD[2]/VALUE[@name="ventilated_txt"]', '0.00€')
-        self.assert_xml_equal(
-            'COMPONENTS/GRID[@name="partition"]/RECORD[3]/VALUE[@name="value"]', '0.00')
-        self.assert_xml_equal(
-            'COMPONENTS/GRID[@name="partition"]/RECORD[3]/VALUE[@name="ratio"]', '0.0 %')
-        self.assert_xml_equal(
-            'COMPONENTS/GRID[@name="partition"]/RECORD[2]/VALUE[@name="ventilated_txt"]', '0.00€')
-        self.assert_xml_equal(
-            'COMPONENTS/LABELFORM[@name="total_part"]', '0.00')
-        self.assert_xml_equal(
-            'COMPONENTS/LABELFORM[@name="sumexpense_txt"]', "0.00€")
-        self.assert_xml_equal(
-            'COMPONENTS/LABELFORM[@name="current_cost_accounting"]', "AAA 2015")
+        self.assert_count_equal('COMPONENTS/GRID[@name="partition"]/ACTIONS/ACTION', 1)
+        self.assert_xml_equal('COMPONENTS/GRID[@name="partition"]/RECORD[1]/VALUE[@name="value"]', '0.00')
+        self.assert_xml_equal('COMPONENTS/GRID[@name="partition"]/RECORD[1]/VALUE[@name="ratio"]', '0.0 %')
+        self.assert_xml_equal('COMPONENTS/GRID[@name="partition"]/RECORD[1]/VALUE[@name="ventilated_txt"]', '0.00€')
+        self.assert_xml_equal('COMPONENTS/GRID[@name="partition"]/RECORD[2]/VALUE[@name="value"]', '0.00')
+        self.assert_xml_equal('COMPONENTS/GRID[@name="partition"]/RECORD[2]/VALUE[@name="ratio"]', '0.0 %')
+        self.assert_xml_equal('COMPONENTS/GRID[@name="partition"]/RECORD[2]/VALUE[@name="ventilated_txt"]', '0.00€')
+        self.assert_xml_equal('COMPONENTS/GRID[@name="partition"]/RECORD[3]/VALUE[@name="value"]', '0.00')
+        self.assert_xml_equal('COMPONENTS/GRID[@name="partition"]/RECORD[3]/VALUE[@name="ratio"]', '0.0 %')
+        self.assert_xml_equal('COMPONENTS/GRID[@name="partition"]/RECORD[2]/VALUE[@name="ventilated_txt"]', '0.00€')
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="total_part"]', '0.00')
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="sumexpense_txt"]', "0.00€")
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="current_cost_accounting"]', "[1]AAA 2015")
 
         self.factory.xfer = PartitionAddModify()
-        self.call(
-            '/diacamma.condominium/partitionAddModify', {'partition': 1}, False)
-        self.assert_observer(
-            'core.custom', 'diacamma.condominium', 'partitionAddModify')
+        self.call('/diacamma.condominium/partitionAddModify', {'partition': 1}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'partitionAddModify')
         self.assert_count_equal('COMPONENTS/*', 7)
 
         self.factory.xfer = PartitionAddModify()
-        self.call(
-            '/diacamma.condominium/partitionAddModify', {'partition': 1, 'SAVE': 'YES', 'value': 10}, False)
-        self.assert_observer(
-            'core.acknowledge', 'diacamma.condominium', 'partitionAddModify')
+        self.call('/diacamma.condominium/partitionAddModify', {'partition': 1, 'SAVE': 'YES', 'value': 10}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'partitionAddModify')
         self.factory.xfer = PartitionAddModify()
-        self.call(
-            '/diacamma.condominium/partitionAddModify', {'partition': 2, 'SAVE': 'YES', 'value': 20}, False)
-        self.assert_observer(
-            'core.acknowledge', 'diacamma.condominium', 'partitionAddModify')
+        self.call('/diacamma.condominium/partitionAddModify', {'partition': 2, 'SAVE': 'YES', 'value': 20}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'partitionAddModify')
         self.factory.xfer = PartitionAddModify()
-        self.call(
-            '/diacamma.condominium/partitionAddModify', {'partition': 3, 'SAVE': 'YES', 'value': 30}, False)
-        self.assert_observer(
-            'core.acknowledge', 'diacamma.condominium', 'partitionAddModify')
+        self.call('/diacamma.condominium/partitionAddModify', {'partition': 3, 'SAVE': 'YES', 'value': 30}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'partitionAddModify')
 
         self.factory.xfer = SetShow()
         self.call('/diacamma.condominium/setShow', {'set': 1}, False)
-        self.assert_observer(
-            'core.custom', 'diacamma.condominium', 'setShow')
+        self.assert_observer('core.custom', 'diacamma.condominium', 'setShow')
         self.assert_count_equal('COMPONENTS/GRID[@name="partition"]/RECORD', 3)
-        self.assert_xml_equal(
-            'COMPONENTS/GRID[@name="partition"]/RECORD[1]/VALUE[@name="value"]', '10.00')
-        self.assert_xml_equal(
-            'COMPONENTS/GRID[@name="partition"]/RECORD[1]/VALUE[@name="ratio"]', '16.7 %')
-        self.assert_xml_equal(
-            'COMPONENTS/GRID[@name="partition"]/RECORD[2]/VALUE[@name="value"]', '20.00')
-        self.assert_xml_equal(
-            'COMPONENTS/GRID[@name="partition"]/RECORD[2]/VALUE[@name="ratio"]', '33.3 %')
-        self.assert_xml_equal(
-            'COMPONENTS/GRID[@name="partition"]/RECORD[3]/VALUE[@name="value"]', '30.00')
-        self.assert_xml_equal(
-            'COMPONENTS/GRID[@name="partition"]/RECORD[3]/VALUE[@name="ratio"]', '50.0 %')
-        self.assert_xml_equal(
-            'COMPONENTS/LABELFORM[@name="total_part"]', '60.00')
+        self.assert_xml_equal('COMPONENTS/GRID[@name="partition"]/RECORD[1]/VALUE[@name="value"]', '10.00')
+        self.assert_xml_equal('COMPONENTS/GRID[@name="partition"]/RECORD[1]/VALUE[@name="ratio"]', '16.7 %')
+        self.assert_xml_equal('COMPONENTS/GRID[@name="partition"]/RECORD[2]/VALUE[@name="value"]', '20.00')
+        self.assert_xml_equal('COMPONENTS/GRID[@name="partition"]/RECORD[2]/VALUE[@name="ratio"]', '33.3 %')
+        self.assert_xml_equal('COMPONENTS/GRID[@name="partition"]/RECORD[3]/VALUE[@name="value"]', '30.00')
+        self.assert_xml_equal('COMPONENTS/GRID[@name="partition"]/RECORD[3]/VALUE[@name="ratio"]', '50.0 %')
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="total_part"]', '60.00')
 
         self.factory.xfer = OwnerAndPropertyLotList()
         self.call('/diacamma.condominium/ownerAndPropertyLotList', {}, False)
-        self.assert_observer(
-            'core.custom', 'diacamma.condominium', 'ownerAndPropertyLotList')
+        self.assert_observer('core.custom', 'diacamma.condominium', 'ownerAndPropertyLotList')
         self.assert_count_equal('COMPONENTS/GRID[@name="owner"]/RECORD', 3)
 
         self.factory.xfer = SetList()
         self.call('/diacamma.condominium/setList', {}, False)
-        self.assert_observer(
-            'core.custom', 'diacamma.condominium', 'setList')
+        self.assert_observer('core.custom', 'diacamma.condominium', 'setList')
         self.assert_count_equal('COMPONENTS/GRID[@name="set"]/RECORD', 1)
-        self.assert_xml_equal(
-            'COMPONENTS/GRID[@name="set"]/RECORD[1]/VALUE[@name="partition_set"]', "Minimum : 16.7 %{[br/]}Dalton William : 33.3 %{[br/]}Dalton Joe : 50.0 %")
+        self.assert_xml_equal('COMPONENTS/GRID[@name="set"]/RECORD[1]/VALUE[@name="partition_set"]', "Minimum : 16.7 %{[br/]}Dalton William : 33.3 %{[br/]}Dalton Joe : 50.0 %")
 
 
 class ReportTest(PaymentTest):
@@ -861,7 +847,7 @@ class OwnerTest(PaymentTest):
         self.assert_count_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD', 2)
         self.assert_xml_equal("COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit:{[/b]} 350.00€ - {[b]}Charge:{[/b]} 187.34€ = {[b]}Résultat:{[/b]} 162.66€ | {[b]}Trésorie:{[/b]} 36.84€ - {[b]}Validé:{[/b]} 36.84€{[/center]}')
 
-        self.assert_xml_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD[2]/VALUE[@name="costaccounting"]', 'CCC')
+        self.assert_xml_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD[2]/VALUE[@name="costaccounting"]', '[3]CCC')
         description = self.get_first_xpath('COMPONENTS/GRID[@name="entryaccount"]/RECORD[2]/VALUE[@name="description"]').text
         self.assertTrue('[4502 Minimum]' in description, description)
         self.assertTrue('[4502 Dalton William]' in description, description)

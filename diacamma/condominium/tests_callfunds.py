@@ -283,23 +283,23 @@ class CallFundsTest(LucteriosTest):
         self.call('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '-1', 'filter': '0'}, False)
         self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
         self.assert_count_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD', 5)
-        self.assert_xml_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD[1]/VALUE[@name="costaccounting"]', 'AAA 2015')
+        self.assert_xml_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD[1]/VALUE[@name="costaccounting"]', '[1]AAA 2015')
         description = self.get_first_xpath('COMPONENTS/GRID[@name="entryaccount"]/RECORD[1]/VALUE[@name="description"]').text
         self.assertTrue('[4501 Minimum]' in description, description)
         self.assertTrue('[701] 701' in description, description)
-        self.assert_xml_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD[2]/VALUE[@name="costaccounting"]', 'BBB 2015')
+        self.assert_xml_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD[2]/VALUE[@name="costaccounting"]', '[2]BBB 2015')
         description = self.get_first_xpath('COMPONENTS/GRID[@name="entryaccount"]/RECORD[2]/VALUE[@name="description"]').text
         self.assertTrue('[4501 Minimum]' in description, description)
         self.assertTrue('[701] 701' in description, description)
-        self.assert_xml_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD[3]/VALUE[@name="costaccounting"]', 'AAA 2015')
+        self.assert_xml_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD[3]/VALUE[@name="costaccounting"]', '[1]AAA 2015')
         description = self.get_first_xpath('COMPONENTS/GRID[@name="entryaccount"]/RECORD[3]/VALUE[@name="description"]').text
         self.assertTrue('[4501 Dalton William]' in description, description)
         self.assertTrue('[701] 701' in description, description)
-        self.assert_xml_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD[4]/VALUE[@name="costaccounting"]', 'AAA 2015')
+        self.assert_xml_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD[4]/VALUE[@name="costaccounting"]', '[1]AAA 2015')
         description = self.get_first_xpath('COMPONENTS/GRID[@name="entryaccount"]/RECORD[4]/VALUE[@name="description"]').text
         self.assertTrue('[4501 Dalton Joe]' in description, description)
         self.assertTrue('[701] 701' in description, description)
-        self.assert_xml_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD[5]/VALUE[@name="costaccounting"]', 'BBB 2015')
+        self.assert_xml_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD[5]/VALUE[@name="costaccounting"]', '[2]BBB 2015')
         description = self.get_first_xpath('COMPONENTS/GRID[@name="entryaccount"]/RECORD[5]/VALUE[@name="description"]').text
         self.assertTrue('[4501 Dalton Joe]' in description, description)
         self.assertTrue('[701] 701' in description, description)
@@ -391,15 +391,15 @@ class CallFundsTest(LucteriosTest):
         self.call('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '-1', 'filter': '0'}, False)
         self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
         self.assert_count_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD', 3)
-        self.assert_xml_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD[1]/VALUE[@name="costaccounting"]', 'CCC')
+        self.assert_xml_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD[1]/VALUE[@name="costaccounting"]', '[3]CCC')
         description = self.get_first_xpath('COMPONENTS/GRID[@name="entryaccount"]/RECORD[1]/VALUE[@name="description"]').text
         self.assertTrue('[4502 Minimum]' in description, description)
         self.assertTrue('[120] 120' in description, description)
-        self.assert_xml_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD[2]/VALUE[@name="costaccounting"]', 'CCC')
+        self.assert_xml_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD[2]/VALUE[@name="costaccounting"]', '[3]CCC')
         description = self.get_first_xpath('COMPONENTS/GRID[@name="entryaccount"]/RECORD[2]/VALUE[@name="description"]').text
         self.assertTrue('[4502 Dalton William]' in description, description)
         self.assertTrue('[120] 120' in description, description)
-        self.assert_xml_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD[3]/VALUE[@name="costaccounting"]', 'CCC')
+        self.assert_xml_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD[3]/VALUE[@name="costaccounting"]', '[3]CCC')
         description = self.get_first_xpath('COMPONENTS/GRID[@name="entryaccount"]/RECORD[3]/VALUE[@name="description"]').text
         self.assertTrue('[4502 Dalton Joe]' in description, description)
         self.assertTrue('[120] 120' in description, description)
@@ -495,15 +495,15 @@ class CallFundsTest(LucteriosTest):
         self.call('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '-1', 'filter': '0'}, False)
         self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
         self.assert_count_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD', 3)
-        self.assert_xml_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD[1]/VALUE[@name="costaccounting"]', 'AAA 2015')
+        self.assert_xml_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD[1]/VALUE[@name="costaccounting"]', '[1]AAA 2015')
         description = self.get_first_xpath('COMPONENTS/GRID[@name="entryaccount"]/RECORD[1]/VALUE[@name="description"]').text
         self.assertTrue('[4503 Minimum]' in description, description)
         self.assertTrue('[103] 103' in description, description)
-        self.assert_xml_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD[2]/VALUE[@name="costaccounting"]', 'AAA 2015')
+        self.assert_xml_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD[2]/VALUE[@name="costaccounting"]', '[1]AAA 2015')
         description = self.get_first_xpath('COMPONENTS/GRID[@name="entryaccount"]/RECORD[2]/VALUE[@name="description"]').text
         self.assertTrue('[4503 Dalton William]' in description, description)
         self.assertTrue('[103] 103' in description, description)
-        self.assert_xml_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD[3]/VALUE[@name="costaccounting"]', 'AAA 2015')
+        self.assert_xml_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD[3]/VALUE[@name="costaccounting"]', '[1]AAA 2015')
         description = self.get_first_xpath('COMPONENTS/GRID[@name="entryaccount"]/RECORD[3]/VALUE[@name="description"]').text
         self.assertTrue('[4503 Dalton Joe]' in description, description)
         self.assertTrue('[103] 103' in description, description)

@@ -100,7 +100,10 @@ class Set(LucteriosModel):
 
     @classmethod
     def get_show_fields(cls):
-        return [("name", ), ("revenue_account", (_('cost accounting'), 'current_cost_accounting')), ("type_load", 'is_active'), ('is_link_to_lots', (_('tantime sum'), 'total_part')), 'partition_set', ((_('budget'), "budget_txt"), (_('expense'), 'sumexpense_txt'),)]
+        if Params.getvalue("condominium-old-accounting"):
+            return [("name", ), ("revenue_account", (_('cost accounting'), 'current_cost_accounting')), ("type_load", 'is_active'), ('is_link_to_lots', (_('tantime sum'), 'total_part')), 'partition_set', ((_('budget'), "budget_txt"), (_('expense'), 'sumexpense_txt'),)]
+        else:
+            return [("name", (_('cost accounting'), 'current_cost_accounting')), ("type_load", 'is_active'), ('is_link_to_lots', (_('tantime sum'), 'total_part')), 'partition_set', ((_('budget'), "budget_txt"), (_('expense'), 'sumexpense_txt'),)]
 
     def _do_insert(self, manager, using, fields, update_pk, raw):
         new_id = LucteriosModel._do_insert(
@@ -128,7 +131,7 @@ class Set(LucteriosModel):
     def create_new_cost(self, year=None):
         if self.type_load == 1:
             year = None
-            cost_accounting_name = self.name
+            cost_accounting_name = "[%d]%s" % (self.id, self.name)
             last_cost = None
         else:
             if isinstance(year, int) or (year is None):
@@ -147,6 +150,11 @@ class Set(LucteriosModel):
         if (year is not None) and (year.status == 2):
             cost_accounting.close()
         return SetCost.objects.create(set=self, year=year, cost_accounting=cost_accounting)
+
+    @classmethod
+    def delete_orphelin_costaccounting(cls):
+        for cost in CostAccounting.objects.filter(setcost=None, is_protected=True):
+            cost.delete()
 
     def convert_cost(self):
         if (len(self.setcost_set.all()) == 0) and (self.cost_accounting_id is not None):
@@ -298,6 +306,10 @@ class Set(LucteriosModel):
         self.revenue_account = correct_accounting_code(self.revenue_account)
         self.refresh_ratio_link_lots()
         return LucteriosModel.save(self, force_insert=force_insert, force_update=force_update, using=using, update_fields=update_fields)
+
+    def delete(self, using=None):
+        LucteriosModel.delete(self, using=using)
+        Set.delete_orphelin_costaccounting()
 
     class Meta(object):
         verbose_name = _('class load')
@@ -1473,3 +1485,4 @@ def condominium_checkparam():
     for budget_item in Budget.objects.filter(year__isnull=True):
         budget_item.year = FiscalYear.get_current()
         budget_item.save()
+    Set.delete_orphelin_costaccounting()
