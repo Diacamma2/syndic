@@ -24,6 +24,7 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import unicode_literals
 from datetime import date
+from logging import getLogger
 
 from django.db import models
 from django.db.models import Q
@@ -154,10 +155,16 @@ class Set(LucteriosModel):
     @classmethod
     def delete_orphelin_costaccounting(cls):
         for cost in CostAccounting.objects.filter(setcost=None, is_protected=True):
-            cost.delete()
+            try:
+                cost.delete()
+            except LucteriosException as exp:
+                getLogger("diacamma.condominium").error("[%s] %s", cost, exp)
+                cost.is_protected = False
+                cost.save()
 
     @classmethod
     def correct_costaccounting(cls):
+        EntryAccount.clear_ghost()
         cls.delete_orphelin_costaccounting()
         for cost in CostAccounting.objects.filter(year=None, is_protected=True, setcost__year__isnull=False):
             setcost_item = cost.setcost_set.filter(year__isnull=False)
