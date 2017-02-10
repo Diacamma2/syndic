@@ -146,7 +146,7 @@ class Set(LucteriosModel):
             else:
                 last_cost = None
         cost_accounting = CostAccounting.objects.create(name=cost_accounting_name, description=cost_accounting_name,
-                                                        last_costaccounting=last_cost, is_protected=True)
+                                                        last_costaccounting=last_cost, year=year, is_protected=True)
         if (year is not None) and (year.status == 2):
             cost_accounting.close()
         return SetCost.objects.create(set=self, year=year, cost_accounting=cost_accounting)
@@ -155,6 +155,14 @@ class Set(LucteriosModel):
     def delete_orphelin_costaccounting(cls):
         for cost in CostAccounting.objects.filter(setcost=None, is_protected=True):
             cost.delete()
+
+    @classmethod
+    def correct_costaccounting(cls):
+        cls.delete_orphelin_costaccounting()
+        for cost in CostAccounting.objects.filter(year=None, is_protected=True, setcost__year__isnull=False):
+            setcost_item = cost.setcost_set.filter(year__isnull=False)
+            cost.year = setcost_item[0].year
+            cost.save()
 
     def convert_cost(self):
         if (len(self.setcost_set.all()) == 0) and (self.cost_accounting_id is not None):
@@ -1485,4 +1493,4 @@ def condominium_checkparam():
     for budget_item in Budget.objects.filter(year__isnull=True):
         budget_item.year = FiscalYear.get_current()
         budget_item.save()
-    Set.delete_orphelin_costaccounting()
+    Set.correct_costaccounting()
