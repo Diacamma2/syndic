@@ -49,6 +49,7 @@ from diacamma.accounting.views_budget import BudgetList
 from diacamma.accounting.views_reports import CostAccountingIncomeStatement
 
 from diacamma.condominium.models import Set, Partition, ExpenseDetail, Owner, PropertyLot, SetCost
+from diacamma.accounting.system import accounting_system_ident
 
 
 def fill_params(self, is_mini=False, new_params=False):
@@ -404,6 +405,29 @@ def paramchange_condominium(params):
     for account_item in accounts:
         if (account_item in params) or ('accounting-sizecode' in params):
             Parameter.change_value(account_item, correct_accounting_code(Params.getvalue(account_item)))
+        Params.clear()
+    if 'accounting-system' in params:
+        system_ident = accounting_system_ident(Params.getvalue("accounting-system"))
+        if system_ident == "french":
+            Parameter.change_value('condominium-default-owner-account', correct_accounting_code('450'))
+            Parameter.change_value('condominium-default-owner-account1', correct_accounting_code('4501'))
+            Parameter.change_value('condominium-default-owner-account2', correct_accounting_code('4502'))
+            Parameter.change_value('condominium-default-owner-account3', correct_accounting_code('4503'))
+            Parameter.change_value('condominium-default-owner-account4', correct_accounting_code('4504'))
+            Parameter.change_value('condominium-current-revenue-account', correct_accounting_code('701'))
+            Parameter.change_value('condominium-exceptional-revenue-account', correct_accounting_code('702'))
+            Parameter.change_value('condominium-exceptional-reserve-account', correct_accounting_code('120'))
+            Parameter.change_value('condominium-advance-reserve-account', correct_accounting_code('103'))
+        elif system_ident == "belgium":
+            Parameter.change_value('condominium-default-owner-account', correct_accounting_code('4101'))
+            Parameter.change_value('condominium-default-owner-account1', correct_accounting_code('4101'))
+            Parameter.change_value('condominium-default-owner-account2', correct_accounting_code('4100'))
+            Parameter.change_value('condominium-default-owner-account3', correct_accounting_code('4100'))
+            Parameter.change_value('condominium-default-owner-account4', correct_accounting_code('4101'))
+            Parameter.change_value('condominium-current-revenue-account', correct_accounting_code('701'))
+            Parameter.change_value('condominium-exceptional-revenue-account', correct_accounting_code('700'))
+            Parameter.change_value('condominium-exceptional-reserve-account', correct_accounting_code(''))
+            Parameter.change_value('condominium-advance-reserve-account', correct_accounting_code(''))
         Params.clear()
 
 
