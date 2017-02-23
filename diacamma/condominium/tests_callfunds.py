@@ -46,7 +46,7 @@ class CallFundsTest(LucteriosTest):
         self.xfer_class = XferContainerAcknowledge
         initial_thirds()
         LucteriosTest.setUp(self)
-        default_compta()
+        default_compta(with12=False)
         default_costaccounting()
         default_bankaccount()
         default_setowner()
@@ -588,7 +588,7 @@ class CallFundsTestOldAccounting(LucteriosTest):
         initial_thirds()
         old_accounting()
         LucteriosTest.setUp(self)
-        default_compta()
+        default_compta(with12=False)
         default_costaccounting()
         default_bankaccount()
         default_setowner()

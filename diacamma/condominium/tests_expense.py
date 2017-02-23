@@ -49,7 +49,7 @@ class ExpenseTest(PaymentTest):
         self.xfer_class = XferContainerAcknowledge
         initial_thirds()
         PaymentTest.setUp(self)
-        default_compta()
+        default_compta(with12=False)
         default_costaccounting()
         default_bankaccount()
         default_setowner()
@@ -844,7 +844,7 @@ class ExpenseTestOldAccounting(LucteriosTest):
         initial_thirds()
         LucteriosTest.setUp(self)
         old_accounting()
-        default_compta()
+        default_compta(with12=False)
         default_costaccounting()
         default_bankaccount()
         default_setowner()

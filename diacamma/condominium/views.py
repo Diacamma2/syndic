@@ -390,6 +390,11 @@ def reportlastyear_condo(xfer):
     xfer.params['import_result'] = 'False'
 
 
+@signal_and_lock.Signal.decorate('begin_year')
+def beginyear_condo(xfer):
+    xfer.params['with_profit'] = 'False'
+
+
 @signal_and_lock.Signal.decorate('finalize_year')
 def finalizeyear_condo(xfer):
     year = FiscalYear.get_current(xfer.getparam('year'))
