@@ -86,11 +86,15 @@ class Set(LucteriosModel):
             self.set_dates(xfer.getparam("begin_date"), xfer.getparam("end_date"))
 
     def __str__(self):
-        return self.name
+        return self.identify
+
+    @property
+    def identify(self):
+        return "[%d] %s" % (self.id, self.name)
 
     @classmethod
     def get_default_fields(cls):
-        return ["name", 'type_load', 'partition_set', (_('budget'), "budget_txt"), (_('expense'), 'sumexpense_txt')]
+        return [(_('name'), "identify"), 'type_load', 'partition_set', (_('budget'), "budget_txt"), (_('expense'), 'sumexpense_txt')]
 
     @classmethod
     def get_edit_fields(cls):
@@ -129,23 +133,34 @@ class Set(LucteriosModel):
                 cost = new_set_cost.cost_accounting
         return cost
 
+    def get_cost_accounting_name(self, year):
+        if self.type_load == 1:
+            cost_accounting_name = "[%d] %s" % (self.id, self.name)
+        else:
+            if year.begin.year == year.end.year:
+                cost_accounting_name = "[%d] %s %s" % (self.id, self.name, year.begin.year)
+            else:
+                cost_accounting_name = "[%d] %s %s/%s" % (self.id, self.name, year.begin.year, year.end.year)
+        return cost_accounting_name
+
+    def rename_all_cost_accounting(self):
+        for setcost in self.setcost_set.all():
+            setcost.cost_accounting.name = self.get_cost_accounting_name(setcost.year)
+            setcost.cost_accounting.save()
+
     def create_new_cost(self, year=None):
         if self.type_load == 1:
             year = None
-            cost_accounting_name = "[%d]%s" % (self.id, self.name)
             last_cost = None
         else:
             if isinstance(year, int) or (year is None):
                 year = FiscalYear.get_current(year)
-            if year.begin.year == year.end.year:
-                cost_accounting_name = "[%d]%s %s" % (self.id, self.name, year.begin.year)
-            else:
-                cost_accounting_name = "[%d]%s %s/%s" % (self.id, self.name, year.begin.year, year.end.year)
             costs = self.setcost_set.filter(year=year.last_fiscalyear)
             if len(costs) > 0:
                 last_cost = costs[0].cost_accounting
             else:
                 last_cost = None
+        cost_accounting_name = self.get_cost_accounting_name(year)
         cost_accounting = CostAccounting.objects.create(name=cost_accounting_name, description=cost_accounting_name,
                                                         last_costaccounting=last_cost, year=year, is_protected=True)
         if (year is not None) and (year.status == 2):
@@ -318,9 +333,15 @@ class Set(LucteriosModel):
         return value
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+        if self.id is not None:
+            last_set_name = Set.objects.get(id=self.id).name
+        else:
+            last_set_name = self.name
         self.revenue_account = correct_accounting_code(self.revenue_account)
         self.refresh_ratio_link_lots()
-        return LucteriosModel.save(self, force_insert=force_insert, force_update=force_update, using=using, update_fields=update_fields)
+        LucteriosModel.save(self, force_insert=force_insert, force_update=force_update, using=using, update_fields=update_fields)
+        if last_set_name != self.name:
+            self.rename_all_cost_accounting()
 
     def delete(self, using=None):
         LucteriosModel.delete(self, using=using)
@@ -1495,6 +1516,7 @@ def condominium_checkparam():
             current_set.convert_cost()
     set_list = Set.objects.filter(is_active=True)
     for setitem in set_list:
+        setitem.rename_all_cost_accounting()
         if len(setitem.current_cost_accounting.budget_set.all()) == 0:
             setitem.convert_budget()
     for budget_item in Budget.objects.filter(year__isnull=True):
