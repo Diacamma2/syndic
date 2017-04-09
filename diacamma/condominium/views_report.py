@@ -46,6 +46,8 @@ MenuManage.add_sub("condominium.print", "condominium", "diacamma.condominium/ima
 
 
 class CondominiumReport(XferContainerCustom):
+    is_simple_gui = True
+
     model = FiscalYear
     field_id = 'year'
 
@@ -73,21 +75,15 @@ class CondominiumReport(XferContainerCustom):
         self.add_component(img)
 
         if self.item.last_fiscalyear is not None:
-            lbl = XferCompLabelForm('lblyear_1')
-            lbl.set_location(1, 0)
-            lbl.set_value(_('year N-1'))
-            self.add_component(lbl)
             lbl = XferCompLabelForm('year_1')
-            lbl.set_location(2, 0, 3)
+            lbl.set_location(1, 0, 3)
+            lbl.description = _('year N-1')
             lbl.set_value(six.text_type(self.item.last_fiscalyear))
             self.add_component(lbl)
-        lbl = XferCompLabelForm('lblyear')
-        lbl.set_location(1, 1)
-        lbl.set_value(_('year N'))
-        self.add_component(lbl)
         select_year = XferCompSelect(self.field_id)
-        select_year.set_location(2, 1, 3)
+        select_year.set_location(1, 1, 3)
         select_year.set_select_query(FiscalYear.objects.all())
+        select_year.description = _('year N')
         select_year.set_value(self.item.id)
         select_year.set_needed(True)
         select_year.set_action(self.request, self.__class__.get_action(), close=CLOSE_NO, modal=FORMTYPE_REFRESH)
@@ -194,22 +190,16 @@ class ManageAccounting(CondominiumReport):
         CondominiumReport.fill_header(self)
         self.next_year = self.item.next_fiscalyear.first()
         if self.next_year is not None:
-            lbl = XferCompLabelForm('lblyearn1')
-            lbl.set_location(1, 2)
-            lbl.set_value(_('year N+1'))
-            self.add_component(lbl)
             lbl = XferCompLabelForm('yearn1')
-            lbl.set_location(2, 2, 3)
+            lbl.set_location(1, 2, 3)
             lbl.set_value(six.text_type(self.next_year))
+            lbl.description = _('year N+1')
             self.add_component(lbl)
             self.next_year_again = self.next_year.next_fiscalyear.first()
             if self.next_year_again is not None:
-                lbl = XferCompLabelForm('lblyearn2')
-                lbl.set_location(1, 3)
-                lbl.set_value(_('year N+2'))
-                self.add_component(lbl)
                 lbl = XferCompLabelForm('yearn2')
-                lbl.set_location(2, 3, 3)
+                lbl.set_location(1, 3, 3)
+                lbl.description = _('year N+2')
                 lbl.set_value(six.text_type(self.next_year_again))
                 self.add_component(lbl)
         else:

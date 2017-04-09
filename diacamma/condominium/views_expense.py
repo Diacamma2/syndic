@@ -10,7 +10,7 @@ from lucterios.framework.xferadvance import XferAddEditor
 from lucterios.framework.xferadvance import XferShowEditor
 from lucterios.framework.xferadvance import XferDelete
 from lucterios.framework.tools import FORMTYPE_NOMODAL, ActionsManage, MenuManage, FORMTYPE_REFRESH, CLOSE_NO, SELECT_SINGLE, CLOSE_YES, SELECT_MULTI
-from lucterios.framework.xfercomponents import XferCompLabelForm, XferCompSelect
+from lucterios.framework.xfercomponents import XferCompSelect
 from lucterios.framework.xfergraphic import XferContainerAcknowledge
 
 from diacamma.condominium.models import Expense, ExpenseDetail
@@ -31,27 +31,21 @@ class ExpenseList(XferListEditor):
         self.params['status_filter'] = status_filter
         date_filter = self.getparam('date_filter', 0)
         self.fieldnames = Expense.get_default_fields(status_filter)
-        lbl = XferCompLabelForm('lbl_status_filter')
-        lbl.set_value_as_name(_('Filter by type'))
-        lbl.set_location(0, 3)
-        self.add_component(lbl)
         dep_field = self.item.get_field_by_name('status')
         sel_list = list(dep_field.choices)
         edt = XferCompSelect("status_filter")
         edt.set_select(sel_list)
         edt.set_value(status_filter)
-        edt.set_location(1, 3)
+        edt.description = _('Filter by type')
+        edt.set_location(0, 3)
         edt.set_action(self.request, self.get_action(), modal=FORMTYPE_REFRESH, close=CLOSE_NO)
         self.add_component(edt)
 
-        lbl = XferCompLabelForm('lbl_date_filter')
-        lbl.set_value_as_name(_('Filter by date'))
-        lbl.set_location(0, 4)
-        self.add_component(lbl)
         edt = XferCompSelect("date_filter")
         edt.set_select([(0, _('only current fiscal year')), (1, _('all expenses'))])
         edt.set_value(date_filter)
-        edt.set_location(1, 4)
+        edt.set_location(0, 4)
+        edt.description = _('Filter by date')
         edt.set_action(self.request, self.get_action(), modal=FORMTYPE_REFRESH, close=CLOSE_NO)
         self.add_component(edt)
 

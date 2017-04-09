@@ -82,6 +82,8 @@ class CondominiumCheckOwner(XferContainerAcknowledge):
 
 @MenuManage.describ('CORE.change_parameter', FORMTYPE_MODAL, 'contact.conf', _('Management of parameters of condominium'))
 class CondominiumConf(XferContainerCustom):
+    is_simple_gui = True
+
     icon = "condominium.png"
     caption = _("Condominium configuration")
 
@@ -114,13 +116,10 @@ class SetList(XferListEditor):
 
     def fillresponse(self):
         XferListEditor.fillresponse(self)
-        lbl = XferCompLabelForm('lbl_show_inactive')
-        lbl.set_value_as_name(_('Show all class load'))
-        lbl.set_location(0, self.get_max_row() + 1)
-        self.add_component(lbl)
         chk = XferCompCheck('show_inactive')
         chk.set_value(self.getparam('show_inactive', False))
-        chk.set_location(1, self.get_max_row())
+        chk.description = _('Show all class load')
+        chk.set_location(0, self.get_max_row() + 1)
         chk.set_action(self.request, self.get_action(), close=CLOSE_NO, modal=FORMTYPE_REFRESH)
         self.add_component(chk)
 
@@ -195,14 +194,10 @@ class SetClose(XferContainerAcknowledge):
                 lbl.set_value(_('This class load has a difference of %s between those call of funds and those expenses.') % msg)
                 lbl.set_location(1, 1)
                 dlg.add_component(lbl)
-                lbl = XferCompLabelForm('question')
-                lbl.set_value(_('Do you want to ventilate this amount for each owner?'))
-                lbl.set_underlined()
-                lbl.set_location(1, 2)
-                dlg.add_component(lbl)
                 lbl = XferCompCheck('ventilate')
                 lbl.set_value(ventilate)
-                lbl.set_location(2, 2)
+                lbl.set_location(1, 2)
+                lbl.description = 'Do you want to ventilate this amount for each owner?'
                 dlg.add_component(lbl)
                 dlg.add_action(self.get_action(TITLE_OK, 'images/ok.png'), modal=FORMTYPE_MODAL, close=CLOSE_YES, params={'CLOSE': 'YES'})
                 dlg.add_action(WrapAction(TITLE_CANCEL, 'images/cancel.png'))
@@ -329,15 +324,12 @@ def editbudget_condo(xfer):
             set_item = Set.objects.get(id=xfer.getparam('set', 0))
             title_cost = xfer.get_components('title_cost')
             xfer.remove_component('title_year')
-            lbl = XferCompLabelForm('lblyear')
-            lbl.set_location(1, title_cost.row - 1)
-            lbl.set_value_as_name(_('year'))
-            xfer.add_component(lbl)
             year = xfer.getparam('year', 0)
             select_year = XferCompSelect('year')
-            select_year.set_location(2, title_cost.row - 1)
+            select_year.set_location(1, title_cost.row - 1, 2)
             select_year.set_select_query(FiscalYear.objects.all())
             select_year.set_value(year)
+            select_year.description = _('year')
             select_year.set_needed(set_item.type_load == 0)
             select_year.set_action(xfer.request, xfer.__class__.get_action(), close=CLOSE_NO, modal=FORMTYPE_REFRESH)
             xfer.add_component(select_year)

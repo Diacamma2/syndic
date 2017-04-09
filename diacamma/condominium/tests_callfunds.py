@@ -64,7 +64,7 @@ class CallFundsTest(LucteriosTest):
         self.call('/diacamma.condominium/callFundsAddModify', {}, False)
         self.assert_observer(
             'core.custom', 'diacamma.condominium', 'callFundsAddModify')
-        self.assert_count_equal('COMPONENTS/*', 9)
+        self.assert_count_equal('COMPONENTS/*', 5)
 
         self.factory.xfer = CallFundsAddModify()
         self.call(
@@ -110,7 +110,7 @@ class CallFundsTest(LucteriosTest):
         self.factory.xfer = CallFundsShow()
         self.call('/diacamma.condominium/callFundsShow', {'callfunds': 1}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'callFundsShow')
-        self.assert_count_equal('COMPONENTS/*', 17)
+        self.assert_count_equal('COMPONENTS/*', 9)
         self.assert_count_equal('ACTIONS/ACTION', 2)
         self.assert_count_equal('COMPONENTS/GRID[@name="calldetail"]/RECORD', 0)
         self.assert_count_equal('COMPONENTS/GRID[@name="calldetail"]/HEADER', 4)
@@ -119,7 +119,7 @@ class CallFundsTest(LucteriosTest):
         self.factory.xfer = CallDetailAddModify()
         self.call('/diacamma.condominium/callDetailAddModify', {'callfunds': 1}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'callDetailAddModify')
-        self.assert_count_equal('COMPONENTS/*', 7)
+        self.assert_count_equal('COMPONENTS/*', 4)
         self.assert_xml_equal('COMPONENTS/SELECT[@name="set"]', '1')
         self.assert_xml_equal('COMPONENTS/FLOAT[@name="price"]', '250.00')
 
@@ -205,7 +205,7 @@ class CallFundsTest(LucteriosTest):
         self.factory.xfer = CallFundsShow()
         self.call('/diacamma.condominium/callFundsShow', {'callfunds': 3}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'callFundsShow')
-        self.assert_count_equal('COMPONENTS/*', 23)
+        self.assert_count_equal('COMPONENTS/*', 12)
         self.assert_count_equal('ACTIONS/ACTION', 3)
         self.assert_count_equal('COMPONENTS/GRID[@name="calldetail"]/RECORD', 1)
         self.assert_count_equal('COMPONENTS/GRID[@name="calldetail"]/HEADER', 6)

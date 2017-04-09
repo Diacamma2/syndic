@@ -101,24 +101,18 @@ class OwnerShow(XferShowEditor):
 
     def fillresponse(self, begin_date, end_date):
         self.item.set_dates(begin_date, end_date)
-        lbl = XferCompLabelForm('lbl_begin_date')
-        lbl.set_value_as_name(_('initial date'))
-        lbl.set_location(1, 0)
-        self.add_component(lbl)
         date_init = XferCompDate("begin_date")
         date_init.set_needed(True)
         date_init.set_value(self.item.date_begin)
-        date_init.set_location(2, 0)
+        date_init.set_location(1, 0)
+        date_init.description = _('initial date')
         date_init.set_action(self.request, self.get_action(), close=CLOSE_NO, modal=FORMTYPE_REFRESH)
         self.add_component(date_init)
-        lbl = XferCompLabelForm('lbl_end_date')
-        lbl.set_value_as_name(_('current date'))
-        lbl.set_location(3, 0)
-        self.add_component(lbl)
         date_end = XferCompDate("end_date")
         date_end.set_needed(True)
         date_end.set_value(self.item.date_end)
-        date_end.set_location(4, 0)
+        date_end.set_location(3, 0)
+        date_end.description = _('current date')
         date_end.set_action(self.request, self.get_action(), close=CLOSE_NO, modal=FORMTYPE_REFRESH)
         self.add_component(date_end)
 
@@ -256,12 +250,9 @@ class CondominiumConvert(XferContainerAcknowledge):
             select_account.append((owner_account, owner_account))
         row = 1
         for code_item in AccountThird.objects.filter(code__regex=r"^45[0-9a-zA-Z]*$", third__status=0).values_list('code').distinct():
-            lbl = XferCompLabelForm('lbl_code_' + code_item[0])
-            lbl.set_value_as_name(code_item[0])
-            lbl.set_location(0, row)
-            dlg.add_component(lbl)
             sel = XferCompSelect('code_' + code_item[0])
-            sel.set_location(1, row)
+            sel.set_location(0, row)
+            sel.description = code_item[0]
             sel.set_value(dlg.getparam('code_' + code_item[0], ""))
             sel.set_select(select_account)
             dlg.add_component(sel)

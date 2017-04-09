@@ -63,14 +63,9 @@ class OwnerEditor(SupportingEditor):
         if xfer.item.id is None:
             third = xfer.get_components('third')
             xfer.remove_component('third')
-            xfer.remove_component('lbl_third')
-            lbl = XferCompLabelForm('lbl_third')
-            lbl.set_location(third.col - 1, third.row)
-            lbl.set_value_as_name(_('third'))
-            xfer.add_component(lbl)
-
             sel = XferCompSelect('third')
             sel.needed = True
+            sel.description = _('third')
             sel.set_location(third.col, third.row)
             owner_third_ids = []
             for owner in Owner.objects.all():
@@ -97,10 +92,9 @@ class OwnerEditor(SupportingEditor):
         btn.set_action(xfer.request, ActionsManage.get_action_url('accounting.Third', 'Show', xfer),
                        modal=FORMTYPE_MODAL, close=CLOSE_NO, params={'third': self.item.third.id})
         xfer.add_component(btn)
-        lblpartition = xfer.get_components('lbl_partition_set')
-        lblpartition.value = _("current class loads")
         partition = xfer.get_components('partition')
         partition.actions = []
+        partition.description = _("current class loads")
         partition.delete_header('owner')
         lots = xfer.get_components('propertylot')
         lots.actions = []
@@ -199,6 +193,8 @@ class ExpenseEditor(SupportingEditor):
     def show(self, xfer):
         if self.item.status == 0:
             SupportingEditor.show_third(self, xfer)
+            xfer.get_components('date').colspan += 1
+            xfer.get_components('expensedetail').colspan += 1
         else:
             SupportingEditor.show(self, xfer)
 
@@ -208,11 +204,11 @@ class ExpenseDetailEditor(LucteriosEditor):
     def edit(self, xfer):
         set_comp = xfer.get_components('set')
         set_comp.set_select_query(Set.objects.filter(is_active=True))
-        xfer.get_components('price').prec = Params.getvalue(
-            "accounting-devise-prec")
+        xfer.get_components('price').prec = Params.getvalue("accounting-devise-prec")
         old_account = xfer.get_components("expense_account")
         xfer.remove_component("expense_account")
         sel_account = XferCompSelect("expense_account")
+        sel_account.description = old_account.description
         sel_account.set_location(old_account.col, old_account.row, old_account.colspan, old_account.rowspan)
         for item in FiscalYear.get_current().chartsaccount_set.all().filter(code__regex=current_system_account().get_expence_mask()).order_by('code'):
             sel_account.select_list.append((item.code, six.text_type(item)))

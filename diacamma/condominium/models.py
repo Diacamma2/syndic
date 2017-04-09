@@ -48,6 +48,8 @@ from diacamma.payoff.models import Supporting, Payoff
 
 
 class Set(LucteriosModel):
+    is_simple_gui = True
+
     name = models.CharField(_('name'), max_length=100)
     budget = models.DecimalField(_('budget'), max_digits=10, decimal_places=3, default=0.0, validators=[
         MinValueValidator(0.0), MaxValueValidator(9999999.999)])
@@ -353,6 +355,8 @@ class Set(LucteriosModel):
 
 
 class SetCost(LucteriosModel):
+    is_simple_gui = True
+
     year = models.ForeignKey(FiscalYear, verbose_name=_('fiscal year'), null=True, default=None, db_index=True, on_delete=models.PROTECT)
     set = models.ForeignKey(Set, verbose_name=_('class load'), null=False, default=None, db_index=True, on_delete=models.CASCADE)
     cost_accounting = models.ForeignKey(CostAccounting, verbose_name=_('cost accounting'),
@@ -373,6 +377,7 @@ class SetCost(LucteriosModel):
 
 
 class Owner(Supporting):
+    is_simple_gui = True
 
     information = models.CharField(
         _('information'), max_length=200, null=True, default='')
@@ -714,6 +719,8 @@ class Owner(Supporting):
 
 
 class Partition(LucteriosModel):
+    is_simple_gui = True
+
     set = models.ForeignKey(
         Set, verbose_name=_('set'), null=False, db_index=True, on_delete=models.CASCADE)
     owner = models.ForeignKey(
@@ -794,6 +801,7 @@ class Partition(LucteriosModel):
 
 
 class PartitionExceptional(Partition):
+    is_simple_gui = True
 
     @classmethod
     def get_default_fields(cls):
@@ -815,6 +823,8 @@ class PartitionExceptional(Partition):
 
 
 class PropertyLot(LucteriosModel):
+    is_simple_gui = True
+
     num = models.IntegerField(verbose_name=_('numeros'), null=False, default=1)
     value = models.IntegerField(_('tantime'), default=0, validators=[MinValueValidator(0), MaxValueValidator(1000000)])
     description = models.TextField(_('description'), null=True, default="")
@@ -864,6 +874,7 @@ class PropertyLot(LucteriosModel):
 
 
 class CallFundsSupporting(Supporting):
+    is_simple_gui = True
 
     def __str__(self):
         return self.callfunds.__str__()
@@ -918,6 +929,8 @@ class CallFundsSupporting(Supporting):
 
 
 class CallFunds(LucteriosModel):
+    is_simple_gui = True
+
     owner = models.ForeignKey(Owner, verbose_name=_('owner'), null=True, db_index=True, on_delete=models.PROTECT)
     supporting = models.OneToOneField(CallFundsSupporting, on_delete=models.CASCADE, default=None, null=True)
     num = models.IntegerField(verbose_name=_('numeros'), null=True)
@@ -1041,6 +1054,8 @@ class CallFunds(LucteriosModel):
 
 
 class CallDetail(LucteriosModel):
+    is_simple_gui = True
+
     callfunds = models.ForeignKey(
         CallFunds, verbose_name=_('call of funds'), null=True, default=None, db_index=True, on_delete=models.CASCADE)
     set = models.ForeignKey(
@@ -1103,6 +1118,8 @@ class CallDetail(LucteriosModel):
 
 
 class Expense(Supporting):
+    is_simple_gui = True
+
     num = models.IntegerField(verbose_name=_('numeros'), null=True)
     date = models.DateField(verbose_name=_('date'), null=False)
     comment = models.TextField(_('comment'), null=True, default="")
@@ -1289,6 +1306,8 @@ class Expense(Supporting):
 
 
 class ExpenseDetail(LucteriosModel):
+    is_simple_gui = True
+
     expense = models.ForeignKey(
         Expense, verbose_name=_('expense'), null=True, default=None, db_index=True, on_delete=models.CASCADE)
     set = models.ForeignKey(
@@ -1390,6 +1409,8 @@ class ExpenseDetail(LucteriosModel):
 
 
 class ExpenseRatio(LucteriosModel):
+    is_simple_gui = True
+
     expensedetail = models.ForeignKey(
         ExpenseDetail, verbose_name=_('detail of expense'), null=False, db_index=True, on_delete=models.CASCADE)
     owner = models.ForeignKey(
