@@ -8,7 +8,7 @@ Une fois avoir précisé la date et le descriptif de cette appel, une nouvelle f
 Ajoutez dans cette fiche différentes élements d'appel. 
 Sur chaqu'un vous préciser l'ensemble de lots associé à cet élement d'appel ainsi que le montant.
 
-.. image:: call_of_funds.png
+    .. image:: call_of_funds.png
 
 Enfin, pour finaliser l'appel de fond, cliquez sur "Valider"
 L'ensemble des copropriétaires se voient alors associés à une nouvelle fiche d'appel de fond.

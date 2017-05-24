@@ -7,7 +7,7 @@ Comptablement, un copropriétaire est égalemet un tiers comptable possédant de
 Vous pouvez également voir ici un résumé de la situation financière de chacun des copropriétaires.
 La fiche de chaque copropriétaire vous présente une situtation financière précise.
 
-.. image:: owners.png
+    .. image:: owners.png
 
 Les lots
 --------

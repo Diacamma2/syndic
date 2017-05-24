@@ -8,10 +8,11 @@ Une fois avoir précisé la date et le descriptif de cette dépense, une nouvell
 Commencez par indiquer le fournisseur de votre nouvelle dépense. Celui-ci doit être un tiers référencé.
 Comme pour les appel de fonds, ajoutez dans cette fiche différentes élements de dépense. Sur chaqu'un vous préciser l'ensemble de lots associé ainsi que son montant.
 
-.. image:: expense.png
+    .. image:: expense.png
 
 Enfin, pour finaliser la dépense, cliquez sur "Valider"
 Un certain nombre d'action sont alors réalisé en comptabilité:
+
  - L'écriture de dépense est généré en brouillard.
  - Pour chaque copropriétaire, une ventillation de cette dépense est réalisé en fonction de leurs ratio de l'ensemble que possède chaque copropriétaire.
 
