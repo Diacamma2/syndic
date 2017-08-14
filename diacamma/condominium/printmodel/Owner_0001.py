@@ -193,6 +193,38 @@ value = """
     </rows>
 </table>
 
+<text height="10.0" width="70.0" top="120.0" left="120.0" padding="1.0" spacing="0.0" border_color="black" border_style="" border_width="0.2" text_align="left" line_height="11" font_family="sans-serif" font_weight="" font_size="11">
+{[b]}%(property)s{[/b]}
+</text>
+<table height="30.0" width="70.0" top="130.0" left="120.0" padding="1.0" spacing="0.0" border_color="black" border_style="" border_width="0.2">
+    <columns width="10.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
+    {[b]}%(num)s{[/b]}
+    </columns>
+    <columns width="15.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
+    {[b]}%(value)s{[/b]}
+    </columns>
+    <columns width="12.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
+    {[b]}%(ratio)s{[/b]}
+    </columns>
+    <columns width="33.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
+    {[b]}%(description)s{[/b]}
+    </columns>
+    <rows data="propertylot_set">
+        <cell display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="start" line_height="7" font_family="sans-serif" font_weight="" font_size="7">
+#num
+        </cell>
+        <cell display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="start" line_height="7" font_family="sans-serif" font_weight="" font_size="7">
+#value
+        </cell>
+        <cell display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="start" line_height="7" font_family="sans-serif" font_weight="" font_size="7">
+#ratio
+        </cell>
+        <cell display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="start" line_height="7" font_family="sans-serif" font_weight="" font_size="7">
+#description
+        </cell>
+    </rows>
+</table>
+
 <text height="10.0" width="110.0" top="120.0" left="00.0" padding="1.0" spacing="0.0" border_color="black" border_style="" border_width="0.2" text_align="left" line_height="11" font_family="sans-serif" font_weight="" font_size="11">
 {[b]}%(partition)s{[/b]}
 </text>
@@ -237,39 +269,7 @@ value = """
     </rows>
 </table>
 
-<text height="10.0" width="70.0" top="120.0" left="120.0" padding="1.0" spacing="0.0" border_color="black" border_style="" border_width="0.2" text_align="left" line_height="11" font_family="sans-serif" font_weight="" font_size="11">
-{[b]}%(property)s{[/b]}
-</text>
-<table height="30.0" width="70.0" top="130.0" left="120.0" padding="1.0" spacing="0.0" border_color="black" border_style="" border_width="0.2">
-    <columns width="10.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
-    {[b]}%(num)s{[/b]}
-    </columns>
-    <columns width="15.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
-    {[b]}%(value)s{[/b]}
-    </columns>
-    <columns width="12.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
-    {[b]}%(ratio)s{[/b]}
-    </columns>
-    <columns width="33.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
-    {[b]}%(description)s{[/b]}
-    </columns>
-    <rows data="propertylot_set">
-        <cell display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="start" line_height="7" font_family="sans-serif" font_weight="" font_size="7">
-#num
-        </cell>
-        <cell display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="start" line_height="7" font_family="sans-serif" font_weight="" font_size="7">
-#value
-        </cell>
-        <cell display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="start" line_height="7" font_family="sans-serif" font_weight="" font_size="7">
-#ratio
-        </cell>
-        <cell display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="start" line_height="7" font_family="sans-serif" font_weight="" font_size="7">
-#description
-        </cell>
-    </rows>
-</table>
-
-<text height="10.0" width="175.0" top="150.0" left="10.0" padding="1.0" spacing="0.0" border_color="black" border_style="" border_width="0.2" text_align="left" line_height="11" font_family="sans-serif" font_weight="" font_size="11">
+<text height="10.0" width="175.0" top="150.0" left="10.0" padding="0.5" spacing="1.0" border_color="black" border_style="" border_width="0.2" text_align="left" line_height="11" font_family="sans-serif" font_weight="" font_size="11">
 {[b]}%(call of funds)s{[/b]}
 </text>
 <table height="20.0" width="175.0" top="160.0" left="10.0" padding="1.0" spacing="0.1" border_color="black" border_style="" border_width="0.2">
