@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 from django.utils.translation import ugettext_lazy as _
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils import six
+from django.conf import settings
 
 from lucterios.framework.xferadvance import TITLE_MODIFY, TITLE_ADD, TITLE_EDIT, TITLE_DELETE, TITLE_PRINT,\
     TITLE_CANCEL, TITLE_OK
@@ -42,6 +43,15 @@ class OwnerAndPropertyLotList(XferListEditor):
 
     def fillresponse(self):
         XferListEditor.fillresponse(self)
+        if hasattr(settings, "DIACAMMA_MAXOWNER"):
+            grid = self.get_components("owner")
+            if getattr(settings, "DIACAMMA_MAXOWNER") <= grid.nb_lines:
+                grid.delete_action("diacamma.condominium/ownerAdd")
+                lbl = XferCompLabelForm("limit_activity")
+                lbl.set_color('red')
+                lbl.set_value_as_headername(_('You have the maximum of owners!'))
+                lbl.set_location(grid.col, self.get_max_row() + 1)
+                self.add_component(lbl)
         self.new_tab(_("Property lots"))
         self.fill_grid(self.get_max_row(), PropertyLot, 'propertylot', PropertyLot.objects.all())
         lbl_nb = self.get_components('nb_propertylot')
@@ -71,6 +81,13 @@ class OwnerAdd(XferAddEditor):
     field_id = 'owner'
     caption_add = _("Add owner")
     redirect_to_show = False
+
+    def fillresponse(self):
+        if (self.item.id is None) and hasattr(settings, "DIACAMMA_MAXOWNER"):
+            nb_owner = len(Owner.objects.all())
+            if getattr(settings, "DIACAMMA_MAXOWNER") <= nb_owner:
+                raise LucteriosException(IMPORTANT, _('You have the maximum of owners!'))
+        XferAddEditor.fillresponse(self)
 
 
 @ActionsManage.affect_show(TITLE_MODIFY, "images/edit.png", close=CLOSE_YES)
@@ -346,6 +363,12 @@ def summary_condo(xfer):
             btn.set_location(0, row + 3, 4)
             btn.set_action(xfer.request, CondominiumConvert.get_action(_('Convertion ...'), ""), close=CLOSE_NO)
             xfer.add_component(btn)
+        if hasattr(settings, "DIACAMMA_MAXOWNER"):
+            lbl = XferCompLabelForm("limit_owner")
+            lbl.set_value(_('limitation: %d owners allowed') % getattr(settings, "DIACAMMA_MAXOWNER"))
+            lbl.set_italic()
+            lbl.set_location(0, row + 4, 4)
+            xfer.add_component(lbl)
     if is_right or (len(owners) == 1):
         row = xfer.get_max_row() + 1
         lab = XferCompLabelForm('condosep')

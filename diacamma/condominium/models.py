@@ -45,6 +45,7 @@ from lucterios.CORE.parameters import Params
 from diacamma.accounting.models import CostAccounting, EntryAccount, Journal, ChartsAccount, EntryLineAccount, FiscalYear, Budget, AccountThird
 from diacamma.accounting.tools import format_devise, currency_round, current_system_account, get_amount_sum, correct_accounting_code
 from diacamma.payoff.models import Supporting, Payoff
+from django.conf import settings
 
 
 class Set(LucteriosModel):
@@ -437,6 +438,11 @@ class Owner(Supporting):
 
     def __str__(self):
         return six.text_type(self.third)
+
+    @classmethod
+    def throw_not_allowed(cls):
+        if hasattr(settings, "DIACAMMA_MAXOWNER") and (len(cls.objects.all()) > getattr(settings, "DIACAMMA_MAXOWNER")):
+            raise LucteriosException(IMPORTANT, _("You have too many owners declared!"))
 
     @classmethod
     def get_default_fields(cls):
@@ -976,6 +982,7 @@ class CallFunds(LucteriosModel):
 
     @transition(field=status, source=0, target=1, conditions=[lambda item:(len(Owner.objects.all()) > 0) and (len(item.calldetail_set.all()) > 0)])
     def valid(self):
+        Owner.throw_not_allowed()
         val = CallFunds.objects.exclude(status=0).aggregate(Max('num'))
         if val['num__max'] is None:
             new_num = 1
@@ -1429,6 +1436,7 @@ class ExpenseRatio(LucteriosModel):
 
 
 def ventilate_result(year, ventilate):
+    Owner.throw_not_allowed()
     result = year.total_revenue - year.total_expense
     if abs(result) > 0.001:
         total_part = PropertyLot.get_total_part()
