@@ -65,4 +65,4 @@ msgstr "dépenses"
 
 #: migrations/0001_initial.py:46
 msgid "revenue"
-msgstr "revenue"
+msgstr "revenu"
