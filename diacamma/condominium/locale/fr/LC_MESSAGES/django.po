@@ -700,7 +700,7 @@ msgstr ""
 #: views_callfunds.py:75
 #, python-format
 msgid "Call of funds #%(num)d of year from %(begin)s to %(end)s"
-msgstr "Appel de fonds N°%(num)d de l'excercice du %(begin)s au %(end)s"
+msgstr "Appel de fonds N°%(num)d de l'exercice du %(begin)s au %(end)s"
 
 #: views_callfunds.py:77
 #, python-format
