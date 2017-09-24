@@ -67,10 +67,13 @@ class SetOwnerTest(LucteriosTest):
         self.assert_xml_equal('COMPONENTS/LABELFORM[@name="condominium-default-owner-account2"]', '4502')
         self.assert_xml_equal('COMPONENTS/LABELFORM[@name="condominium-default-owner-account3"]', '4503')
         self.assert_xml_equal('COMPONENTS/LABELFORM[@name="condominium-default-owner-account4"]', '4504')
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="condominium-default-owner-account5"]', '4505')
         self.assert_xml_equal('COMPONENTS/LABELFORM[@name="condominium-current-revenue-account"]', '701')
         self.assert_xml_equal('COMPONENTS/LABELFORM[@name="condominium-exceptional-revenue-account"]', '702')
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="condominium-workfund-revenue-account"]', '705')
         self.assert_xml_equal('COMPONENTS/LABELFORM[@name="condominium-exceptional-reserve-account"]', '120')
         self.assert_xml_equal('COMPONENTS/LABELFORM[@name="condominium-advance-reserve-account"]', '103')
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="condominium-workfund-reserve-account"]', '105')
 
     def test_config_old_accounting(self):
         old_accounting()
