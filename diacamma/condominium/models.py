@@ -720,7 +720,7 @@ class Owner(Supporting):
         if Params.getvalue("condominium-old-accounting"):
             AccountThird.objects.get_or_create(third=self.third, code=correct_accounting_code(Params.getvalue("condominium-default-owner-account")))
         else:
-            for num_account in range(1, 5):
+            for num_account in range(1, 6):
                 AccountThird.objects.get_or_create(third=self.third, code=correct_accounting_code(Params.getvalue("condominium-default-owner-account%d" % num_account)))
 
 
@@ -1479,6 +1479,8 @@ def convert_accounting(year, thirds_convert):
                                   'Copropriétaire - avances')
     year.getorcreate_chartaccount(correct_accounting_code(Params.getvalue('condominium-default-owner-account4')),
                                   'Copropriétaire - emprunts')
+    year.getorcreate_chartaccount(correct_accounting_code(Params.getvalue('condominium-default-owner-account5')),
+                                  'Copropriétaire - fond travaux')
     for code_init, code_target in thirds_convert.items():
         try:
             account_init = ChartsAccount.objects.get(year=year, code=code_init)
@@ -1530,14 +1532,20 @@ def condominium_checkparam():
                                args="{'Multi':False}", value=correct_accounting_code('4503'), meta='("accounting","ChartsAccount","import diacamma.accounting.tools;django.db.models.Q(code__regex=diacamma.accounting.tools.current_system_account().get_societary_mask()) & django.db.models.Q(year__is_actif=True)", "code", True)')
     Parameter.check_and_create(name='condominium-default-owner-account4', typeparam=0, title=_("condominium-default-owner-account4"),
                                args="{'Multi':False}", value=correct_accounting_code('4504'), meta='("accounting","ChartsAccount","import diacamma.accounting.tools;django.db.models.Q(code__regex=diacamma.accounting.tools.current_system_account().get_societary_mask()) & django.db.models.Q(year__is_actif=True)", "code", True)')
+    Parameter.check_and_create(name='condominium-default-owner-account5', typeparam=0, title=_("condominium-default-owner-account5"),
+                               args="{'Multi':False}", value=correct_accounting_code('4505'), meta='("accounting","ChartsAccount","import diacamma.accounting.tools;django.db.models.Q(code__regex=diacamma.accounting.tools.current_system_account().get_societary_mask()) & django.db.models.Q(year__is_actif=True)", "code", True)')
     Parameter.check_and_create(name='condominium-current-revenue-account', typeparam=0, title=_("condominium-current-revenue-account"),
                                args="{'Multi':False}", value=correct_accounting_code('701'), meta='("accounting","ChartsAccount", Q(type_of_account=3) & Q(year__is_actif=True), "code", True)')
     Parameter.check_and_create(name='condominium-exceptional-revenue-account', typeparam=0, title=_("condominium-exceptional-revenue-account"),
                                args="{'Multi':False}", value=correct_accounting_code('702'), meta='("accounting","ChartsAccount", Q(type_of_account=3) & Q(year__is_actif=True), "code", True)')
+    Parameter.check_and_create(name='condominium-workfund-revenue-account', typeparam=0, title=_("condominium-workfund-revenue-account"),
+                               args="{'Multi':False}", value=correct_accounting_code('705'), meta='("accounting","ChartsAccount", Q(type_of_account=3) & Q(year__is_actif=True), "code", True)')
     Parameter.check_and_create(name='condominium-exceptional-reserve-account', typeparam=0, title=_("condominium-exceptional-reserve-account"),
                                args="{'Multi':False}", value=correct_accounting_code('120'), meta='("accounting","ChartsAccount", Q(type_of_account=2) & Q(year__is_actif=True), "code", False)')
     Parameter.check_and_create(name='condominium-advance-reserve-account', typeparam=0, title=_("condominium-advance-reserve-account"),
                                args="{'Multi':False}", value=correct_accounting_code('103'), meta='("accounting","ChartsAccount", Q(type_of_account=2) & Q(year__is_actif=True), "code", True)')
+    Parameter.check_and_create(name='condominium-workfund-reserve-account', typeparam=0, title=_("condominium-work-fund-account"),
+                               args="{'Multi':False}", value=correct_accounting_code('105'), meta='("accounting","ChartsAccount", Q(type_of_account=2) & Q(year__is_actif=True), "code", True)')
     if Parameter.check_and_create(name='condominium-old-accounting', typeparam=3, title=_("condominium-old-accounting"),
                                   args="{}", value='False'):
         Parameter.change_value('condominium-old-accounting', len(Owner.objects.all()) != 0)
