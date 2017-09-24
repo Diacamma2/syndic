@@ -204,7 +204,7 @@ class ExpenseTest(PaymentTest):
         self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
         self.assert_count_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD', 0)
         self.assert_xml_equal(
-            "COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit:{[/b]} 0.00€ - {[b]}Charge:{[/b]} 0.00€ = {[b]}Résultat:{[/b]} 0.00€ | {[b]}Trésorie:{[/b]} 0.00€ - {[b]}Validé:{[/b]} 0.00€{[/center]}')
+            "COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit :{[/b]} 0.00€ - {[b]}Charge :{[/b]} 0.00€ = {[b]}Résultat :{[/b]} 0.00€ | {[b]}Trésorerie :{[/b]} 0.00€ - {[b]}Validé :{[/b]} 0.00€{[/center]}')
 
         self.factory.xfer = ExpenseTransition()
         self.call('/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 4, 'TRANSITION': 'valid'}, False)
@@ -223,7 +223,7 @@ class ExpenseTest(PaymentTest):
         self.assertTrue('[401 Minimum]' in description, description)
         self.assertTrue('[627] 627' in description, description)
         self.assert_xml_equal(
-            "COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit:{[/b]} 0.00€ - {[b]}Charge:{[/b]} 180.00€ = {[b]}Résultat:{[/b]} -180.00€ | {[b]}Trésorie:{[/b]} 0.00€ - {[b]}Validé:{[/b]} 0.00€{[/center]}')
+            "COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit :{[/b]} 0.00€ - {[b]}Charge :{[/b]} 180.00€ = {[b]}Résultat :{[/b]} -180.00€ | {[b]}Trésorerie :{[/b]} 0.00€ - {[b]}Validé :{[/b]} 0.00€{[/center]}')
 
         self.factory.xfer = ExpenseShow()
         self.call('/diacamma.condominium/expenseShow', {'expense': 4}, False)
@@ -290,7 +290,7 @@ class ExpenseTest(PaymentTest):
         self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
         self.assert_count_equal('COMPONENTS/GRID[@name="expensedetail"]/RECORD', 2)
         self.assert_xml_equal('COMPONENTS/LABELFORM[@name="total"]', '180.00€')
-        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="status"]', 'fini')
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="status"]', 'terminé')
         self.assert_count_equal('ACTIONS/ACTION', 1)
 
         self.factory.xfer = EntryAccountList()
@@ -338,7 +338,7 @@ class ExpenseTest(PaymentTest):
         self.assertTrue('[120] 120' in description, description)
         self.assertTrue('[702] 702' in description, description)
         self.assert_xml_equal(
-            "COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit:{[/b]} 200.00€ - {[b]}Charge:{[/b]} 200.00€ = {[b]}Résultat:{[/b]} 0.00€ | {[b]}Trésorie:{[/b]} 0.00€ - {[b]}Validé:{[/b]} 0.00€{[/center]}')
+            "COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit :{[/b]} 200.00€ - {[b]}Charge :{[/b]} 200.00€ = {[b]}Résultat :{[/b]} 0.00€ | {[b]}Trésorerie :{[/b]} 0.00€ - {[b]}Validé :{[/b]} 0.00€{[/center]}')
 
         self.factory.xfer = ExpenseShow()
         self.call('/diacamma.condominium/expenseShow', {'expense': 4}, False)
@@ -456,7 +456,7 @@ class ExpenseTest(PaymentTest):
         self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
         self.assert_count_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD', 3)
         self.assert_xml_equal(
-            "COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit:{[/b]} 0.00€ - {[b]}Charge:{[/b]} 180.00€ = {[b]}Résultat:{[/b]} -180.00€ | {[b]}Trésorie:{[/b]} -180.00€ - {[b]}Validé:{[/b]} 0.00€{[/center]}')
+            "COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit :{[/b]} 0.00€ - {[b]}Charge :{[/b]} 180.00€ = {[b]}Résultat :{[/b]} -180.00€ | {[b]}Trésorerie :{[/b]} -180.00€ - {[b]}Validé :{[/b]} 0.00€{[/center]}')
 
         self.factory.xfer = EntryAccountClose()
         self.call('/diacamma.accounting/entryAccountClose',
@@ -468,7 +468,7 @@ class ExpenseTest(PaymentTest):
         self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
         self.assert_count_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD', 3)
         self.assert_xml_equal(
-            "COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit:{[/b]} 0.00€ - {[b]}Charge:{[/b]} 180.00€ = {[b]}Résultat:{[/b]} -180.00€ | {[b]}Trésorie:{[/b]} -180.00€ - {[b]}Validé:{[/b]} -180.00€{[/center]}')
+            "COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit :{[/b]} 0.00€ - {[b]}Charge :{[/b]} 180.00€ = {[b]}Résultat :{[/b]} -180.00€ | {[b]}Trésorerie :{[/b]} -180.00€ - {[b]}Validé :{[/b]} -180.00€{[/center]}')
 
         self.factory.xfer = ExpenseShow()
         self.call('/diacamma.condominium/expenseShow', {'expense': 4}, False)
@@ -556,7 +556,7 @@ class ExpenseTest(PaymentTest):
         self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
         self.assert_count_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD', 3)
         self.assert_xml_equal(
-            "COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit:{[/b]} 0.00€ - {[b]}Charge:{[/b]} -180.00€ = {[b]}Résultat:{[/b]} 180.00€ | {[b]}Trésorie:{[/b]} 180.00€ - {[b]}Validé:{[/b]} 0.00€{[/center]}')
+            "COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit :{[/b]} 0.00€ - {[b]}Charge :{[/b]} -180.00€ = {[b]}Résultat :{[/b]} 180.00€ | {[b]}Trésorerie :{[/b]} 180.00€ - {[b]}Validé :{[/b]} 0.00€{[/center]}')
 
         self.factory.xfer = EntryAccountClose()
         self.call('/diacamma.accounting/entryAccountClose',
@@ -568,7 +568,7 @@ class ExpenseTest(PaymentTest):
         self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
         self.assert_count_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD', 3)
         self.assert_xml_equal(
-            "COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit:{[/b]} 0.00€ - {[b]}Charge:{[/b]} -180.00€ = {[b]}Résultat:{[/b]} 180.00€ | {[b]}Trésorie:{[/b]} 180.00€ - {[b]}Validé:{[/b]} 180.00€{[/center]}')
+            "COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit :{[/b]} 0.00€ - {[b]}Charge :{[/b]} -180.00€ = {[b]}Résultat :{[/b]} 180.00€ | {[b]}Trésorerie :{[/b]} 180.00€ - {[b]}Validé :{[/b]} 180.00€{[/center]}')
 
         self.factory.xfer = ExpenseShow()
         self.call('/diacamma.condominium/expenseShow', {'expense': 4}, False)
@@ -805,7 +805,7 @@ class ExpenseTest(PaymentTest):
         self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
         self.assert_count_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD', 0)
         self.assert_xml_equal(
-            "COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit:{[/b]} 0.00€ - {[b]}Charge:{[/b]} 0.00€ = {[b]}Résultat:{[/b]} 0.00€ | {[b]}Trésorie:{[/b]} 0.00€ - {[b]}Validé:{[/b]} 0.00€{[/center]}')
+            "COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit :{[/b]} 0.00€ - {[b]}Charge :{[/b]} 0.00€ = {[b]}Résultat :{[/b]} 0.00€ | {[b]}Trésorerie :{[/b]} 0.00€ - {[b]}Validé :{[/b]} 0.00€{[/center]}')
 
         self.factory.xfer = ExpenseTransition()
         self.call('/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 4, 'TRANSITION': 'valid'}, False)
@@ -819,7 +819,7 @@ class ExpenseTest(PaymentTest):
         self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
         self.assert_count_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD', 3)
         self.assert_xml_equal(
-            "COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit:{[/b]} 0.00€ - {[b]}Charge:{[/b]} 180.00€ = {[b]}Résultat:{[/b]} -180.00€ | {[b]}Trésorie:{[/b]} -180.00€ - {[b]}Validé:{[/b]} 0.00€{[/center]}')
+            "COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit :{[/b]} 0.00€ - {[b]}Charge :{[/b]} 180.00€ = {[b]}Résultat :{[/b]} -180.00€ | {[b]}Trésorerie :{[/b]} -180.00€ - {[b]}Validé :{[/b]} 0.00€{[/center]}')
 
         self.factory.xfer = ExpenseShow()
         self.call('/diacamma.condominium/expenseShow', {'expense': 4}, False)
@@ -834,7 +834,7 @@ class ExpenseTest(PaymentTest):
         self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
         self.assert_count_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD', 0)
         self.assert_xml_equal(
-            "COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit:{[/b]} 0.00€ - {[b]}Charge:{[/b]} 0.00€ = {[b]}Résultat:{[/b]} 0.00€ | {[b]}Trésorie:{[/b]} 0.00€ - {[b]}Validé:{[/b]} 0.00€{[/center]}')
+            "COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit :{[/b]} 0.00€ - {[b]}Charge :{[/b]} 0.00€ = {[b]}Résultat :{[/b]} 0.00€ | {[b]}Trésorerie :{[/b]} 0.00€ - {[b]}Validé :{[/b]} 0.00€{[/center]}')
 
 
 class ExpenseTestOldAccounting(LucteriosTest):
@@ -885,7 +885,7 @@ class ExpenseTestOldAccounting(LucteriosTest):
         self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
         self.assert_count_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD', 0)
         self.assert_xml_equal(
-            "COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit:{[/b]} 0.00€ - {[b]}Charge:{[/b]} 0.00€ = {[b]}Résultat:{[/b]} 0.00€ | {[b]}Trésorie:{[/b]} 0.00€ - {[b]}Validé:{[/b]} 0.00€{[/center]}')
+            "COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit :{[/b]} 0.00€ - {[b]}Charge :{[/b]} 0.00€ = {[b]}Résultat :{[/b]} 0.00€ | {[b]}Trésorerie :{[/b]} 0.00€ - {[b]}Validé :{[/b]} 0.00€{[/center]}')
 
         self.factory.xfer = ExpenseTransition()
         self.call('/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 4, 'TRANSITION': 'valid'}, False)
@@ -915,7 +915,7 @@ class ExpenseTestOldAccounting(LucteriosTest):
         self.assertTrue('[450 Dalton Joe]' in description, description)
         self.assertTrue('[701] 701' in description, description)
         self.assert_xml_equal(
-            "COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit:{[/b]} 180.00€ - {[b]}Charge:{[/b]} 180.00€ = {[b]}Résultat:{[/b]} 0.00€ | {[b]}Trésorie:{[/b]} 0.00€ - {[b]}Validé:{[/b]} 0.00€{[/center]}')
+            "COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit :{[/b]} 180.00€ - {[b]}Charge :{[/b]} 180.00€ = {[b]}Résultat :{[/b]} 0.00€ | {[b]}Trésorerie :{[/b]} 0.00€ - {[b]}Validé :{[/b]} 0.00€{[/center]}')
 
         self.factory.xfer = ExpenseShow()
         self.call('/diacamma.condominium/expenseShow', {'expense': 4}, False)
@@ -982,7 +982,7 @@ class ExpenseTestOldAccounting(LucteriosTest):
         self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
         self.assert_count_equal('COMPONENTS/GRID[@name="expensedetail"]/RECORD', 2)
         self.assert_xml_equal('COMPONENTS/LABELFORM[@name="total"]', '180.00€')
-        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="status"]', 'fini')
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="status"]', 'terminé')
         self.assert_count_equal('ACTIONS/ACTION', 1)
 
         self.factory.xfer = EntryAccountList()
@@ -1037,7 +1037,7 @@ class ExpenseTestOldAccounting(LucteriosTest):
         self.assertTrue('[450 Dalton Joe]' in description, description)
         self.assertTrue('[702] 702' in description, description)
         self.assert_xml_equal(
-            "COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit:{[/b]} 200.00€ - {[b]}Charge:{[/b]} 200.00€ = {[b]}Résultat:{[/b]} 0.00€ | {[b]}Trésorie:{[/b]} 0.00€ - {[b]}Validé:{[/b]} 0.00€{[/center]}')
+            "COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit :{[/b]} 200.00€ - {[b]}Charge :{[/b]} 200.00€ = {[b]}Résultat :{[/b]} 0.00€ | {[b]}Trésorerie :{[/b]} 0.00€ - {[b]}Validé :{[/b]} 0.00€{[/center]}')
 
         self.factory.xfer = ExpenseShow()
         self.call('/diacamma.condominium/expenseShow', {'expense': 4}, False)
@@ -1142,7 +1142,7 @@ class ExpenseTestOldAccounting(LucteriosTest):
         self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
         self.assert_count_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD', 5)
         self.assert_xml_equal(
-            "COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit:{[/b]} 180.00€ - {[b]}Charge:{[/b]} 180.00€ = {[b]}Résultat:{[/b]} 0.00€ | {[b]}Trésorie:{[/b]} -180.00€ - {[b]}Validé:{[/b]} 0.00€{[/center]}')
+            "COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit :{[/b]} 180.00€ - {[b]}Charge :{[/b]} 180.00€ = {[b]}Résultat :{[/b]} 0.00€ | {[b]}Trésorerie :{[/b]} -180.00€ - {[b]}Validé :{[/b]} 0.00€{[/center]}')
 
         self.factory.xfer = EntryAccountClose()
         self.call('/diacamma.accounting/entryAccountClose',
@@ -1154,7 +1154,7 @@ class ExpenseTestOldAccounting(LucteriosTest):
         self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
         self.assert_count_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD', 5)
         self.assert_xml_equal(
-            "COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit:{[/b]} 180.00€ - {[b]}Charge:{[/b]} 180.00€ = {[b]}Résultat:{[/b]} 0.00€ | {[b]}Trésorie:{[/b]} -180.00€ - {[b]}Validé:{[/b]} -180.00€{[/center]}')
+            "COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit :{[/b]} 180.00€ - {[b]}Charge :{[/b]} 180.00€ = {[b]}Résultat :{[/b]} 0.00€ | {[b]}Trésorerie :{[/b]} -180.00€ - {[b]}Validé :{[/b]} -180.00€{[/center]}')
 
         self.factory.xfer = ExpenseShow()
         self.call('/diacamma.condominium/expenseShow', {'expense': 4}, False)

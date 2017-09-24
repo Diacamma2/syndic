@@ -173,7 +173,7 @@ class CallFundsTest(LucteriosTest):
         self.call('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '-1', 'filter': '0'}, False)
         self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
         self.assert_count_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD', 0)
-        self.assert_xml_equal("COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit:{[/b]} 0.00€ - {[b]}Charge:{[/b]} 0.00€ = {[b]}Résultat:{[/b]} 0.00€ | {[b]}Trésorie:{[/b]} 0.00€ - {[b]}Validé:{[/b]} 0.00€{[/center]}')
+        self.assert_xml_equal("COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit :{[/b]} 0.00€ - {[b]}Charge :{[/b]} 0.00€ = {[b]}Résultat :{[/b]} 0.00€ | {[b]}Trésorerie :{[/b]} 0.00€ - {[b]}Validé :{[/b]} 0.00€{[/center]}')
 
         self.factory.xfer = CallFundsAddModify()
         self.call('/diacamma.condominium/callFundsAddModify', {'SAVE': 'YES', "date": '2015-06-10', "type_call": 0, "comment": 'abc 123'}, False)
@@ -304,7 +304,7 @@ class CallFundsTest(LucteriosTest):
         self.assertTrue('[4501 Dalton Joe]' in description, description)
         self.assertTrue('[701] 701' in description, description)
         self.assert_xml_equal("COMPONENTS/LABELFORM[@name='result']",
-                              '{[center]}{[b]}Produit:{[/b]} 275.00€ - {[b]}Charge:{[/b]} 0.00€ = {[b]}Résultat:{[/b]} 275.00€ | {[b]}Trésorie:{[/b]} 0.00€ - {[b]}Validé:{[/b]} 0.00€{[/center]}')
+                              '{[center]}{[b]}Produit :{[/b]} 275.00€ - {[b]}Charge :{[/b]} 0.00€ = {[b]}Résultat :{[/b]} 275.00€ | {[b]}Trésorerie :{[/b]} 0.00€ - {[b]}Validé :{[/b]} 0.00€{[/center]}')
 
         self.factory.xfer = EntryAccountList()
         self.call('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '3', 'filter': '0'}, False)
@@ -329,7 +329,7 @@ class CallFundsTest(LucteriosTest):
         self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
         self.assert_count_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD', 0)
         self.assert_xml_equal(
-            "COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit:{[/b]} 0.00€ - {[b]}Charge:{[/b]} 0.00€ = {[b]}Résultat:{[/b]} 0.00€ | {[b]}Trésorie:{[/b]} 0.00€ - {[b]}Validé:{[/b]} 0.00€{[/center]}')
+            "COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit :{[/b]} 0.00€ - {[b]}Charge :{[/b]} 0.00€ = {[b]}Résultat :{[/b]} 0.00€ | {[b]}Trésorerie :{[/b]} 0.00€ - {[b]}Validé :{[/b]} 0.00€{[/center]}')
 
         self.factory.xfer = CallFundsAddModify()
         self.call(
@@ -404,7 +404,7 @@ class CallFundsTest(LucteriosTest):
         self.assertTrue('[4502 Dalton Joe]' in description, description)
         self.assertTrue('[120] 120' in description, description)
         self.assert_xml_equal("COMPONENTS/LABELFORM[@name='result']",
-                              '{[center]}{[b]}Produit:{[/b]} 0.00€ - {[b]}Charge:{[/b]} 0.00€ = {[b]}Résultat:{[/b]} 0.00€ | {[b]}Trésorie:{[/b]} 0.00€ - {[b]}Validé:{[/b]} 0.00€{[/center]}')
+                              '{[center]}{[b]}Produit :{[/b]} 0.00€ - {[b]}Charge :{[/b]} 0.00€ = {[b]}Résultat :{[/b]} 0.00€ | {[b]}Trésorerie :{[/b]} 0.00€ - {[b]}Validé :{[/b]} 0.00€{[/center]}')
 
         self.factory.xfer = EntryAccountList()
         self.call('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '3', 'filter': '0'}, False)
@@ -425,7 +425,7 @@ class CallFundsTest(LucteriosTest):
         self.assertTrue('[4502 Minimum]' in description, description)
         self.assertTrue('[531] 531' in description, description)
         self.assert_xml_equal("COMPONENTS/LABELFORM[@name='result']",
-                              '{[center]}{[b]}Produit:{[/b]} 0.00€ - {[b]}Charge:{[/b]} 0.00€ = {[b]}Résultat:{[/b]} 0.00€ | {[b]}Trésorie:{[/b]} 100.00€ - {[b]}Validé:{[/b]} 0.00€{[/center]}')
+                              '{[center]}{[b]}Produit :{[/b]} 0.00€ - {[b]}Charge :{[/b]} 0.00€ = {[b]}Résultat :{[/b]} 0.00€ | {[b]}Trésorerie :{[/b]} 100.00€ - {[b]}Validé :{[/b]} 0.00€{[/center]}')
 
     def test_valid_advance(self):
         self.factory.xfer = EntryAccountList()
@@ -433,7 +433,7 @@ class CallFundsTest(LucteriosTest):
         self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
         self.assert_count_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD', 0)
         self.assert_xml_equal(
-            "COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit:{[/b]} 0.00€ - {[b]}Charge:{[/b]} 0.00€ = {[b]}Résultat:{[/b]} 0.00€ | {[b]}Trésorie:{[/b]} 0.00€ - {[b]}Validé:{[/b]} 0.00€{[/center]}')
+            "COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit :{[/b]} 0.00€ - {[b]}Charge :{[/b]} 0.00€ = {[b]}Résultat :{[/b]} 0.00€ | {[b]}Trésorerie :{[/b]} 0.00€ - {[b]}Validé :{[/b]} 0.00€{[/center]}')
 
         self.factory.xfer = CallFundsAddModify()
         self.call(
@@ -508,7 +508,7 @@ class CallFundsTest(LucteriosTest):
         self.assertTrue('[4503 Dalton Joe]' in description, description)
         self.assertTrue('[103] 103' in description, description)
         self.assert_xml_equal("COMPONENTS/LABELFORM[@name='result']",
-                              '{[center]}{[b]}Produit:{[/b]} 0.00€ - {[b]}Charge:{[/b]} 0.00€ = {[b]}Résultat:{[/b]} 0.00€ | {[b]}Trésorie:{[/b]} 0.00€ - {[b]}Validé:{[/b]} 0.00€{[/center]}')
+                              '{[center]}{[b]}Produit :{[/b]} 0.00€ - {[b]}Charge :{[/b]} 0.00€ = {[b]}Résultat :{[/b]} 0.00€ | {[b]}Trésorerie :{[/b]} 0.00€ - {[b]}Validé :{[/b]} 0.00€{[/center]}')
 
         self.factory.xfer = EntryAccountList()
         self.call('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '3', 'filter': '0'}, False)
@@ -529,7 +529,111 @@ class CallFundsTest(LucteriosTest):
         self.assertTrue('[531] 531' in description, description)
         self.assertTrue('[4503 Minimum]' in description, description)
         self.assert_xml_equal("COMPONENTS/LABELFORM[@name='result']",
-                              '{[center]}{[b]}Produit:{[/b]} 0.00€ - {[b]}Charge:{[/b]} 0.00€ = {[b]}Résultat:{[/b]} 0.00€ | {[b]}Trésorie:{[/b]} 100.00€ - {[b]}Validé:{[/b]} 0.00€{[/center]}')
+                              '{[center]}{[b]}Produit :{[/b]} 0.00€ - {[b]}Charge :{[/b]} 0.00€ = {[b]}Résultat :{[/b]} 0.00€ | {[b]}Trésorerie :{[/b]} 100.00€ - {[b]}Validé :{[/b]} 0.00€{[/center]}')
+
+    def test_valid_fundforworks(self):
+        self.factory.xfer = EntryAccountList()
+        self.call('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '-1', 'filter': '0'}, False)
+        self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
+        self.assert_count_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD', 0)
+        self.assert_xml_equal(
+            "COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit :{[/b]} 0.00€ - {[b]}Charge :{[/b]} 0.00€ = {[b]}Résultat :{[/b]} 0.00€ | {[b]}Trésorerie :{[/b]} 0.00€ - {[b]}Validé :{[/b]} 0.00€{[/center]}')
+
+        self.factory.xfer = CallFundsAddModify()
+        self.call(
+            '/diacamma.condominium/callFundsAddModify', {'SAVE': 'YES', "date": '2015-06-10', "type_call": 4, "comment": 'abc 123'}, False)
+        self.assert_observer(
+            'core.acknowledge', 'diacamma.condominium', 'callFundsAddModify')
+        self.factory.xfer = CallDetailAddModify()
+        self.call(
+            '/diacamma.condominium/callDetailAddModify', {'SAVE': 'YES', 'callfunds': 1, 'set': 1, 'price': '100.00', 'comment': 'set 1'}, False)
+        self.assert_observer(
+            'core.acknowledge', 'diacamma.condominium', 'callDetailAddModify')
+
+        self.factory.xfer = CallFundsShow()
+        self.call(
+            '/diacamma.condominium/callFundsShow', {'callfunds': 1}, False)
+        self.assert_observer(
+            'core.custom', 'diacamma.condominium', 'callFundsShow')
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="type_call"]', 'fond travaux')
+
+        self.factory.xfer = CallFundsList()
+        self.call(
+            '/diacamma.condominium/callFundsList', {'status_filter': 0}, False)
+        self.assert_observer(
+            'core.custom', 'diacamma.condominium', 'callFundsList')
+        self.assert_count_equal('COMPONENTS/GRID[@name="callfunds"]/RECORD', 1)
+
+        self.factory.xfer = CallFundsTransition()
+        self.call(
+            '/diacamma.condominium/callFundsTransition', {'CONFIRME': 'YES', 'callfunds': 1, 'TRANSITION': 'valid'}, False)
+        self.assert_observer(
+            'core.acknowledge', 'diacamma.condominium', 'callFundsTransition')
+
+        self.factory.xfer = CallFundsList()
+        self.call(
+            '/diacamma.condominium/callFundsList', {'status_filter': 1}, False)
+        self.assert_observer(
+            'core.custom', 'diacamma.condominium', 'callFundsList')
+        self.assert_count_equal('COMPONENTS/GRID[@name="callfunds"]/RECORD', 3)
+        self.assert_xml_equal(
+            'COMPONENTS/GRID[@name="callfunds"]/RECORD[1]/VALUE[@name="type_call"]', "fond travaux")
+        self.assert_xml_equal(
+            'COMPONENTS/GRID[@name="callfunds"]/RECORD[1]/VALUE[@name="owner"]', "Minimum")  # 100*45%
+        self.assert_xml_equal(
+            'COMPONENTS/GRID[@name="callfunds"]/RECORD[1]/VALUE[@name="total"]', "45.00€")
+        self.assert_xml_equal(
+            'COMPONENTS/GRID[@name="callfunds"]/RECORD[2]/VALUE[@name="type_call"]', "fond travaux")
+        self.assert_xml_equal(
+            'COMPONENTS/GRID[@name="callfunds"]/RECORD[2]/VALUE[@name="owner"]', "Dalton William")  # 100*35%
+        self.assert_xml_equal(
+            'COMPONENTS/GRID[@name="callfunds"]/RECORD[2]/VALUE[@name="total"]', "35.00€")
+        self.assert_xml_equal(
+            'COMPONENTS/GRID[@name="callfunds"]/RECORD[3]/VALUE[@name="type_call"]', "fond travaux")
+        self.assert_xml_equal(
+            'COMPONENTS/GRID[@name="callfunds"]/RECORD[3]/VALUE[@name="owner"]', "Dalton Joe")  # 100*20%
+        self.assert_xml_equal(
+            'COMPONENTS/GRID[@name="callfunds"]/RECORD[3]/VALUE[@name="total"]', "20.00€")
+
+        self.factory.xfer = EntryAccountList()
+        self.call('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '-1', 'filter': '0'}, False)
+        self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
+        self.assert_count_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD', 3)
+        self.assert_xml_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD[1]/VALUE[@name="costaccounting"]', '[1] AAA 2015')
+        description = self.get_first_xpath('COMPONENTS/GRID[@name="entryaccount"]/RECORD[1]/VALUE[@name="description"]').text
+        self.assertTrue('[4505 Minimum]' in description, description)
+        self.assertTrue('[105] 105' in description, description)
+        self.assert_xml_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD[2]/VALUE[@name="costaccounting"]', '[1] AAA 2015')
+        description = self.get_first_xpath('COMPONENTS/GRID[@name="entryaccount"]/RECORD[2]/VALUE[@name="description"]').text
+        self.assertTrue('[4505 Dalton William]' in description, description)
+        self.assertTrue('[105] 105' in description, description)
+        self.assert_xml_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD[3]/VALUE[@name="costaccounting"]', '[1] AAA 2015')
+        description = self.get_first_xpath('COMPONENTS/GRID[@name="entryaccount"]/RECORD[3]/VALUE[@name="description"]').text
+        self.assertTrue('[4505 Dalton Joe]' in description, description)
+        self.assertTrue('[105] 105' in description, description)
+        self.assert_xml_equal("COMPONENTS/LABELFORM[@name='result']",
+                              '{[center]}{[b]}Produit :{[/b]} 0.00€ - {[b]}Charge :{[/b]} 0.00€ = {[b]}Résultat :{[/b]} 0.00€ | {[b]}Trésorerie :{[/b]} 0.00€ - {[b]}Validé :{[/b]} 0.00€{[/center]}')
+
+        self.factory.xfer = EntryAccountList()
+        self.call('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '3', 'filter': '0'}, False)
+        self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
+        self.assert_count_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD', 3)
+
+        self.factory.xfer = PayoffAddModify()
+        self.call(
+            '/diacamma.payoff/payoffAddModify', {'SAVE': 'YES', 'supporting': 4, 'amount': '100.0', 'payer': "Minimum", 'date': '2015-06-12', 'mode': 0, 'reference': 'abc', 'bank_account': 0}, False)
+        self.assert_observer(
+            'core.acknowledge', 'diacamma.payoff', 'payoffAddModify')
+
+        self.factory.xfer = EntryAccountList()
+        self.call('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '-1', 'filter': '0'}, False)
+        self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
+        self.assert_count_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD', 4)
+        description = self.get_first_xpath('COMPONENTS/GRID[@name="entryaccount"]/RECORD[4]/VALUE[@name="description"]').text
+        self.assertTrue('[531] 531' in description, description)
+        self.assertTrue('[4505 Minimum]' in description, description)
+        self.assert_xml_equal("COMPONENTS/LABELFORM[@name='result']",
+                              '{[center]}{[b]}Produit :{[/b]} 0.00€ - {[b]}Charge :{[/b]} 0.00€ = {[b]}Résultat :{[/b]} 0.00€ | {[b]}Trésorerie :{[/b]} 100.00€ - {[b]}Validé :{[/b]} 0.00€{[/center]}')
 
     def test_payoff(self):
         self.assertEqual('{[font color="green"]}Crédit: 0.00€{[/font]}',
@@ -543,7 +647,7 @@ class CallFundsTest(LucteriosTest):
         self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
         self.assert_count_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD', 0)
         self.assert_xml_equal("COMPONENTS/LABELFORM[@name='result']",
-                              '{[center]}{[b]}Produit:{[/b]} 0.00€ - {[b]}Charge:{[/b]} 0.00€ = {[b]}Résultat:{[/b]} 0.00€ | {[b]}Trésorie:{[/b]} 0.00€ - {[b]}Validé:{[/b]} 0.00€{[/center]}')
+                              '{[center]}{[b]}Produit :{[/b]} 0.00€ - {[b]}Charge :{[/b]} 0.00€ = {[b]}Résultat :{[/b]} 0.00€ | {[b]}Trésorerie :{[/b]} 0.00€ - {[b]}Validé :{[/b]} 0.00€{[/center]}')
 
         self.factory.xfer = CallFundsAddModify()
         self.call('/diacamma.condominium/callFundsAddModify', {'SAVE': 'YES', "date": '2015-06-10', "type_call": 0, "comment": 'abc 123'}, False)
@@ -600,7 +704,7 @@ class CallFundsTestOldAccounting(LucteriosTest):
         self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
         self.assert_count_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD', 0)
         self.assert_xml_equal(
-            "COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit:{[/b]} 0.00€ - {[b]}Charge:{[/b]} 0.00€ = {[b]}Résultat:{[/b]} 0.00€ | {[b]}Trésorie:{[/b]} 0.00€ - {[b]}Validé:{[/b]} 0.00€{[/center]}')
+            "COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit :{[/b]} 0.00€ - {[b]}Charge :{[/b]} 0.00€ = {[b]}Résultat :{[/b]} 0.00€ | {[b]}Trésorerie :{[/b]} 0.00€ - {[b]}Validé :{[/b]} 0.00€{[/center]}')
 
         self.factory.xfer = CallFundsAddModify()
         self.call(
@@ -630,7 +734,7 @@ class CallFundsTestOldAccounting(LucteriosTest):
         self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
         self.assert_count_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD', 0)
         self.assert_xml_equal(
-            "COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit:{[/b]} 0.00€ - {[b]}Charge:{[/b]} 0.00€ = {[b]}Résultat:{[/b]} 0.00€ | {[b]}Trésorie:{[/b]} 0.00€ - {[b]}Validé:{[/b]} 0.00€{[/center]}')
+            "COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit :{[/b]} 0.00€ - {[b]}Charge :{[/b]} 0.00€ = {[b]}Résultat :{[/b]} 0.00€ | {[b]}Trésorerie :{[/b]} 0.00€ - {[b]}Validé :{[/b]} 0.00€{[/center]}')
 
         self.factory.xfer = PayoffAddModify()
         self.call(
@@ -645,7 +749,7 @@ class CallFundsTestOldAccounting(LucteriosTest):
         description = self.get_first_xpath('COMPONENTS/GRID[@name="entryaccount"]/RECORD[1]/VALUE[@name="description"]').text
         self.assertTrue('[450 Minimum]' in description, description)
         self.assert_xml_equal("COMPONENTS/LABELFORM[@name='result']",
-                              '{[center]}{[b]}Produit:{[/b]} 0.00€ - {[b]}Charge:{[/b]} 0.00€ = {[b]}Résultat:{[/b]} 0.00€ | {[b]}Trésorie:{[/b]} 100.00€ - {[b]}Validé:{[/b]} 0.00€{[/center]}')
+                              '{[center]}{[b]}Produit :{[/b]} 0.00€ - {[b]}Charge :{[/b]} 0.00€ = {[b]}Résultat :{[/b]} 0.00€ | {[b]}Trésorerie :{[/b]} 100.00€ - {[b]}Validé :{[/b]} 0.00€{[/center]}')
 
     def test_valid_exceptional(self):
         self.factory.xfer = EntryAccountList()
@@ -653,7 +757,7 @@ class CallFundsTestOldAccounting(LucteriosTest):
         self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
         self.assert_count_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD', 0)
         self.assert_xml_equal(
-            "COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit:{[/b]} 0.00€ - {[b]}Charge:{[/b]} 0.00€ = {[b]}Résultat:{[/b]} 0.00€ | {[b]}Trésorie:{[/b]} 0.00€ - {[b]}Validé:{[/b]} 0.00€{[/center]}')
+            "COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit :{[/b]} 0.00€ - {[b]}Charge :{[/b]} 0.00€ = {[b]}Résultat :{[/b]} 0.00€ | {[b]}Trésorerie :{[/b]} 0.00€ - {[b]}Validé :{[/b]} 0.00€{[/center]}')
 
         self.factory.xfer = CallFundsAddModify()
         self.call(
@@ -683,7 +787,7 @@ class CallFundsTestOldAccounting(LucteriosTest):
         self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
         self.assert_count_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD', 0)
         self.assert_xml_equal(
-            "COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit:{[/b]} 0.00€ - {[b]}Charge:{[/b]} 0.00€ = {[b]}Résultat:{[/b]} 0.00€ | {[b]}Trésorie:{[/b]} 0.00€ - {[b]}Validé:{[/b]} 0.00€{[/center]}')
+            "COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit :{[/b]} 0.00€ - {[b]}Charge :{[/b]} 0.00€ = {[b]}Résultat :{[/b]} 0.00€ | {[b]}Trésorerie :{[/b]} 0.00€ - {[b]}Validé :{[/b]} 0.00€{[/center]}')
 
         self.factory.xfer = PayoffAddModify()
         self.call(
@@ -698,7 +802,7 @@ class CallFundsTestOldAccounting(LucteriosTest):
         description = self.get_first_xpath('COMPONENTS/GRID[@name="entryaccount"]/RECORD[1]/VALUE[@name="description"]').text
         self.assertTrue('[450 Minimum]' in description, description)
         self.assert_xml_equal("COMPONENTS/LABELFORM[@name='result']",
-                              '{[center]}{[b]}Produit:{[/b]} 0.00€ - {[b]}Charge:{[/b]} 0.00€ = {[b]}Résultat:{[/b]} 0.00€ | {[b]}Trésorie:{[/b]} 100.00€ - {[b]}Validé:{[/b]} 0.00€{[/center]}')
+                              '{[center]}{[b]}Produit :{[/b]} 0.00€ - {[b]}Charge :{[/b]} 0.00€ = {[b]}Résultat :{[/b]} 0.00€ | {[b]}Trésorerie :{[/b]} 100.00€ - {[b]}Validé :{[/b]} 0.00€{[/center]}')
 
     def test_valid_advance(self):
         self.factory.xfer = EntryAccountList()
@@ -706,7 +810,7 @@ class CallFundsTestOldAccounting(LucteriosTest):
         self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
         self.assert_count_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD', 0)
         self.assert_xml_equal(
-            "COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit:{[/b]} 0.00€ - {[b]}Charge:{[/b]} 0.00€ = {[b]}Résultat:{[/b]} 0.00€ | {[b]}Trésorie:{[/b]} 0.00€ - {[b]}Validé:{[/b]} 0.00€{[/center]}')
+            "COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit :{[/b]} 0.00€ - {[b]}Charge :{[/b]} 0.00€ = {[b]}Résultat :{[/b]} 0.00€ | {[b]}Trésorerie :{[/b]} 0.00€ - {[b]}Validé :{[/b]} 0.00€{[/center]}')
 
         self.factory.xfer = CallFundsAddModify()
         self.call(
@@ -736,7 +840,7 @@ class CallFundsTestOldAccounting(LucteriosTest):
         self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
         self.assert_count_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD', 0)
         self.assert_xml_equal(
-            "COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit:{[/b]} 0.00€ - {[b]}Charge:{[/b]} 0.00€ = {[b]}Résultat:{[/b]} 0.00€ | {[b]}Trésorie:{[/b]} 0.00€ - {[b]}Validé:{[/b]} 0.00€{[/center]}')
+            "COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit :{[/b]} 0.00€ - {[b]}Charge :{[/b]} 0.00€ = {[b]}Résultat :{[/b]} 0.00€ | {[b]}Trésorerie :{[/b]} 0.00€ - {[b]}Validé :{[/b]} 0.00€{[/center]}')
 
         self.factory.xfer = PayoffAddModify()
         self.call(
@@ -751,4 +855,4 @@ class CallFundsTestOldAccounting(LucteriosTest):
         description = self.get_first_xpath('COMPONENTS/GRID[@name="entryaccount"]/RECORD[1]/VALUE[@name="description"]').text
         self.assertTrue('[450 Minimum]' in description, description)
         self.assert_xml_equal("COMPONENTS/LABELFORM[@name='result']",
-                              '{[center]}{[b]}Produit:{[/b]} 0.00€ - {[b]}Charge:{[/b]} 0.00€ = {[b]}Résultat:{[/b]} 0.00€ | {[b]}Trésorie:{[/b]} 100.00€ - {[b]}Validé:{[/b]} 0.00€{[/center]}')
+                              '{[center]}{[b]}Produit :{[/b]} 0.00€ - {[b]}Charge :{[/b]} 0.00€ = {[b]}Résultat :{[/b]} 0.00€ | {[b]}Trésorerie :{[/b]} 100.00€ - {[b]}Validé :{[/b]} 0.00€{[/center]}')

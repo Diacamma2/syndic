@@ -43,8 +43,8 @@ def default_setowner(with_lots=True):
     if Params.getvalue("condominium-old-accounting"):
         create_account(['450'], 0, FiscalYear.get_current())
     else:
-        create_account(['4501', '4502', '4503', '4504'], 0, FiscalYear.get_current())
-    create_account(['120', '103'], 2, FiscalYear.get_current())
+        create_account(['4501', '4502', '4503', '4504', '4505'], 0, FiscalYear.get_current())
+    create_account(['120', '103', '105'], 2, FiscalYear.get_current())
     create_account(['702'], 3, FiscalYear.get_current())
 
     owner1 = Owner.objects.create(third_id=4)

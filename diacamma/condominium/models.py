@@ -943,7 +943,7 @@ class CallFunds(LucteriosModel):
     date = models.DateField(verbose_name=_('date'), null=False)
     comment = models.TextField(_('comment'), null=True, default="")
     type_call = models.IntegerField(verbose_name=_('type of call'),
-                                    choices=((0, _('current')), (1, _('exceptional')), (2, _('cash advance'))), null=False, default=0, db_index=True)
+                                    choices=((0, _('current')), (1, _('exceptional')), (2, _('cash advance')), (3, _('borrowing')), (4, _('fund for works'))), null=False, default=0, db_index=True)
     status = FSMIntegerField(verbose_name=_('status'),
                              choices=((0, _('building')), (1, _('valid')), (2, _('ended'))), null=False, default=0, db_index=True)
 
@@ -1037,6 +1037,8 @@ class CallFunds(LucteriosModel):
                 detail_account_filter = Params.getvalue("condominium-exceptional-reserve-account")
             if self.type_call == 2:
                 detail_account_filter = Params.getvalue("condominium-advance-reserve-account")
+            if self.type_call == 4:
+                detail_account_filter = Params.getvalue("condominium-fundforworks-reserve-account")
             owner_account = self.owner.third.get_account(fiscal_year, owner_account_filter)
             detail_account = ChartsAccount.get_account(detail_account_filter, fiscal_year)
             if detail_account is None:
@@ -1538,13 +1540,13 @@ def condominium_checkparam():
                                args="{'Multi':False}", value=correct_accounting_code('701'), meta='("accounting","ChartsAccount", Q(type_of_account=3) & Q(year__is_actif=True), "code", True)')
     Parameter.check_and_create(name='condominium-exceptional-revenue-account', typeparam=0, title=_("condominium-exceptional-revenue-account"),
                                args="{'Multi':False}", value=correct_accounting_code('702'), meta='("accounting","ChartsAccount", Q(type_of_account=3) & Q(year__is_actif=True), "code", True)')
-    Parameter.check_and_create(name='condominium-workfund-revenue-account', typeparam=0, title=_("condominium-workfund-revenue-account"),
+    Parameter.check_and_create(name='condominium-fundforworks-revenue-account', typeparam=0, title=_("condominium-fundforworks-revenue-account"),
                                args="{'Multi':False}", value=correct_accounting_code('705'), meta='("accounting","ChartsAccount", Q(type_of_account=3) & Q(year__is_actif=True), "code", True)')
     Parameter.check_and_create(name='condominium-exceptional-reserve-account', typeparam=0, title=_("condominium-exceptional-reserve-account"),
                                args="{'Multi':False}", value=correct_accounting_code('120'), meta='("accounting","ChartsAccount", Q(type_of_account=2) & Q(year__is_actif=True), "code", False)')
     Parameter.check_and_create(name='condominium-advance-reserve-account', typeparam=0, title=_("condominium-advance-reserve-account"),
                                args="{'Multi':False}", value=correct_accounting_code('103'), meta='("accounting","ChartsAccount", Q(type_of_account=2) & Q(year__is_actif=True), "code", True)')
-    Parameter.check_and_create(name='condominium-workfund-reserve-account', typeparam=0, title=_("condominium-work-fund-account"),
+    Parameter.check_and_create(name='condominium-fundforworks-reserve-account', typeparam=0, title=_("condominium-fundforworks-reserve-account"),
                                args="{'Multi':False}", value=correct_accounting_code('105'), meta='("accounting","ChartsAccount", Q(type_of_account=2) & Q(year__is_actif=True), "code", True)')
     if Parameter.check_and_create(name='condominium-old-accounting', typeparam=3, title=_("condominium-old-accounting"),
                                   args="{}", value='False'):

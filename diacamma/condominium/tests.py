@@ -62,7 +62,7 @@ class SetOwnerTest(LucteriosTest):
         self.factory.xfer = CondominiumConf()
         self.call('/diacamma.condominium/condominiumConf', {}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'condominiumConf')
-        self.assert_count_equal('COMPONENTS/*', 10)
+        self.assert_count_equal('COMPONENTS/*', 13)
         self.assert_xml_equal('COMPONENTS/LABELFORM[@name="condominium-default-owner-account1"]', '4501')
         self.assert_xml_equal('COMPONENTS/LABELFORM[@name="condominium-default-owner-account2"]', '4502')
         self.assert_xml_equal('COMPONENTS/LABELFORM[@name="condominium-default-owner-account3"]', '4503')
@@ -70,10 +70,10 @@ class SetOwnerTest(LucteriosTest):
         self.assert_xml_equal('COMPONENTS/LABELFORM[@name="condominium-default-owner-account5"]', '4505')
         self.assert_xml_equal('COMPONENTS/LABELFORM[@name="condominium-current-revenue-account"]', '701')
         self.assert_xml_equal('COMPONENTS/LABELFORM[@name="condominium-exceptional-revenue-account"]', '702')
-        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="condominium-workfund-revenue-account"]', '705')
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="condominium-fundforworks-revenue-account"]', '705')
         self.assert_xml_equal('COMPONENTS/LABELFORM[@name="condominium-exceptional-reserve-account"]', '120')
         self.assert_xml_equal('COMPONENTS/LABELFORM[@name="condominium-advance-reserve-account"]', '103')
-        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="condominium-workfund-reserve-account"]', '105')
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="condominium-fundforworks-reserve-account"]', '105')
 
     def test_config_old_accounting(self):
         old_accounting()
@@ -202,11 +202,12 @@ class SetOwnerTest(LucteriosTest):
         self.call('/diacamma.accounting/thirdShow', {"third": 4}, False)
         self.assert_observer('core.custom', 'diacamma.accounting', 'thirdShow')
         self.assert_xml_equal('COMPONENTS/LABELFORM[@name="contact"]', 'Minimum')
-        self.assert_count_equal('COMPONENTS/GRID[@name="accountthird"]/RECORD', 6)
+        self.assert_count_equal('COMPONENTS/GRID[@name="accountthird"]/RECORD', 7)
         self.assert_xml_equal('COMPONENTS/GRID[@name="accountthird"]/RECORD[3]/VALUE[@name="code"]', '4501')
         self.assert_xml_equal('COMPONENTS/GRID[@name="accountthird"]/RECORD[4]/VALUE[@name="code"]', '4502')
         self.assert_xml_equal('COMPONENTS/GRID[@name="accountthird"]/RECORD[5]/VALUE[@name="code"]', '4503')
         self.assert_xml_equal('COMPONENTS/GRID[@name="accountthird"]/RECORD[6]/VALUE[@name="code"]', '4504')
+        self.assert_xml_equal('COMPONENTS/GRID[@name="accountthird"]/RECORD[7]/VALUE[@name="code"]', '4505')
 
         self.factory.xfer = OwnerAdd()
         self.call('/diacamma.condominium/ownerAddModify', {}, False)
@@ -716,7 +717,7 @@ class OwnerTest(PaymentTest):
         self.call('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '5', 'filter': '0'}, False)
         self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
         self.assert_count_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD', 1)
-        self.assert_xml_equal("COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit:{[/b]} 350.00€ - {[b]}Charge:{[/b]} 187.34€ = {[b]}Résultat:{[/b]} 162.66€ | {[b]}Trésorie:{[/b]} 36.84€ - {[b]}Validé:{[/b]} 16.84€{[/center]}')
+        self.assert_xml_equal("COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit :{[/b]} 350.00€ - {[b]}Charge :{[/b]} 187.34€ = {[b]}Résultat :{[/b]} 162.66€ | {[b]}Trésorerie :{[/b]} 36.84€ - {[b]}Validé :{[/b]} 16.84€{[/center]}')
 
         self.factory.xfer = SetShow()
         self.call('/diacamma.condominium/setShow', {'set': 3}, False)
@@ -748,7 +749,7 @@ class OwnerTest(PaymentTest):
         self.call('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '5', 'filter': '0'}, False)
         self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
         self.assert_count_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD', 2)
-        self.assert_xml_equal("COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit:{[/b]} 350.00€ - {[b]}Charge:{[/b]} 187.34€ = {[b]}Résultat:{[/b]} 162.66€ | {[b]}Trésorie:{[/b]} 36.84€ - {[b]}Validé:{[/b]} 36.84€{[/center]}')
+        self.assert_xml_equal("COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit :{[/b]} 350.00€ - {[b]}Charge :{[/b]} 187.34€ = {[b]}Résultat :{[/b]} 162.66€ | {[b]}Trésorerie :{[/b]} 36.84€ - {[b]}Validé :{[/b]} 36.84€{[/center]}')
 
         self.assert_xml_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD[2]/VALUE[@name="costaccounting"]', '[3] CCC')
         description = self.get_first_xpath('COMPONENTS/GRID[@name="entryaccount"]/RECORD[2]/VALUE[@name="description"]').text
@@ -999,7 +1000,7 @@ class OwnerTestOldAccounting(PaymentTest):
         self.call('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '5', 'filter': '0'}, False)
         self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
         self.assert_count_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD', 1)
-        self.assert_xml_equal("COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit:{[/b]} 175.00€ - {[b]}Charge:{[/b]} 187.34€ = {[b]}Résultat:{[/b]} -12.34€ | {[b]}Trésorie:{[/b]} 31.11€ - {[b]}Validé:{[/b]} 11.11€{[/center]}')
+        self.assert_xml_equal("COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit :{[/b]} 175.00€ - {[b]}Charge :{[/b]} 187.34€ = {[b]}Résultat :{[/b]} -12.34€ | {[b]}Trésorerie :{[/b]} 31.11€ - {[b]}Validé :{[/b]} 11.11€{[/center]}')
 
         self.factory.xfer = SetShow()
         self.call('/diacamma.condominium/setShow', {'set': 3}, False)
@@ -1030,4 +1031,4 @@ class OwnerTestOldAccounting(PaymentTest):
         self.call('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '5', 'filter': '0'}, False)
         self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
         self.assert_count_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD', 1)
-        self.assert_xml_equal("COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit:{[/b]} 175.00€ - {[b]}Charge:{[/b]} 187.34€ = {[b]}Résultat:{[/b]} -12.34€ | {[b]}Trésorie:{[/b]} 31.11€ - {[b]}Validé:{[/b]} 31.11€{[/center]}')
+        self.assert_xml_equal("COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit :{[/b]} 175.00€ - {[b]}Charge :{[/b]} 187.34€ = {[b]}Résultat :{[/b]} -12.34€ | {[b]}Trésorerie :{[/b]} 31.11€ - {[b]}Validé :{[/b]} 31.11€{[/center]}')

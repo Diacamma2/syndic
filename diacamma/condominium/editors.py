@@ -135,6 +135,8 @@ class CallFundsEditor(LucteriosEditor):
             self.item.supporting.edit.before_save(xfer)
 
     def edit(self, xfer):
+        type_call = xfer.get_components('type_call')
+        del type_call.select_list[3]
         xfer.change_to_readonly('status')
         if len(self.item.calldetail_set.all()) > 0:
             xfer.change_to_readonly('type_call')
@@ -174,7 +176,12 @@ class CallDetailEditor(LucteriosEditor):
         set_comp.get_reponse_xml()
         current_set = Set.objects.get(id=set_comp.value)
         if current_set.type_load == 0:
-            xfer.get_components('price').value = current_set.get_current_budget() / 4
+            if self.item.callfunds.type_call == 0:
+                xfer.get_components('price').value = current_set.get_current_budget() / 4
+            elif self.item.callfunds.type_call == 4:
+                xfer.get_components('price').value = current_set.get_current_budget() * 0.05
+            else:
+                xfer.get_components('price').value = 0.0
         elif current_set.type_load == 1:
             already_called = 0
             call_details = CallDetail.objects.filter(set_id=set_comp.value)
