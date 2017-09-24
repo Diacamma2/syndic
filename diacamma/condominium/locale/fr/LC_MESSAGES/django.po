@@ -33,7 +33,7 @@ msgstr "catégories de charges courantes"
 
 #: editors.py:170
 msgid "No category of charge defined!"
-msgstr "Aucun catégorie de charge définie!"
+msgstr "Aucune catégorie de charge définie !"
 
 #: models.py:54 models.py:100
 msgid "name"
@@ -119,7 +119,7 @@ msgstr "information"
 
 #: models.py:445
 msgid "You have too many owners declared!"
-msgstr "Vous avez trop de propriétaires déclarés!"
+msgstr "Vous avez trop de propriétaires déclarés !"
 
 #: models.py:449
 msgid "property tantime"
@@ -168,7 +168,7 @@ msgstr "002@Situation courante"
 
 #: models.py:471 models.py:502
 msgid "extra revenus/expenses"
-msgstr "revenues/dépenses extraordinaires"
+msgstr "revenus/dépenses extraordinaires"
 
 #: models.py:473 models.py:482 models.py:483 models.py:484 models.py:485
 msgid "003@Exceptional"
@@ -274,7 +274,7 @@ msgstr "lot de propriété"
 
 #: models.py:877
 msgid "property lots"
-msgstr "lots de propriétés"
+msgstr "lots de propriété"
 
 #: models.py:943 models.py:1131 printmodel/Owner_0001.py:355
 msgid "date"
@@ -306,7 +306,7 @@ msgstr "validé"
 
 #: models.py:948 models.py:1136
 msgid "ended"
-msgstr "fini"
+msgstr "terminé"
 
 #: models.py:951
 #, python-format
@@ -320,7 +320,7 @@ msgstr "reste à payer"
 #: models.py:978 models.py:1197
 #, python-format
 msgid "\"%s\" cannot be deleted!"
-msgstr "\"%s\" ne peut être supprimé!"
+msgstr "\"%s\" ne peut être supprimé !"
 
 #: models.py:981 models.py:1270
 msgid "Valid"
@@ -328,7 +328,7 @@ msgstr "Valider"
 
 #: models.py:1009
 msgid "Category of charge not fill!"
-msgstr "La catégorie de charge est sans assignation!"
+msgstr "La catégorie de charge est sans assignation !"
 
 #: models.py:1022 models.py:1287
 msgid "Closed"
@@ -336,7 +336,7 @@ msgstr "Clôturer"
 
 #: models.py:1043
 msgid "incorrect account for call of found"
-msgstr "Compte d'appel de fond incorrect!"
+msgstr "Compte d'appel de fond incorrect !"
 
 #: models.py:1059 models.py:1067 printmodel/CallFunds_0001.py:31
 #: printmodel/CallFunds_0001.py:142 printmodel/Owner_0001.py:355
@@ -384,11 +384,11 @@ msgstr "écritures"
 #: models.py:1218 models.py:1371 models.py:1384
 #, python-format
 msgid "code account %s unknown!"
-msgstr "code comptable %s inconnu!"
+msgstr "code comptable %s inconnu !"
 
 #: models.py:1237 models.py:1388
 msgid "Error in accounting generator!"
-msgstr "Erreur dans la génération comptable!"
+msgstr "Erreur dans la génération comptable !"
 
 #: models.py:1252
 msgid "Re-edit"
@@ -408,11 +408,11 @@ msgstr "prix"
 
 #: models.py:1413 models.py:1422 models.py:1432
 msgid "detail of expense"
-msgstr "détail de dépense"
+msgstr "détail de la dépense"
 
 #: models.py:1414 models.py:1433
 msgid "details of expense"
-msgstr "détails de dépense"
+msgstr "détails de la dépense"
 
 #: models.py:1425
 msgid "value"
@@ -440,11 +440,11 @@ msgstr "compte de prêt de proprietaire par défaut"
 
 #: models.py:1533
 msgid "condominium-current-revenue-account"
-msgstr "compte de revenue courant"
+msgstr "compte de revenu courant"
 
 #: models.py:1535
 msgid "condominium-exceptional-revenue-account"
-msgstr "compte de revenue exceptionnel"
+msgstr "compte de revenu exceptionnel"
 
 #: models.py:1537
 msgid "condominium-exceptional-reserve-account"
@@ -456,7 +456,7 @@ msgstr "compte de reserve de l'avance"
 
 #: models.py:1541
 msgid "condominium-old-accounting"
-msgstr "vieille comptabilité?"
+msgstr "vieille comptabilité ?"
 
 #: printmodel/CallFunds_0001.py:149
 msgid "situation at #owner.date_current"
@@ -504,7 +504,7 @@ msgstr "Les propriétaires"
 
 #: views.py:52 views.py:89
 msgid "You have the maximum of owners!"
-msgstr "Vous avez le maximum de propriétaires!"
+msgstr "Vous avez le maximum de propriétaires !"
 
 #: views.py:55 views_classload.py:440
 msgid "Property lots"
@@ -513,7 +513,7 @@ msgstr "Les lots"
 #: views.py:61
 #, python-format
 msgid "Total of lot parts: %d"
-msgstr "Total des tantièmes de lots: %d"
+msgstr "Total des tantièmes de lots : %d"
 
 #: views.py:68
 msgid "Print owners and property lots"
@@ -537,7 +537,7 @@ msgstr "Voir le propriétaire"
 
 #: views.py:125
 msgid "initial date"
-msgstr "date initial"
+msgstr "date initiale"
 
 #: views.py:132
 msgid "current date"
@@ -553,8 +553,7 @@ msgstr "ventilation"
 
 #: views.py:175
 msgid "Do you want to ventilate general payoff on calls of funds ?"
-msgstr ""
-"Voulez vous ventiler les règlements en attente sur des appels de fonds?"
+msgstr "Voulez vous ventiler les règlements en attente sur des appels de fonds ?"
 
 #: views.py:188
 msgid "Print owner"
@@ -582,7 +581,7 @@ msgstr "Votre copropriété"
 
 #: views.py:242
 msgid "Bad access!"
-msgstr "Mauvais accès!"
+msgstr "Mauvais accès !"
 
 #: views.py:257
 msgid "Condominium conversion"
@@ -590,7 +589,7 @@ msgstr "Conversion comptable de copropriété"
 
 #: views.py:261
 msgid "How do want to convert owner third account?"
-msgstr "Comment voulez vous convertir les compte de tiers des propriétaires?"
+msgstr "Comment voulez-vous convertir les comptes de tiers des propriétaires ?"
 
 #: views.py:299
 #, python-format
@@ -606,9 +605,9 @@ msgid ""
 msgstr ""
 "Cet outil de conversion va changer votre comptabilité pour respecter la loi "
 "Française sur les copropriétés.{[br/]}Pour les exercices non-cloturés "
-"suivant:{[br/]}%s{[br/]}Il effectuera les actions:{[br/]} - Changer les "
+"suivant : {[br/]}%s{[br/]}Il effectuera les actions : {[br/]} - Changer les "
 "comptes de chaque propriétaires.{[br/]} - Dévalider toutes les écritures "
-"(mise au brouillard).{[br/]} - Déarchiver les appels de fonds et les "
+"(mise au brouillard).{[br/]} - Désarchiver les appels de fonds et les "
 "dépenses.{[br/]} - Supprimer les écritures liées aux appels de fonds, aux "
 "dépenses et aux règlements.{[br/]} - Générer la comptabilité correctement "
 "pour les appels de fonds, les dépenses et les règlements.{[br/]}{[center]}"
@@ -649,16 +648,16 @@ msgstr ""
 
 #: views.py:364
 msgid "Convertion ..."
-msgstr "Convertion ..."
+msgstr "Conversion ..."
 
 #: views.py:368
 #, python-format
 msgid "limitation: %d owners allowed"
-msgstr "limitation: %d propriétaires autorisés"
+msgstr "limitation : %d propriétaires autorisés"
 
 #: views.py:419
 msgid "This fiscal year has entries not closed!"
-msgstr "Cet exercice a des écritures non validées!"
+msgstr "Cet exercice a des écritures non validées !"
 
 #: views.py:424
 #, python-format
@@ -667,7 +666,7 @@ msgstr "Cet exercice a un résultat non nul égal à %s"
 
 #: views.py:428
 msgid "Where do you want to ventilate this amount?"
-msgstr "Où voulez vous ventiler ce montant?"
+msgstr "Où voulez-vous ventiler ce montant ?"
 
 #: views.py:431
 msgid "For each owner"
@@ -675,7 +674,7 @@ msgstr "Pour chaque copropriétaire"
 
 #: views_callfunds.py:25
 msgid "Manage of calls of funds"
-msgstr "Gestion d'appel de fonds"
+msgstr "Gestion des appels de fonds"
 
 #: views_callfunds.py:30
 msgid "Calls of funds"
@@ -683,7 +682,7 @@ msgstr "Les appels de fonds"
 
 #: views_callfunds.py:38 views_expense.py:39
 msgid "Filter by type"
-msgstr "fitre par type"
+msgstr "Filtre par type"
 
 #: views_callfunds.py:62
 msgid "Add current"
@@ -696,12 +695,12 @@ msgstr "Ajouter un appel de fonds"
 #: views_callfunds.py:71
 msgid "Do you want create current call of funds of this year?"
 msgstr ""
-"Voulez-vous créer les appels de fonds des charges courrantes de cet exercice?"
+"Voulez-vous créer les appels de fonds des charges courantes de cet exercice ?"
 
 #: views_callfunds.py:75
 #, python-format
 msgid "Call of funds #%(num)d of year from %(begin)s to %(end)s"
-msgstr "Appel de fonds N°%(num)d de l'excercice du %(begin)s au %(end)s"
+msgstr "Appel de fonds N°%(num)d de l'exercice du %(begin)s au %(end)s"
 
 #: views_callfunds.py:77
 #, python-format
@@ -722,7 +721,7 @@ msgstr "Imprimer un appel de fonds"
 
 #: views_callfunds.py:123
 msgid "No call of funds to print!"
-msgstr "Aucun appel de fonds imprimable!"
+msgstr "Aucun appel de fonds imprimable !"
 
 #: views_callfunds.py:132
 msgid "Delete call of funds"
@@ -746,7 +745,7 @@ msgstr "Vérification des copropriétaires"
 
 #: views_classload.py:78
 msgid "Do you want to check account of owners?"
-msgstr "Voulez vous vérifier les comptes de chaque propriétaire?"
+msgstr "Voulez-vous vérifier les comptes de chaque propriétaire ?"
 
 #: views_classload.py:83
 msgid "Management of parameters of condominium"
@@ -810,7 +809,7 @@ msgstr "Clôturer"
 
 #: views_classload.py:178
 msgid "Close class load"
-msgstr "fermer une catégorie de charges"
+msgstr "Fermer une catégorie de charges"
 
 #: views_classload.py:194
 #, python-format
@@ -818,12 +817,12 @@ msgid ""
 "This class load has a difference of %s between those call of funds and those "
 "expenses."
 msgstr ""
-"Cette catégorie de charge a une difference de %s entre ses appels de fonds "
+"Cette catégorie de charges a une difference de %s entre ses appels de fonds "
 "et ses dépenses."
 
 #: views_classload.py:209
 msgid "Do you want to close this class load?"
-msgstr "Voulez vous fermer cette catégorie de charge?"
+msgstr "Voulez-vous fermer cette catégorie de charges ?"
 
 #: views_classload.py:222
 msgid "Modify partition"
@@ -867,11 +866,11 @@ msgstr "Définissez les lots pour chaque copropriétaire."
 
 #: views_classload.py:443
 msgid "Define the class loads of your condominium."
-msgstr "Définisser les catégories de charges de votre coproripiété."
+msgstr "Définissez les catégories de charges de votre copropriété."
 
 #: views_expense.py:22
 msgid "Manage of expenses"
-msgstr "Gestion de dépenses"
+msgstr "Gestion des dépenses"
 
 #: views_expense.py:27
 msgid "Condominium expenses"
@@ -887,7 +886,7 @@ msgstr "toutes les dépenses"
 
 #: views_expense.py:48
 msgid "Filter by date"
-msgstr "fitre par date"
+msgstr "Filtrer par date"
 
 #: views_expense.py:65
 msgid "Add expense"
@@ -949,7 +948,7 @@ msgstr "Désignation"
 
 #: views_report.py:141
 msgid "Tresory"
-msgstr "Trésorie"
+msgstr "Trésorerie"
 
 #: views_report.py:142
 msgid "Provision and advance"
@@ -993,19 +992,19 @@ msgstr "Compte de gestion générale"
 
 #: views_report.py:266
 msgid "Current depency"
-msgstr "Dépence courante"
+msgstr "Dépense courante"
 
 #: views_report.py:274
 msgid "Current revenue"
-msgstr "Revenue courant"
+msgstr "Revenu courant"
 
 #: views_report.py:281
 msgid "Exceptional depency"
-msgstr "Dépence exceptionnelle"
+msgstr "Dépense exceptionnelle"
 
 #: views_report.py:285
 msgid "Exceptional revenue"
-msgstr "Revenue exceptionnelle"
+msgstr "Revenu exceptionnel"
 
 #: views_report.py:288
 msgid "Show Current manage accounting report"
