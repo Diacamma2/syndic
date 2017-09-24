@@ -262,7 +262,7 @@ class CondominiumConvert(XferContainerAcknowledge):
         lbl.set_location(0, 0, 2)
         dlg.add_component(lbl)
         select_account = [('', None)]
-        for num_account in range(1, 5):
+        for num_account in range(1, 6):
             owner_account = correct_accounting_code(Params.getvalue('condominium-default-owner-account%d' % num_account))
             select_account.append((owner_account, owner_account))
         row = 1
