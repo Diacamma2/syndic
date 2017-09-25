@@ -37,6 +37,7 @@ from diacamma.accounting.views import ThirdShow
 from diacamma.accounting.models import EntryAccount, FiscalYear
 from diacamma.accounting.views_entries import EntryAccountList
 from diacamma.accounting.views_accounts import FiscalYearClose, FiscalYearBegin, FiscalYearReportLastYear
+from diacamma.accounting.views_other import CostAccountingList
 
 from diacamma.payoff.test_tools import default_bankaccount, default_paymentmethod, PaymentTest
 from diacamma.payoff.views import PayableShow, PayableEmail
@@ -45,7 +46,6 @@ from diacamma.condominium.views_classload import SetList, SetAddModify, SetDel, 
 from diacamma.condominium.views import OwnerAndPropertyLotList, OwnerAdd, OwnerDel, OwnerShow, PropertyLotAddModify, CondominiumConvert
 from diacamma.condominium.test_tools import default_setowner, add_test_callfunds, old_accounting, add_test_expenses, init_compta, add_years
 from diacamma.condominium.views_report import FinancialStatus, GeneralManageAccounting, CurrentManageAccounting, ExceptionalManageAccounting
-from diacamma.accounting.views_other import CostAccountingList
 
 
 class SetOwnerTest(LucteriosTest):
