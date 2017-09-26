@@ -2,12 +2,10 @@ Les copropriétaires
 ===================
 
 Déclarer vos copropriétaires.
-Comptablement, un copropriétaire est égalemet un tiers comptable possédant des comptes sociétaires (classe '45xx').
+Comptablement, un copropriétaire est égalemet un tiers comptable possédant des comptes sociétaires (classe '45xx' dans le plan français).
 
 Vous pouvez également voir ici un résumé de la situation financière de chacun des copropriétaires.
 La fiche de chaque copropriétaire vous présente une situtation financière précise.
-
-    .. image:: owners.png
 
 Les lots
 --------

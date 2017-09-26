@@ -17,7 +17,7 @@ Les différents modules disponibles vous permettront, par exemple, de:
  - Gérer une comptabilité simple et performante et clôturer rapidement votre exercice financier pour votre assemblée générale.
 
 Ce manuel vous aidera dans l'utilisation de ce logiciel.
-Si malgré tout, vous ne trouvez pas la réponse à vos problèmes, visiter notre site http://www.sd-libre.fr où vous trouverez des tutoriels et des astuces.
+Si malgré tout, vous ne trouvez pas la réponse à vos problèmes, visiter notre site http://www.diacamma.org où vous trouverez des tutoriels et des astuces.
 
 Installation
 ------------
@@ -31,4 +31,4 @@ Cette organisation est particulièrement intéressante pour permette à plusieur
 
 Quel responsable ne s'est pas arraché les cheveux suite à un échanges de documents via une clef USB où certaines modifications importantes se perdent?
 
-Pour plus d'information, visiter notre site http://www.sd-libre.fr
+Pour plus d'information, visiter notre site http://www.diacamma.org

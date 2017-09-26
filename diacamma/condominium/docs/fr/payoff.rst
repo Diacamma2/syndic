@@ -2,7 +2,7 @@ Le suivi des copropriétaires
 ============================
 
 Suite à un appel de fond, les copropriétaires transmettent leurs payements au syndic.
-Pour le saisir, allez dans la fiche de tiers du copropriétaire depuis la liste des copropriétaire de *Copropriété/Les proprietaires et les lots*.
+Pour le saisir, allez dans la fiche de tiers du copropriétaire depuis la liste des copropriétaire de *copropriété/Gestion/Les proprietaires et les lots*.
 
     .. image:: payoff.png
 
