@@ -394,8 +394,8 @@ def paramchange_condominium(params):
                 exp_item.expense_account = correct_accounting_code(exp_item.expense_account)
                 exp_item.save()
     accounts = ('condominium-default-owner-account', 'condominium-current-revenue-account',
-                'condominium-exceptional-revenue-account', 'condominium-fundforworks-revenue-account', 
-                'condominium-exceptional-reserve-account', 'condominium-advance-reserve-account', 
+                'condominium-exceptional-revenue-account', 'condominium-fundforworks-revenue-account',
+                'condominium-exceptional-reserve-account', 'condominium-advance-reserve-account',
                 'condominium-fundforworks-reserve-account')
     for account_item in accounts:
         if (account_item in params) or ('accounting-sizecode' in params):
