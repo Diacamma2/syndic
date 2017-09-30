@@ -992,19 +992,19 @@ msgstr "Compte de gestion générale"
 
 #: views_report.py:266
 msgid "Current depency"
-msgstr "Dépense courante"
+msgstr "Dépenses courantes"
 
 #: views_report.py:274
 msgid "Current revenue"
-msgstr "Revenu courant"
+msgstr "Revenus courants"
 
 #: views_report.py:281
 msgid "Exceptional depency"
-msgstr "Dépense exceptionnelle"
+msgstr "Dépenses exceptionnelles"
 
 #: views_report.py:285
 msgid "Exceptional revenue"
-msgstr "Revenu exceptionnel"
+msgstr "Revenus exceptionnels"
 
 #: views_report.py:288
 msgid "Show Current manage accounting report"
