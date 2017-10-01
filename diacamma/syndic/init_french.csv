@@ -3,7 +3,8 @@ code;name
 103;Avances	
 1031;Avances de trésorerie	
 1032;Avances travaux au titre de l'article 18.6e alinéa de la loi susvisée
-1033;Autres avances	
+1033;Autres avances
+105;Fonds travaux	
 120;Solde en attente sur travaux et opérations exceptionnelles
 131;Subventions accordées en instance de versement	
 401;Fournisseurs - Factures parvenues	
@@ -14,6 +15,7 @@ code;name
 4502;Copropriétaire - travaux et opération exceptionnelles
 4503;Copropriétaire - avances
 4504;Copropriétaire - emprunts
+4505 Copropriétaire - fonds de travaux
 459;Copropriétaire - créances douteuses
 512;Banques	
 531;Caisse
@@ -42,6 +44,7 @@ code;name
 702;Appels de fonds - Provisions sur travaux de l'article 14-2 et opérations exceptionnelles
 703;Appels de fonds - Avances
 704;Appels de fonds - Remboursements d'annuités d'emprunts
+705;Appels de fonds - Fonds de travaux
 711;Subventions
 712;Emprunts
 713;Indemnités d'assurances
