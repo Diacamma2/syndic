@@ -346,7 +346,9 @@ def editbudget_condo(xfer):
                 if set_item.type_load == 0:
                     if len(set_item.setcost_set.filter(year=current_year)) == 0:
                         set_item.create_new_cost(year=current_year.id)
-                setcost_item = set_item.setcost_set.filter(year=current_year)[0]
+                    setcost_item = set_item.setcost_set.filter(year=current_year)[0]
+                else:
+                    setcost_item = set_item.setcost_set.filter(year=None)[0]
                 cost_item = setcost_item.cost_accounting
                 xfer.params['cost_accounting'] = cost_item.id
                 title_cost.set_value("{[b]}%s{[/b]} : %s" % (_('cost accounting'), cost_item))

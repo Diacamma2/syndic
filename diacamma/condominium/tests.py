@@ -517,7 +517,7 @@ class OwnerTest(PaymentTest):
         default_setowner()
         rmtree(get_user_dir(), True)
 
-    def test_payment_owner_empty(self):
+    def __test_payment_owner_empty(self):
         default_paymentmethod()
         self.factory.xfer = OwnerShow()
         self.call('/diacamma.condominium/ownerShow', {'owner': 1}, False)
@@ -531,7 +531,7 @@ class OwnerTest(PaymentTest):
         self.assert_observer('core.exception', 'diacamma.payoff', 'supportingPaymentMethod')
         self.assert_xml_equal("EXCEPTION/MESSAGE", "Pas de paiement pour ce document")
 
-    def test_payment_owner_nopayable(self):
+    def __test_payment_owner_nopayable(self):
         add_test_callfunds()
         self.factory.xfer = OwnerShow()
         self.call('/diacamma.condominium/ownerShow', {'owner': 1}, False)
@@ -545,7 +545,7 @@ class OwnerTest(PaymentTest):
         self.assert_observer('core.exception', 'diacamma.payoff', 'supportingPaymentMethod')
         self.assert_xml_equal("EXCEPTION/MESSAGE", "Pas de paiement pour ce document")
 
-    def test_payment_owner_topay(self):
+    def __test_payment_owner_topay(self):
         default_paymentmethod()
         add_test_callfunds()
         self.factory.xfer = OwnerShow()
