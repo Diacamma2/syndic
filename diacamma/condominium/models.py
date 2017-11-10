@@ -185,9 +185,12 @@ class Set(LucteriosModel):
         EntryAccount.clear_ghost()
         cls.delete_orphelin_costaccounting()
         for cost in CostAccounting.objects.filter(year=None, is_protected=True, setcost__year__isnull=False):
-            setcost_item = cost.setcost_set.filter(year__isnull=False)
-            cost.year = setcost_item[0].year
-            cost.save()
+            try:
+                setcost_item = cost.setcost_set.filter(year__isnull=False)
+                cost.year = setcost_item[0].year
+                cost.save()
+            except LucteriosException as exp:
+                getLogger("diacamma.condominium").error("[%s] %s", cost, exp)
 
     def convert_cost(self):
         if (len(self.setcost_set.all()) == 0) and (self.cost_accounting_id is not None):
