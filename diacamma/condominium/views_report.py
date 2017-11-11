@@ -46,8 +46,6 @@ MenuManage.add_sub("condominium.print", "condominium", "diacamma.condominium/ima
 
 
 class CondominiumReport(XferContainerCustom):
-    is_simple_gui = True
-
     model = FiscalYear
     field_id = 'year'
 

@@ -84,8 +84,6 @@ class CondominiumCheckOwner(XferContainerAcknowledge):
 
 @MenuManage.describ('CORE.change_parameter', FORMTYPE_MODAL, 'contact.conf', _('Management of parameters of condominium'))
 class CondominiumConf(XferContainerCustom):
-    is_simple_gui = True
-
     icon = "condominium.png"
     caption = _("Condominium configuration")
 
