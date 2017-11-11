@@ -957,7 +957,7 @@ class OwnerTestOldAccounting(PaymentTest):
         self.factory.xfer = CondominiumConvert()
         self.call('/diacamma.condominium/condominiumConvert', {}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'condominiumConvert')
-        self.assert_count_equal('COMPONENTS/*', 30)
+        self.assert_count_equal('COMPONENTS/*', 19)
         self.assert_attrib_equal('COMPONENTS/SELECT[@name="code_450"]', 'description', '450')
         self.assert_count_equal('COMPONENTS/SELECT[@name="code_450"]/CASE', 6)
 
