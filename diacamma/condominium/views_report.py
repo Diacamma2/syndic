@@ -118,6 +118,7 @@ class FinancialStatus(CondominiumReport):
             self.grid.add_header('right_n_1', _('year N-1'))
         self.grid.add_header('right_n', _('year N'))
         self.grid.set_location(0, 10, 6)
+        self.grid.no_pager = True
         self.add_component(self.grid)
 
     def fill_part_of_grid(self, side, current_filter, index_begin, title, sign_value=None, with_third=False):

@@ -54,10 +54,8 @@ class OwnerAndPropertyLotList(XferListEditor):
                 self.add_component(lbl)
         self.new_tab(_("Property lots"))
         self.fill_grid(self.get_max_row(), PropertyLot, 'propertylot', PropertyLot.objects.all())
-        lbl_nb = self.get_components('nb_propertylot')
-        lbl_nb.colspan = 1
         lbl = XferCompLabelForm("total_lot")
-        lbl.set_location(lbl_nb.col + 1, lbl_nb.row)
+        lbl.set_location(1, 5)
         lbl.set_value(_("Total of lot parts: %d") % PropertyLot.get_total_part())
         self.add_component(lbl)
 
