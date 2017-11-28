@@ -719,7 +719,7 @@ class OwnerTest(PaymentTest):
         self.call('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '5', 'filter': '0'}, False)
         self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
         self.assert_count_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD', 1)
-        self.assert_xml_equal("COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit :{[/b]} 350.00€ - {[b]}Charge :{[/b]} 187.34€ = {[b]}Résultat :{[/b]} 162.66€ | {[b]}Trésorerie :{[/b]} 36.84€ - {[b]}Validé :{[/b]} 16.84€{[/center]}')
+        self.assert_xml_equal("COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit :{[/b]} 350.00€ - {[b]}Charge :{[/b]} 187.34€ = {[b]}Résultat :{[/b]} 162.66€{[br/]}{[b]}Trésorerie :{[/b]} 36.84€ - {[b]}Validé :{[/b]} 16.84€{[/center]}')
 
         self.factory.xfer = SetShow()
         self.call('/diacamma.condominium/setShow', {'set': 3}, False)
@@ -751,7 +751,7 @@ class OwnerTest(PaymentTest):
         self.call('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '5', 'filter': '0'}, False)
         self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
         self.assert_count_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD', 2)
-        self.assert_xml_equal("COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit :{[/b]} 350.00€ - {[b]}Charge :{[/b]} 187.34€ = {[b]}Résultat :{[/b]} 162.66€ | {[b]}Trésorerie :{[/b]} 36.84€ - {[b]}Validé :{[/b]} 36.84€{[/center]}')
+        self.assert_xml_equal("COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit :{[/b]} 350.00€ - {[b]}Charge :{[/b]} 187.34€ = {[b]}Résultat :{[/b]} 162.66€{[br/]}{[b]}Trésorerie :{[/b]} 36.84€ - {[b]}Validé :{[/b]} 36.84€{[/center]}')
 
         self.assert_xml_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD[2]/VALUE[@name="costaccounting"]', '[3] CCC')
         description = self.get_first_xpath('COMPONENTS/GRID[@name="entryaccount"]/RECORD[2]/VALUE[@name="description"]').text
@@ -1006,7 +1006,7 @@ class OwnerTestOldAccounting(PaymentTest):
         self.call('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '5', 'filter': '0'}, False)
         self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
         self.assert_count_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD', 1)
-        self.assert_xml_equal("COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit :{[/b]} 175.00€ - {[b]}Charge :{[/b]} 187.34€ = {[b]}Résultat :{[/b]} -12.34€ | {[b]}Trésorerie :{[/b]} 31.11€ - {[b]}Validé :{[/b]} 11.11€{[/center]}')
+        self.assert_xml_equal("COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit :{[/b]} 175.00€ - {[b]}Charge :{[/b]} 187.34€ = {[b]}Résultat :{[/b]} -12.34€{[br/]}{[b]}Trésorerie :{[/b]} 31.11€ - {[b]}Validé :{[/b]} 11.11€{[/center]}')
 
         self.factory.xfer = SetShow()
         self.call('/diacamma.condominium/setShow', {'set': 3}, False)
@@ -1037,4 +1037,4 @@ class OwnerTestOldAccounting(PaymentTest):
         self.call('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '5', 'filter': '0'}, False)
         self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
         self.assert_count_equal('COMPONENTS/GRID[@name="entryaccount"]/RECORD', 1)
-        self.assert_xml_equal("COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit :{[/b]} 175.00€ - {[b]}Charge :{[/b]} 187.34€ = {[b]}Résultat :{[/b]} -12.34€ | {[b]}Trésorerie :{[/b]} 31.11€ - {[b]}Validé :{[/b]} 31.11€{[/center]}')
+        self.assert_xml_equal("COMPONENTS/LABELFORM[@name='result']", '{[center]}{[b]}Produit :{[/b]} 175.00€ - {[b]}Charge :{[/b]} 187.34€ = {[b]}Résultat :{[/b]} -12.34€{[br/]}{[b]}Trésorerie :{[/b]} 31.11€ - {[b]}Validé :{[/b]} 31.11€{[/center]}')
