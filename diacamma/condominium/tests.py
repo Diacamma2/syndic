@@ -614,11 +614,11 @@ class OwnerTest(PaymentTest):
             self.call('/diacamma.payoff/payableEmail',
                       {'item_name': 'owner', 'owner': 1}, False)
             self.assert_observer('core.custom', 'diacamma.payoff', 'payableEmail')
-            self.assert_count_equal('COMPONENTS/*', 5)
+            self.assert_count_equal('COMPONENTS/*', 4)
 
             self.factory.xfer = PayableEmail()
             self.call('/diacamma.payoff/payableEmail',
-                      {'owner': 1, 'OK': 'YES', 'item_name': 'owner', 'subject': 'my bill', 'message': 'this is a bill.', 'model': 8, 'withpayment': 1}, False)
+                      {'owner': 1, 'OK': 'YES', 'item_name': 'owner', 'subject': 'my bill', 'message': 'this is a bill.', 'model': 8}, False)
             self.assert_observer('core.acknowledge', 'diacamma.payoff', 'payableEmail')
             self.assertEqual(1, server.count())
             self.assertEqual('mr-sylvestre@worldcompany.com', server.get(0)[1])
