@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-11-25 11:27+0000\n"
+"POT-Creation-Date: 2017-12-10 14:32+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: __init__.py:42 views_classload.py:443 views_classload.py:446
+#: __init__.py:43 views_classload.py:443 views_classload.py:446
 #: views_classload.py:449 views_classload.py:452
 msgid "Diacamma condominium"
 msgstr "Diacamma condominium"
@@ -208,7 +208,6 @@ msgstr "total"
 
 #: models.py:491 models.py:494 models.py:737 models.py:807 models.py:836
 #: models.py:1317 printmodel/Owner_0001.py:357 printmodel/Owner_0001.py:359
-#: views.py:342
 msgid "ratio"
 msgstr "ratio"
 
@@ -642,20 +641,24 @@ msgstr "Parameters"
 msgid "Data converted"
 msgstr "Condominium accounting data converted"
 
-#: views.py:333 views.py:386 views_classload.py:381
+#: views.py:335 views.py:376 views.py:416 views_classload.py:381
 msgid "Condominium"
 msgstr "Condominium"
 
-#: views.py:338
+#: views.py:339
 msgid "You are a owner"
 msgstr "You are a owner"
 
 #: views.py:351
+msgid "Your owner's balance"
+msgstr "Your owner's balance"
+
+#: views.py:382
 #, python-format
 msgid "There are %(set)d classes of loads for %(owner)d owners"
 msgstr "There are %(set)d classes of loads for %(owner)d owners"
 
-#: views.py:356
+#: views.py:387
 msgid ""
 "Your condominium account is not in respect of French law{[newline]}An "
 "conversion is necessary."
@@ -663,29 +666,29 @@ msgstr ""
 "Your condominium account is not in respect of French law{[newline]}An "
 "conversion is necessary."
 
-#: views.py:362
+#: views.py:393
 msgid "Convertion ..."
 msgstr "Convertion ..."
 
-#: views.py:366
+#: views.py:397
 #, python-format
 msgid "limitation: %d owners allowed"
 msgstr "limitation: %d owners allowed"
 
-#: views.py:417
+#: views.py:447
 msgid "This fiscal year has entries not closed!"
 msgstr "This fiscal year has entries not closed!"
 
-#: views.py:422
+#: views.py:452
 #, python-format
 msgid "This fiscal year has a result no null equals to %s."
 msgstr "This fiscal year has a result no null equals to %s."
 
-#: views.py:426
+#: views.py:456
 msgid "Where do you want to ventilate this amount?"
 msgstr "Where do you want to ventilate this amount?"
 
-#: views.py:429
+#: views.py:459
 msgid "For each owner"
 msgstr "For each owner"
 

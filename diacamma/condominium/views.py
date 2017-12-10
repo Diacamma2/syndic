@@ -323,59 +323,89 @@ class CondominiumConvert(XferContainerAcknowledge):
             self.message(_("Data converted"))
 
 
-@signal_and_lock.Signal.decorate('summary')
-def summary_condo(xfer):
-    is_right = WrapAction.is_permission(xfer.request, 'condominium.change_set')
-    owners = get_owners(xfer.request)
-    if is_right or (len(owners) == 1):
-        row = xfer.get_max_row() + 1
-        lab = XferCompLabelForm('condotitle')
-        lab.set_value_as_infocenter(_('Condominium'))
-        lab.set_location(0, row, 4)
-        xfer.add_component(lab)
-    if len(owners) == 1:
-        lab = XferCompLabelForm('condoowner')
-        lab.set_value(_('You are a owner'))
-        lab.set_location(0, row + 1, 2)
-        xfer.add_component(lab)
-        grid = XferCompGrid("part")
-        grid.set_model(owners[0].partition_set.filter(set__is_active=True), ["set", "value", (_("ratio"), 'ratio')])
-        grid.set_location(0, row + 2, 4)
-        grid.set_size(200, 500)
-        xfer.add_component(grid)
-    if is_right:
-        row = xfer.get_max_row() + 1
-        nb_set = len(Set.objects.filter(is_active=True))
-        nb_owner = len(Owner.objects.all())
-        lab = XferCompLabelForm('condoinfo')
-        lab.set_value_as_header(_("There are %(set)d classes of loads for %(owner)d owners") % {'set': nb_set, 'owner': nb_owner})
-        lab.set_location(0, row + 1, 4)
-        xfer.add_component(lab)
-        if Params.getvalue("condominium-old-accounting"):
-            lab = XferCompLabelForm('condoconvinfo')
-            lab.set_value_as_header(_("Your condominium account is not in respect of French law{[newline]}An conversion is necessary."))
-            lab.set_color('red')
+@signal_and_lock.Signal.decorate('situation')
+def situation_condo(xfer):
+    if not hasattr(xfer, 'add_component'):
+        return len(get_owners(xfer)) == 1
+    else:
+        owners = get_owners(xfer.request)
+        if len(owners) == 1:
+            row = xfer.get_max_row() + 1
+            lab = XferCompLabelForm('condotitle')
+            lab.set_value_as_infocenter(_('Condominium'))
+            lab.set_location(0, row, 4)
+            xfer.add_component(lab)
+            lab = XferCompLabelForm('condoowner')
+            lab.set_value(_('You are a owner'))
+            lab.set_location(0, row + 1, 2)
+            xfer.add_component(lab)
+            part_description = []
+            for part in owners[0].partition_set.filter(set__is_active=True):
+                part_description.append("{[b]}%s{[/b]} %d (%s)" % (part.set, part.value, part.ratio))
+            lab = XferCompLabelForm('part')
+            lab.set_value("{[br/]}".join(part_description))
             lab.set_location(0, row + 2, 4)
             xfer.add_component(lab)
-            btn = XferCompButton('condoconv')
-            btn.set_location(0, row + 3, 4)
-            btn.set_action(xfer.request, CondominiumConvert.get_action(_('Convertion ...'), ""), close=CLOSE_NO)
-            xfer.add_component(btn)
-        if hasattr(settings, "DIACAMMA_MAXOWNER"):
-            lbl = XferCompLabelForm("limit_owner")
-            lbl.set_value(_('limitation: %d owners allowed') % getattr(settings, "DIACAMMA_MAXOWNER"))
-            lbl.set_italic()
-            lbl.set_location(0, row + 4, 4)
-            xfer.add_component(lbl)
-    if is_right or (len(owners) == 1):
-        row = xfer.get_max_row() + 1
-        lab = XferCompLabelForm('condosep')
-        lab.set_value_as_infocenter("{[hr/]}")
-        lab.set_location(0, row, 4)
-        xfer.add_component(lab)
-        return True
+
+            lab = XferCompLabelForm('balancetitle')
+            lab.set_value_as_header(_("Your owner's balance"))
+            lab.set_location(0, row + 3)
+            xfer.add_component(lab)
+            lab = XferCompLabelForm('balance')
+            lab.set_value(owners[0].third.total)
+            lab.set_location(1, row + 3, 3)
+            xfer.add_component(lab)
+
+            lab = XferCompLabelForm('condosep')
+            lab.set_value_as_infocenter("{[hr/]}")
+            lab.set_location(0, row + 5, 4)
+            xfer.add_component(lab)
+            return True
+        else:
+            return False
+
+
+@signal_and_lock.Signal.decorate('summary')
+def summary_condo(xfer):
+    if not hasattr(xfer, 'add_component'):
+        return WrapAction.is_permission(xfer, 'condominium.change_set')
     else:
-        return False
+        if WrapAction.is_permission(xfer.request, 'condominium.change_set'):
+            row = xfer.get_max_row() + 1
+            lab = XferCompLabelForm('condotitle')
+            lab.set_value_as_infocenter(_('Condominium'))
+            lab.set_location(0, row, 4)
+            xfer.add_component(lab)
+            nb_set = len(Set.objects.filter(is_active=True))
+            nb_owner = len(Owner.objects.all())
+            lab = XferCompLabelForm('condoinfo')
+            lab.set_value_as_header(_("There are %(set)d classes of loads for %(owner)d owners") % {'set': nb_set, 'owner': nb_owner})
+            lab.set_location(0, row + 1, 4)
+            xfer.add_component(lab)
+            if Params.getvalue("condominium-old-accounting"):
+                lab = XferCompLabelForm('condoconvinfo')
+                lab.set_value_as_header(_("Your condominium account is not in respect of French law{[newline]}An conversion is necessary."))
+                lab.set_color('red')
+                lab.set_location(0, row + 2, 4)
+                xfer.add_component(lab)
+                btn = XferCompButton('condoconv')
+                btn.set_location(0, row + 3, 4)
+                btn.set_action(xfer.request, CondominiumConvert.get_action(_('Convertion ...'), ""), close=CLOSE_NO)
+                xfer.add_component(btn)
+            if hasattr(settings, "DIACAMMA_MAXOWNER"):
+                lbl = XferCompLabelForm("limit_owner")
+                lbl.set_value(_('limitation: %d owners allowed') % getattr(settings, "DIACAMMA_MAXOWNER"))
+                lbl.set_italic()
+                lbl.set_location(0, row + 4, 4)
+                xfer.add_component(lbl)
+            row = xfer.get_max_row() + 1
+            lab = XferCompLabelForm('condosep')
+            lab.set_value_as_infocenter("{[hr/]}")
+            lab.set_location(0, row, 4)
+            xfer.add_component(lab)
+            return True
+        else:
+            return False
 
 
 @signal_and_lock.Signal.decorate('third_addon')
