@@ -598,7 +598,7 @@ class OwnerTest(PaymentTest):
         from lucterios.mailing.tests import configSMTP, TestReceiver
         default_paymentmethod()
         add_test_callfunds()
-        configSMTP('localhost', 1025)
+        configSMTP('localhost', 2025)
 
         self.factory.xfer = OwnerShow()
         self.call('/diacamma.condominium/ownerShow', {'owner': 1}, False)
@@ -607,7 +607,7 @@ class OwnerTest(PaymentTest):
         self.assert_count_equal('ACTIONS/ACTION', 5)
 
         server = TestReceiver()
-        server.start(1025)
+        server.start(2025)
         try:
             self.assertEqual(0, server.count())
             self.factory.xfer = PayableEmail()
