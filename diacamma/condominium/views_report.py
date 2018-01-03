@@ -216,6 +216,7 @@ class ManageAccounting(CondominiumReport):
         if self.next_year_again is not None:
             self.grid.add_header('budget_n2', _('budget N+2'))
         self.grid.set_location(0, 10, 6)
+        self.grid.no_pager = True
         self.add_component(self.grid)
 
     def fill_part_of_grid(self, current_filter, query_budget, index_begin, title, sign_value=None):

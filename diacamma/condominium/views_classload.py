@@ -365,20 +365,18 @@ def editbudget_condo(xfer):
 def comptenofound_condo(known_codes, accompt_returned):
     if Params.getvalue("condominium-old-accounting"):
         account_filter = Q(name='condominium-default-owner-account')
-        set_unknown = Set.objects.exclude(revenue_account__in=known_codes).values_list('revenue_account', flat=True).distinct()
+        set_unknown = Set.objects.exclude(revenue_account__in=known_codes).values_list('revenue_account', flat=True)
     else:
-        account_filter = Q(name='condominium-default-owner-account1') | Q(name='condominium-default-owner-account2') | Q(
-            name='condominium-default-owner-account3') | Q(name='condominium-default-owner-account4')
+        account_filter = Q(name='condominium-default-owner-account1') | Q(name='condominium-default-owner-account2') | Q(name='condominium-default-owner-account3') | Q(name='condominium-default-owner-account4')
         set_unknown = []
-    param_unknown = Parameter.objects.filter(account_filter).exclude(value__in=known_codes).values_list('value', flat=True).distinct()
+    param_unknown = Parameter.objects.filter(account_filter).exclude(value__in=known_codes).values_list('value', flat=True)
     comptenofound = ""
     if (len(set_unknown) > 0):
-        comptenofound = _("set") + ":" + ",".join(set_unknown) + " "
+        comptenofound = _("set") + ":" + ",".join(set(set_unknown)) + " "
     if (len(param_unknown) > 0):
-        comptenofound += _("parameters") + ":" + ",".join(param_unknown)
+        comptenofound += _("parameters") + ":" + ",".join(set(param_unknown))
     if comptenofound != "":
-        accompt_returned.append(
-            "- {[i]}{[u]}%s{[/u]}: %s{[/i]}" % (_('Condominium'), comptenofound))
+        accompt_returned.append("- {[i]}{[u]}%s{[/u]}: %s{[/i]}" % (_('Condominium'), comptenofound))
     return True
 
 
