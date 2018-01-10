@@ -5,12 +5,15 @@ from django.utils.translation import ugettext_lazy as _
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils import six
 from django.conf import settings
+from django.db.models.query import QuerySet
+from django.db.models.functions import Concat
+from django.db.models import Q, Value
 
 from lucterios.framework.xferadvance import TITLE_MODIFY, TITLE_ADD, TITLE_EDIT, TITLE_DELETE, TITLE_PRINT,\
     TITLE_CANCEL, TITLE_OK
 from lucterios.framework.xferadvance import XferListEditor, XferShowEditor, XferAddEditor, XferDelete
 from lucterios.framework.xfercomponents import XferCompLabelForm, XferCompDate, XferCompGrid, XferCompButton,\
-    XferCompImage, XferCompSelect
+    XferCompImage, XferCompSelect, XferCompEdit
 from lucterios.framework.xfergraphic import XferContainerAcknowledge
 from lucterios.framework.tools import FORMTYPE_NOMODAL, ActionsManage, MenuManage, WrapAction
 from lucterios.framework.tools import SELECT_SINGLE, CLOSE_NO, FORMTYPE_REFRESH, FORMTYPE_MODAL, CLOSE_YES, SELECT_MULTI
@@ -38,8 +41,36 @@ class OwnerAndPropertyLotList(XferListEditor):
     field_id = 'owner'
     caption = _("Owners and property lots")
 
+    def get_items_from_filter(self):
+        items = self.model.objects.annotate(completename=Concat('third__contact__individual__lastname', Value(' '), 'third__contact__individual__firstname')).filter(self.filter)
+        sort_owner = self.getparam('GRID_ORDER%owner', '')
+        sort_ownerbis = self.getparam('GRID_ORDER%owner+', '')
+        self.params['GRID_ORDER%owner'] = ""
+        if sort_owner != '':
+            if sort_ownerbis.startswith('-'):
+                sort_ownerbis = "+"
+            else:
+                sort_ownerbis = "-"
+            self.params['GRID_ORDER%owner+'] = sort_ownerbis
+        items = sorted(items, key=lambda t: six.text_type(t).lower(), reverse=sort_ownerbis.startswith('-'))
+        res = QuerySet(model=Owner)
+        res._result_cache = items
+        return res
+
     def fillresponse_header(self):
         self.new_tab(_("Owners"))
+        contact_filter = self.getparam('filter', '')
+        comp = XferCompEdit('filter')
+        comp.set_value(contact_filter)
+        comp.set_action(self.request, self.get_action(), modal=FORMTYPE_REFRESH, close=CLOSE_NO)
+        comp.set_location(0, 0, 2)
+        comp.description = _('Filtrer by owner')
+        self.add_component(comp)
+        self.filter = Q()
+        if contact_filter != "":
+            q_legalentity = Q(third__contact__legalentity__name__icontains=contact_filter)
+            q_individual = Q(completename__icontains=contact_filter)
+            self.filter &= (q_legalentity | q_individual)
 
     def fillresponse(self):
         XferListEditor.fillresponse(self)
@@ -294,7 +325,8 @@ class CondominiumConvert(XferContainerAcknowledge):
             year_list = ["{[i]} - %s{[/i]}" % year for year in FiscalYear.objects.filter(status__lt=2)]
             lab = XferCompLabelForm('info')
             lab.set_value(
-                _("This conversion tool will change your account to respect French law about condominium.{[br/]}For the no-closed fiscal years:{[newline]}%s{[newline]}It will do:{[newline]} - To change accounting code for each owners.{[newline]} - To de-validate all your entity.{[br/]} - To delete all entity link to call of funds or expenses.{[br/]} - To de-archive call of funds or expenses.{[br/]} - To generate correct account for call of funds or expenses.{[br/]}{[center]}{[u]}{[b]}Warning: This action is  definitive.{[/b]}{[/u]}{[center]}") % '{[br/]}'.join(year_list))
+                _("This conversion tool will change your account to respect French law about condominium.{[br/]}For the no-closed fiscal years:{[newline]}%s{[newline]}It will do:{[newline]} - To change accounting code for each owners.{[newline]} - To de-validate all your entity.{[br/]} - To delete all entity link to call of funds or expenses.{[br/]} - To de-archive call of funds or expenses.{[br/]} - To generate correct account for call of funds or expenses.{[br/]}{[center]}{[u]}{[b]}Warning: This action is  definitive.{[/b]}{[/u]}{[center]}") %
+                '{[br/]}'.join(year_list))
             lab.set_location(0, 1, 4)
             dlg.add_component(lab)
             dlg.new_tab(_("Third accounts"))
@@ -317,7 +349,7 @@ class CondominiumConvert(XferContainerAcknowledge):
                     owner.check_account()
                 for year in FiscalYear.objects.filter(status__lt=2):
                     convert_accounting(year, thirds_convert)
-            except:
+            except BaseException:
                 Params.clear()
                 raise
             self.message(_("Data converted"))

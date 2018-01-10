@@ -310,12 +310,21 @@ class SetOwnerTest(LucteriosTest):
         self.assert_json_equal('', 'propertylot/@4/ratio', '3.7 %')
         self.assert_json_equal('', 'propertylot/@4/owner', 'Dalton William')
 
-        self.assert_json_equal('', 'owner/@0/third', 'Minimum')
-        self.assert_json_equal('', 'owner/@0/property_part', '115/405{[br/]}28.4 %')
+        self.assert_json_equal('', 'owner/@2/third', 'Minimum')
+        self.assert_json_equal('', 'owner/@2/property_part', '115/405{[br/]}28.4 %')
         self.assert_json_equal('', 'owner/@1/third', 'Dalton William')
         self.assert_json_equal('', 'owner/@1/property_part', '165/405{[br/]}40.7 %')
-        self.assert_json_equal('', 'owner/@2/third', 'Dalton Joe')
-        self.assert_json_equal('', 'owner/@2/property_part', '125/405{[br/]}30.9 %')
+        self.assert_json_equal('', 'owner/@0/third', 'Dalton Joe')
+        self.assert_json_equal('', 'owner/@0/property_part', '125/405{[br/]}30.9 %')
+        self.assert_json_equal('EDIT', 'filter', '')
+
+        self.factory.xfer = OwnerAndPropertyLotList()
+        self.calljson('/diacamma.condominium/ownerAndPropertyLotList', {'filter': 'dalT'}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'ownerAndPropertyLotList')
+        self.assert_json_equal('EDIT', 'filter', 'dalT')
+        self.assert_count_equal('owner', 2)
+        self.assert_json_equal('', 'owner/@1/third', 'Dalton William')
+        self.assert_json_equal('', 'owner/@0/third', 'Dalton Joe')
 
     def test_show_partition(self):
         self.factory.xfer = OwnerAndPropertyLotList()
