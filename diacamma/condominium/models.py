@@ -111,9 +111,11 @@ class Set(LucteriosModel):
     @classmethod
     def get_show_fields(cls):
         if Params.getvalue("condominium-old-accounting"):
-            return [("name", ), ("revenue_account", (_('cost accounting'), 'current_cost_accounting')), ("type_load", 'is_active'), ('is_link_to_lots', (_('tantime sum'), 'total_part')), 'partition_set', 'partitionfill_set', ((_('budget'), "budget_txt"), (_('expense'), 'sumexpense_txt'),)]
+            return [("name", ), ("revenue_account", (_('cost accounting'), 'current_cost_accounting')), ("type_load", 'is_active'), ('is_link_to_lots',
+                                                                                                                                     (_('tantime sum'), 'total_part')), 'partition_set', 'partitionfill_set', ((_('budget'), "budget_txt"), (_('expense'), 'sumexpense_txt'),)]
         else:
-            return [("name", (_('cost accounting'), 'current_cost_accounting')), ("type_load", 'is_active'), ('is_link_to_lots', (_('tantime sum'), 'total_part')), 'partition_set', 'partitionfill_set', ((_('budget'), "budget_txt"), (_('expense'), 'sumexpense_txt'),)]
+            return [("name", (_('cost accounting'), 'current_cost_accounting')), ("type_load", 'is_active'), ('is_link_to_lots', (_('tantime sum'), 'total_part')),
+                    'partition_set', 'partitionfill_set', ((_('budget'), "budget_txt"), (_('expense'), 'sumexpense_txt'),)]
 
     def _do_insert(self, manager, using, fields, update_pk, raw):
         new_id = LucteriosModel._do_insert(
@@ -416,7 +418,7 @@ class Owner(Supporting):
             try:
                 account = Params.getvalue("condominium-default-owner-account%d" % type_owner)
                 return "^" + account + "[0-9a-zA-Z]*$"
-            except:
+            except BaseException:
                 return current_system_account().get_societary_mask()
 
     def default_date(self):
@@ -465,7 +467,7 @@ class Owner(Supporting):
     @classmethod
     def get_show_fields(cls):
         fields = {"": ["third", "information"],
-                  _("001@Summary"): ['propertylot_set', ((_('total owner'), 'thirdtotal'),)],
+                  _("001@Summary"): ['propertylot_set', ((_('total owner'), 'thirdtotal'), (_('sum to pay'), 'sumtopay'))],
                   _("002@Situation"): [('partition_set',),
                                        ((_('current total call for funds'), 'total_current_call'), (_('current total payoff'), 'total_current_payoff')),
                                        ((_('current initial state'), 'total_current_initial'), (_('current total ventilated'), 'total_current_ventilated')),
@@ -488,7 +490,7 @@ class Owner(Supporting):
 
     @classmethod
     def get_print_fields(cls):
-        fields = ["third", "information", (_('total owner'), 'thirdtotal')]
+        fields = ["third", "information", (_('total owner'), 'thirdtotal'), (_('sum to pay'), 'sumtopay')]
         fields.extend(["callfunds_set.num", "callfunds_set.date",
                        "callfunds_set.comment", (_('total'), 'callfunds_set.total')])
         fields.extend(["partition_set.set.str", "partition_set.set.budget", (_('expense'), 'partition_set.set.sumexpense_txt'),
@@ -521,6 +523,12 @@ class Owner(Supporting):
         if self.date_begin is None:
             self.set_dates()
         return format_devise(self.third.get_total(self.date_end), 5)
+
+    @property
+    def sumtopay(self):
+        if self.date_begin is None:
+            self.set_dates()
+        return format_devise(max(0, -1 * self.third.get_total(self.date_end)), 5)
 
     @property
     def exceptionnal_set(self):
@@ -888,7 +896,7 @@ class CallFundsSupporting(Supporting):
             try:
                 account = Params.getvalue("condominium-default-owner-account%d" % (self.callfunds.type_call + 1))
                 return "^" + account + "[0-9a-zA-Z]*$"
-            except:
+            except BaseException:
                 return current_system_account().get_societary_mask()
 
     def payoff_is_revenu(self):
@@ -1471,7 +1479,7 @@ def convert_accounting(year, thirds_convert):
             account_init = ChartsAccount.objects.get(year=year, code=code_init)
             account_target = ChartsAccount.objects.get(year=year, code=code_target)
             account_target.merge_objects(account_init)
-        except:
+        except BaseException:
             pass
     for entry in year.entryaccount_set.exclude(journal_id=1):
         entry.num = None
@@ -1507,18 +1515,48 @@ def convert_accounting(year, thirds_convert):
 
 @Signal.decorate('checkparam')
 def condominium_checkparam():
-    Parameter.check_and_create(name='condominium-default-owner-account', typeparam=0, title=_("condominium-default-owner-account"),
-                               args="{'Multi':False}", value=correct_accounting_code('450'), meta='("accounting","ChartsAccount","import diacamma.accounting.tools;django.db.models.Q(code__regex=diacamma.accounting.tools.current_system_account().get_societary_mask()) & django.db.models.Q(year__is_actif=True)", "code", True)')
-    Parameter.check_and_create(name='condominium-default-owner-account1', typeparam=0, title=_("condominium-default-owner-account1"),
-                               args="{'Multi':False}", value=correct_accounting_code('4501'), meta='("accounting","ChartsAccount","import diacamma.accounting.tools;django.db.models.Q(code__regex=diacamma.accounting.tools.current_system_account().get_societary_mask()) & django.db.models.Q(year__is_actif=True)", "code", True)')
-    Parameter.check_and_create(name='condominium-default-owner-account2', typeparam=0, title=_("condominium-default-owner-account2"),
-                               args="{'Multi':False}", value=correct_accounting_code('4502'), meta='("accounting","ChartsAccount","import diacamma.accounting.tools;django.db.models.Q(code__regex=diacamma.accounting.tools.current_system_account().get_societary_mask()) & django.db.models.Q(year__is_actif=True)", "code", True)')
-    Parameter.check_and_create(name='condominium-default-owner-account3', typeparam=0, title=_("condominium-default-owner-account3"),
-                               args="{'Multi':False}", value=correct_accounting_code('4503'), meta='("accounting","ChartsAccount","import diacamma.accounting.tools;django.db.models.Q(code__regex=diacamma.accounting.tools.current_system_account().get_societary_mask()) & django.db.models.Q(year__is_actif=True)", "code", True)')
-    Parameter.check_and_create(name='condominium-default-owner-account4', typeparam=0, title=_("condominium-default-owner-account4"),
-                               args="{'Multi':False}", value=correct_accounting_code('4504'), meta='("accounting","ChartsAccount","import diacamma.accounting.tools;django.db.models.Q(code__regex=diacamma.accounting.tools.current_system_account().get_societary_mask()) & django.db.models.Q(year__is_actif=True)", "code", True)')
-    Parameter.check_and_create(name='condominium-default-owner-account5', typeparam=0, title=_("condominium-default-owner-account5"),
-                               args="{'Multi':False}", value=correct_accounting_code('4505'), meta='("accounting","ChartsAccount","import diacamma.accounting.tools;django.db.models.Q(code__regex=diacamma.accounting.tools.current_system_account().get_societary_mask()) & django.db.models.Q(year__is_actif=True)", "code", True)')
+    Parameter.check_and_create(
+        name='condominium-default-owner-account',
+        typeparam=0,
+        title=_("condominium-default-owner-account"),
+        args="{'Multi':False}",
+        value=correct_accounting_code('450'),
+        meta='("accounting","ChartsAccount","import diacamma.accounting.tools;django.db.models.Q(code__regex=diacamma.accounting.tools.current_system_account().get_societary_mask()) & django.db.models.Q(year__is_actif=True)", "code", True)')
+    Parameter.check_and_create(
+        name='condominium-default-owner-account1',
+        typeparam=0,
+        title=_("condominium-default-owner-account1"),
+        args="{'Multi':False}",
+        value=correct_accounting_code('4501'),
+        meta='("accounting","ChartsAccount","import diacamma.accounting.tools;django.db.models.Q(code__regex=diacamma.accounting.tools.current_system_account().get_societary_mask()) & django.db.models.Q(year__is_actif=True)", "code", True)')
+    Parameter.check_and_create(
+        name='condominium-default-owner-account2',
+        typeparam=0,
+        title=_("condominium-default-owner-account2"),
+        args="{'Multi':False}",
+        value=correct_accounting_code('4502'),
+        meta='("accounting","ChartsAccount","import diacamma.accounting.tools;django.db.models.Q(code__regex=diacamma.accounting.tools.current_system_account().get_societary_mask()) & django.db.models.Q(year__is_actif=True)", "code", True)')
+    Parameter.check_and_create(
+        name='condominium-default-owner-account3',
+        typeparam=0,
+        title=_("condominium-default-owner-account3"),
+        args="{'Multi':False}",
+        value=correct_accounting_code('4503'),
+        meta='("accounting","ChartsAccount","import diacamma.accounting.tools;django.db.models.Q(code__regex=diacamma.accounting.tools.current_system_account().get_societary_mask()) & django.db.models.Q(year__is_actif=True)", "code", True)')
+    Parameter.check_and_create(
+        name='condominium-default-owner-account4',
+        typeparam=0,
+        title=_("condominium-default-owner-account4"),
+        args="{'Multi':False}",
+        value=correct_accounting_code('4504'),
+        meta='("accounting","ChartsAccount","import diacamma.accounting.tools;django.db.models.Q(code__regex=diacamma.accounting.tools.current_system_account().get_societary_mask()) & django.db.models.Q(year__is_actif=True)", "code", True)')
+    Parameter.check_and_create(
+        name='condominium-default-owner-account5',
+        typeparam=0,
+        title=_("condominium-default-owner-account5"),
+        args="{'Multi':False}",
+        value=correct_accounting_code('4505'),
+        meta='("accounting","ChartsAccount","import diacamma.accounting.tools;django.db.models.Q(code__regex=diacamma.accounting.tools.current_system_account().get_societary_mask()) & django.db.models.Q(year__is_actif=True)", "code", True)')
     Parameter.check_and_create(name='condominium-current-revenue-account', typeparam=0, title=_("condominium-current-revenue-account"),
                                args="{'Multi':False}", value=correct_accounting_code('701'), meta='("accounting","ChartsAccount", Q(type_of_account=3) & Q(year__is_actif=True), "code", True)')
     Parameter.check_and_create(name='condominium-exceptional-revenue-account', typeparam=0, title=_("condominium-exceptional-revenue-account"),

@@ -529,6 +529,8 @@ class OwnerTest(PaymentTest):
         self.calljson('/diacamma.condominium/ownerShow', {'owner': 1}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'ownerShow')
         self.assert_json_equal('LABELFORM', 'total_current_owner', "-131.25€")
+        self.assert_json_equal('LABELFORM', 'thirdtotal', "-131.25€")
+        self.assert_json_equal('LABELFORM', 'sumtopay', "131.25€")
         self.assertEqual(len(self.json_actions), 3)
 
         self.factory.xfer = PayableShow()
@@ -570,6 +572,8 @@ class OwnerTest(PaymentTest):
         self.assert_json_equal('LABELFORM', 'total_current_call', "131.25€")
         self.assert_json_equal('LABELFORM', 'total_current_payoff', "100.00€")
         self.assert_json_equal('LABELFORM', 'total_current_owner', "-31.25€")
+        self.assert_json_equal('LABELFORM', 'thirdtotal', "31.25€")
+        self.assert_json_equal('LABELFORM', 'sumtopay', "31.25€")
         self.assertEqual(len(self.json_actions), 4)
 
     def __test_payment_paypal_callfund(self):
@@ -909,6 +913,8 @@ class OwnerTestOldAccounting(PaymentTest):
         self.assert_json_equal('LABELFORM', 'total_current_call', "131.25€")
         self.assert_json_equal('LABELFORM', 'total_current_payoff', "100.00€")
         self.assert_json_equal('LABELFORM', 'total_current_owner', "100.00€")
+        self.assert_json_equal('LABELFORM', 'thirdtotal', "100.00€")
+        self.assert_json_equal('LABELFORM', 'sumtopay', "0.00€")
         self.assertFalse("total_current_regularization" in self.json_data.keys())
         self.assertEqual(len(self.json_actions), 4)
 
