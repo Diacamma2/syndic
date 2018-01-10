@@ -147,9 +147,9 @@ class ExpenseTest(PaymentTest):
         self.assert_json_equal('LABELFORM', 'total', '180.00€')
         self.assert_json_equal('LABELFORM', 'status', 'en création')
         self.assertEqual(len(self.json_actions), 3)
-        self.assertEqual(self.json_actions[0]["action"],  'expenseTransition')
+        self.assertEqual(self.json_actions[0]["action"], 'expenseTransition')
         self.assertEqual(self.json_actions[0]['params']['TRANSITION'], 'valid')
-        self.assertEqual(self.json_actions[1]["action"],  'expenseAddModify')
+        self.assertEqual(self.json_actions[1]["action"], 'expenseAddModify')
         self.assertFalse("action" in self.json_actions[2].keys())
 
     def test_valid_current(self):

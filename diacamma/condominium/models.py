@@ -90,12 +90,16 @@ class Set(LucteriosModel):
         return self.identify
 
     @property
+    def partitionfill_set(self):
+        return self.partition_set.filter(Q(value__gt=0.001))
+
+    @property
     def identify(self):
         return "[%d] %s" % (self.id, self.name)
 
     @classmethod
     def get_default_fields(cls):
-        return [(_('name'), "identify"), 'type_load', 'partition_set', (_('budget'), "budget_txt"), (_('expense'), 'sumexpense_txt')]
+        return [(_('name'), "identify"), 'type_load', (_('divisions'), 'partitionfill_set'), (_('budget'), "budget_txt"), (_('expense'), 'sumexpense_txt')]
 
     @classmethod
     def get_edit_fields(cls):
@@ -107,9 +111,9 @@ class Set(LucteriosModel):
     @classmethod
     def get_show_fields(cls):
         if Params.getvalue("condominium-old-accounting"):
-            return [("name", ), ("revenue_account", (_('cost accounting'), 'current_cost_accounting')), ("type_load", 'is_active'), ('is_link_to_lots', (_('tantime sum'), 'total_part')), 'partition_set', ((_('budget'), "budget_txt"), (_('expense'), 'sumexpense_txt'),)]
+            return [("name", ), ("revenue_account", (_('cost accounting'), 'current_cost_accounting')), ("type_load", 'is_active'), ('is_link_to_lots', (_('tantime sum'), 'total_part')), 'partitionfill_set', ((_('budget'), "budget_txt"), (_('expense'), 'sumexpense_txt'),)]
         else:
-            return [("name", (_('cost accounting'), 'current_cost_accounting')), ("type_load", 'is_active'), ('is_link_to_lots', (_('tantime sum'), 'total_part')), 'partition_set', ((_('budget'), "budget_txt"), (_('expense'), 'sumexpense_txt'),)]
+            return [("name", (_('cost accounting'), 'current_cost_accounting')), ("type_load", 'is_active'), ('is_link_to_lots', (_('tantime sum'), 'total_part')), 'partitionfill_set', ((_('budget'), "budget_txt"), (_('expense'), 'sumexpense_txt'),)]
 
     def _do_insert(self, manager, using, fields, update_pk, raw):
         new_id = LucteriosModel._do_insert(
@@ -795,8 +799,8 @@ class Partition(LucteriosModel):
         return "%.1f %%" % self.get_ratio()
 
     class Meta(object):
-        verbose_name = _("class load")
-        verbose_name_plural = _("class loads")
+        verbose_name = _("division")
+        verbose_name_plural = _("divisions")
         default_permissions = []
         ordering = ['owner__third_id', 'set_id']
 
