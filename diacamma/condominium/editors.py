@@ -47,7 +47,13 @@ class SetEditor(LucteriosEditor):
             revenue_account.mask = current_system_account().get_revenue_mask()
 
     def show(self, xfer):
-        partition = xfer.get_components('partitionfill')
+        if xfer.item.is_link_to_lots:
+            part_name = 'partitionfill'
+            xfer.remove_component('partition')
+        else:
+            part_name = 'partition'
+            xfer.remove_component('partitionfill')
+        partition = xfer.get_components(part_name)
         partition.delete_header('set')
         partition.delete_header('set.budget')
         partition.delete_header('set.sumexpense_txt')

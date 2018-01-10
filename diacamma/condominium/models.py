@@ -111,9 +111,9 @@ class Set(LucteriosModel):
     @classmethod
     def get_show_fields(cls):
         if Params.getvalue("condominium-old-accounting"):
-            return [("name", ), ("revenue_account", (_('cost accounting'), 'current_cost_accounting')), ("type_load", 'is_active'), ('is_link_to_lots', (_('tantime sum'), 'total_part')), 'partitionfill_set', ((_('budget'), "budget_txt"), (_('expense'), 'sumexpense_txt'),)]
+            return [("name", ), ("revenue_account", (_('cost accounting'), 'current_cost_accounting')), ("type_load", 'is_active'), ('is_link_to_lots', (_('tantime sum'), 'total_part')), 'partition_set', 'partitionfill_set', ((_('budget'), "budget_txt"), (_('expense'), 'sumexpense_txt'),)]
         else:
-            return [("name", (_('cost accounting'), 'current_cost_accounting')), ("type_load", 'is_active'), ('is_link_to_lots', (_('tantime sum'), 'total_part')), 'partitionfill_set', ((_('budget'), "budget_txt"), (_('expense'), 'sumexpense_txt'),)]
+            return [("name", (_('cost accounting'), 'current_cost_accounting')), ("type_load", 'is_active'), ('is_link_to_lots', (_('tantime sum'), 'total_part')), 'partition_set', 'partitionfill_set', ((_('budget'), "budget_txt"), (_('expense'), 'sumexpense_txt'),)]
 
     def _do_insert(self, manager, using, fields, update_pk, raw):
         new_id = LucteriosModel._do_insert(
