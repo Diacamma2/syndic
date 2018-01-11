@@ -713,7 +713,7 @@ class OwnerTest(PaymentTest):
         self.factory.xfer = EntryAccountList()
         self.calljson('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '5', 'filter': '0'}, False)
         self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
-        self.assert_count_equal('entryaccount', 1)
+        self.assert_count_equal('entryline', 2)
         self.assert_json_equal('LABELFORM', 'result', '{[center]}{[b]}Produit :{[/b]} 350.00€ - {[b]}Charge :{[/b]} 187.34€ = {[b]}Résultat :{[/b]} 162.66€{[br/]}{[b]}Trésorerie :{[/b]} 36.84€ - {[b]}Validé :{[/b]} 16.84€{[/center]}')
 
         self.factory.xfer = SetShow()
@@ -745,15 +745,14 @@ class OwnerTest(PaymentTest):
         self.factory.xfer = EntryAccountList()
         self.calljson('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '5', 'filter': '0'}, False)
         self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
-        self.assert_count_equal('entryaccount', 2)
+        self.assert_count_equal('entryline', 6)
         self.assert_json_equal('LABELFORM', 'result', '{[center]}{[b]}Produit :{[/b]} 350.00€ - {[b]}Charge :{[/b]} 187.34€ = {[b]}Résultat :{[/b]} 162.66€{[br/]}{[b]}Trésorerie :{[/b]} 36.84€ - {[b]}Validé :{[/b]} 36.84€{[/center]}')
 
-        self.assert_json_equal('', 'entryaccount/@1/costaccounting', '[3] CCC')
-        description = self.json_data['entryaccount'][1]['description']
-        self.assertTrue('[4502 Minimum]' in description, description)
-        self.assertTrue('[4502 Dalton William]' in description, description)
-        self.assertTrue('[4502 Dalton Joe]' in description, description)
-        self.assertTrue('[120] 120' in description, description)
+        self.assert_json_equal('', 'entryline/@2/entry.costaccounting', '[3] CCC')
+        self.assert_json_equal('', 'entryline/@2/entry_account', '[120] 120')
+        self.assert_json_equal('', 'entryline/@3/entry_account', '[4502 Minimum]')
+        self.assert_json_equal('', 'entryline/@4/entry_account', '[4502 Dalton William]')
+        self.assert_json_equal('', 'entryline/@5/entry_account', '[4502 Dalton Joe]')
 
         self.check_account(year_id=1, code='120', value=0.00)
         self.check_account(year_id=1, code='401', value=65.0)
@@ -1000,7 +999,7 @@ class OwnerTestOldAccounting(PaymentTest):
         self.factory.xfer = EntryAccountList()
         self.calljson('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '5', 'filter': '0'}, False)
         self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
-        self.assert_count_equal('entryaccount', 1)
+        self.assert_count_equal('entryline', 2)
         self.assert_json_equal('LABELFORM', 'result', '{[center]}{[b]}Produit :{[/b]} 175.00€ - {[b]}Charge :{[/b]} 187.34€ = {[b]}Résultat :{[/b]} -12.34€{[br/]}{[b]}Trésorerie :{[/b]} 31.11€ - {[b]}Validé :{[/b]} 11.11€{[/center]}')
 
         self.factory.xfer = SetShow()
@@ -1031,5 +1030,5 @@ class OwnerTestOldAccounting(PaymentTest):
         self.factory.xfer = EntryAccountList()
         self.calljson('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '5', 'filter': '0'}, False)
         self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
-        self.assert_count_equal('entryaccount', 1)
+        self.assert_count_equal('entryline', 2)
         self.assert_json_equal('LABELFORM', 'result', '{[center]}{[b]}Produit :{[/b]} 175.00€ - {[b]}Charge :{[/b]} 187.34€ = {[b]}Résultat :{[/b]} -12.34€{[br/]}{[b]}Trésorerie :{[/b]} 31.11€ - {[b]}Validé :{[/b]} 31.11€{[/center]}')
