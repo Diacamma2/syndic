@@ -139,12 +139,12 @@ def init_compta():
     year = FiscalYear.get_current()
     if Params.getvalue("condominium-old-accounting"):
         add_entry(year.id, 1, '2015-01-01', 'Report à nouveau',
-                  '-1|2|0|23.450000|None|\n-2|17|4|-23.450000|None|', True)
+                  '-1|2|0|23.450000|0|None|\n-2|17|4|-23.450000|0|None|', True)
     else:
         add_entry(year.id, 1, '2015-01-01', 'Report à nouveau',
-                  '-1|2|0|29.180000|None|\n-2|17|4|-23.450000|None|\n-3|18|4|-5.730000|None|', True)
+                  '-1|2|0|29.180000|0|None|\n-2|17|4|-23.450000|0|None|\n-3|18|4|-5.730000|0|None|', True)
     add_entry(year.id, 5, '2015-02-20', 'Frais bancaire',
-              '-1|2|0|-12.340000|None|\n-2|15|0|12.340000|None|', True)
+              '-1|2|0|-12.340000|0|None|\n-2|15|0|12.340000|0|None|', True)
 
 
 def add_years():

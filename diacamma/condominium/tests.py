@@ -748,10 +748,13 @@ class OwnerTest(PaymentTest):
         self.assert_count_equal('entryline', 6)
         self.assert_json_equal('LABELFORM', 'result', '{[center]}{[b]}Produit :{[/b]} 350.00€ - {[b]}Charge :{[/b]} 187.34€ = {[b]}Résultat :{[/b]} 162.66€{[br/]}{[b]}Trésorerie :{[/b]} 36.84€ - {[b]}Validé :{[/b]} 36.84€{[/center]}')
 
-        self.assert_json_equal('', 'entryline/@2/entry.costaccounting', '[3] CCC')
+        self.assert_json_equal('', 'entryline/@2/costaccounting', '---')
         self.assert_json_equal('', 'entryline/@2/entry_account', '[120] 120')
+        self.assert_json_equal('', 'entryline/@3/costaccounting', '---')
         self.assert_json_equal('', 'entryline/@3/entry_account', '[4502 Minimum]')
+        self.assert_json_equal('', 'entryline/@4/costaccounting', '---')
         self.assert_json_equal('', 'entryline/@4/entry_account', '[4502 Dalton William]')
+        self.assert_json_equal('', 'entryline/@5/costaccounting', '---')
         self.assert_json_equal('', 'entryline/@5/entry_account', '[4502 Dalton Joe]')
 
         self.check_account(year_id=1, code='120', value=0.00)
