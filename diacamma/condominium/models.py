@@ -1180,10 +1180,13 @@ class Expense(Supporting):
         return self.date
 
     def entry_links(self):
-        if self.entries is None:
-            return []
-        else:
-            return list(self.entries.all())
+        ret = []
+        if self.id is not None:
+            ret.extend(list(self.entries.all()))
+            for detail in self.expensedetail_set.all():
+                if detail.entry_id is not None:
+                    ret.append(detail.entry)
+        return ret
 
     def can_delete(self):
         if self.status != 0:
