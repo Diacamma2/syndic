@@ -35,9 +35,9 @@ from lucterios.framework.xferadvance import TITLE_CLOSE, TITLE_PRINT
 from lucterios.CORE.parameters import Params
 
 from diacamma.accounting.models import FiscalYear, EntryAccount
-from diacamma.accounting.views_reports import convert_query_to_account, get_spaces,\
-    FiscalYearReportPrint
+from diacamma.accounting.views_reports import FiscalYearReportPrint
 from diacamma.accounting.tools import current_system_account, format_devise
+from diacamma.accounting.tools_reports import get_spaces, convert_query_to_account, add_item_in_grid, fill_grid, add_cell_in_grid
 from diacamma.condominium.models import Set
 
 
@@ -123,16 +123,10 @@ class FinancialStatus(CondominiumReport):
 
     def fill_part_of_grid(self, side, current_filter, index_begin, title, sign_value=None, with_third=False):
         data_line, total1, total2, _totalb = convert_query_to_account(self.filter & current_filter, self.lastfilter & current_filter, sign_value=sign_value, with_third=with_third)
-        self.grid.set_value(index_begin, side, get_spaces(5) + '{[u]}%s{[/u]}' % title)
+        add_cell_in_grid(self.grid, index_begin, side, get_spaces(5) + '{[u]}%s{[/u]}' % title)
         line_idx = index_begin + 1
-        for data_item in data_line:
-            self.grid.set_value(line_idx, side, data_item[0])
-            self.grid.set_value(line_idx, side + '_n', data_item[1])
-            if self.item.last_fiscalyear is not None:
-                self.grid.set_value(line_idx, side + '_n_1', data_item[2])
-            line_idx += 1
-
-        self.grid.set_value(line_idx, side, '')
+        line_idx = fill_grid(self.grid, line_idx, side, data_line)
+        add_cell_in_grid(self.grid, line_idx, side, '')
         line_idx += 1
         return line_idx, total1, total2
 
@@ -140,15 +134,10 @@ class FinancialStatus(CondominiumReport):
         line__tresor, total1_tresor, total2_tresor = self.fill_part_of_grid('left', Q(account__code__regex=current_system_account().get_cash_mask()), 0, _('Tresory'))
         line__capital, total1_capital, total2_capital = self.fill_part_of_grid('right', Q(account__type_of_account=2), 0, _('Provision and advance'))
         line_idx = max(line__tresor, line__capital)
-        self.grid.set_value(line_idx, 'left', get_spaces(5) + "{[u]}%s{[/u]}" % _('total'))
-        self.grid.set_value(line_idx, 'right', get_spaces(5) + "{[u]}%s{[/u]}" % _('total'))
-        self.grid.set_value(line_idx, 'left_n', format_devise(total1_tresor, 5))
-        self.grid.set_value(line_idx, 'right_n', format_devise(total1_capital, 5))
-        if self.item.last_fiscalyear is not None:
-            self.grid.set_value(line_idx, 'left_n_1', format_devise(total2_tresor, 5))
-            self.grid.set_value(line_idx, 'right_n_1', format_devise(total2_capital, 5))
-        self.grid.set_value(line_idx + 1, 'left', '')
-        self.grid.set_value(line_idx + 1, 'right', '')
+        add_item_in_grid(self.grid, line_idx, 'left', (get_spaces(5) + "{[u]}%s{[/u]}" % _('total'), total1_tresor, total2_tresor, None))
+        add_item_in_grid(self.grid, line_idx, 'right', (get_spaces(5) + "{[u]}%s{[/u]}" % _('total'), total1_tresor, total2_tresor, None))
+        add_cell_in_grid(self.grid, line_idx + 1, 'left', '')
+        add_cell_in_grid(self.grid, line_idx + 1, 'right', '')
 
         last_ids = []
         try:
@@ -165,22 +154,12 @@ class FinancialStatus(CondominiumReport):
         line__creance, total1_creance, total2_creance = self.fill_part_of_grid('left', current_filter, line_idx + 2, _('Créance'), sign_value=-1, with_third=True)
         line__dette, total1_dette, total2_dette = self.fill_part_of_grid('right', current_filter, line_idx + 2, _('Dettes'), sign_value=1, with_third=True)
         line_idx = max(line__creance, line__dette)
-        self.grid.set_value(line_idx, 'left', get_spaces(5) + "{[u]}%s{[/u]}" % _('total'))
-        self.grid.set_value(line_idx, 'right', get_spaces(5) + "{[u]}%s{[/u]}" % _('total'))
-        self.grid.set_value(line_idx, 'left_n', "{[u]}%s{[/u]}" % format_devise(total1_creance, 5))
-        self.grid.set_value(line_idx, 'right_n', "{[u]}%s{[/u]}" % format_devise(total1_dette, 5))
-        if self.item.last_fiscalyear is not None:
-            self.grid.set_value(line_idx, 'left_n_1', "{[u]}%s{[/u]}" % format_devise(total2_creance, 5))
-            self.grid.set_value(line_idx, 'right_n_1', "{[u]}%s{[/u]}" % format_devise(total2_dette, 5))
-        self.grid.set_value(line_idx + 1, 'left', '')
-        self.grid.set_value(line_idx + 1, 'right', '')
-        self.grid.set_value(line_idx + 2, 'left', get_spaces(5) + "{[b]}%s{[/b]}" % _('total'))
-        self.grid.set_value(line_idx + 2, 'right', get_spaces(5) + "{[b]}%s{[/b]}" % _('total'))
-        self.grid.set_value(line_idx + 2, 'left_n', "{[b]}%s{[/b]}" % format_devise(total1_tresor + total1_creance, 5))
-        self.grid.set_value(line_idx + 2, 'right_n', "{[b]}%s{[/b]}" % format_devise(total1_capital + total1_dette, 5))
-        if self.item.last_fiscalyear is not None:
-            self.grid.set_value(line_idx + 2, 'left_n_1', "{[b]}%s{[/b]}" % format_devise(total2_tresor + total2_creance, 5))
-            self.grid.set_value(line_idx + 2, 'right_n_1', "{[b]}%s{[/b]}" % format_devise(total2_capital + total2_dette, 5))
+        add_item_in_grid(self.grid, line_idx, 'left', (get_spaces(5) + "{[u]}%s{[/u]}" % _('total'), total1_creance, total2_creance, None))
+        add_item_in_grid(self.grid, line_idx, 'right', (get_spaces(5) + "{[u]}%s{[/u]}" % _('total'), total1_dette, total2_dette, None))
+        add_cell_in_grid(self.grid, line_idx + 1, 'left', '')
+        add_cell_in_grid(self.grid, line_idx + 1, 'right', '')
+        add_item_in_grid(self.grid, line_idx + 2, 'left', (get_spaces(5) + "{[b]}%s{[/b]}" % _('total'), total1_tresor + total1_creance, total2_tresor + total2_creance, None))
+        add_item_in_grid(self.grid, line_idx, 'right', (get_spaces(5) + "{[u]}%s{[/u]}" % _('total'), total1_capital + total1_dette, total2_capital + total2_dette, None))
 
 
 class ManageAccounting(CondominiumReport):
@@ -221,32 +200,32 @@ class ManageAccounting(CondominiumReport):
 
     def fill_part_of_grid(self, current_filter, query_budget, index_begin, title, sign_value=None):
         data_line, total1, total2, totalb = convert_query_to_account(self.filter & current_filter, self.lastfilter & current_filter, query_budget=query_budget, sign_value=sign_value)
-        self.grid.set_value(index_begin, 'design', get_spaces(5) + '{[u]}%s{[/u]}' % title)
+        add_cell_in_grid(self.grid, index_begin, 'design', get_spaces(5) + '{[u]}%s{[/u]}' % title)
         line_idx = index_begin + 1
         for data_item in data_line:
-            self.grid.set_value(line_idx, 'design', data_item[0])
-            self.grid.set_value(line_idx, 'year_n', data_item[1])
-            self.grid.set_value(line_idx, 'budget_n', data_item[3])
+            add_cell_in_grid(self.grid, line_idx, 'design', data_item[0])
+            add_cell_in_grid(self.grid, line_idx, 'year_n', format_devise(data_item[1], 5))
+            add_cell_in_grid(self.grid, line_idx, 'budget_n', format_devise(data_item[3], 5))
             if self.next_year is not None:
-                self.grid.set_value(line_idx, 'budget_n1', data_item[4])
+                add_cell_in_grid(self.grid, line_idx, 'budget_n1', format_devise(data_item[4], 5))
             if self.next_year_again is not None:
-                self.grid.set_value(line_idx, 'budget_n2', data_item[5])
+                add_cell_in_grid(self.grid, line_idx, 'budget_n2', format_devise(data_item[5], 5))
             if self.item.last_fiscalyear is not None:
-                self.grid.set_value(line_idx, 'year_n_1', data_item[2])
+                add_cell_in_grid(self.grid, line_idx, 'year_n_1', format_devise(data_item[2], 5))
             line_idx += 1
-        self.grid.set_value(line_idx, 'design', '')
+        add_cell_in_grid(self.grid, line_idx, 'design', '')
         line_idx += 1
-        self.grid.set_value(line_idx, 'design', get_spaces(5) + "{[u]}%s{[/u]}" % _('total'))
-        self.grid.set_value(line_idx, 'year_n', "{[u]}%s{[/u]}" % format_devise(total1, 5))
-        self.grid.set_value(line_idx, 'budget_n', "{[u]}%s{[/u]}" % format_devise(totalb[0], 5))
+        add_cell_in_grid(self.grid, line_idx, 'design', get_spaces(5) + "{[u]}%s{[/u]}" % _('total'))
+        add_cell_in_grid(self.grid, line_idx, 'year_n', "{[u]}%s{[/u]}" % format_devise(total1, 5))
+        add_cell_in_grid(self.grid, line_idx, 'budget_n', "{[u]}%s{[/u]}" % format_devise(totalb[0], 5))
         if self.next_year is not None:
-            self.grid.set_value(line_idx, 'budget_n1', "{[u]}%s{[/u]}" % format_devise(totalb[1], 5))
+            add_cell_in_grid(self.grid, line_idx, 'budget_n1', "{[u]}%s{[/u]}" % format_devise(totalb[1], 5))
         if self.next_year_again is not None:
-            self.grid.set_value(line_idx, 'budget_n2', "{[u]}%s{[/u]}" % format_devise(totalb[2], 5))
+            add_cell_in_grid(self.grid, line_idx, 'budget_n2', "{[u]}%s{[/u]}" % format_devise(totalb[2], 5))
         if self.item.last_fiscalyear is not None:
-            self.grid.set_value(line_idx, 'year_n_1', "{[u]}%s{[/u]}" % format_devise(total2, 5))
+            add_cell_in_grid(self.grid, line_idx, 'year_n_1', "{[u]}%s{[/u]}" % format_devise(total2, 5))
         line_idx += 1
-        self.grid.set_value(line_idx, 'design', '')
+        add_cell_in_grid(self.grid, line_idx, 'design', '')
         return line_idx, total1, total2, totalb
 
 
@@ -320,15 +299,15 @@ class CurrentManageAccounting(ManageAccounting):
                 totalb[1] += subtotalb[1]
             if self.next_year_again is not None:
                 totalb[2] += subtotalb[2]
-        self.grid.set_value(line_idx, 'design', get_spaces(5) + "{[b]}%s{[/b]}" % _('total'))
-        self.grid.set_value(line_idx, 'year_n', "{[b]}%s{[/b]}" % format_devise(total1, 5))
-        self.grid.set_value(line_idx, 'budget_n', "{[b]}%s{[/b]}" % format_devise(totalb[0], 5))
+        add_cell_in_grid(self.grid, line_idx, 'design', get_spaces(5) + "{[b]}%s{[/b]}" % _('total'))
+        add_cell_in_grid(self.grid, line_idx, 'year_n', "{[b]}%s{[/b]}" % format_devise(total1, 5))
+        add_cell_in_grid(self.grid, line_idx, 'budget_n', "{[b]}%s{[/b]}" % format_devise(totalb[0], 5))
         if self.item.last_fiscalyear is not None:
-            self.grid.set_value(line_idx, 'year_n_1', "{[b]}%s{[/b]}" % format_devise(total2, 5))
+            add_cell_in_grid(self.grid, line_idx, 'year_n_1', "{[b]}%s{[/b]}" % format_devise(total2, 5))
         if self.next_year is not None:
-            self.grid.set_value(line_idx, 'budget_n1', "{[b]}%s{[/b]}" % format_devise(totalb[1], 5))
+            add_cell_in_grid(self.grid, line_idx, 'budget_n1', "{[b]}%s{[/b]}" % format_devise(totalb[1], 5))
         if self.next_year_again is not None:
-            self.grid.set_value(line_idx, 'budget_n2', "{[b]}%s{[/b]}" % format_devise(totalb[2], 5))
+            add_cell_in_grid(self.grid, line_idx, 'budget_n2', "{[b]}%s{[/b]}" % format_devise(totalb[2], 5))
 
 
 @MenuManage.describ('condominium.change_owner', FORMTYPE_NOMODAL, 'condominium.print', _('Show Exeptional manage accounting report'))
@@ -362,12 +341,12 @@ class ExceptionalManageAccounting(ManageAccounting):
             query_budget = [~Q(code=revenue_account) & Q(cost_accounting=classloaditem.current_cost_accounting) & Q(year=self.item)]
             line__current_dep, subtotal1, subtotal2, subtotalb = self.fill_part_of_grid(current_request, query_budget, line_idx, six.text_type(classloaditem), sign_value=False)
             total_call = classloaditem.get_total_calloffund(self.item)
-            self.grid.set_value(line__current_dep - 1, 'calloffund', "{[u]}%s{[/u]}" % format_devise(total_call, 5))
-            self.grid.set_value(line__current_dep - 1, 'result', "{[u]}%s{[/u]}" % format_devise(total_call - subtotal1, 5))
+            add_cell_in_grid(self.grid, line__current_dep - 1, 'calloffund', "{[u]}%s{[/u]}" % format_devise(total_call, 5))
+            add_cell_in_grid(self.grid, line__current_dep - 1, 'result', "{[u]}%s{[/u]}" % format_devise(total_call - subtotal1, 5))
             line_idx = line__current_dep + 1
             total1 += subtotal1
             total2 += subtotal2
             totalb[0] += subtotalb[0]
-        self.grid.set_value(line_idx, 'design', get_spaces(5) + "{[b]}%s{[/b]}" % _('total'))
-        self.grid.set_value(line_idx, 'year_n', "{[b]}%s{[/b]}" % format_devise(total1, 5))
-        self.grid.set_value(line_idx, 'budget_n', "{[b]}%s{[/b]}" % format_devise(totalb[0], 5))
+        add_cell_in_grid(self.grid, line_idx, 'design', get_spaces(5) + "{[b]}%s{[/b]}" % _('total'))
+        add_cell_in_grid(self.grid, line_idx, 'year_n', "{[b]}%s{[/b]}" % format_devise(total1, 5))
+        add_cell_in_grid(self.grid, line_idx, 'budget_n', "{[b]}%s{[/b]}" % format_devise(totalb[0], 5))
