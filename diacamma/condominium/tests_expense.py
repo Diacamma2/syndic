@@ -96,7 +96,7 @@ class ExpenseTest(PaymentTest):
         self.calljson('/diacamma.condominium/expenseShow', {'expense': 4}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
         self.assert_count_equal('', 12)
-        self.assert_json_equal('LABELFORM', 'third', "Minimum")
+        self.assert_json_equal('LINK', 'third', "Minimum")
         self.assert_json_equal('LABELFORM', 'info', "{[font color=\"red\"]}{[/font]}")
         self.assertEqual(len(self.json_actions), 3)
 
