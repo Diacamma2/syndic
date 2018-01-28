@@ -146,6 +146,9 @@ class Set(LucteriosModel):
         else:
             if year.begin.year == year.end.year:
                 cost_accounting_name = "[%d] %s %s" % (self.id, self.name, year.begin.year)
+                years_same = FiscalYear.objects.filter(begin__gte='%d-01-01' % year.begin.year, end__lte='%d-12-31' % year.begin.year)
+                if len(years_same) > 1:
+                    cost_accounting_name += '[%d]' % year.id
             else:
                 cost_accounting_name = "[%d] %s %s/%s" % (self.id, self.name, year.begin.year, year.end.year)
         return cost_accounting_name
