@@ -915,16 +915,6 @@ class CallFundsSupporting(Supporting):
     def get_current_date(self):
         return self.callfunds.date
 
-    def default_costaccounting(self):
-        result = None
-        for detail in self.callfunds.calldetail_set.all():
-            new_costaccount = detail.set.current_cost_accounting
-            if result is None:
-                result = new_costaccount
-            elif new_costaccount != result:
-                return None
-        return result
-
     def get_tax(self):
         return 0
 
@@ -1165,16 +1155,6 @@ class Expense(Supporting):
 
     def get_current_date(self):
         return self.date
-
-    def default_costaccounting(self):
-        result = None
-        for expensedetail in self.expensedetail_set.all():
-            new_costaccount = expensedetail.set.current_cost_accounting
-            if result is None:
-                result = new_costaccount
-            elif new_costaccount != result:
-                return None
-        return result
 
     def payoff_is_revenu(self):
         return self.expensetype == 1
