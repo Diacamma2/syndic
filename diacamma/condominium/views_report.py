@@ -235,7 +235,7 @@ class GeneralManageAccounting(ManageAccounting):
     caption = _("General manage accounting")
 
     def fill_body(self):
-        current_query = Q(entry__costaccounting__setcost__set__type_load=0) & Q(entry__costaccounting__setcost__set__is_active=True)
+        current_query = Q(costaccounting__setcost__set__type_load=0) & Q(costaccounting__setcost__set__is_active=True)
         query_budget = Q(code__regex=current_system_account().get_expence_mask()) & Q(cost_accounting__setcost__set__type_load=0) & Q(cost_accounting__setcost__set__is_active=True)
         budget_query = [Q(year=self.item) & query_budget]
         if self.next_year is not None:
@@ -254,7 +254,7 @@ class GeneralManageAccounting(ManageAccounting):
 
         self.next_year = None
         self.next_year_again = None
-        current_query = Q(entry__costaccounting__setcost__set__type_load=1) & Q(entry__costaccounting__setcost__set__is_active=True)
+        current_query = Q(costaccounting__setcost__set__type_load=1) & Q(costaccounting__setcost__set__is_active=True)
         query_budget = Q(year=self.item) & Q(code__regex=current_system_account().get_expence_mask()) & Q(cost_accounting__setcost__set__type_load=1) & Q(cost_accounting__setcost__set__is_active=True)
         budget_query = [query_budget]
         line__except_dep, _total1_except_dep, _total2_except_dep, _totalb_except_dep = self.fill_part_of_grid(Q(account__type_of_account=4) & current_query, budget_query, line__current_rec + 1, _('Exceptional depency'))
@@ -276,10 +276,11 @@ class CurrentManageAccounting(ManageAccounting):
         totalb = [0, 0, 0]
         revenue_account = Params.getvalue("condominium-current-revenue-account")
         for classloaditem in Set.objects.filter(type_load=0, is_active=True):
+            current_costaccounting = classloaditem.setcost_set.filter(year=self.item).first().cost_accounting
             current_request = Q(account__code__regex=current_system_account().get_expence_mask())
             current_request |= Q(account__code__regex=current_system_account().get_revenue_mask()) & ~Q(account__code=revenue_account)
-            current_request &= Q(entry__costaccounting__setcost__set=classloaditem)
-            query_budget = [~Q(code=revenue_account) & Q(cost_accounting=classloaditem.setcost_set.filter(year=self.item).first().cost_accounting)]
+            current_request &= Q(costaccounting_id=current_costaccounting.id)
+            query_budget = [~Q(code=revenue_account) & Q(cost_accounting=current_costaccounting)]
             if self.next_year is not None:
                 set_cost = classloaditem.setcost_set.filter(year=self.next_year).first()
                 if set_cost is None:
@@ -337,7 +338,7 @@ class ExceptionalManageAccounting(ManageAccounting):
         for classloaditem in Set.objects.filter(type_load=1, is_active=True):
             current_request = Q(account__code__regex=current_system_account().get_expence_mask())
             current_request |= Q(account__code__regex=current_system_account().get_revenue_mask()) & ~Q(account__code=revenue_account)
-            current_request &= Q(entry__costaccounting__setcost__set=classloaditem)
+            current_request &= Q(costaccounting__setcost__set=classloaditem)
             query_budget = [~Q(code=revenue_account) & Q(cost_accounting=classloaditem.current_cost_accounting) & Q(year=self.item)]
             line__current_dep, subtotal1, subtotal2, subtotalb = self.fill_part_of_grid(current_request, query_budget, line_idx, six.text_type(classloaditem), sign_value=False)
             total_call = classloaditem.get_total_calloffund(self.item)

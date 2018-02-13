@@ -16,8 +16,7 @@ the Free Software Foundation, either version 3 of the License, or
 Lucterios is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
+GNU General Public License for more detaamount
 You should have received a copy of the GNU General Public License
 along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 '''
@@ -28,7 +27,7 @@ from lucterios.framework.tools import convert_date
 from lucterios.CORE.models import Parameter
 from lucterios.CORE.parameters import Params
 
-from diacamma.accounting.models import FiscalYear
+from diacamma.accounting.models import FiscalYear, Budget
 from diacamma.accounting.test_tools import create_account, add_entry
 from diacamma.payoff.models import Payoff
 from diacamma.condominium.models import Set, Owner, Partition, CallFunds, CallDetail, Expense, ExpenseDetail,\
@@ -40,6 +39,12 @@ def default_setowner(with_lots=True):
         part = Partition.objects.get(set=setpart, owner=owner)
         part.value = value
         part.save()
+
+    def set_budget(setitem, code, amount):
+        year = FiscalYear.get_current()
+        cost = setitem.current_cost_accounting
+        Budget.objects.create(cost_accounting=cost, year=year, code=code, amount=amount)
+        setitem.change_budget_product(cost, year.id)
     if Params.getvalue("condominium-old-accounting"):
         create_account(['450'], 0, FiscalYear.get_current())
     else:
@@ -61,18 +66,15 @@ def default_setowner(with_lots=True):
         PropertyLot.objects.create(num=2, value=35.0, description="Appart B", owner=owner2)
         PropertyLot.objects.create(num=3, value=20.0, description="Appart C", owner=owner3)
 
-    set1 = Set.objects.create(
-        name="AAA", budget=1000, revenue_account='701', is_link_to_lots=with_lots, type_load=0, cost_accounting_id=2)
-    set1.convert_budget()
-    set2 = Set.objects.create(
-        name="BBB", budget=100, revenue_account='701', type_load=0, cost_accounting_id=0)
-    set2.convert_budget()
-    set3 = Set.objects.create(
-        name="CCC", budget=500, revenue_account='702', type_load=1, cost_accounting_id=0)
-    set3.convert_budget()
-    set4 = Set.objects.create(
-        name="OLD", budget=100, revenue_account='702', type_load=1, cost_accounting_id=0, is_active=False)
-    set4.convert_budget()
+    set1 = Set.objects.create(name="AAA", budget=1000, revenue_account='701', is_link_to_lots=with_lots, type_load=0)
+    set_budget(set1, '604', 1000)
+    set2 = Set.objects.create(name="BBB", budget=100, revenue_account='701', type_load=0)
+    set_budget(set2, '604', 100)
+    set3 = Set.objects.create(name="CCC", budget=500, revenue_account='702', type_load=1)
+    set_budget(set3, '604', 500)
+    set4 = Set.objects.create(name="OLD", budget=100, revenue_account='702', type_load=1, is_active=False)
+    set_budget(set4, '602', 100)
+
     if with_lots:
         set1.set_of_lots = PropertyLot.objects.all()
         set1.save()
