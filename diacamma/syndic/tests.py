@@ -34,11 +34,11 @@ from lucterios.contacts.models import Individual
 from lucterios.CORE.views import get_wizard_step_list
 
 from diacamma.accounting.test_tools import initial_thirds, default_compta, default_costaccounting
-from diacamma.payoff.test_tools import default_bankaccount, default_paymentmethod, PaymentTest
-from diacamma.condominium.test_tools import default_setowner, add_test_callfunds, old_accounting, add_test_expenses, init_compta, add_years
+from diacamma.payoff.test_tools import default_bankaccount
+from diacamma.condominium.test_tools import default_setowner, add_test_callfunds, add_test_expenses, init_compta, add_years
 
 
-class SyndicTest(PaymentTest):
+class SyndicTest(LucteriosTest):
 
     def setUp(self):
         self.xfer_class = XferContainerAcknowledge
@@ -63,7 +63,7 @@ class SyndicTest(PaymentTest):
 
         self.calljson('/CORE/statusMenu', {})
         self.assert_observer('core.custom', 'CORE', 'statusMenu')
-        self.assert_count_equal('', 16)
+        self.assert_count_equal('', 15)
 
     def test_wizard(self):
         self.calljson('/CORE/authentification', {'username': 'admin', 'password': 'admin'})
