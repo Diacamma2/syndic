@@ -10,7 +10,7 @@
 	<property name="project.pythonpath" value="${core.path}:${contact.path}:${document.path}:${financial.path}:${env.PYTHONPATH}" />
 	<property name="project.modules" value="lucterios.contacts,lucterios.mailing,lucterios.documents,diacamma.accounting,diacamma.condominium,diacamma.payoff" />
 	<property name="project.appli" value="diacamma.syndic" />
-	<property name="project.test.source" value="diacamma"/>
+	<property name="project.test.source" value="${basedir}/diacamma,${financial.path}/diacamma"/>
 	<property name="project.test.omit" value="${core.path}/lucterios/install/*"/>
 	<property name="project.test.include" value="${core.path}/lucterios/CORE/*.py,${core.path}/lucterios/framework/*.py"/>
     <import file="${core.path}/utils/lib_build.xml"/>
