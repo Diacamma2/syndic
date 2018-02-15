@@ -32,6 +32,7 @@ from lucterios.framework.filetools import get_user_dir
 from lucterios.framework.xfergraphic import XferContainerAcknowledge
 from lucterios.contacts.models import Individual
 from lucterios.CORE.views import get_wizard_step_list
+from lucterios.documents.views import DocumentShow
 
 from diacamma.accounting.test_tools import initial_thirds, default_compta, default_costaccounting
 from diacamma.payoff.test_tools import default_bankaccount
@@ -41,6 +42,7 @@ from diacamma.condominium.test_tools import default_setowner, add_test_callfunds
 class SyndicTest(LucteriosTest):
 
     def setUp(self):
+        DocumentShow.url_text
         self.xfer_class = XferContainerAcknowledge
         initial_thirds()
         LucteriosTest.setUp(self)
