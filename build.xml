@@ -1,13 +1,14 @@
 <project name="Diacamma2.syndic" default="all" basedir=".">
 	<property name="core.path" value="${basedir}/../lct-core"/>
 	<property name="contact.path" value="${basedir}/../lct-contacts" />
+        <property name="document.path" value="${basedir}/../lct-documents" />
 	<property name="financial.path" value="${basedir}/../financial" />
 	<property name="project.packagepath" value="diacamma/syndic,diacamma/condominium" />
 	<property name="project.packagename" value="diacamma.syndic diacamma.condominium" />
 	<property name="project.name" value="diacamma" />
 	<property name="project.packname" value="diacamma_syndic.egg-info" />
-	<property name="project.pythonpath" value="${core.path}:${contact.path}:${financial.path}:${env.PYTHONPATH}" />
-	<property name="project.modules" value="lucterios.contacts,lucterios.mailing,diacamma.accounting,diacamma.condominium,diacamma.payoff" />
+	<property name="project.pythonpath" value="${core.path}:${contact.path}:${document.path}:${financial.path}:${env.PYTHONPATH}" />
+	<property name="project.modules" value="lucterios.contacts,lucterios.mailing,lucterios.documents,diacamma.accounting,diacamma.condominium,diacamma.payoff" />
 	<property name="project.appli" value="diacamma.syndic" />
 	<property name="project.test.source" value="diacamma"/>
 	<property name="project.test.omit" value="${core.path}/lucterios/install/*"/>
