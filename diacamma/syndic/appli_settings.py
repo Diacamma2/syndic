@@ -43,7 +43,7 @@ def get_support():
     return """{[table style='text-align: center; width: 100%%;']}
 {[tr]}{[td]}{[img width='128px' title='Diacamma' alt='Diacamma' src='http://forum.diacamma.org/static/DiacammaForum.png?syndic=%s'/]}{[/td]}{[/td]}
 {[tr]}{[td]}%s{[/td]}{[/td]}
-{[tr]}{[td]}{[a href='http://forum.diacamma.org' target='_blank']}http://forum.diacamma.org{[/a]}{[/td]}{[/td]}
+{[tr]}{[td]}{[a href='http://www.diacamma.org' target='_blank']}http://www.diacamma.org{[/a]}{[/td]}{[/td]}
 {[/table]}
 """ % (diacamma.syndic.__version__, _('Meet the {[i]}Diacamma{[/i]} community on our forum and blog'))
 
