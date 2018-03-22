@@ -12,3 +12,7 @@ Les lots
 
 Déclarer les lots de votre copropriétés.
 Précisez en plus de la description du lot, les tantièmes et le propriétaires de chacun.
+
+    .. image:: set_owner.png
+
+    
