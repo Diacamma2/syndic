@@ -134,8 +134,8 @@ class FinancialStatus(CondominiumReport):
         line__tresor, total1_tresor, total2_tresor = self.fill_part_of_grid('left', Q(account__code__regex=current_system_account().get_cash_mask()), 0, _('Tresory'))
         line__capital, total1_capital, total2_capital = self.fill_part_of_grid('right', Q(account__type_of_account=2), 0, _('Provision and advance'))
         line_idx = max(line__tresor, line__capital)
-        add_item_in_grid(self.grid, line_idx, 'left', (get_spaces(5) + "{[u]}%s{[/u]}" % _('total'), total1_tresor, total2_tresor, None))
-        add_item_in_grid(self.grid, line_idx, 'right', (get_spaces(5) + "{[u]}%s{[/u]}" % _('total'), total1_tresor, total2_tresor, None))
+        add_item_in_grid(self.grid, line_idx, 'left', (_('total'), total1_tresor, total2_tresor, None), get_spaces(5) + "{[u]}%s{[/u]}")
+        add_item_in_grid(self.grid, line_idx, 'right', (_('total'), total1_capital, total2_capital, None), get_spaces(5) + "{[u]}%s{[/u]}")
         add_cell_in_grid(self.grid, line_idx + 1, 'left', '')
         add_cell_in_grid(self.grid, line_idx + 1, 'right', '')
 
@@ -154,12 +154,12 @@ class FinancialStatus(CondominiumReport):
         line__creance, total1_creance, total2_creance = self.fill_part_of_grid('left', current_filter, line_idx + 2, _('Créance'), sign_value=-1, with_third=True)
         line__dette, total1_dette, total2_dette = self.fill_part_of_grid('right', current_filter, line_idx + 2, _('Dettes'), sign_value=1, with_third=True)
         line_idx = max(line__creance, line__dette)
-        add_item_in_grid(self.grid, line_idx, 'left', (get_spaces(5) + "{[u]}%s{[/u]}" % _('total'), total1_creance, total2_creance, None))
-        add_item_in_grid(self.grid, line_idx, 'right', (get_spaces(5) + "{[u]}%s{[/u]}" % _('total'), total1_dette, total2_dette, None))
+        add_item_in_grid(self.grid, line_idx, 'left', (_('total'), total1_creance, total2_creance, None), get_spaces(5) + "{[u]}%s{[/u]}")
+        add_item_in_grid(self.grid, line_idx, 'right', (_('total'), total1_dette, total2_dette, None), get_spaces(5) + "{[u]}%s{[/u]}")
         add_cell_in_grid(self.grid, line_idx + 1, 'left', '')
         add_cell_in_grid(self.grid, line_idx + 1, 'right', '')
-        add_item_in_grid(self.grid, line_idx + 2, 'left', (get_spaces(5) + "{[b]}%s{[/b]}" % _('total'), total1_tresor + total1_creance, total2_tresor + total2_creance, None))
-        add_item_in_grid(self.grid, line_idx, 'right', (get_spaces(5) + "{[u]}%s{[/u]}" % _('total'), total1_capital + total1_dette, total2_capital + total2_dette, None))
+        add_item_in_grid(self.grid, line_idx + 2, 'left', (_('total'), total1_tresor + total1_creance, total2_tresor + total2_creance, None), get_spaces(5) + "{[b]}%s{[/b]}")
+        add_item_in_grid(self.grid, line_idx + 2, 'right', (_('total'), total1_capital + total1_dette, total2_capital + total2_dette, None), get_spaces(5) + "{[b]}%s{[/b]}")
 
 
 class ManageAccounting(CondominiumReport):

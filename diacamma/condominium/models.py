@@ -906,6 +906,10 @@ class CallFundsSupporting(Supporting):
         return True
 
     @classmethod
+    def get_long_name(cls):
+        return CallFunds.get_long_name()
+
+    @classmethod
     def get_payment_fields(cls):
         return ["callfunds.num", "callfunds.date", "callfunds.comment", "third", ((_('total'), 'callfunds.total'),)]
 
