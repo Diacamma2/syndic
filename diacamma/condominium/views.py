@@ -23,15 +23,17 @@ from lucterios.CORE.parameters import Params
 from lucterios.CORE.xferprint import XferPrintAction, XferPrintReporting
 from lucterios.CORE.models import Parameter
 
-from lucterios.contacts.models import Individual, LegalEntity
+from lucterios.contacts.models import Individual, LegalEntity, AbstractContact
 
 from diacamma.accounting.models import AccountThird, FiscalYear
 from diacamma.accounting.tools import correct_accounting_code, format_devise
 from diacamma.payoff.views import PayoffAddModify
 from diacamma.payoff.models import Payoff
 
-from diacamma.condominium.models import PropertyLot, Owner, Set, SetCost, convert_accounting, ventilate_result
+from diacamma.condominium.models import PropertyLot, Owner, Set, SetCost, convert_accounting, ventilate_result,\
+    OwnerContact
 from diacamma.condominium.views_classload import fill_params
+from lucterios.contacts.tools import ContactSelection
 
 
 @MenuManage.describ('condominium.change_set', FORMTYPE_NOMODAL, 'condominium.manage', _('Manage of owners and property lots'))
@@ -168,6 +170,70 @@ class OwnerShow(XferShowEditor):
                         close=CLOSE_NO, params={'item_name': self.field_id}, pos_act=0)
         self.add_action(ActionsManage.get_action_url('payoff.Supporting', 'Email', self),
                         close=CLOSE_NO, params={'item_name': self.field_id}, pos_act=0)
+
+
+@ActionsManage.affect_other(TITLE_ADD, "images/add.png")
+@MenuManage.describ('condominium.add_owner')
+class OwnerContactSave(XferAddEditor):
+    icon = "condominium.png"
+    model = OwnerContact
+    field_id = 'ownercontact'
+    caption_add = _("Add owner contact")
+    caption_modify = _("Modify owner contact")
+    redirect_to_show = None
+
+    def fillresponse(self):
+        contact_id = self.getparam(self.getparam('pkname'))
+        self.params['contact'] = contact_id
+        self.item.contact = AbstractContact.objects.get(id=contact_id)
+        XferAddEditor.fillresponse(self)
+
+
+@ActionsManage.affect_grid(TITLE_ADD, "images/add.png")
+@MenuManage.describ('accounting.add_third')
+class OwnerContactAdd(ContactSelection):
+    icon = "condominium.png"
+    caption = _("Add owner contact")
+    select_class = OwnerContactSave
+    model = OwnerContact
+
+    def fillresponse(self):
+        ContactSelection.fillresponse(self)
+        grid = self.get_components(self.field_id)
+        for action_idx in range(0, len(grid.actions)):
+            if grid.actions[action_idx][0].icon_path.endswith('images/add.png'):
+                params = grid.actions[action_idx][4]
+                if params is None:
+                    params = {}
+                params['URL_TO_REDIRECT'] = self.select_class.url_text
+                params['pkname'] = self.field_id
+                grid.actions[action_idx] = (grid.actions[action_idx][0], grid.actions[action_idx][1], CLOSE_YES, grid.actions[action_idx][3], params)
+
+
+@ActionsManage.affect_grid(TITLE_EDIT, "images/show.png", unique=SELECT_SINGLE)
+@MenuManage.describ('condominium.add_owner')
+class OwnerContactShow(XferContainerAcknowledge):
+    caption = _("Show owner contact")
+    icon = "condominium.png"
+    model = OwnerContact
+    field_id = 'ownercontact'
+
+    def fillresponse(self):
+        modal_name = self.item.contact.__class__.get_long_name()
+        field_id = self.item.contact.__class__.__name__.lower()
+        if field_id == 'legalentity':
+            field_id = 'legal_entity'
+        self.redirect_action(ActionsManage.get_action_url(modal_name, 'Show', self), close=CLOSE_NO,
+                             params={field_id: six.text_type(self.item.contact.id)})
+
+
+@ActionsManage.affect_grid(TITLE_DELETE, "images/delete.png", unique=SELECT_MULTI)
+@MenuManage.describ('condominium.add_owner')
+class OwnerContactDel(XferDelete):
+    caption = _("Delete owner contact")
+    icon = "condominium.png"
+    model = OwnerContact
+    field_id = 'ownercontact'
 
 
 @ActionsManage.affect_other(_('payoff'), 'images/add.png', close=CLOSE_NO)

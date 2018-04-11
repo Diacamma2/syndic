@@ -28,8 +28,8 @@ from django.utils.translation import ugettext_lazy as _
 from django.utils import six
 
 from lucterios.framework.editors import LucteriosEditor
-from lucterios.framework.xfercomponents import XferCompButton, XferCompLabelForm, XferCompSelect
-from lucterios.framework.tools import ActionsManage, FORMTYPE_MODAL, CLOSE_NO, SELECT_SINGLE, FORMTYPE_REFRESH
+from lucterios.framework.xfercomponents import XferCompButton, XferCompSelect
+from lucterios.framework.tools import ActionsManage, FORMTYPE_MODAL, CLOSE_NO, SELECT_SINGLE, FORMTYPE_REFRESH, SELECT_MULTI
 from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.CORE.parameters import Params
 
@@ -37,6 +37,8 @@ from diacamma.accounting.tools import current_system_account
 from diacamma.accounting.models import Third, FiscalYear
 from diacamma.payoff.editors import SupportingEditor
 from diacamma.condominium.models import Set, CallDetail, CallFundsSupporting, Owner
+from lucterios.contacts.models import CustomField
+from lucterios.framework.xferadvance import XferSave
 
 
 class SetEditor(LucteriosEditor):
@@ -65,14 +67,29 @@ class OwnerEditor(SupportingEditor):
         self.item.check_account()
         return SupportingEditor.before_save(self, xfer)
 
+    def saving(self, xfer):
+        contact_save = XferSave()
+        contact_save.request = xfer.request
+        contact_save.item = xfer.item.third.contact.get_final_child()
+        contact_save.model = contact_save.item.__class__
+        contact_save.params = xfer.params
+        contact_save.fill_simple_fields()
+        contact_save.fillresponse()
+
+        third_save = XferSave()
+        third_save.request = xfer.request
+        third_save.item = xfer.item.third.get_final_child()
+        third_save.model = third_save.item.__class__
+        third_save.params = xfer.params
+        third_save.fill_simple_fields()
+        third_save.fillresponse()
+
     def edit(self, xfer):
         if xfer.item.id is None:
-            third = xfer.get_components('third')
-            xfer.remove_component('third')
             sel = XferCompSelect('third')
             sel.needed = True
             sel.description = _('third')
-            sel.set_location(third.col, third.row)
+            sel.set_location(1, 0)
             owner_third_ids = []
             for owner in Owner.objects.all():
                 owner_third_ids.append(owner.third_id)
@@ -86,18 +103,52 @@ class OwnerEditor(SupportingEditor):
             btn.set_action(xfer.request, ActionsManage.get_action_url('accounting.Third', 'Add', xfer), close=CLOSE_NO,
                            modal=FORMTYPE_MODAL, params={'new_account': Params.getvalue('condominium-default-owner-account')})
             xfer.add_component(btn)
+            xfer.filltab_from_model(1, xfer.get_max_row() + 1, False, ["information"])
         else:
-            xfer.change_to_readonly('third')
+            old_item = xfer.item
+            xfer.item = old_item.third.contact.get_final_child()
+            xfer.filltab_from_model(1, 0, False, xfer.item.get_edit_fields())
+            CustomField.edit_fields(xfer, 1)
+
+            xfer.item = old_item.third.get_final_child()
+            xfer.filltab_from_model(1, xfer.get_max_row() + 1, False, xfer.item.get_edit_fields())
+            CustomField.edit_fields(xfer, 1)
+
+            xfer.item = old_item
+            xfer.filltab_from_model(1, xfer.get_max_row() + 1, False, ["information"])
 
     def show(self, xfer):
         xfer.params['supporting'] = self.item.id
-        third = xfer.get_components('third')
+        third = xfer.get_components('thirdtotal')
         xfer.tab = third.tab
         btn = XferCompButton('show_third')
         btn.set_location(third.col + third.colspan, third.row)
-        btn.set_action(xfer.request, ActionsManage.get_action_url('accounting.Third', 'Show', xfer),
-                       modal=FORMTYPE_MODAL, close=CLOSE_NO, params={'third': self.item.third.id})
+        act_btn = ActionsManage.get_action_url('accounting.Third', 'Show', xfer)
+        if act_btn is not None:
+            act_btn.caption = _('third')
+        btn.set_action(xfer.request, act_btn, modal=FORMTYPE_MODAL, close=CLOSE_NO, params={'third': self.item.third.id})
+        btn.rowspan = 2
         xfer.add_component(btn)
+
+        if hasattr(xfer.item.third.contact.get_final_child(), 'structure_type'):
+            contact = xfer.get_components('ownercontact')
+            xfer.tab = contact.tab
+            old_item = xfer.item
+            xfer.item = old_item.third.contact.get_final_child()
+            xfer.filltab_from_model(contact.col, contact.row + 1, True, ['responsability_set'])
+            xfer.item = old_item
+
+        link_grid_lines = xfer.get_components('entryline')
+        link_grid_lines.description = ''
+        link_grid_lines.actions = []
+        link_grid_lines.colspan = 2
+        link_grid_lines.add_action(xfer.request, ActionsManage.get_action_url('accounting.EntryAccount', 'OpenFromLine', xfer),
+                                   modal=FORMTYPE_MODAL, unique=SELECT_SINGLE, close=CLOSE_NO)
+        link_grid_lines.add_action(xfer.request, ActionsManage.get_action_url('accounting.EntryAccount', 'Close', xfer),
+                                   modal=FORMTYPE_MODAL, unique=SELECT_MULTI, close=CLOSE_NO)
+        link_grid_lines.add_action(xfer.request, ActionsManage.get_action_url('accounting.EntryAccount', 'Link', xfer),
+                                   modal=FORMTYPE_MODAL, unique=SELECT_MULTI, close=CLOSE_NO)
+
         partition = xfer.get_components('partition')
         partition.actions = []
         partition.description = _("current class loads")
@@ -128,6 +179,12 @@ class PartitionEditor(LucteriosEditor):
     def edit(self, xfer):
         xfer.change_to_readonly('set')
         xfer.change_to_readonly('owner')
+
+
+class OwnerContactEditor(LucteriosEditor):
+
+    def edit(self, xfer):
+        xfer.change_to_readonly('contact')
 
 
 class CallFundsSupportingEditor(SupportingEditor):

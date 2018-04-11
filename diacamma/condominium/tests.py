@@ -62,7 +62,7 @@ class SetOwnerTest(LucteriosTest):
         self.factory.xfer = CondominiumConf()
         self.calljson('/diacamma.condominium/condominiumConf', {}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'condominiumConf')
-        self.assert_count_equal('', 13)
+        self.assert_count_equal('', 2 + 14 + 2)
         self.assert_json_equal('LABELFORM', 'condominium-default-owner-account1', '4501')
         self.assert_json_equal('LABELFORM', 'condominium-default-owner-account2', '4502')
         self.assert_json_equal('LABELFORM', 'condominium-default-owner-account3', '4503')
@@ -74,13 +74,14 @@ class SetOwnerTest(LucteriosTest):
         self.assert_json_equal('LABELFORM', 'condominium-exceptional-reserve-account', '120')
         self.assert_json_equal('LABELFORM', 'condominium-advance-reserve-account', '103')
         self.assert_json_equal('LABELFORM', 'condominium-fundforworks-reserve-account', '105')
+        self.assert_count_equal('ownerlink', 4)
 
     def test_config_old_accounting(self):
         old_accounting()
         self.factory.xfer = CondominiumConf()
         self.calljson('/diacamma.condominium/condominiumConf', {}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'condominiumConf')
-        self.assert_count_equal('', 3)
+        self.assert_count_equal('', 2 + 4 + 2)
         self.assert_json_equal('LABELFORM', 'condominium-default-owner-account', '450')
 
     def test_add_set(self):

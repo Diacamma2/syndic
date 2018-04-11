@@ -48,8 +48,10 @@ from diacamma.accounting.models import CostAccounting, FiscalYear
 from diacamma.accounting.views_budget import BudgetList
 from diacamma.accounting.views_reports import CostAccountingIncomeStatement
 
-from diacamma.condominium.models import Set, Partition, ExpenseDetail, Owner, PropertyLot, SetCost
+from diacamma.condominium.models import Set, Partition, ExpenseDetail, Owner, PropertyLot, SetCost,\
+    OwnerLink
 from diacamma.accounting.system import accounting_system_ident
+from lucterios.framework.error import LucteriosException, IMPORTANT
 
 
 def fill_params(self, is_mini=False, new_params=False):
@@ -83,16 +85,45 @@ class CondominiumCheckOwner(XferContainerAcknowledge):
 
 
 @MenuManage.describ('CORE.change_parameter', FORMTYPE_MODAL, 'contact.conf', _('Management of parameters of condominium'))
-class CondominiumConf(XferContainerCustom):
+class CondominiumConf(XferListEditor):
     icon = "condominium.png"
     caption = _("Condominium configuration")
+    model = OwnerLink
+    field_id = 'ownerlink'
 
-    def fillresponse(self):
+    def fillresponse_header(self):
+        self.new_tab(_('Parameters'))
         fill_params(self)
         btn = XferCompButton('checkowner')
         btn.set_location(3, self.get_max_row(), 2, 1)
         btn.set_action(self.request, CondominiumCheckOwner.get_action(_('check owner'), 'diacamma.condominium/images/owner.png'), close=CLOSE_NO)
         self.add_component(btn)
+        self.new_tab(_('Links'))
+
+
+@ActionsManage.affect_grid(TITLE_ADD, "images/add.png")
+@MenuManage.describ('CORE.add_parameter')
+class OwnerLinkAddModify(XferAddEditor):
+    icon = "condominium.png"
+    model = OwnerLink
+    field_id = 'ownerlink'
+    caption_add = _("Add owner link")
+    caption_modify = _("Modify owner link")
+
+
+@ActionsManage.affect_grid(TITLE_DELETE, "images/delete.png", unique=SELECT_MULTI)
+@MenuManage.describ('CORE.add_parameter')
+class OwnerLinkDel(XferDelete):
+    caption = _("Delete owner link")
+    icon = "condominium.png"
+    model = OwnerLink
+    field_id = 'ownerlink'
+
+    def fillresponse(self):
+        for sub_item in self.items:
+            if sub_item.id in (1, 2):
+                raise LucteriosException(IMPORTANT, _('Link not deletable !'))
+        XferDelete.fillresponse(self)
 
 
 MenuManage.add_sub("condominium", None, "diacamma.condominium/images/condominium.png",

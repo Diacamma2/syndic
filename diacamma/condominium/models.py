@@ -35,17 +35,19 @@ from django.utils import six, formats
 from django.core.exceptions import ObjectDoesNotExist
 from django_fsm import FSMIntegerField, transition
 
-from lucterios.framework.models import LucteriosModel, get_value_converted
+from lucterios.framework.models import LucteriosModel, get_value_converted, get_subfield_show
 from lucterios.framework.error import LucteriosException, IMPORTANT, GRAVE
 from lucterios.framework.tools import convert_date
 from lucterios.framework.signal_and_lock import Signal
 from lucterios.CORE.models import Parameter
 from lucterios.CORE.parameters import Params
 
-from diacamma.accounting.models import CostAccounting, EntryAccount, Journal, ChartsAccount, EntryLineAccount, FiscalYear, Budget, AccountThird
+from diacamma.accounting.models import CostAccounting, EntryAccount, Journal, ChartsAccount, EntryLineAccount, FiscalYear, Budget, AccountThird,\
+    Third
 from diacamma.accounting.tools import format_devise, currency_round, current_system_account, get_amount_sum, correct_accounting_code
 from diacamma.payoff.models import Supporting, Payoff
 from django.conf import settings
+from lucterios.contacts.models import AbstractContact
 
 
 class Set(LucteriosModel):
@@ -465,30 +467,37 @@ class Owner(Supporting):
 
     @classmethod
     def get_edit_fields(cls):
-        return ["third", "information"]
+        return []
 
     @classmethod
     def get_show_fields(cls):
-        fields = {"": ["third", "information"],
-                  _("001@Summary"): ['propertylot_set', ((_('total owner'), 'thirdtotal'), (_('sum to pay'), 'sumtopay'))],
-                  _("002@Situation"): [('partition_set',),
+        fields = {"": [((_('name'), 'third'),), ],
+                  _("001@Information"): [],
+                  _("002@Lots"): ['propertylot_set'],
+                  _("003@Contacts"): ['ownercontact_set'],
+                  _("004@Accounting"): [((_('total owner initial'), 'thirdinitial'),), 'entryline_set', ((_('total owner'), 'thirdtotal'),), ((_('sum to pay'), 'sumtopay'),)],
+                  _("005@Situation"): [('partition_set',),
                                        ((_('current total call for funds'), 'total_current_call'), (_('current total payoff'), 'total_current_payoff')),
                                        ((_('current initial state'), 'total_current_initial'), (_('current total ventilated'), 'total_current_ventilated')),
                                        ((_('estimated regularization'), 'total_current_regularization'), (_('extra revenus/expenses'), 'total_extra')),
                                        ((_('current total owner'), 'total_current_owner'), )],
-                  _("003@Exceptional"): ['exceptionnal_set',
+                  _("006@Exceptional"): ['exceptionnal_set',
                                          ((_('exceptional initial state'), 'total_exceptional_initial'),),
                                          ((_('exceptional total call for funds'), 'total_exceptional_call'),),
                                          ((_('exceptional total payoff'), 'total_exceptional_payoff'),),
                                          ((_('exceptional total owner'), 'total_exceptional_owner'), )],
-                  _("004@callfunds"): ['callfunds_set', 'payoff_set'],
+                  _("007@callfunds"): ['callfunds_set', 'payoff_set'],
                   }
         if Params.getvalue("condominium-old-accounting"):
-            del fields[_("002@Situation")][3]
-            del fields[_("003@Exceptional")][4]
-            del fields[_("003@Exceptional")][3]
-            del fields[_("003@Exceptional")][2]
-            del fields[_("003@Exceptional")][1]
+            del fields[_("005@Situation")][3]
+            del fields[_("006@Exceptional")][4]
+            del fields[_("006@Exceptional")][3]
+            del fields[_("006@Exceptional")][2]
+            del fields[_("006@Exceptional")][1]
+        fields[_("001@Information")].append(((_('name'), 'third'),))
+        fields[_("001@Information")].extend(get_subfield_show(AbstractContact.get_show_fields(), "third.contact"))
+        fields[_("001@Information")].extend(get_subfield_show(Third.get_fields_to_show(), "third"))
+        fields[_("001@Information")].append("information")
         return fields
 
     @classmethod
@@ -520,6 +529,18 @@ class Owner(Supporting):
         if is_new:
             for setitem in Set.objects.all():
                 Partition.objects.create(set=setitem, owner=self)
+
+    @property
+    def thirdinitial(self):
+        if self.date_begin is None:
+            self.set_dates()
+        return format_devise(self.third.get_total(self.date_begin, False), 5)
+
+    @property
+    def entryline_set(self):
+        if self.date_begin is None:
+            self.set_dates()
+        return EntryLineAccount.objects.filter(Q(third=self.third) & Q(entry__date_value__gte=self.date_begin) & Q(entry__date_value__lte=self.date_end))
 
     @property
     def thirdtotal(self):
@@ -814,6 +835,44 @@ class Partition(LucteriosModel):
         verbose_name_plural = _("divisions")
         default_permissions = []
         ordering = ['owner__third_id', 'set_id']
+
+
+class OwnerLink(LucteriosModel):
+    name = models.CharField(_('name'), max_length=50, unique=True)
+
+    def __str__(self):
+        return self.name
+
+    @classmethod
+    def get_default_fields(cls):
+        return ["name"]
+
+    class Meta(object):
+        verbose_name = _('owner link')
+        verbose_name_plural = _('owner links')
+        default_permissions = []
+
+
+class OwnerContact(LucteriosModel):
+    owner = models.ForeignKey(Owner, verbose_name=_('owner'), null=False, db_index=True, on_delete=models.CASCADE)
+    contact = models.ForeignKey(AbstractContact, verbose_name=_('contact'), null=False, db_index=True, on_delete=models.CASCADE)
+    link = models.ForeignKey(OwnerLink, verbose_name=_('owner link'), null=False, db_index=True, on_delete=models.PROTECT)
+
+    def __str__(self):
+        return six.text_type(self.contact)
+
+    @classmethod
+    def get_default_fields(cls):
+        return ["contact", "link", "contact.email", "contact.tel1", "contact.tel2"]
+
+    @classmethod
+    def get_edit_fields(cls):
+        return ["contact", "link"]
+
+    class Meta(object):
+        verbose_name = _('owner contact')
+        verbose_name_plural = _('owner contacts')
+        default_permissions = []
 
 
 class PartitionExceptional(Partition):

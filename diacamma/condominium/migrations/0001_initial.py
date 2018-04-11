@@ -9,7 +9,7 @@ from django.conf import settings
 from lucterios.CORE.models import PrintModel
 
 
-def initial_values(*args):
+def initial_values(*_args):
     translation.activate(settings.LANGUAGE_CODE)
     PrintModel().load_model("diacamma.condominium", "CallFunds_0001", is_default=True)
 
