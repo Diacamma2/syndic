@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-11 20:13+0000\n"
+"POT-Creation-Date: 2018-04-13 14:17+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -235,7 +235,7 @@ msgstr "exceptional total owner"
 
 #: models.py:489
 msgid "007@callfunds"
-msgstr "007@callfunds"
+msgstr "007@Call of funds"
 
 #: models.py:507 models.py:973 models.py:1010 models.py:1018 models.py:1139
 #: models.py:1197 models.py:1211 printmodel/CallFunds_0001.py:150
