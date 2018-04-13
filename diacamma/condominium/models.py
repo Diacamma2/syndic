@@ -502,7 +502,10 @@ class Owner(Supporting):
 
     @classmethod
     def get_print_fields(cls):
-        fields = ["third", "information", (_('total owner'), 'thirdtotal'), (_('sum to pay'), 'sumtopay')]
+        fields = ["third", "information"]
+        fields.extend([(_('total owner initial'), 'thirdinitial'), 'entryline_set', (_('total owner'), 'thirdtotal'), (_('sum to pay'), 'sumtopay')])
+        fields.extend(['ownercontact_set'])
+        fields.extend(['propertylot_set.num', 'propertylot_set.value', 'propertylot_set.ratio', 'propertylot_set.description'])
         fields.extend(["callfunds_set.num", "callfunds_set.date",
                        "callfunds_set.comment", (_('total'), 'callfunds_set.total')])
         fields.extend(["partition_set.set.str", "partition_set.set.budget", (_('expense'), 'partition_set.set.sumexpense_txt'),
@@ -510,7 +513,6 @@ class Owner(Supporting):
         fields.extend(["exceptionnal_set.set.str", "exceptionnal_set.set.budget", (_('expense'), 'exceptionnal_set.set.sumexpense_txt'),
                        (_('total call for funds'), 'exceptionnal_set.total_callfunds'),
                        "exceptionnal_set.value", (_("ratio"), 'exceptionnal_set.ratio'), (_('ventilated'), 'exceptionnal_set.ventilated_txt')])
-        fields.extend(['propertylot_set.num', 'propertylot_set.value', 'propertylot_set.ratio', 'propertylot_set.description'])
         fields.extend(['payoff_set'])
         fields.extend([(_('current total call for funds'), 'total_current_call'), (_('current total payoff'), 'total_current_payoff'),
                        (_('current initial state'), 'total_current_initial'), (_('current total ventilated'), 'total_current_ventilated'),
