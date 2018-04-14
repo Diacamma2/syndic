@@ -52,6 +52,7 @@ from diacamma.condominium.models import Set, Partition, ExpenseDetail, Owner, Pr
     OwnerLink
 from diacamma.accounting.system import accounting_system_ident
 from lucterios.framework.error import LucteriosException, IMPORTANT
+from diacamma.condominium.system import clear_system_condo, current_system_condo
 
 
 def fill_params(self, is_mini=False, new_params=False):
@@ -423,42 +424,25 @@ def paramchange_condominium(params):
                 exp_item.expense_account = correct_accounting_code(exp_item.expense_account)
                 exp_item.save()
     accounts = ('condominium-default-owner-account', 'condominium-current-revenue-account',
+                'condominium-default-owner-account1', 'condominium-default-owner-account2',
+                'condominium-default-owner-account3', 'condominium-default-owner-account4',
+                'condominium-default-owner-account5',
                 'condominium-exceptional-revenue-account', 'condominium-fundforworks-revenue-account',
                 'condominium-exceptional-reserve-account', 'condominium-advance-reserve-account',
                 'condominium-fundforworks-reserve-account')
     for account_item in accounts:
+        has_changed = False
         if (account_item in params) or ('accounting-sizecode' in params):
             Parameter.change_value(account_item, correct_accounting_code(Params.getvalue(account_item)))
-        Params.clear()
+            system_condo = current_system_condo()
+            system_condo.owner_account_changed(account_item)
+            has_changed = True
+        if has_changed:
+            Params.clear()
     if 'accounting-system' in params:
-        system_ident = accounting_system_ident(Params.getvalue("accounting-system"))
-        if system_ident == "french":
-            Parameter.change_value('condominium-default-owner-account', correct_accounting_code('450'))
-            Parameter.change_value('condominium-default-owner-account1', correct_accounting_code('4501'))
-            Parameter.change_value('condominium-default-owner-account2', correct_accounting_code('4502'))
-            Parameter.change_value('condominium-default-owner-account3', correct_accounting_code('4503'))
-            Parameter.change_value('condominium-default-owner-account4', correct_accounting_code('4504'))
-            Parameter.change_value('condominium-default-owner-account5', correct_accounting_code('4505'))
-            Parameter.change_value('condominium-current-revenue-account', correct_accounting_code('701'))
-            Parameter.change_value('condominium-exceptional-revenue-account', correct_accounting_code('702'))
-            Parameter.change_value('condominium-fundforworks-revenue-account', correct_accounting_code('705'))
-            Parameter.change_value('condominium-exceptional-reserve-account', correct_accounting_code('120'))
-            Parameter.change_value('condominium-advance-reserve-account', correct_accounting_code('103'))
-            Parameter.change_value('condominium-fundforworks-reserve-account', correct_accounting_code('105'))
-        elif system_ident == "belgium":
-            Parameter.change_value('condominium-default-owner-account', correct_accounting_code('4101'))
-            Parameter.change_value('condominium-default-owner-account1', correct_accounting_code('4101'))
-            Parameter.change_value('condominium-default-owner-account2', correct_accounting_code('4100'))
-            Parameter.change_value('condominium-default-owner-account3', correct_accounting_code('4100'))
-            Parameter.change_value('condominium-default-owner-account4', correct_accounting_code('4101'))
-            Parameter.change_value('condominium-default-owner-account5', correct_accounting_code('4100'))
-            Parameter.change_value('condominium-current-revenue-account', correct_accounting_code('701'))
-            Parameter.change_value('condominium-exceptional-revenue-account', correct_accounting_code('700'))
-            Parameter.change_value('condominium-fundforworks-revenue-account', correct_accounting_code(''))
-            Parameter.change_value('condominium-exceptional-reserve-account', correct_accounting_code(''))
-            Parameter.change_value('condominium-advance-reserve-account', correct_accounting_code(''))
-            Parameter.change_value('condominium-fundforworks-reserve-account', correct_accounting_code(''))
-        Params.clear()
+        clear_system_condo()
+        system_condo = current_system_condo()
+        system_condo.initialize_system()
 
 
 @signal_and_lock.Signal.decorate('conf_wizard')

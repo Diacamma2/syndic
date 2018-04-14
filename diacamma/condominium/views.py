@@ -9,11 +9,9 @@ from django.db.models.query import QuerySet
 from django.db.models.functions import Concat
 from django.db.models import Q, Value
 
-from lucterios.framework.xferadvance import TITLE_MODIFY, TITLE_ADD, TITLE_EDIT, TITLE_DELETE, TITLE_PRINT,\
-    TITLE_CANCEL, TITLE_OK
+from lucterios.framework.xferadvance import TITLE_MODIFY, TITLE_ADD, TITLE_EDIT, TITLE_DELETE, TITLE_PRINT, TITLE_CANCEL, TITLE_OK
 from lucterios.framework.xferadvance import XferListEditor, XferShowEditor, XferAddEditor, XferDelete
-from lucterios.framework.xfercomponents import XferCompLabelForm, XferCompDate, XferCompGrid, XferCompButton,\
-    XferCompImage, XferCompSelect, XferCompEdit
+from lucterios.framework.xfercomponents import XferCompLabelForm, XferCompDate, XferCompButton, XferCompImage, XferCompSelect, XferCompEdit
 from lucterios.framework.xfergraphic import XferContainerAcknowledge
 from lucterios.framework.tools import FORMTYPE_NOMODAL, ActionsManage, MenuManage, WrapAction
 from lucterios.framework.tools import SELECT_SINGLE, CLOSE_NO, FORMTYPE_REFRESH, FORMTYPE_MODAL, CLOSE_YES, SELECT_MULTI
@@ -24,16 +22,16 @@ from lucterios.CORE.xferprint import XferPrintAction, XferPrintReporting
 from lucterios.CORE.models import Parameter
 
 from lucterios.contacts.models import Individual, LegalEntity, AbstractContact
+from lucterios.contacts.tools import ContactSelection
 
 from diacamma.accounting.models import AccountThird, FiscalYear
 from diacamma.accounting.tools import correct_accounting_code, format_devise
 from diacamma.payoff.views import PayoffAddModify
 from diacamma.payoff.models import Payoff
 
-from diacamma.condominium.models import PropertyLot, Owner, Set, SetCost, convert_accounting, ventilate_result,\
-    OwnerContact
+from diacamma.condominium.models import PropertyLot, Owner, Set, SetCost, convert_accounting, OwnerContact
 from diacamma.condominium.views_classload import fill_params
-from lucterios.contacts.tools import ContactSelection
+from diacamma.condominium.system import current_system_condo
 
 
 @MenuManage.describ('condominium.change_set', FORMTYPE_NOMODAL, 'condominium.manage', _('Manage of owners and property lots'))
@@ -569,4 +567,4 @@ def finalizeyear_condo(xfer):
                     set_cost.set.ventilate_costaccounting(set_cost.cost_accounting, 1,
                                                           Params.getvalue("condominium-current-revenue-account"))
                 set_cost.cost_accounting.close()
-            ventilate_result(year, ventilate)
+            current_system_condo().ventilate_result(year, ventilate)

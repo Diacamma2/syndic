@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-13 14:52+0000\n"
+"POT-Creation-Date: 2018-04-14 10:25+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -34,20 +34,20 @@ msgid "(c) GPL Licence"
 msgstr "(c) GPL Licence"
 
 #: migrations/0001_initial.py:35
-msgid "president"
-msgstr "president"
+msgid "president of council"
+msgstr "president of council"
 
 #: migrations/0001_initial.py:36
-msgid "treasurer"
-msgstr "treasurer"
+msgid "auditor"
+msgstr "auditor"
 
 #: migrations/0001_initial.py:37
-msgid "secretary"
-msgstr "secretary"
+msgid "secretary of council"
+msgstr "secretary of council"
 
 #: migrations/0001_initial.py:38
-msgid "special adviser"
-msgstr "special adviser"
+msgid "member of council"
+msgstr "member of council"
 
 #: migrations/0001_initial.py:39
 msgid "enterprise"

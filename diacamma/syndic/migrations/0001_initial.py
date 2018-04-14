@@ -32,10 +32,10 @@ from diacamma.accounting.models import Journal
 
 
 def initial_values(*args):
-    Function.objects.create(name=_('president'))
-    Function.objects.create(name=_('treasurer'))
-    Function.objects.create(name=_('secretary'))
-    Function.objects.create(name=_('special adviser'))
+    Function.objects.create(name=_('president of council'))
+    Function.objects.create(name=_('auditor'))
+    Function.objects.create(name=_('secretary of council'))
+    Function.objects.create(name=_('member of council'))
     StructureType.objects.create(name=_('enterprise'))
     StructureType.objects.create(name=_('association'))
 
