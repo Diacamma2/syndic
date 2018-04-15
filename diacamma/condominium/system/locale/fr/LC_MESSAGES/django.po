@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-14 10:25+0000\n"
+"POT-Creation-Date: 2018-04-15 12:16+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,27 +18,26 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: system/belgium.py:70 system/french.py:68
+#: system/belgium.py:86 system/french.py:79
 msgid "incorrect account for call of found"
 msgstr "compte incorrect pour l'appel de fonds !"
 
-#: system/belgium.py:86 system/belgium.py:90 system/french.py:83
-#: system/french.py:106 system/french.py:110
+#: system/belgium.py:102 system/belgium.py:106 system/french.py:94
+#: system/french.py:117 system/french.py:121
 #, python-format
 msgid "code account %s unknown!"
 msgstr "code comptable %s non trouvé !"
 
-#: system/belgium.py:104 system/belgium.py:119 system/french.py:92
-#: system/french.py:124 system/french.py:139
+#: system/belgium.py:120 system/belgium.py:135 system/french.py:103
+#: system/french.py:135 system/french.py:150
 msgid "Error in accounting generator!"
 msgstr "Erreur dans la génération comptable !"
 
-#: system/belgium.py:129 system/french.py:149
+#: system/default.py:60 system/default.py:63 system/default.py:66
+msgid "This system condomium is not implemented"
+msgstr "Ce système de copropriété n'est pas implémenté !"
+
+#: system/default.py:76 system/default.py:101
 #, python-format
 msgid "Ventilation for %s"
 msgstr "Ventilation pour %s"
-
-#: system/default.py:39 system/default.py:42 system/default.py:45
-#: system/default.py:48
-msgid "This system condomium is not implemented"
-msgstr "Ce système de copropriété n'est pas implémenté !"

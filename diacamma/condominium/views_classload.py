@@ -36,7 +36,8 @@ from lucterios.framework.xferadvance import XferDelete
 from lucterios.framework.tools import ActionsManage, MenuManage, WrapAction, FORMTYPE_REFRESH, CLOSE_NO, SELECT_SINGLE
 from lucterios.framework.tools import FORMTYPE_NOMODAL, FORMTYPE_MODAL, CLOSE_YES, SELECT_MULTI
 from lucterios.framework.xfercomponents import XferCompButton, XferCompImage, XferCompLabelForm, XferCompCheck, XferCompSelect
-from lucterios.framework.xfergraphic import XferContainerCustom, XferContainerAcknowledge
+from lucterios.framework.xfergraphic import XferContainerAcknowledge
+from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.framework import signal_and_lock
 from lucterios.CORE.models import Parameter
 from lucterios.CORE.parameters import Params
@@ -48,23 +49,13 @@ from diacamma.accounting.models import CostAccounting, FiscalYear
 from diacamma.accounting.views_budget import BudgetList
 from diacamma.accounting.views_reports import CostAccountingIncomeStatement
 
-from diacamma.condominium.models import Set, Partition, ExpenseDetail, Owner, PropertyLot, SetCost,\
-    OwnerLink
-from diacamma.accounting.system import accounting_system_ident
-from lucterios.framework.error import LucteriosException, IMPORTANT
+from diacamma.condominium.models import Set, Partition, ExpenseDetail, Owner, PropertyLot, SetCost, OwnerLink
 from diacamma.condominium.system import clear_system_condo, current_system_condo
 
 
 def fill_params(self, is_mini=False, new_params=False):
-    if Params.getvalue("condominium-old-accounting") and not new_params:
-        param_lists = ['condominium-default-owner-account']
-    else:
-        param_lists = ['condominium-default-owner-account1', 'condominium-default-owner-account2',
-                       'condominium-default-owner-account3', 'condominium-default-owner-account4',
-                       'condominium-default-owner-account5',
-                       'condominium-current-revenue-account', 'condominium-exceptional-revenue-account',
-                       'condominium-fundforworks-revenue-account', 'condominium-exceptional-reserve-account',
-                       'condominium-advance-reserve-account', 'condominium-fundforworks-reserve-account']
+    system_condo = current_system_condo()
+    param_lists = system_condo.get_config_params(new_params)
     Params.fill(self, param_lists, 1, self.get_max_row() + 1, nb_col=2)
     btn = XferCompButton('editparam')
     btn.set_location(1, self.get_max_row() + 1, 2, 1)
@@ -445,6 +436,12 @@ def paramchange_condominium(params):
         system_condo.initialize_system()
 
 
+@signal_and_lock.Signal.decorate('get_param_titles')
+def paramtitles_condomium(names, titles):
+    system_condo = current_system_condo()
+    titles.update(system_condo.get_param_titles(names))
+
+
 @signal_and_lock.Signal.decorate('conf_wizard')
 def conf_wizard_condominium(wizard_ident, xfer):
     if isinstance(wizard_ident, list) and (xfer is None):
@@ -461,6 +458,10 @@ def conf_wizard_condominium(wizard_ident, xfer):
     elif (xfer is not None) and (wizard_ident == "condominium_lot"):
         xfer.add_title(_("Diacamma condominium"), _("Property lots"), _('Define the lots for each owners.'))
         xfer.fill_grid(xfer.get_max_row(), PropertyLot, 'propertylot', PropertyLot.objects.all())
+        lbl = XferCompLabelForm("total_lot")
+        lbl.set_location(0, xfer.get_max_row() + 1)
+        lbl.set_value(_("Total of lot parts: %d") % PropertyLot.get_total_part())
+        xfer.add_component(lbl)
     elif (xfer is not None) and (wizard_ident == "condominium_classload"):
         xfer.add_title(_("Diacamma condominium"), _("Class loads"), _('Define the class loads of your condominium.'))
         xfer.fill_grid(xfer.get_max_row(), Set, 'set', Set.objects.all())

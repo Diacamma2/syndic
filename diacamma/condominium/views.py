@@ -272,6 +272,7 @@ class OwnerVentilatePay(XferContainerAcknowledge):
                 payoff.delete()
 
 
+@ActionsManage.affect_grid(TITLE_PRINT, "images/print.png", unique=SELECT_MULTI)
 @ActionsManage.affect_show(TITLE_PRINT, "images/print.png", close=CLOSE_NO)
 @MenuManage.describ('condominium.change_owner')
 class OwnerReport(XferPrintReporting):
@@ -280,6 +281,9 @@ class OwnerReport(XferPrintReporting):
     model = Owner
     field_id = 'owner'
     caption = _("Print owner")
+
+    def items_callback(self):
+        return self.items
 
     def get_print_name(self):
         if len(self.items) == 1:
@@ -564,7 +568,6 @@ def finalizeyear_condo(xfer):
         elif xfer.observer_name == "core.acknowledge":
             for set_cost in year.setcost_set.filter(year=year, set__is_active=True, set__type_load=0):
                 if ventilate == 0:
-                    set_cost.set.ventilate_costaccounting(set_cost.cost_accounting, 1,
-                                                          Params.getvalue("condominium-current-revenue-account"))
+                    current_system_condo().ventilate_costaccounting(set_cost.set, set_cost.cost_accounting, 1, Params.getvalue("condominium-current-revenue-account"))
                 set_cost.cost_accounting.close()
             current_system_condo().ventilate_result(year, ventilate)

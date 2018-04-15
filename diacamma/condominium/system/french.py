@@ -23,7 +23,6 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 from django.utils.translation import ugettext_lazy as _
-from django.db.models.aggregates import Sum
 
 from lucterios.framework.error import LucteriosException, IMPORTANT, GRAVE
 from lucterios.CORE.models import Parameter
@@ -31,10 +30,10 @@ from lucterios.CORE.parameters import Params
 
 from diacamma.accounting.tools import correct_accounting_code, currency_round, current_system_account
 from diacamma.accounting.models import ChartsAccount, EntryAccount, EntryLineAccount, Journal
-from diacamma.condominium.models import Owner, PropertyLot
+from diacamma.condominium.system.default import DefaultSystemCondo
 
 
-class FrenchSystemCondo(object):
+class FrenchSystemCondo(DefaultSystemCondo):
 
     def initialize_system(self):
         Parameter.change_value('condominium-default-owner-account', correct_accounting_code('450'))
@@ -50,6 +49,18 @@ class FrenchSystemCondo(object):
         Parameter.change_value('condominium-advance-reserve-account', correct_accounting_code('103'))
         Parameter.change_value('condominium-fundforworks-reserve-account', correct_accounting_code('105'))
         Params.clear()
+
+    def get_config_params(self, new_params):
+        if Params.getvalue("condominium-old-accounting") and not new_params:
+            param_lists = ['condominium-default-owner-account']
+        else:
+            param_lists = ['condominium-default-owner-account1', 'condominium-default-owner-account2',
+                           'condominium-default-owner-account3', 'condominium-default-owner-account4',
+                           'condominium-default-owner-account5',
+                           'condominium-current-revenue-account', 'condominium-exceptional-revenue-account',
+                           'condominium-fundforworks-revenue-account', 'condominium-exceptional-reserve-account',
+                           'condominium-advance-reserve-account', 'condominium-fundforworks-reserve-account']
+        return param_lists
 
     def generate_account_callfunds(self, call_funds, fiscal_year):
         owner_account_filter = call_funds.supporting.get_third_mask()
@@ -139,37 +150,3 @@ class FrenchSystemCondo(object):
             raise LucteriosException(GRAVE, _("Error in accounting generator!") +
                                      "{[br/]} no_change=%s debit_rest=%.3f credit_rest=%.3f" % (no_change, debit_rest, credit_rest))
         expense.entries = EntryAccount.objects.filter(id=new_entry.id)
-
-    def ventilate_result(self, fiscal_year, ventilate):
-        Owner.throw_not_allowed()
-        result = fiscal_year.total_revenue - fiscal_year.total_expense
-        if abs(result) > 0.001:
-            total_part = PropertyLot.get_total_part()
-            if total_part > 0:
-                close_entry = EntryAccount(year=fiscal_year, designation=_("Ventilation for %s") % fiscal_year, journal_id=5)
-                close_entry.check_date()
-                close_entry.save()
-                if ventilate == 0:
-                    amount = 0
-                    biggerowner_val = 0
-                    biggerowner_line = None
-                    for owner in Owner.objects.all():
-                        total = owner.propertylot_set.aggregate(sum=Sum('value'))
-                        if ('sum' in total.keys()) and (total['sum'] is not None):
-                            value = currency_round(result * total['sum'] / total_part)
-                            if abs(value) > 0.0001:
-                                owner_account = owner.third.get_account(fiscal_year, owner.get_third_mask(1))
-                                last_line = EntryLineAccount.objects.create(account=owner_account, amount=-1 * value, entry=close_entry, third=owner.third)
-                                if biggerowner_val < total['sum']:
-                                    biggerowner_val = total['sum']
-                                    biggerowner_line = last_line
-                                amount += value
-                    diff = currency_round(result - amount)
-                    if abs(diff) > 0.0001:
-                        biggerowner_line.amount -= diff
-                        biggerowner_line.save()
-                else:
-                    EntryLineAccount.objects.create(account_id=ventilate, amount=result, entry=close_entry)
-                reserve_account = ChartsAccount.get_account(Params.getvalue("condominium-current-revenue-account"), fiscal_year)
-                EntryLineAccount.objects.create(account=reserve_account, amount=-1 * result, entry=close_entry)
-                close_entry.closed()
