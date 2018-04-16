@@ -29,14 +29,14 @@ from lucterios.framework.test import LucteriosTest
 from lucterios.framework.xfergraphic import XferContainerAcknowledge
 from lucterios.framework.filetools import get_user_dir
 
-from diacamma.accounting.test_tools import initial_thirds, default_compta, default_costaccounting
+from diacamma.accounting.test_tools import initial_thirds_fr, default_compta_fr, default_costaccounting
 from diacamma.accounting.views_entries import EntryAccountList, EntryAccountClose
 from diacamma.accounting.views import ThirdShow
 
-from diacamma.payoff.test_tools import default_bankaccount, PaymentTest
+from diacamma.payoff.test_tools import default_bankaccount_fr, PaymentTest
 from diacamma.payoff.views import SupportingThirdValid, PayoffAddModify
 
-from diacamma.condominium.test_tools import default_setowner, old_accounting
+from diacamma.condominium.test_tools import default_setowner_fr, old_accounting
 from diacamma.condominium.views_expense import ExpenseList,\
     ExpenseAddModify, ExpenseDel, ExpenseShow, ExpenseDetailAddModify,\
     ExpenseTransition, ExpenseMultiPay
@@ -46,12 +46,12 @@ class ExpenseTest(PaymentTest):
 
     def setUp(self):
         self.xfer_class = XferContainerAcknowledge
-        initial_thirds()
+        initial_thirds_fr()
         PaymentTest.setUp(self)
-        default_compta(with12=False)
+        default_compta_fr(with12=False)
         default_costaccounting()
-        default_bankaccount()
-        default_setowner()
+        default_bankaccount_fr()
+        default_setowner_fr()
         rmtree(get_user_dir(), True)
 
     def test_create(self):
@@ -796,13 +796,13 @@ class ExpenseTestOldAccounting(LucteriosTest):
 
     def setUp(self):
         self.xfer_class = XferContainerAcknowledge
-        initial_thirds()
+        initial_thirds_fr()
         LucteriosTest.setUp(self)
         old_accounting()
-        default_compta(with12=False)
+        default_compta_fr(with12=False)
         default_costaccounting()
-        default_bankaccount()
-        default_setowner()
+        default_bankaccount_fr()
+        default_setowner_fr()
         rmtree(get_user_dir(), True)
 
     def test_valid_current(self):

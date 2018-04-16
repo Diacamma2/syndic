@@ -30,25 +30,30 @@ from lucterios.CORE.parameters import Params
 from lucterios.contacts.models import CustomField
 
 from diacamma.accounting.tools import correct_accounting_code, currency_round, current_system_account
-from diacamma.accounting.models import ChartsAccount, EntryAccount, EntryLineAccount, Journal
+from diacamma.accounting.models import ChartsAccount, EntryAccount, EntryLineAccount, Journal,\
+    FiscalYear
 from diacamma.condominium.system.default import DefaultSystemCondo
+from diacamma.condominium.models import CallFunds, Set, CallDetail
+from lucterios.framework.tools import same_day_months_after
+from lucterios.framework.models import get_value_converted
 
 
 class BelgiumSystemCondo(DefaultSystemCondo):
 
     def initialize_system(self):
         Parameter.change_value('condominium-default-owner-account', correct_accounting_code('4101'))
-        Parameter.change_value('condominium-default-owner-account1', correct_accounting_code('4101'))
-        Parameter.change_value('condominium-default-owner-account2', correct_accounting_code('4100'))
-        Parameter.change_value('condominium-default-owner-account3', correct_accounting_code('4100'))
+        Parameter.change_value('condominium-default-owner-account1', correct_accounting_code('4100'))
+        Parameter.change_value('condominium-default-owner-account2', correct_accounting_code('4101'))
+        Parameter.change_value('condominium-default-owner-account3', correct_accounting_code('4101'))
         Parameter.change_value('condominium-default-owner-account4', correct_accounting_code('4101'))
-        Parameter.change_value('condominium-default-owner-account5', correct_accounting_code('4100'))
-        Parameter.change_value('condominium-current-revenue-account', correct_accounting_code('701'))
-        Parameter.change_value('condominium-exceptional-revenue-account', correct_accounting_code('700'))
+        Parameter.change_value('condominium-default-owner-account5', correct_accounting_code('4101'))
+        Parameter.change_value('condominium-current-revenue-account', correct_accounting_code('700'))
+        Parameter.change_value('condominium-exceptional-revenue-account', correct_accounting_code('701'))
         Parameter.change_value('condominium-fundforworks-revenue-account', correct_accounting_code('160'))
         Parameter.change_value('condominium-exceptional-reserve-account', correct_accounting_code('160'))
         Parameter.change_value('condominium-advance-reserve-account', correct_accounting_code('160'))
         Parameter.change_value('condominium-fundforworks-reserve-account', correct_accounting_code('160'))
+        Parameter.change_value('condominium-mode-current-callfunds', 1)
         Params.clear()
         CustomField.objects.get_or_create(modelname='accounting.Third', name='IBAN', kind=0, args="{'multi': False}")
         CustomField.objects.get_or_create(modelname='accounting.Third', name='SWIFT', kind=0, args="{'multi': False}")
@@ -58,7 +63,8 @@ class BelgiumSystemCondo(DefaultSystemCondo):
                        'condominium-default-owner-account3', 'condominium-default-owner-account5',
                        'condominium-current-revenue-account', 'condominium-exceptional-revenue-account',
                        'condominium-fundforworks-revenue-account', 'condominium-exceptional-reserve-account',
-                       'condominium-advance-reserve-account', 'condominium-fundforworks-reserve-account']
+                       'condominium-advance-reserve-account', 'condominium-fundforworks-reserve-account',
+                       'condominium-mode-current-callfunds']
         return param_lists
 
     def get_param_titles(self, names):
@@ -68,6 +74,27 @@ class BelgiumSystemCondo(DefaultSystemCondo):
             if name in params:
                 titles[name] = _(name)
         return titles
+
+    def get_callfunds_list(self):
+        return [(0, _('current')), (1, _('exceptional'))]
+
+    def CurrentCallFundsAdding(self, to_create):
+        nb_seq = 0
+        if Params.getvalue("condominium-mode-current-callfunds") == 0:
+            nb_seq = 4
+        if Params.getvalue("condominium-mode-current-callfunds") == 1:
+            nb_seq = 12
+        year = FiscalYear.get_current()
+        calls = CallFunds.objects.filter(date__gte=year.begin, date__lte=year.end, type_call=0)
+        nb_curent = len(calls)
+        if to_create:
+            year = FiscalYear.get_current()
+            date = same_day_months_after(year.begin, int(nb_curent * 12 / nb_seq))
+            new_call = CallFunds.objects.create(date=date, comment=_("Call of funds #%(num)d of year from %(begin)s to %(end)s") % {'num': nb_curent + 1, 'begin': get_value_converted(year.begin), 'end': get_value_converted(year.end)}, type_call=0, status=0)
+            for category in Set.objects.filter(type_load=0, is_active=True):
+                CallDetail.objects.create(set=category, callfunds=new_call, price=category.get_new_current_callfunds(), designation=_("%(type)s - #%(num)d") % {'type': _('current'), 'num': nb_curent + 1})
+        else:
+            return nb_curent < nb_seq
 
     def generate_account_callfunds(self, call_funds, fiscal_year):
         owner_account_filter = call_funds.supporting.get_third_mask()

@@ -53,6 +53,12 @@ class DefaultSystemCondo(object):
                 titles[name] = _(name)
         return titles
 
+    def get_callfunds_list(self):
+        return {}
+
+    def CurrentCallFundsAdding(self):
+        return False
+
     def owner_account_changed(self, account_item):
         pass
 

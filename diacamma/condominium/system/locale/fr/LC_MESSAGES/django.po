@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-15 12:16+0000\n"
+"POT-Creation-Date: 2018-04-16 21:10+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,26 +18,42 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: system/belgium.py:86 system/french.py:79
+#: system/belgium.py:75 system/french.py:68
+msgid "current"
+msgstr "charge courante"
+
+#: system/belgium.py:75 system/french.py:68
+msgid "exceptional"
+msgstr "charge exceptionnelle"
+
+#: system/belgium.py:91 system/french.py:85
 msgid "incorrect account for call of found"
 msgstr "compte incorrect pour l'appel de fonds !"
 
-#: system/belgium.py:102 system/belgium.py:106 system/french.py:94
-#: system/french.py:117 system/french.py:121
+#: system/belgium.py:107 system/belgium.py:111 system/french.py:100
+#: system/french.py:123 system/french.py:127
 #, python-format
 msgid "code account %s unknown!"
 msgstr "code comptable %s non trouvé !"
 
-#: system/belgium.py:120 system/belgium.py:135 system/french.py:103
-#: system/french.py:135 system/french.py:150
+#: system/belgium.py:125 system/belgium.py:140 system/french.py:109
+#: system/french.py:141 system/french.py:156
 msgid "Error in accounting generator!"
 msgstr "Erreur dans la génération comptable !"
 
-#: system/default.py:60 system/default.py:63 system/default.py:66
+#: system/default.py:63 system/default.py:66 system/default.py:69
 msgid "This system condomium is not implemented"
 msgstr "Ce système de copropriété n'est pas implémenté !"
 
-#: system/default.py:76 system/default.py:101
+#: system/default.py:79 system/default.py:104
 #, python-format
 msgid "Ventilation for %s"
 msgstr "Ventilation pour %s"
+
+#: system/french.py:68
+msgid "cash advance"
+msgstr "avance de fond"
+
+#: system/french.py:68
+msgid "fund for works"
+msgstr "fond travaux"

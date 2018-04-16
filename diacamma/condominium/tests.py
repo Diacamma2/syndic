@@ -32,19 +32,19 @@ from lucterios.framework.test import LucteriosTest
 from lucterios.framework.xfergraphic import XferContainerAcknowledge
 from lucterios.framework.filetools import get_user_dir
 
-from diacamma.accounting.test_tools import initial_thirds, default_compta, default_costaccounting
+from diacamma.accounting.test_tools import initial_thirds_fr, default_compta_fr, default_costaccounting
 from diacamma.accounting.views import ThirdShow
 from diacamma.accounting.models import EntryAccount, FiscalYear
 from diacamma.accounting.views_entries import EntryAccountList
 from diacamma.accounting.views_accounts import FiscalYearClose, FiscalYearBegin, FiscalYearReportLastYear
 from diacamma.accounting.views_other import CostAccountingList
 
-from diacamma.payoff.test_tools import default_bankaccount, default_paymentmethod, PaymentTest
+from diacamma.payoff.test_tools import default_bankaccount_fr, default_paymentmethod, PaymentTest
 from diacamma.payoff.views import PayableShow, PayableEmail
 
 from diacamma.condominium.views_classload import SetList, SetAddModify, SetDel, SetShow, PartitionAddModify, CondominiumConf, SetClose
 from diacamma.condominium.views import OwnerAndPropertyLotList, OwnerAdd, OwnerDel, OwnerShow, PropertyLotAddModify, CondominiumConvert
-from diacamma.condominium.test_tools import default_setowner, add_test_callfunds, old_accounting, add_test_expenses, init_compta, add_years
+from diacamma.condominium.test_tools import default_setowner_fr, add_test_callfunds, old_accounting, add_test_expenses, init_compta, add_years
 from diacamma.condominium.views_report import FinancialStatus, GeneralManageAccounting, CurrentManageAccounting, ExceptionalManageAccounting
 
 
@@ -52,17 +52,17 @@ class SetOwnerTest(LucteriosTest):
 
     def setUp(self):
         self.xfer_class = XferContainerAcknowledge
-        initial_thirds()
+        initial_thirds_fr()
         LucteriosTest.setUp(self)
-        default_compta(with12=False)
-        default_bankaccount()
+        default_compta_fr(with12=False)
+        default_bankaccount_fr()
         rmtree(get_user_dir(), True)
 
     def test_config(self):
         self.factory.xfer = CondominiumConf()
         self.calljson('/diacamma.condominium/condominiumConf', {}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'condominiumConf')
-        self.assert_count_equal('', 2 + 14 + 2)
+        self.assert_count_equal('', 2 + 15 + 2)
         self.assert_json_equal('LABELFORM', 'condominium-default-owner-account1', '4501')
         self.assert_json_equal('LABELFORM', 'condominium-default-owner-account2', '4502')
         self.assert_json_equal('LABELFORM', 'condominium-default-owner-account3', '4503')
@@ -74,6 +74,7 @@ class SetOwnerTest(LucteriosTest):
         self.assert_json_equal('LABELFORM', 'condominium-exceptional-reserve-account', '120')
         self.assert_json_equal('LABELFORM', 'condominium-advance-reserve-account', '103')
         self.assert_json_equal('LABELFORM', 'condominium-fundforworks-reserve-account', '105')
+        self.assert_json_equal('LABELFORM', 'condominium-mode-current-callfunds', 'trimestrielle')
         self.assert_count_equal('ownerlink', 4)
 
     def test_config_old_accounting(self):
@@ -243,7 +244,7 @@ class SetOwnerTest(LucteriosTest):
         self.assert_json_equal('', 'accountthird/@2/code', '450')
 
     def test_add_propertylot(self):
-        default_setowner(with_lots=False)
+        default_setowner_fr(with_lots=False)
         self.factory.xfer = OwnerAndPropertyLotList()
         self.calljson('/diacamma.condominium/ownerAndPropertyLotList', {}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'ownerAndPropertyLotList')
@@ -462,11 +463,11 @@ class ReportTest(PaymentTest):
 
     def setUp(self):
         self.xfer_class = XferContainerAcknowledge
-        initial_thirds()
+        initial_thirds_fr()
         LucteriosTest.setUp(self)
-        default_compta(with12=False)
-        default_bankaccount()
-        default_setowner()
+        default_compta_fr(with12=False)
+        default_bankaccount_fr()
+        default_setowner_fr()
         rmtree(get_user_dir(), True)
         add_years()
         init_compta()
@@ -574,12 +575,12 @@ class OwnerTest(PaymentTest):
     def setUp(self):
         # six.print_('>> %s' % self._testMethodName)
         self.xfer_class = XferContainerAcknowledge
-        initial_thirds()
+        initial_thirds_fr()
         LucteriosTest.setUp(self)
-        default_compta(with12=False)
+        default_compta_fr(with12=False)
         default_costaccounting()
-        default_bankaccount()
-        default_setowner()
+        default_bankaccount_fr()
+        default_setowner_fr()
         rmtree(get_user_dir(), True)
 
     def tearDown(self):
@@ -971,13 +972,13 @@ class OwnerTestOldAccounting(PaymentTest):
 
     def setUp(self):
         self.xfer_class = XferContainerAcknowledge
-        initial_thirds()
+        initial_thirds_fr()
         old_accounting()
         LucteriosTest.setUp(self)
-        default_compta(with12=False)
+        default_compta_fr(with12=False)
         default_costaccounting()
-        default_bankaccount()
-        default_setowner()
+        default_bankaccount_fr()
+        default_setowner_fr()
         rmtree(get_user_dir(), True)
 
     def test_payment_paypal_owner(self):
@@ -1032,7 +1033,7 @@ class OwnerTestOldAccounting(PaymentTest):
         self.factory.xfer = CondominiumConvert()
         self.calljson('/diacamma.condominium/condominiumConvert', {}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'condominiumConvert')
-        self.assert_count_equal('', 19)
+        self.assert_count_equal('', 20)
         self.assert_attrib_equal('code_450', 'description', '450')
         self.assert_select_equal('code_450', 6)  # nb=6
 

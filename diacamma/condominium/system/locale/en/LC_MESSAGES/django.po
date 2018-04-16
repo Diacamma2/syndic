@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-15 12:16+0000\n"
+"POT-Creation-Date: 2018-04-16 21:10+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,26 +17,42 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: system/belgium.py:86 system/french.py:79
+#: system/belgium.py:75 system/french.py:68
+msgid "current"
+msgstr "current"
+
+#: system/belgium.py:75 system/french.py:68
+msgid "exceptional"
+msgstr "exceptional"
+
+#: system/belgium.py:91 system/french.py:85
 msgid "incorrect account for call of found"
 msgstr "incorrect account for call of found"
 
-#: system/belgium.py:102 system/belgium.py:106 system/french.py:94
-#: system/french.py:117 system/french.py:121
+#: system/belgium.py:107 system/belgium.py:111 system/french.py:100
+#: system/french.py:123 system/french.py:127
 #, python-format
 msgid "code account %s unknown!"
 msgstr "code account %s unknown!"
 
-#: system/belgium.py:120 system/belgium.py:135 system/french.py:103
-#: system/french.py:135 system/french.py:150
+#: system/belgium.py:125 system/belgium.py:140 system/french.py:109
+#: system/french.py:141 system/french.py:156
 msgid "Error in accounting generator!"
 msgstr "Error in accounting generator!"
 
-#: system/default.py:60 system/default.py:63 system/default.py:66
+#: system/default.py:63 system/default.py:66 system/default.py:69
 msgid "This system condomium is not implemented"
 msgstr "This system condomium is not implemented"
 
-#: system/default.py:76 system/default.py:101
+#: system/default.py:79 system/default.py:104
 #, python-format
 msgid "Ventilation for %s"
 msgstr "Ventilation for %s"
+
+#: system/french.py:68
+msgid "cash advance"
+msgstr "cash advance"
+
+#: system/french.py:68
+msgid "fund for works"
+msgstr "fund for works"

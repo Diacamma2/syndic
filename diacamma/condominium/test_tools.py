@@ -34,24 +34,18 @@ from diacamma.condominium.models import Set, Owner, Partition, CallFunds, CallDe
     PropertyLot
 
 
-def default_setowner(with_lots=True):
+def _set_budget(setitem, code, amount):
+    year = FiscalYear.get_current()
+    cost = setitem.current_cost_accounting
+    Budget.objects.create(cost_accounting=cost, year=year, code=code, amount=amount)
+    setitem.change_budget_product(cost, year.id)
+
+
+def _create_owners(set1, set2, set3, set4, with_lots=True):
     def set_partition(setpart, owner, value):
         part = Partition.objects.get(set=setpart, owner=owner)
         part.value = value
         part.save()
-
-    def set_budget(setitem, code, amount):
-        year = FiscalYear.get_current()
-        cost = setitem.current_cost_accounting
-        Budget.objects.create(cost_accounting=cost, year=year, code=code, amount=amount)
-        setitem.change_budget_product(cost, year.id)
-    if Params.getvalue("condominium-old-accounting"):
-        create_account(['450'], 0, FiscalYear.get_current())
-    else:
-        create_account(['4501', '4502', '4503', '4504', '4505'], 0, FiscalYear.get_current())
-    create_account(['120', '103', '105'], 2, FiscalYear.get_current())
-    create_account(['702'], 3, FiscalYear.get_current())
-
     owner1 = Owner.objects.create(third_id=4)
     owner1.editor.before_save(None)
     owner1.save()
@@ -65,17 +59,6 @@ def default_setowner(with_lots=True):
         PropertyLot.objects.create(num=1, value=45.0, description="Appart A", owner=owner1)
         PropertyLot.objects.create(num=2, value=35.0, description="Appart B", owner=owner2)
         PropertyLot.objects.create(num=3, value=20.0, description="Appart C", owner=owner3)
-
-    set1 = Set.objects.create(name="AAA", budget=1000, revenue_account='701', is_link_to_lots=with_lots, type_load=0)
-    set_budget(set1, '604', 1000)
-    set2 = Set.objects.create(name="BBB", budget=100, revenue_account='701', type_load=0)
-    set_budget(set2, '604', 100)
-    set3 = Set.objects.create(name="CCC", budget=500, revenue_account='702', type_load=1)
-    set_budget(set3, '604', 500)
-    set4 = Set.objects.create(name="OLD", budget=100, revenue_account='702', type_load=1, is_active=False)
-    set_budget(set4, '602', 100)
-
-    if with_lots:
         set1.set_of_lots = PropertyLot.objects.all()
         set1.save()
     else:
@@ -91,6 +74,39 @@ def default_setowner(with_lots=True):
     set_partition(setpart=set4, owner=owner1, value=45.0)
     set_partition(setpart=set4, owner=owner2, value=35.0)
     set_partition(setpart=set4, owner=owner3, value=20.0)
+
+
+def default_setowner_fr(with_lots=True):
+    if Params.getvalue("condominium-old-accounting"):
+        create_account(['450'], 0, FiscalYear.get_current())
+    else:
+        create_account(['4501', '4502', '4503', '4504', '4505'], 0, FiscalYear.get_current())
+    create_account(['120', '103', '105'], 2, FiscalYear.get_current())
+    create_account(['702'], 3, FiscalYear.get_current())
+    set1 = Set.objects.create(name="AAA", budget=1000, revenue_account='701', is_link_to_lots=with_lots, type_load=0)
+    _set_budget(set1, '604', 1000)
+    set2 = Set.objects.create(name="BBB", budget=100, revenue_account='701', type_load=0)
+    _set_budget(set2, '604', 100)
+    set3 = Set.objects.create(name="CCC", budget=500, revenue_account='702', type_load=1)
+    _set_budget(set3, '604', 500)
+    set4 = Set.objects.create(name="OLD", budget=100, revenue_account='702', type_load=1, is_active=False)
+    _set_budget(set4, '602', 100)
+    _create_owners(set1, set2, set3, set4, with_lots)
+
+
+def default_setowner_be(with_lots=True):
+    create_account(['4100', '4101'], 0, FiscalYear.get_current())
+    create_account(['100000', '160000'], 2, FiscalYear.get_current())
+    create_account(['702000', '703000'], 3, FiscalYear.get_current())
+    set1 = Set.objects.create(name="AAA", is_link_to_lots=with_lots, type_load=0)
+    _set_budget(set1, '610', 1200)
+    set2 = Set.objects.create(name="BBB", type_load=0)
+    _set_budget(set2, '612', 120)
+    set3 = Set.objects.create(name="CCC", type_load=1)
+    _set_budget(set3, '611', 600)
+    set4 = Set.objects.create(name="OLD", type_load=1, is_active=False)
+    _set_budget(set4, '615', 120)
+    _create_owners(set1, set2, set3, set4, with_lots)
 
 
 def add_test_callfunds(simple=True, with_payoff=False):

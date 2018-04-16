@@ -64,6 +64,5 @@ def current_system_condo():
 def clear_system_condo():
     import sys
     current_module = sys.modules[__name__]
-
-    if hasattr(current_module, 'SYSTEM_ACCOUNT_CACHE'):
-        del current_module.SYSTEM_ACCOUNT_CACHE
+    if hasattr(current_module, 'SYSTEM_CONDO_CACHE'):
+        del current_module.SYSTEM_CONDO_CACHE

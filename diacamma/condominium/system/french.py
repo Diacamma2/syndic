@@ -29,8 +29,12 @@ from lucterios.CORE.models import Parameter
 from lucterios.CORE.parameters import Params
 
 from diacamma.accounting.tools import correct_accounting_code, currency_round, current_system_account
-from diacamma.accounting.models import ChartsAccount, EntryAccount, EntryLineAccount, Journal
+from diacamma.accounting.models import ChartsAccount, EntryAccount, EntryLineAccount, Journal,\
+    FiscalYear
 from diacamma.condominium.system.default import DefaultSystemCondo
+from diacamma.condominium.models import CallFunds, Set, CallDetail
+from lucterios.framework.tools import same_day_months_after
+from lucterios.framework.models import get_value_converted
 
 
 class FrenchSystemCondo(DefaultSystemCondo):
@@ -48,6 +52,7 @@ class FrenchSystemCondo(DefaultSystemCondo):
         Parameter.change_value('condominium-exceptional-reserve-account', correct_accounting_code('120'))
         Parameter.change_value('condominium-advance-reserve-account', correct_accounting_code('103'))
         Parameter.change_value('condominium-fundforworks-reserve-account', correct_accounting_code('105'))
+        Parameter.change_value('condominium-mode-current-callfunds', 0)
         Params.clear()
 
     def get_config_params(self, new_params):
@@ -59,8 +64,30 @@ class FrenchSystemCondo(DefaultSystemCondo):
                            'condominium-default-owner-account5',
                            'condominium-current-revenue-account', 'condominium-exceptional-revenue-account',
                            'condominium-fundforworks-revenue-account', 'condominium-exceptional-reserve-account',
-                           'condominium-advance-reserve-account', 'condominium-fundforworks-reserve-account']
+                           'condominium-advance-reserve-account', 'condominium-fundforworks-reserve-account',
+                           'condominium-mode-current-callfunds']
         return param_lists
+
+    def get_callfunds_list(self):
+        return [(0, _('current')), (1, _('exceptional')), (2, _('cash advance')), (4, _('fund for works'))]
+
+    def CurrentCallFundsAdding(self, to_create):
+        if to_create:
+            nb_seq = 0
+            if Params.getvalue("condominium-mode-current-callfunds") == 0:
+                nb_seq = 4
+            if Params.getvalue("condominium-mode-current-callfunds") == 1:
+                nb_seq = 12
+            year = FiscalYear.get_current()
+            for num in range(nb_seq):
+                date = same_day_months_after(year.begin, int(num * 12 / nb_seq))
+                new_call = CallFunds.objects.create(date=date, comment=_("Call of funds #%(num)d of year from %(begin)s to %(end)s") % {'num': num + 1, 'begin': get_value_converted(year.begin), 'end': get_value_converted(year.end)}, type_call=0, status=0)
+                for category in Set.objects.filter(type_load=0, is_active=True):
+                    CallDetail.objects.create(set=category, callfunds=new_call, price=category.get_current_budget() / nb_seq, designation=_("%(type)s - #%(num)d") % {'type': _('current'), 'num': num + 1})
+        else:
+            year = FiscalYear.get_current()
+            calls = CallFunds.objects.filter(date__gte=year.begin, date__lte=year.end, type_call=0)
+            return len(calls) == 0
 
     def generate_account_callfunds(self, call_funds, fiscal_year):
         owner_account_filter = call_funds.supporting.get_third_mask()

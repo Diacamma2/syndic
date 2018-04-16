@@ -29,6 +29,7 @@ from logging import getLogger
 from django.db import models
 from django.db.models import Q
 from django.db.models.aggregates import Sum, Max
+from django.db.utils import IntegrityError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.utils.translation import ugettext_lazy as _
 from django.utils import six, formats
@@ -157,8 +158,16 @@ class Set(LucteriosModel):
 
     def rename_all_cost_accounting(self):
         for setcost in self.setcost_set.all():
-            setcost.cost_accounting.name = self.get_cost_accounting_name(setcost.year)
-            setcost.cost_accounting.save()
+            try:
+                setcost.cost_accounting.name = self.get_cost_accounting_name(setcost.year)
+                setcost.cost_accounting.save()
+            except IntegrityError:
+                getLogger("diacamma.condominium").warning("Bad integity for cost accounting name %s", setcost.cost_accounting.name)
+                try:
+                    setcost.cost_accounting.name = "%s [multi #%d]" % (self.get_cost_accounting_name(setcost.year), setcost.cost_accounting.id)
+                    setcost.cost_accounting.save()
+                except IntegrityError:
+                    getLogger("diacamma.condominium").error("Bad integity for cost accounting name %s", setcost.cost_accounting.name)
 
     def create_new_cost(self, year=None):
         if self.type_load == 1:
@@ -230,6 +239,24 @@ class Set(LucteriosModel):
             for budget in Budget.objects.filter(cost_accounting=cost, code=account):
                 revenue += budget.amount
         return revenue
+
+    def get_new_current_callfunds(self):
+        nb_seq = 0
+        if Params.getvalue("condominium-mode-current-callfunds") == 0:
+            nb_seq = 4
+        if Params.getvalue("condominium-mode-current-callfunds") == 1:
+            nb_seq = 12
+        year = FiscalYear.get_current()
+        nb_current = len(CallDetail.objects.filter(set=self, callfunds__date__gte=year.begin, callfunds__date__lte=year.end, callfunds__type_call=0))
+        amount_current = CallDetail.objects.filter(set=self, callfunds__date__gte=year.begin, callfunds__date__lte=year.end, callfunds__type_call=0).aggregate(Sum('price'))
+        if amount_current['price__sum'] is None:
+            amount_current = 0.0
+        else:
+            amount_current = amount_current['price__sum']
+        if nb_current < nb_seq:
+            return currency_round((float(self.get_current_budget()) - float(amount_current)) / (nb_seq - nb_current))
+        else:
+            return 0.0
 
     def convert_budget(self):
         year = FiscalYear.get_current()
@@ -1495,8 +1522,9 @@ def condominium_checkparam():
                                args="{'Multi':False}", value=correct_accounting_code('103'), meta='("accounting","ChartsAccount", Q(type_of_account=2) & Q(year__is_actif=True), "code", True)')
     Parameter.check_and_create(name='condominium-fundforworks-reserve-account', typeparam=0, title=_("condominium-fundforworks-reserve-account"),
                                args="{'Multi':False}", value=correct_accounting_code('105'), meta='("accounting","ChartsAccount", Q(type_of_account=2) & Q(year__is_actif=True), "code", True)')
-    if Parameter.check_and_create(name='condominium-old-accounting', typeparam=3, title=_("condominium-old-accounting"),
-                                  args="{}", value='False'):
+    Parameter.check_and_create(name='condominium-mode-current-callfunds', typeparam=4, title=_("condominium-mode-current-callfunds"),
+                               args="{'Enum':2}", value=0, param_titles=(_("condominium-mode-current-callfunds.0"), _("condominium-mode-current-callfunds.1")))
+    if Parameter.check_and_create(name='condominium-old-accounting', typeparam=3, title=_("condominium-old-accounting"), args="{}", value='False'):
         Parameter.change_value('condominium-old-accounting', len(Owner.objects.all()) != 0)
         for current_set in Set.objects.all():
             current_set.convert_cost()

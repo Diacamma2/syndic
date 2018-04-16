@@ -4,22 +4,19 @@ from __future__ import unicode_literals
 from django.utils.translation import ugettext_lazy as _
 from django.db.models import Q
 
-from lucterios.framework.xferadvance import XferListEditor, TITLE_ADD, TITLE_MODIFY, TITLE_EDIT, TITLE_DELETE, TITLE_PRINT,\
-    XferTransition
+from lucterios.framework.xferadvance import XferListEditor, TITLE_ADD, TITLE_MODIFY, TITLE_EDIT, TITLE_DELETE, TITLE_PRINT, XferTransition
 from lucterios.framework.xferadvance import XferAddEditor
 from lucterios.framework.xferadvance import XferShowEditor
 from lucterios.framework.xferadvance import XferDelete
-from lucterios.framework.tools import FORMTYPE_NOMODAL, ActionsManage, MenuManage, FORMTYPE_REFRESH, CLOSE_NO, SELECT_SINGLE, CLOSE_YES, SELECT_MULTI,\
-    same_day_months_after
+from lucterios.framework.tools import FORMTYPE_NOMODAL, ActionsManage, MenuManage, FORMTYPE_REFRESH, CLOSE_NO, SELECT_SINGLE, CLOSE_YES, SELECT_MULTI
 from lucterios.framework.xfercomponents import XferCompSelect
 from lucterios.framework.error import LucteriosException, IMPORTANT
 
 from lucterios.CORE.xferprint import XferPrintReporting
 
-from diacamma.condominium.models import CallFunds, CallDetail, Set
+from diacamma.condominium.models import CallFunds, CallDetail
 from lucterios.framework.xfergraphic import XferContainerAcknowledge
-from diacamma.accounting.models import FiscalYear
-from lucterios.framework.models import get_value_converted
+from diacamma.condominium.system import current_system_condo
 
 
 @MenuManage.describ('condominium.change_callfunds', FORMTYPE_NOMODAL, 'condominium.manage', _('Manage of calls of funds'))
@@ -52,9 +49,7 @@ class CallFundsList(XferListEditor):
 
 def CallFundsAddCurrent_cond(xfer):
     if xfer.getparam('status_filter', 1) == 0:
-        year = FiscalYear.get_current()
-        calls = CallFunds.objects.filter(date__gte=year.begin, date__lte=year.end, type_call=0)
-        return len(calls) == 0
+        return current_system_condo().CurrentCallFundsAdding(False)
     else:
         return False
 
@@ -69,12 +64,7 @@ class CallFundsAddCurrent(XferContainerAcknowledge):
 
     def fillresponse(self):
         if self.confirme(_('Do you want create current call of funds of this year?')):
-            year = FiscalYear.get_current()
-            for num in range(4):
-                date = same_day_months_after(year.begin, 3 * num)
-                new_call = CallFunds.objects.create(date=date, comment=_("Call of funds #%(num)d of year from %(begin)s to %(end)s") % {'num': num + 1, 'begin': get_value_converted(year.begin), 'end': get_value_converted(year.end)}, type_call=0, status=0)
-                for category in Set.objects.filter(type_load=0, is_active=True):
-                    CallDetail.objects.create(set=category, callfunds=new_call, price=category.get_current_budget() / 4, designation=_("%(type)s - #%(num)d") % {'type': _('current'), 'num': num + 1})
+            current_system_condo().CurrentCallFundsAdding(True)
 
 
 @ActionsManage.affect_grid(TITLE_ADD, "images/add.png", condition=lambda xfer, gridname='': xfer.getparam('status_filter', 1) == 0)
