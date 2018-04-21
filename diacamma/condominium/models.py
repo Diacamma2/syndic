@@ -254,7 +254,7 @@ class Set(LucteriosModel):
         else:
             amount_current = amount_current['price__sum']
         if nb_current < nb_seq:
-            return currency_round((float(self.get_current_budget()) - float(amount_current)) / (nb_seq - nb_current))
+            return currency_round(max(0.0, (float(self.get_current_budget()) - float(amount_current)) / (nb_seq - nb_current)))
         else:
             return 0.0
 
