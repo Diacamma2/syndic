@@ -72,8 +72,7 @@ class CondominiumCheckOwner(XferContainerAcknowledge):
 
     def fillresponse(self):
         if self.confirme(_('Do you want to check account of owners?')):
-            for owner in Owner.objects.all():
-                owner.check_account()
+            Owner.check_all_account()
 
 
 @MenuManage.describ('CORE.change_parameter', FORMTYPE_MODAL, 'contact.conf', _('Management of parameters of condominium'))

@@ -41,18 +41,18 @@ from lucterios.framework.models import get_value_converted
 class BelgiumSystemCondo(DefaultSystemCondo):
 
     def initialize_system(self):
-        Parameter.change_value('condominium-default-owner-account', correct_accounting_code('4101'))
+        Parameter.change_value('condominium-default-owner-account', correct_accounting_code(''))
         Parameter.change_value('condominium-default-owner-account1', correct_accounting_code('4100'))
         Parameter.change_value('condominium-default-owner-account2', correct_accounting_code('4101'))
         Parameter.change_value('condominium-default-owner-account3', correct_accounting_code('4101'))
-        Parameter.change_value('condominium-default-owner-account4', correct_accounting_code('4101'))
+        Parameter.change_value('condominium-default-owner-account4', correct_accounting_code(''))
         Parameter.change_value('condominium-default-owner-account5', correct_accounting_code('4101'))
         Parameter.change_value('condominium-current-revenue-account', correct_accounting_code('700'))
         Parameter.change_value('condominium-exceptional-revenue-account', correct_accounting_code('701'))
-        Parameter.change_value('condominium-fundforworks-revenue-account', correct_accounting_code('160'))
         Parameter.change_value('condominium-exceptional-reserve-account', correct_accounting_code('160'))
-        Parameter.change_value('condominium-advance-reserve-account', correct_accounting_code('160'))
-        Parameter.change_value('condominium-fundforworks-reserve-account', correct_accounting_code('160'))
+        Parameter.change_value('condominium-advance-reserve-account', correct_accounting_code('100'))
+        Parameter.change_value('condominium-fundforworks-revenue-account', correct_accounting_code(''))
+        Parameter.change_value('condominium-fundforworks-reserve-account', correct_accounting_code('100'))
         Parameter.change_value('condominium-mode-current-callfunds', 1)
         Params.clear()
         CustomField.objects.get_or_create(modelname='accounting.Third', name='IBAN', kind=0, args="{'multi': False}")
@@ -62,21 +62,25 @@ class BelgiumSystemCondo(DefaultSystemCondo):
         param_lists = ['condominium-default-owner-account1', 'condominium-default-owner-account2',
                        'condominium-default-owner-account3', 'condominium-default-owner-account5',
                        'condominium-current-revenue-account', 'condominium-exceptional-revenue-account',
-                       'condominium-fundforworks-revenue-account', 'condominium-exceptional-reserve-account',
-                       'condominium-advance-reserve-account', 'condominium-fundforworks-reserve-account',
-                       'condominium-mode-current-callfunds']
+                       'condominium-exceptional-reserve-account', 'condominium-advance-reserve-account',
+                       'condominium-fundforworks-reserve-account', 'condominium-mode-current-callfunds']
         return param_lists
 
     def get_param_titles(self, names):
+        title_lists = {'condominium-default-owner-account1': _('default current owner account'), 'condominium-default-owner-account2': _('default working owner account'),
+                       'condominium-default-owner-account3': _('default rolling owner account'), 'condominium-default-owner-account5': _('default reserved owner account'),
+                       'condominium-current-revenue-account': _('current revenue account'), 'condominium-exceptional-revenue-account': _('working revenue account'),
+                       'condominium-exceptional-reserve-account': _('working reserved account'), 'condominium-advance-reserve-account': _('rolling reserved account'),
+                       'condominium-fundforworks-reserve-account': _('reserved account')}
         titles = {}
         params = self.get_config_params(False)
-        for name in names:
+        for name in title_lists:
             if name in params:
-                titles[name] = _(name)
+                titles[name] = title_lists[name]
         return titles
 
     def get_callfunds_list(self):
-        return [(0, _('current')), (1, _('exceptional'))]
+        return [(0, _('current')), (1, _('working')), (2, _('rolling')), (4, _('reserved'))]
 
     def CurrentCallFundsAdding(self, to_create):
         nb_seq = 0
@@ -153,6 +157,8 @@ class BelgiumSystemCondo(DefaultSystemCondo):
         total = 0
         for detail in expense.expensedetail_set.all():
             detail_account = ChartsAccount.get_account(detail.expense_account, fiscal_year)
+            if detail_account is None:
+                raise LucteriosException(IMPORTANT, _("code account %s unknown!") % detail.expense_account)
             price = currency_round(detail.price)
             EntryLineAccount.objects.create(account=detail_account, amount=is_asset * price, entry=new_entry, costaccounting_id=detail.set.current_cost_accounting.id)
             total += price

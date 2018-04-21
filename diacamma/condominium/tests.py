@@ -32,19 +32,22 @@ from lucterios.framework.test import LucteriosTest
 from lucterios.framework.xfergraphic import XferContainerAcknowledge
 from lucterios.framework.filetools import get_user_dir
 
-from diacamma.accounting.test_tools import initial_thirds_fr, default_compta_fr, default_costaccounting
+from diacamma.accounting.test_tools import initial_thirds_fr, default_compta_fr, default_costaccounting,\
+    default_compta_be, initial_thirds_be
 from diacamma.accounting.views import ThirdShow
 from diacamma.accounting.models import EntryAccount, FiscalYear
 from diacamma.accounting.views_entries import EntryAccountList
 from diacamma.accounting.views_accounts import FiscalYearClose, FiscalYearBegin, FiscalYearReportLastYear
 from diacamma.accounting.views_other import CostAccountingList
 
-from diacamma.payoff.test_tools import default_bankaccount_fr, default_paymentmethod, PaymentTest
+from diacamma.payoff.test_tools import default_bankaccount_fr, default_paymentmethod, PaymentTest,\
+    default_bankaccount_be
 from diacamma.payoff.views import PayableShow, PayableEmail
 
 from diacamma.condominium.views_classload import SetList, SetAddModify, SetDel, SetShow, PartitionAddModify, CondominiumConf, SetClose
 from diacamma.condominium.views import OwnerAndPropertyLotList, OwnerAdd, OwnerDel, OwnerShow, PropertyLotAddModify, CondominiumConvert
-from diacamma.condominium.test_tools import default_setowner_fr, add_test_callfunds, old_accounting, add_test_expenses, init_compta, add_years
+from diacamma.condominium.test_tools import default_setowner_fr, add_test_callfunds, old_accounting, add_test_expenses_fr, init_compta, add_years,\
+    default_setowner_be
 from diacamma.condominium.views_report import FinancialStatus, GeneralManageAccounting, CurrentManageAccounting, ExceptionalManageAccounting
 
 
@@ -472,7 +475,7 @@ class ReportTest(PaymentTest):
         add_years()
         init_compta()
         add_test_callfunds(False, True)
-        add_test_expenses(False, True)
+        add_test_expenses_fr(False, True)
 
     def test_financial(self):
         self.factory.xfer = FinancialStatus()
@@ -729,7 +732,7 @@ class OwnerTest(PaymentTest):
         self.check_account(year_id=1, code='701', value=275.0)
         self.check_account(year_id=1, code='702', value=0.0)
 
-        add_test_expenses(False, True)
+        add_test_expenses_fr(False, True)
         self.check_account(year_id=1, code='120', value=25.0)
         self.check_account(year_id=1, code='401', value=65.0)
         self.check_account(year_id=1, code='4501', value=175.0)
@@ -756,12 +759,13 @@ class OwnerTest(PaymentTest):
 
     def test_owner_situation(self):
         add_test_callfunds(False, True)
-        add_test_expenses(False, True)
+        add_test_expenses_fr(False, True)
         init_compta()
 
         self.factory.xfer = OwnerShow()
         self.calljson('/diacamma.condominium/ownerShow', {'owner': 1}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'ownerShow')
+        self.assert_count_equal('', 45)
         self.assert_json_equal('LABELFORM', 'total_current_initial', "23.45€")
         self.assert_json_equal('LABELFORM', 'total_current_call', "131.25€")
         self.assert_json_equal('LABELFORM', 'total_current_payoff', "100.00€")
@@ -783,7 +787,7 @@ class OwnerTest(PaymentTest):
 
     def test_close_classload(self):
         add_test_callfunds(False, True)
-        add_test_expenses(False, True)
+        add_test_expenses_fr(False, True)
         init_compta()
 
         self.check_account(year_id=1, code='120', value=25.0)
@@ -846,7 +850,7 @@ class OwnerTest(PaymentTest):
 
     def test_close_year_owner(self):
         add_test_callfunds(False, True)
-        add_test_expenses(False, True)
+        add_test_expenses_fr(False, True)
         init_compta()
 
         self.factory.xfer = FiscalYearBegin()
@@ -906,7 +910,7 @@ class OwnerTest(PaymentTest):
 
     def test_close_year_reserve(self):
         add_test_callfunds(False, True)
-        add_test_expenses(False, True)
+        add_test_expenses_fr(False, True)
         init_compta()
 
         self.factory.xfer = FiscalYearBegin()
@@ -968,6 +972,52 @@ class OwnerTest(PaymentTest):
         self.check_account(year_id=2, code='702', value=None)
 
 
+class OwnerBelgiumTest(PaymentTest):
+
+    def setUp(self):
+        # six.print_('>> %s' % self._testMethodName)
+        self.xfer_class = XferContainerAcknowledge
+        initial_thirds_be()
+        LucteriosTest.setUp(self)
+        default_compta_be(with12=False)
+        default_costaccounting()
+        default_bankaccount_be()
+        default_setowner_be()
+        rmtree(get_user_dir(), True)
+
+    def tearDown(self):
+        LucteriosTest.tearDown(self)
+        # six.print_('<< %s' % self._testMethodName)
+
+    def test_owner_situation(self):
+        add_test_callfunds(False, True)
+        add_test_expenses_fr(False, True)
+        init_compta()
+
+        self.factory.xfer = OwnerShow()
+        self.calljson('/diacamma.condominium/ownerShow', {'owner': 1}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'ownerShow')
+        self.assert_count_equal('', 45)
+        self.assert_json_equal('LABELFORM', 'third.custom_1', '')
+        self.assert_json_equal('LABELFORM', 'third.custom_2', '')
+        self.assert_json_equal('LABELFORM', 'total_current_initial', "23.45€")
+        self.assert_json_equal('LABELFORM', 'total_current_call', "131.25€")
+        self.assert_json_equal('LABELFORM', 'total_current_payoff', "100.00€")
+        self.assert_json_equal('LABELFORM', 'total_current_owner', "-7.80€")
+        self.assert_json_equal('LABELFORM', 'total_current_ventilated', "75.00€")
+        self.assert_json_equal('LABELFORM', 'total_current_regularization', "56.25€")
+        self.assert_json_equal('LABELFORM', 'total_extra', "-5.55€")
+
+        self.assert_grid_equal('exceptionnal', {"set": "catégorie de charges", "ratio": "ratio", "total_callfunds": "total des appels de fonds", "ventilated_txt": "ventilé", "total_current_regularization": "régularisation estimée"}, 1)  # nb=5
+        self.assert_json_equal('', 'exceptionnal/@0/set', "[3] CCC")
+        self.assert_json_equal('', 'exceptionnal/@0/ratio', "45.0 %")
+        self.assert_json_equal('', 'exceptionnal/@0/total_callfunds', "45.00€")
+        self.assert_json_equal('', 'exceptionnal/@0/ventilated_txt', "33.75€")
+        self.assert_json_equal('', 'exceptionnal/@0/total_current_regularization', "11.25€")
+        self.assert_json_equal('LABELFORM', 'total_exceptional_call', "45.00€")
+        self.assert_json_equal('LABELFORM', 'total_exceptional_payoff', "30.00€")
+
+
 class OwnerTestOldAccounting(PaymentTest):
 
     def setUp(self):
@@ -1000,7 +1050,7 @@ class OwnerTestOldAccounting(PaymentTest):
 
     def test_owner_situation(self):
         add_test_callfunds(False, True)
-        add_test_expenses(False, True)
+        add_test_expenses_fr(False, True)
         init_compta()
 
         self.factory.xfer = OwnerShow()
@@ -1027,7 +1077,7 @@ class OwnerTestOldAccounting(PaymentTest):
 
     def test_conversion(self):
         add_test_callfunds(False, True)
-        add_test_expenses(False, True)
+        add_test_expenses_fr(False, True)
         init_compta()
 
         self.factory.xfer = CondominiumConvert()
@@ -1074,7 +1124,7 @@ class OwnerTestOldAccounting(PaymentTest):
 
     def test_close_classload(self):
         add_test_callfunds(False, True)
-        add_test_expenses(False, True)
+        add_test_expenses_fr(False, True)
         init_compta()
 
         self.factory.xfer = EntryAccountList()

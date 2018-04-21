@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-16 21:10+0000\n"
+"POT-Creation-Date: 2018-04-21 13:16+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,42 +18,101 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: system/belgium.py:75 system/french.py:68
+#: system/belgium.py:70
+msgid "default current owner account"
+msgstr "compte courant de proprietaire par défaut"
+
+#: system/belgium.py:70
+msgid "default working owner account"
+msgstr "compte de travaux de proprietaire par défaut"
+
+#: system/belgium.py:71
+msgid "default rolling owner account"
+msgstr "compte de roulement de proprietaire par défaut"
+
+#: system/belgium.py:71
+msgid "default reserved owner account"
+msgstr "compte de reserve de proprietaire par défaut"
+
+#: system/belgium.py:72
+msgid "current revenue account"
+msgstr "compte de revenu des courants"
+
+#: system/belgium.py:72
+msgid "working revenue account"
+msgstr "compte de revenu des travaux"
+
+#: system/belgium.py:73
+msgid "working reserved account"
+msgstr "compte de réserve des travaux"
+
+#: system/belgium.py:73
+msgid "rolling reserved account"
+msgstr "compte de réserve des roulements"
+
+#: system/belgium.py:74
+msgid "reserved account"
+msgstr "compte de réserve"
+
+#: system/belgium.py:83 system/belgium.py:99 system/french.py:72
+#: system/french.py:86
 msgid "current"
 msgstr "charge courante"
 
-#: system/belgium.py:75 system/french.py:68
-msgid "exceptional"
-msgstr "charge exceptionnelle"
+#: system/belgium.py:83
+msgid "working"
+msgstr "charge de travaux"
 
-#: system/belgium.py:91 system/french.py:85
+#: system/belgium.py:83
+msgid "rolling"
+msgstr "roulement"
+
+#: system/belgium.py:83
+msgid "reserved"
+msgstr "réserve"
+
+#: system/belgium.py:97 system/french.py:84
+#, python-format
+msgid "Call of funds #%(num)d of year from %(begin)s to %(end)s"
+msgstr "Appel de fonds N°%(num)d de l'exercice du %(begin)s au %(end)s"
+
+#: system/belgium.py:99 system/french.py:86
+#, python-format
+msgid "%(type)s - #%(num)d"
+msgstr "%(type)s - N°%(num)d"
+
+#: system/belgium.py:117 system/french.py:106
 msgid "incorrect account for call of found"
 msgstr "compte incorrect pour l'appel de fonds !"
 
-#: system/belgium.py:107 system/belgium.py:111 system/french.py:100
-#: system/french.py:123 system/french.py:127
+#: system/belgium.py:133 system/belgium.py:137 system/french.py:121
+#: system/french.py:144 system/french.py:148
 #, python-format
 msgid "code account %s unknown!"
 msgstr "code comptable %s non trouvé !"
 
-#: system/belgium.py:125 system/belgium.py:140 system/french.py:109
-#: system/french.py:141 system/french.py:156
+#: system/belgium.py:151 system/belgium.py:166 system/french.py:130
+#: system/french.py:162 system/french.py:177
 msgid "Error in accounting generator!"
 msgstr "Erreur dans la génération comptable !"
 
-#: system/default.py:63 system/default.py:66 system/default.py:69
+#: system/default.py:66 system/default.py:69 system/default.py:72
 msgid "This system condomium is not implemented"
 msgstr "Ce système de copropriété n'est pas implémenté !"
 
-#: system/default.py:79 system/default.py:104
+#: system/default.py:82 system/default.py:107
 #, python-format
 msgid "Ventilation for %s"
 msgstr "Ventilation pour %s"
 
-#: system/french.py:68
+#: system/french.py:72
+msgid "exceptional"
+msgstr "charge exceptionnelle"
+
+#: system/french.py:72
 msgid "cash advance"
 msgstr "avance de fond"
 
-#: system/french.py:68
+#: system/french.py:72
 msgid "fund for works"
 msgstr "fond travaux"

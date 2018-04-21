@@ -36,7 +36,7 @@ from lucterios.documents.views import DocumentShow
 
 from diacamma.accounting.test_tools import initial_thirds_fr, default_compta_fr, default_costaccounting
 from diacamma.payoff.test_tools import default_bankaccount_fr
-from diacamma.condominium.test_tools import default_setowner_fr, add_test_callfunds, add_test_expenses, init_compta, add_years
+from diacamma.condominium.test_tools import default_setowner_fr, add_test_callfunds, add_test_expenses_fr, init_compta, add_years
 
 
 class SyndicTest(LucteriosTest):
@@ -56,7 +56,7 @@ class SyndicTest(LucteriosTest):
         add_years()
         init_compta()
         add_test_callfunds(False, True)
-        add_test_expenses(False, True)
+        add_test_expenses_fr(False, True)
 
     def test_status(self):
         self.calljson('/CORE/authentification', {'username': 'admin', 'password': 'admin'})

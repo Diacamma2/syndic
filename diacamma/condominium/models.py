@@ -477,6 +477,15 @@ class Owner(Supporting):
         return []
 
     @classmethod
+    def is_owner_account_doubled(cls, owner_type):
+        account = Params.getvalue("condominium-default-owner-account%d" % owner_type)
+        for other_owner_type in range(1, 6):
+            if other_owner_type != owner_type:
+                if account == Params.getvalue("condominium-default-owner-account%d" % other_owner_type):
+                    return True
+        return False
+
+    @classmethod
     def get_show_fields(cls):
         fields = {"": [((_('name'), 'third'),), ],
                   _("001@Information"): [],
@@ -502,6 +511,13 @@ class Owner(Supporting):
             del fields[_("006@Exceptional")][3]
             del fields[_("006@Exceptional")][2]
             del fields[_("006@Exceptional")][1]
+        else:
+            if cls.is_owner_account_doubled(1):
+                del fields[_("005@Situation")][3]
+                del fields[_("005@Situation")][1]
+            if cls.is_owner_account_doubled(2):
+                del fields[_("006@Exceptional")][3]
+                del fields[_("006@Exceptional")][1]
         fields[_("001@Information")].append(((_('name'), 'third'),))
         fields[_("001@Information")].extend(get_subfield_show(AbstractContact.get_show_fields(), "third.contact"))
         fields[_("001@Information")].extend(get_subfield_show(Third.get_fields_to_show(), "third"))
@@ -789,6 +805,11 @@ class Owner(Supporting):
             for num_account in range(1, 6):
                 AccountThird.objects.get_or_create(third=self.third, code=correct_accounting_code(Params.getvalue("condominium-default-owner-account%d" % num_account)))
 
+    @classmethod
+    def check_all_account(cls):
+        for owner in cls.objects.all():
+            owner.check_account()
+
 
 class Partition(LucteriosModel):
     set = models.ForeignKey(
@@ -1040,7 +1061,7 @@ class CallFunds(LucteriosModel):
 
     @classmethod
     def get_default_fields(cls):
-        return ["num", 'type_call', "date", "owner", "comment", (_('total'), 'total'), (_('rest to pay'), 'supporting.total_rest_topay')]
+        return ["num", (_('type of call'), 'type_call_ex'), "date", "owner", "comment", (_('total'), 'total'), (_('rest to pay'), 'supporting.total_rest_topay')]
 
     @classmethod
     def get_edit_fields(cls):
@@ -1048,7 +1069,7 @@ class CallFunds(LucteriosModel):
 
     @classmethod
     def get_show_fields(cls):
-        return [("num", "date"), ("owner", 'type_call'), "calldetail_set", "comment", ("status", (_('total'), 'total'))]
+        return [("num", "date"), ("owner", (_('type of call'), 'type_call_ex')), "calldetail_set", "comment", ("status", (_('total'), 'total'))]
 
     def get_total(self):
         self.check_supporting()
@@ -1060,6 +1081,15 @@ class CallFunds(LucteriosModel):
     @property
     def total(self):
         return format_devise(self.get_total(), 5)
+
+    @property
+    def type_call_ex(self):
+        result = "#%d" % self.type_call
+        for callfunds_id, callfunds_title in current_system_condo().get_callfunds_list():
+            if callfunds_id == self.type_call:
+                result = callfunds_title
+                break
+        return result
 
     def can_delete(self):
         if self.status != 0:

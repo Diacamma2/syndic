@@ -168,6 +168,8 @@ class FrenchSystemCondo(DefaultSystemCondo):
         total = 0
         for detail in expense.expensedetail_set.all():
             detail_account = ChartsAccount.get_account(detail.expense_account, fiscal_year)
+            if detail_account is None:
+                raise LucteriosException(IMPORTANT, _("code account %s unknown!") % detail.expense_account)
             price = currency_round(detail.price)
             EntryLineAccount.objects.create(account=detail_account, amount=is_asset * price, entry=new_entry, costaccounting_id=detail.set.current_cost_accounting.id)
             total += price

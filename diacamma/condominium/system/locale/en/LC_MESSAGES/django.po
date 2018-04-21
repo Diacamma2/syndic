@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-16 21:10+0000\n"
+"POT-Creation-Date: 2018-04-21 13:16+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,42 +17,101 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: system/belgium.py:75 system/french.py:68
+#: system/belgium.py:70
+msgid "default current owner account"
+msgstr "default current owner account"
+
+#: system/belgium.py:70
+msgid "default working owner account"
+msgstr "default working owner account"
+
+#: system/belgium.py:71
+msgid "default rolling owner account"
+msgstr "default rolling owner account"
+
+#: system/belgium.py:71
+msgid "default reserved owner account"
+msgstr "default reserved owner account"
+
+#: system/belgium.py:72
+msgid "current revenue account"
+msgstr "current revenue account"
+
+#: system/belgium.py:72
+msgid "working revenue account"
+msgstr "working revenue account"
+
+#: system/belgium.py:73
+msgid "working reserved account"
+msgstr "working reserved account"
+
+#: system/belgium.py:73
+msgid "rolling reserved account"
+msgstr "rolling reserved account"
+
+#: system/belgium.py:74
+msgid "reserved account"
+msgstr "reserved account"
+
+#: system/belgium.py:83 system/belgium.py:99 system/french.py:72
+#: system/french.py:86
 msgid "current"
 msgstr "current"
 
-#: system/belgium.py:75 system/french.py:68
-msgid "exceptional"
-msgstr "exceptional"
+#: system/belgium.py:83
+msgid "working"
+msgstr "working"
 
-#: system/belgium.py:91 system/french.py:85
+#: system/belgium.py:83
+msgid "rolling"
+msgstr "rolling"
+
+#: system/belgium.py:83
+msgid "reserved"
+msgstr "reserved"
+
+#: system/belgium.py:97 system/french.py:84
+#, python-format
+msgid "Call of funds #%(num)d of year from %(begin)s to %(end)s"
+msgstr "Call of funds #%(num)d of year from %(begin)s to %(end)s"
+
+#: system/belgium.py:99 system/french.py:86
+#, python-format
+msgid "%(type)s - #%(num)d"
+msgstr "%(type)s - #%(num)d"
+
+#: system/belgium.py:117 system/french.py:106
 msgid "incorrect account for call of found"
 msgstr "incorrect account for call of found"
 
-#: system/belgium.py:107 system/belgium.py:111 system/french.py:100
-#: system/french.py:123 system/french.py:127
+#: system/belgium.py:133 system/belgium.py:137 system/french.py:121
+#: system/french.py:144 system/french.py:148
 #, python-format
 msgid "code account %s unknown!"
 msgstr "code account %s unknown!"
 
-#: system/belgium.py:125 system/belgium.py:140 system/french.py:109
-#: system/french.py:141 system/french.py:156
+#: system/belgium.py:151 system/belgium.py:166 system/french.py:130
+#: system/french.py:162 system/french.py:177
 msgid "Error in accounting generator!"
 msgstr "Error in accounting generator!"
 
-#: system/default.py:63 system/default.py:66 system/default.py:69
+#: system/default.py:66 system/default.py:69 system/default.py:72
 msgid "This system condomium is not implemented"
 msgstr "This system condomium is not implemented"
 
-#: system/default.py:79 system/default.py:104
+#: system/default.py:82 system/default.py:107
 #, python-format
 msgid "Ventilation for %s"
 msgstr "Ventilation for %s"
 
-#: system/french.py:68
+#: system/french.py:72
+msgid "exceptional"
+msgstr "exceptional"
+
+#: system/french.py:72
 msgid "cash advance"
 msgstr "cash advance"
 
-#: system/french.py:68
+#: system/french.py:72
 msgid "fund for works"
 msgstr "fund for works"

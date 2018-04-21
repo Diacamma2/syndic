@@ -92,21 +92,23 @@ def default_setowner_fr(with_lots=True):
     set4 = Set.objects.create(name="OLD", budget=100, revenue_account='702', type_load=1, is_active=False)
     _set_budget(set4, '602', 100)
     _create_owners(set1, set2, set3, set4, with_lots)
+    Owner.check_all_account()
 
 
 def default_setowner_be(with_lots=True):
     create_account(['4100', '4101'], 0, FiscalYear.get_current())
-    create_account(['100000', '160000'], 2, FiscalYear.get_current())
-    create_account(['702000', '703000'], 3, FiscalYear.get_current())
+    create_account(['100', '160'], 2, FiscalYear.get_current())
+    create_account(['702', '703'], 3, FiscalYear.get_current())
     set1 = Set.objects.create(name="AAA", is_link_to_lots=with_lots, type_load=0)
-    _set_budget(set1, '610', 1200)
+    _set_budget(set1, '602', 1200)
     set2 = Set.objects.create(name="BBB", type_load=0)
-    _set_budget(set2, '612', 120)
+    _set_budget(set2, '602', 120)
     set3 = Set.objects.create(name="CCC", type_load=1)
-    _set_budget(set3, '611', 600)
+    _set_budget(set3, '602', 600)
     set4 = Set.objects.create(name="OLD", type_load=1, is_active=False)
-    _set_budget(set4, '615', 120)
+    _set_budget(set4, '601', 120)
     _create_owners(set1, set2, set3, set4, with_lots)
+    Owner.check_all_account()
 
 
 def add_test_callfunds(simple=True, with_payoff=False):
@@ -127,17 +129,17 @@ def add_test_callfunds(simple=True, with_payoff=False):
         pay.save()
 
 
-def add_test_expenses(simple=True, with_payoff=False):
+def _add_test_expenses(expense_account1, expense_account2, simple, with_payoff):
     expense1 = Expense(date=convert_date('2015-05-07'), comment='opq 666', expensetype=0, third_id=2)
     expense1.editor.before_save(None)
     expense1.save()
-    ExpenseDetail.objects.create(expense=expense1, set_id=2, designation='set 2', expense_account='604', price='100')
+    ExpenseDetail.objects.create(expense=expense1, set_id=2, designation='set 2', expense_account=expense_account1, price='100')
     expense1.valid()
     if not simple:
         expense2 = Expense(date=convert_date('2015-08-28'), comment='creation', expensetype=0, third_id=2)
         expense2.editor.before_save(None)
         expense2.save()
-        ExpenseDetail.objects.create(expense=expense2, set_id=3, designation='set 1', expense_account='602', price='75')
+        ExpenseDetail.objects.create(expense=expense2, set_id=3, designation='set 1', expense_account=expense_account2, price='75')
         expense2.valid()
     if with_payoff:
         pay = Payoff(supporting_id=expense1.id, date='2015-05-11', mode=0, amount=35.0)
@@ -146,6 +148,14 @@ def add_test_expenses(simple=True, with_payoff=False):
         pay = Payoff(supporting_id=expense2.id, date='2015-08-30', mode=0, amount=75.0)
         pay.editor.before_save(None)
         pay.save()
+
+
+def add_test_expenses_fr(simple=True, with_payoff=False):
+    _add_test_expenses('604', '602', simple, with_payoff)
+
+
+def add_test_expenses_be(simple=True, with_payoff=False):
+    _add_test_expenses('602', '601', simple, with_payoff)
 
 
 def old_accounting():
@@ -172,3 +182,33 @@ def add_years():
     year.save()
     year_N1 = FiscalYear.objects.create(begin='2016-01-01', end='2016-12-31', status=0, last_fiscalyear=year)
     FiscalYear.objects.create(begin='2017-01-01', end='2017-12-31', status=0, last_fiscalyear=year_N1)
+
+
+def main_fr():
+    from diacamma.condominium.views_classload import paramchange_condominium
+    from diacamma.accounting.test_tools import initial_thirds_fr, default_compta_fr, default_costaccounting
+    from diacamma.payoff.test_tools import default_bankaccount_fr
+    paramchange_condominium([])
+    initial_thirds_fr()
+    default_compta_fr(with12=False)
+    default_costaccounting()
+    default_bankaccount_fr()
+    default_setowner_fr()
+    init_compta()
+    add_test_callfunds(False, True)
+    add_test_expenses_fr(False, True)
+
+
+def main_be():
+    from diacamma.condominium.views_classload import paramchange_condominium
+    from diacamma.accounting.test_tools import initial_thirds_be, default_compta_be, default_costaccounting
+    from diacamma.payoff.test_tools import default_bankaccount_be
+    paramchange_condominium([])
+    initial_thirds_be()
+    default_compta_be(with12=False)
+    default_costaccounting()
+    default_bankaccount_be()
+    default_setowner_be()
+    init_compta()
+    add_test_callfunds(False, True)
+    add_test_expenses_be(False, True)
