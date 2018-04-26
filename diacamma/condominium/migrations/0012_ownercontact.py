@@ -7,6 +7,7 @@ from django.utils import translation
 from django.utils.translation import ugettext_lazy as _
 import django.db.models.deletion
 from django.conf import settings
+from lucterios.CORE.models import PrintModel
 
 
 def initial_values(*_args):
@@ -28,6 +29,11 @@ def initial_values(*_args):
     if created:
         link4.name = _('security agency')
         link4.save()
+
+
+def printer_model(*_args):
+    translation.activate(settings.LANGUAGE_CODE)
+    PrintModel().load_model("diacamma.condominium", "Owner_0002", is_default=True)
 
 
 class Migration(migrations.Migration):
@@ -74,4 +80,5 @@ class Migration(migrations.Migration):
             field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='condominium.Owner', verbose_name='owner'),
         ),
         migrations.RunPython(initial_values),
+        migrations.RunPython(printer_model),
     ]
