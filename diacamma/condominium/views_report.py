@@ -275,11 +275,16 @@ class CurrentManageAccounting(ManageAccounting):
         total2 = 0
         totalb = [0, 0, 0]
         revenue_account = Params.getvalue("condominium-current-revenue-account")
+        initial_filter = self.filter
+        initial_lastfilter = self.lastfilter
         for classloaditem in Set.objects.filter(type_load=0, is_active=True):
             current_costaccounting = classloaditem.setcost_set.filter(year=self.item).first().cost_accounting
             current_request = Q(account__code__regex=current_system_account().get_expence_mask())
             current_request |= Q(account__code__regex=current_system_account().get_revenue_mask()) & ~Q(account__code=revenue_account)
-            current_request &= Q(costaccounting_id=current_costaccounting.id)
+            if initial_filter is not None:
+                self.filter = initial_filter & Q(costaccounting_id=current_costaccounting.id)
+            if initial_lastfilter is not None:
+                self.lastfilter = initial_lastfilter & Q(costaccounting_id=current_costaccounting.last_costaccounting_id)
             query_budget = [~Q(code=revenue_account) & Q(cost_accounting=current_costaccounting)]
             if self.next_year is not None:
                 set_cost = classloaditem.setcost_set.filter(year=self.next_year).first()
