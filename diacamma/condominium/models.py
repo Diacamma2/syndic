@@ -999,6 +999,7 @@ class PropertyLot(LucteriosModel):
 
 
 class CallFundsSupporting(Supporting):
+
     def __str__(self):
         return self.callfunds.__str__()
 

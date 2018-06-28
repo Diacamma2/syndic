@@ -15,7 +15,8 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='callfunds',
             name='type_call',
-            field=models.IntegerField(choices=[(0, 'current'), (1, 'exceptional'), (2, 'cash advance')],
+            field=models.IntegerField(choices=[(0, 'current'), (1, 'exceptional'), (2, 'cash advance'),
+                                               (3, 'borrowing'), (4, 'fund for works')],
                                       db_index=True, default=0, verbose_name='type of call'),
         ),
     ]

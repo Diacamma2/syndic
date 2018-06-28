@@ -25,7 +25,7 @@ class Migration(migrations.Migration):
         migrations.AlterModelOptions(
             name='partition',
             options={'default_permissions': [], 'ordering': ['owner__third_id', 'set_id'],
-                     'verbose_name': 'class load', 'verbose_name_plural': 'class loads'},
+                     'verbose_name': 'division', 'verbose_name_plural': 'divisions'},
         ),
         migrations.AddField(
             model_name='callfunds',

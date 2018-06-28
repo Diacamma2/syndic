@@ -79,6 +79,16 @@ class Migration(migrations.Migration):
             name='owner',
             field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='condominium.Owner', verbose_name='owner'),
         ),
+        migrations.CreateModel(
+            name='OwnerEntryLineAccount',
+            fields=[
+            ],
+            options={
+                'indexes': [],
+                'proxy': True,
+            },
+            bases=('accounting.entrylineaccount',),
+        ),
         migrations.RunPython(initial_values),
         migrations.RunPython(printer_model),
     ]
