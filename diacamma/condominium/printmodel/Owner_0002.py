@@ -44,10 +44,10 @@ value = """<model hmargin="10.0" vmargin="10.0" page_width="210.0" page_height="
 </text>
 
 <table height="16.0" width="60.0" top="50.0" left="70.0" padding="1.0" spacing="0.0" border_color="red" border_style="solid" border_width="0.0">
-    <columns width="60.0" display_align="center" border_color="green" border_style="solid" border_width="0.0" text_align="center" line_height="0" font_family="sans-serif" font_weight="" font_size="0"> 
+    <columns width="60.0" display_align="center" border_color="green" border_style="solid" border_width="0.0" text_align="center" line_height="0" font_family="sans-serif" font_weight="" font_size="0">
     </columns>
     <rows>
-    <cell display_align="center" border_color="green" border_style="solid" border_width="0.0" text_align="center" line_height="16" font_family="sans-serif" font_weight="" font_size="15"> 
+    <cell display_align="center" border_color="green" border_style="solid" border_width="0.0" text_align="center" line_height="16" font_family="sans-serif" font_weight="" font_size="15">
     {[b]}%(TO PAY)s : #sumtopay{[/b]}
     </cell>
     </rows>

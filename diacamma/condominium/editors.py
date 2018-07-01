@@ -237,7 +237,7 @@ class CallDetailEditor(LucteriosEditor):
         set_comp.set_select_query(set_list)
         set_comp.set_action(xfer.request, xfer.get_action(), close=CLOSE_NO, modal=FORMTYPE_REFRESH)
         xfer.get_components('price').prec = Params.getvalue("accounting-devise-prec")
-        set_comp.get_reponse_xml()
+        set_comp.get_json()
         current_set = Set.objects.get(id=set_comp.value)
         if current_set.type_load == 0:
             if self.item.callfunds.type_call == 0:
