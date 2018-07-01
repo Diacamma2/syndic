@@ -178,4 +178,4 @@ class FrenchSystemCondo(DefaultSystemCondo):
         if not no_change or (abs(debit_rest) > 0.001) or (abs(credit_rest) > 0.001):
             raise LucteriosException(GRAVE, _("Error in accounting generator!") +
                                      "{[br/]} no_change=%s debit_rest=%.3f credit_rest=%.3f" % (no_change, debit_rest, credit_rest))
-        expense.entries = EntryAccount.objects.filter(id=new_entry.id)
+        expense.entries.set(EntryAccount.objects.filter(id=new_entry.id))

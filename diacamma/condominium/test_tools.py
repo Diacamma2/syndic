@@ -59,7 +59,7 @@ def _create_owners(set1, set2, set3, set4, with_lots=True):
         PropertyLot.objects.create(num=1, value=45.0, description="Appart A", owner=owner1)
         PropertyLot.objects.create(num=2, value=35.0, description="Appart B", owner=owner2)
         PropertyLot.objects.create(num=3, value=20.0, description="Appart C", owner=owner3)
-        set1.set_of_lots = PropertyLot.objects.all()
+        set1.set_of_lots.set(PropertyLot.objects.all())
         set1.save()
     else:
         set_partition(setpart=set1, owner=owner1, value=45.0)
