@@ -46,7 +46,6 @@ from diacamma.condominium.models import Set
 class CallFundsTest(LucteriosTest):
 
     def setUp(self):
-        self.xfer_class = XferContainerAcknowledge
         initial_thirds_fr()
         LucteriosTest.setUp(self)
         default_compta_fr(with12=False)
@@ -82,8 +81,8 @@ class CallFundsTest(LucteriosTest):
         self.assert_grid_equal('callfunds', {"num": "N°", "type_call_ex": "type d'appel", "date": "date", "owner": "propriétaire", "comment": "commentaire", "total": "total"}, 1)
 
         self.factory.xfer = CallFundsDel()
-        self.calljson('/diacamma.condominium/callFundsAddDel', {'CONFIRME': 'YES', "callfunds": 1}, False)
-        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'callFundsAddDel')
+        self.calljson('/diacamma.condominium/callFundsDel', {'CONFIRME': 'YES', "callfunds": 1}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'callFundsDel')
 
         self.factory.xfer = CallFundsList()
         self.calljson('/diacamma.condominium/callFundsList', {}, False)
@@ -255,8 +254,8 @@ class CallFundsTest(LucteriosTest):
         self.assert_json_equal('LABELFORM', 'total', '87.50€')
 
         self.factory.xfer = CallFundsDel()
-        self.calljson('/diacamma.condominium/callFundsAddDel', {'CONFIRME': 'YES', "callfunds": 3}, False)
-        self.assert_observer('core.exception', 'diacamma.condominium', 'callFundsAddDel')
+        self.calljson('/diacamma.condominium/callFundsDel', {'CONFIRME': 'YES', "callfunds": 3}, False)
+        self.assert_observer('core.exception', 'diacamma.condominium', 'callFundsDel')
 
         self.factory.xfer = CallFundsList()
         self.calljson('/diacamma.condominium/callFundsList', {'status_filter': 0}, False)
@@ -294,8 +293,8 @@ class CallFundsTest(LucteriosTest):
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'callFundsTransition')
 
         self.factory.xfer = CallFundsDel()
-        self.calljson('/diacamma.condominium/callFundsAddDel', {'CONFIRME': 'YES', "callfunds": 3}, False)
-        self.assert_observer('core.exception', 'diacamma.condominium', 'callFundsAddDel')
+        self.calljson('/diacamma.condominium/callFundsDel', {'CONFIRME': 'YES', "callfunds": 3}, False)
+        self.assert_observer('core.exception', 'diacamma.condominium', 'callFundsDel')
 
         self.factory.xfer = CallFundsList()
         self.calljson('/diacamma.condominium/callFundsList', {'status_filter': 0}, False)
@@ -647,7 +646,6 @@ class CallFundsTest(LucteriosTest):
 class CallFundsBelgiumTest(LucteriosTest):
 
     def setUp(self):
-        self.xfer_class = XferContainerAcknowledge
         initial_thirds_be()
         LucteriosTest.setUp(self)
         default_compta_be(with12=False)
@@ -683,8 +681,8 @@ class CallFundsBelgiumTest(LucteriosTest):
         self.assert_grid_equal('callfunds', {"num": "N°", "type_call_ex": "type d'appel", "date": "date", "owner": "propriétaire", "comment": "commentaire", "total": "total"}, 1)
 
         self.factory.xfer = CallFundsDel()
-        self.calljson('/diacamma.condominium/callFundsAddDel', {'CONFIRME': 'YES', "callfunds": 1}, False)
-        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'callFundsAddDel')
+        self.calljson('/diacamma.condominium/callFundsDel', {'CONFIRME': 'YES', "callfunds": 1}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'callFundsDel')
 
         self.factory.xfer = CallFundsList()
         self.calljson('/diacamma.condominium/callFundsList', {}, False)
@@ -1200,7 +1198,6 @@ class CallFundsBelgiumTest(LucteriosTest):
 class CallFundsTestOldAccounting(LucteriosTest):
 
     def setUp(self):
-        self.xfer_class = XferContainerAcknowledge
         initial_thirds_fr()
         old_accounting()
         LucteriosTest.setUp(self)

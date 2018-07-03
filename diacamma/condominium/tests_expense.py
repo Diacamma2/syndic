@@ -48,7 +48,6 @@ from diacamma.condominium.views_expense import ExpenseList,\
 class ExpenseTest(PaymentTest):
 
     def setUp(self):
-        self.xfer_class = XferContainerAcknowledge
         initial_thirds_fr()
         PaymentTest.setUp(self)
         default_compta_fr(with12=False)
@@ -104,8 +103,8 @@ class ExpenseTest(PaymentTest):
         self.assertEqual(len(self.json_actions), 3)
 
         self.factory.xfer = ExpenseDel()
-        self.calljson('/diacamma.condominium/expenseAddDel', {'CONFIRME': 'YES', "expense": 4}, False)
-        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseAddDel')
+        self.calljson('/diacamma.condominium/expenseDel', {'CONFIRME': 'YES', "expense": 4}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseDel')
 
         self.factory.xfer = ExpenseList()
         self.calljson('/diacamma.condominium/expenseList', {}, False)
@@ -224,8 +223,8 @@ class ExpenseTest(PaymentTest):
         self.assertFalse("action" in self.json_actions[2].keys())
 
         self.factory.xfer = ExpenseDel()
-        self.calljson('/diacamma.condominium/expenseAddDel', {'CONFIRME': 'YES', "expense": 4}, False)
-        self.assert_observer('core.exception', 'diacamma.condominium', 'expenseAddDel')
+        self.calljson('/diacamma.condominium/expenseDel', {'CONFIRME': 'YES', "expense": 4}, False)
+        self.assert_observer('core.exception', 'diacamma.condominium', 'expenseDel')
 
         self.factory.xfer = ExpenseList()
         self.calljson('/diacamma.condominium/expenseList', {'status_filter': 0}, False)
@@ -247,8 +246,8 @@ class ExpenseTest(PaymentTest):
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseTransition')
 
         self.factory.xfer = ExpenseDel()
-        self.calljson('/diacamma.condominium/expenseAddDel', {'CONFIRME': 'YES', "expense": 4}, False)
-        self.assert_observer('core.exception', 'diacamma.condominium', 'expenseAddDel')
+        self.calljson('/diacamma.condominium/expenseDel', {'CONFIRME': 'YES', "expense": 4}, False)
+        self.assert_observer('core.exception', 'diacamma.condominium', 'expenseDel')
 
         self.factory.xfer = ExpenseList()
         self.calljson('/diacamma.condominium/expenseList', {'status_filter': 0}, False)
@@ -574,8 +573,8 @@ class ExpenseTest(PaymentTest):
         self.check_account(year_id=1, code='531', value=0.0)
 
         self.factory.xfer = ExpenseMultiPay()
-        self.calljson('/diacamma.invoice/billMultiPay', {'expense': '4;5'}, False)
-        self.assert_observer('core.acknowledge', 'diacamma.invoice', 'billMultiPay')
+        self.calljson('/diacamma.condominium/expenseMultiPay', {'expense': '4;5'}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseMultiPay')
         self.assertEqual(self.response_json['action']['id'], "diacamma.payoff/payoffAddModify")
         self.assertEqual(len(self.response_json['action']['params']), 2)
         self.assertEqual(self.response_json['action']['params']['supportings'], '4;5')
@@ -647,8 +646,8 @@ class ExpenseTest(PaymentTest):
         self.check_account(year_id=1, code='531', value=0.0)
 
         self.factory.xfer = ExpenseMultiPay()
-        self.calljson('/diacamma.invoice/billMultiPay', {'expense': '4;5'}, False)
-        self.assert_observer('core.acknowledge', 'diacamma.invoice', 'billMultiPay')
+        self.calljson('/diacamma.condominium/expenseMultiPay', {'expense': '4;5'}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseMultiPay')
         self.assertEqual(self.response_json['action']['id'], "diacamma.payoff/payoffAddModify")
         self.assertEqual(len(self.response_json['action']['params']), 2)
         self.assertEqual(self.response_json['action']['params']['supportings'], '4;5')
@@ -798,7 +797,6 @@ class ExpenseTest(PaymentTest):
 class ExpenseBelgiumTest(PaymentTest):
 
     def setUp(self):
-        self.xfer_class = XferContainerAcknowledge
         initial_thirds_be()
         PaymentTest.setUp(self)
         default_compta_be(with12=False)
@@ -854,8 +852,8 @@ class ExpenseBelgiumTest(PaymentTest):
         self.assertEqual(len(self.json_actions), 3)
 
         self.factory.xfer = ExpenseDel()
-        self.calljson('/diacamma.condominium/expenseAddDel', {'CONFIRME': 'YES', "expense": 4}, False)
-        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseAddDel')
+        self.calljson('/diacamma.condominium/expenseDel', {'CONFIRME': 'YES', "expense": 4}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseDel')
 
         self.factory.xfer = ExpenseList()
         self.calljson('/diacamma.condominium/expenseList', {}, False)
@@ -975,8 +973,8 @@ class ExpenseBelgiumTest(PaymentTest):
         self.assertFalse("action" in self.json_actions[2].keys())
 
         self.factory.xfer = ExpenseDel()
-        self.calljson('/diacamma.condominium/expenseAddDel', {'CONFIRME': 'YES', "expense": 4}, False)
-        self.assert_observer('core.exception', 'diacamma.condominium', 'expenseAddDel')
+        self.calljson('/diacamma.condominium/expenseDel', {'CONFIRME': 'YES', "expense": 4}, False)
+        self.assert_observer('core.exception', 'diacamma.condominium', 'expenseDel')
 
         self.factory.xfer = ExpenseList()
         self.calljson('/diacamma.condominium/expenseList', {'status_filter': 0}, False)
@@ -998,8 +996,8 @@ class ExpenseBelgiumTest(PaymentTest):
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseTransition')
 
         self.factory.xfer = ExpenseDel()
-        self.calljson('/diacamma.condominium/expenseAddDel', {'CONFIRME': 'YES', "expense": 4}, False)
-        self.assert_observer('core.exception', 'diacamma.condominium', 'expenseAddDel')
+        self.calljson('/diacamma.condominium/expenseDel', {'CONFIRME': 'YES', "expense": 4}, False)
+        self.assert_observer('core.exception', 'diacamma.condominium', 'expenseDel')
 
         self.factory.xfer = ExpenseList()
         self.calljson('/diacamma.condominium/expenseList', {'status_filter': 0}, False)
@@ -1105,7 +1103,6 @@ class ExpenseBelgiumTest(PaymentTest):
 class ExpenseTestOldAccounting(LucteriosTest):
 
     def setUp(self):
-        self.xfer_class = XferContainerAcknowledge
         initial_thirds_fr()
         LucteriosTest.setUp(self)
         old_accounting()
@@ -1204,8 +1201,8 @@ class ExpenseTestOldAccounting(LucteriosTest):
         self.assertFalse("action" in self.json_actions[2].keys())
 
         self.factory.xfer = ExpenseDel()
-        self.calljson('/diacamma.condominium/expenseAddDel', {'CONFIRME': 'YES', "expense": 4}, False)
-        self.assert_observer('core.exception', 'diacamma.condominium', 'expenseAddDel')
+        self.calljson('/diacamma.condominium/expenseDel', {'CONFIRME': 'YES', "expense": 4}, False)
+        self.assert_observer('core.exception', 'diacamma.condominium', 'expenseDel')
 
         self.factory.xfer = ExpenseList()
         self.calljson('/diacamma.condominium/expenseList', {'status_filter': 0}, False)
@@ -1227,8 +1224,8 @@ class ExpenseTestOldAccounting(LucteriosTest):
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseTransition')
 
         self.factory.xfer = ExpenseDel()
-        self.calljson('/diacamma.condominium/expenseAddDel', {'CONFIRME': 'YES', "expense": 4}, False)
-        self.assert_observer('core.exception', 'diacamma.condominium', 'expenseAddDel')
+        self.calljson('/diacamma.condominium/expenseDel', {'CONFIRME': 'YES', "expense": 4}, False)
+        self.assert_observer('core.exception', 'diacamma.condominium', 'expenseDel')
 
         self.factory.xfer = ExpenseList()
         self.calljson('/diacamma.condominium/expenseList', {'status_filter': 0}, False)

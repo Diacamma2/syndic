@@ -54,7 +54,6 @@ from diacamma.condominium.views_report import FinancialStatus, GeneralManageAcco
 class SetOwnerTest(LucteriosTest):
 
     def setUp(self):
-        self.xfer_class = XferContainerAcknowledge
         initial_thirds_fr()
         LucteriosTest.setUp(self)
         default_compta_fr(with12=False)
@@ -168,8 +167,8 @@ class SetOwnerTest(LucteriosTest):
         self.assert_count_equal('owner', 0)
 
         self.factory.xfer = OwnerAdd()
-        self.calljson('/diacamma.condominium/ownerAddModify', {}, False)
-        self.assert_observer('core.custom', 'diacamma.condominium', 'ownerAddModify')
+        self.calljson('/diacamma.condominium/ownerAdd', {}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'ownerAdd')
         self.assert_count_equal('', 4)
         self.assert_select_equal('third', 7)  # nb=7
 
@@ -182,9 +181,9 @@ class SetOwnerTest(LucteriosTest):
         self.assert_json_equal('', 'accountthird/@1/code', '401')
 
         self.factory.xfer = OwnerAdd()
-        self.calljson('/diacamma.condominium/ownerAddModify',
+        self.calljson('/diacamma.condominium/ownerAdd',
                       {'SAVE': 'YES', "third": 4}, False)
-        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'ownerAddModify')
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'ownerAdd')
 
         self.factory.xfer = OwnerAndPropertyLotList()
         self.calljson('/diacamma.condominium/ownerAndPropertyLotList', {}, False)
@@ -209,8 +208,8 @@ class SetOwnerTest(LucteriosTest):
         self.assert_json_equal('', 'accountthird/@6/code', '4505')
 
         self.factory.xfer = OwnerAdd()
-        self.calljson('/diacamma.condominium/ownerAddModify', {}, False)
-        self.assert_observer('core.custom', 'diacamma.condominium', 'ownerAddModify')
+        self.calljson('/diacamma.condominium/ownerAdd', {}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'ownerAdd')
         self.assert_count_equal('', 4)
         self.assert_select_equal('third', 6)  # nb=6
 
@@ -235,9 +234,9 @@ class SetOwnerTest(LucteriosTest):
         self.assert_json_equal('', 'accountthird/@1/code', '401')
 
         self.factory.xfer = OwnerAdd()
-        self.calljson('/diacamma.condominium/ownerAddModify',
+        self.calljson('/diacamma.condominium/ownerAdd',
                       {'SAVE': 'YES', "third": 4}, False)
-        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'ownerAddModify')
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'ownerAdd')
 
         self.factory.xfer = ThirdShow()
         self.calljson('/diacamma.accounting/thirdShow', {"third": 4}, False)
@@ -346,21 +345,21 @@ class SetOwnerTest(LucteriosTest):
                       {'SAVE': 'YES', "name": "AAA"}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'setAddModify')
         self.factory.xfer = OwnerAdd()
-        self.calljson('/diacamma.condominium/ownerAddModify',
+        self.calljson('/diacamma.condominium/ownerAdd',
                       {'SAVE': 'YES', "third": 4}, False)
-        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'ownerAddModify')
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'ownerAdd')
         self.factory.xfer = SetAddModify()
         self.calljson('/diacamma.condominium/setAddModify',
                       {'SAVE': 'YES', "name": "BBB"}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'setAddModify')
         self.factory.xfer = OwnerAdd()
-        self.calljson('/diacamma.condominium/ownerAddModify',
+        self.calljson('/diacamma.condominium/ownerAdd',
                       {'SAVE': 'YES', "third": 5}, False)
-        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'ownerAddModify')
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'ownerAdd')
         self.factory.xfer = OwnerAdd()
-        self.calljson('/diacamma.condominium/ownerAddModify',
+        self.calljson('/diacamma.condominium/ownerAdd',
                       {'SAVE': 'YES', "third": 7}, False)
-        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'ownerAddModify')
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'ownerAdd')
 
         self.factory.xfer = OwnerAndPropertyLotList()
         self.calljson('/diacamma.condominium/ownerAndPropertyLotList', {}, False)
@@ -397,15 +396,15 @@ class SetOwnerTest(LucteriosTest):
         self.calljson('/diacamma.condominium/setAddModify', {'SAVE': 'YES', "name": "AAA", "budget": '1000'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'setAddModify')
         self.factory.xfer = OwnerAdd()
-        self.calljson('/diacamma.condominium/ownerAddModify',
+        self.calljson('/diacamma.condominium/ownerAdd',
                       {'SAVE': 'YES', "third": 4}, False)
-        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'ownerAddModify')
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'ownerAdd')
         self.factory.xfer = OwnerAdd()
-        self.calljson('/diacamma.condominium/ownerAddModify', {'SAVE': 'YES', "third": 5}, False)
-        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'ownerAddModify')
+        self.calljson('/diacamma.condominium/ownerAdd', {'SAVE': 'YES', "third": 5}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'ownerAdd')
         self.factory.xfer = OwnerAdd()
-        self.calljson('/diacamma.condominium/ownerAddModify', {'SAVE': 'YES', "third": 7}, False)
-        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'ownerAddModify')
+        self.calljson('/diacamma.condominium/ownerAdd', {'SAVE': 'YES', "third": 7}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'ownerAdd')
 
         self.factory.xfer = SetShow()
         self.calljson('/diacamma.condominium/setShow', {'set': 1}, False)
@@ -465,7 +464,6 @@ class SetOwnerTest(LucteriosTest):
 class ReportTest(PaymentTest):
 
     def setUp(self):
-        self.xfer_class = XferContainerAcknowledge
         initial_thirds_fr()
         LucteriosTest.setUp(self)
         default_compta_fr(with12=False)
@@ -577,7 +575,6 @@ class OwnerTest(PaymentTest):
 
     def setUp(self):
         # six.print_('>> %s' % self._testMethodName)
-        self.xfer_class = XferContainerAcknowledge
         initial_thirds_fr()
         LucteriosTest.setUp(self)
         default_compta_fr(with12=False)
@@ -599,9 +596,9 @@ class OwnerTest(PaymentTest):
         self.assertEqual(len(self.json_actions), 3)
 
         self.factory.xfer = PayableShow()
-        self.calljson('/diacamma.payoff/supportingPaymentMethod',
+        self.calljson('/diacamma.payoff/payableShow',
                       {'owner': 1, 'item_name': 'owner'}, False)
-        self.assert_observer('core.exception', 'diacamma.payoff', 'supportingPaymentMethod')
+        self.assert_observer('core.exception', 'diacamma.payoff', 'payableShow')
         self.assert_json_equal('', 'message', "Pas de paiement pour ce document")
 
     def test_payment_owner_nopayable(self):
@@ -615,9 +612,9 @@ class OwnerTest(PaymentTest):
         self.assertEqual(len(self.json_actions), 3)
 
         self.factory.xfer = PayableShow()
-        self.calljson('/diacamma.payoff/supportingPaymentMethod',
+        self.calljson('/diacamma.payoff/payableShow',
                       {'owner': 1, 'item_name': 'owner'}, False)
-        self.assert_observer('core.exception', 'diacamma.payoff', 'supportingPaymentMethod')
+        self.assert_observer('core.exception', 'diacamma.payoff', 'payableShow')
         self.assert_json_equal('', 'message', "Pas de paiement pour ce document")
 
     def test_payment_owner_topay(self):
@@ -634,9 +631,9 @@ class OwnerTest(PaymentTest):
         self.assert_action_equal(self.json_actions[0], (six.text_type('Règlement'), 'diacamma.payoff/images/payments.png', 'diacamma.payoff', 'payableShow', 0, 1, 1))
 
         self.factory.xfer = PayableShow()
-        self.calljson('/diacamma.payoff/supportingPaymentMethod',
+        self.calljson('/diacamma.payoff/payableShow',
                       {'owner': 1, 'item_name': 'owner'}, False)
-        self.assert_observer('core.custom', 'diacamma.payoff', 'supportingPaymentMethod')
+        self.assert_observer('core.custom', 'diacamma.payoff', 'payableShow')
         self.assert_count_equal('', 13)
         self.assert_json_equal('LABELFORM', 'total_current_owner', "-131.25€")
         self.check_payment(1, "copropriete de Minimum", "131.25")
@@ -976,7 +973,6 @@ class OwnerBelgiumTest(PaymentTest):
 
     def setUp(self):
         # six.print_('>> %s' % self._testMethodName)
-        self.xfer_class = XferContainerAcknowledge
         initial_thirds_be()
         LucteriosTest.setUp(self)
         default_compta_be(with12=False)
@@ -1021,7 +1017,6 @@ class OwnerBelgiumTest(PaymentTest):
 class OwnerTestOldAccounting(PaymentTest):
 
     def setUp(self):
-        self.xfer_class = XferContainerAcknowledge
         initial_thirds_fr()
         old_accounting()
         LucteriosTest.setUp(self)

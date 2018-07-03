@@ -43,7 +43,6 @@ class SyndicTest(LucteriosTest):
 
     def setUp(self):
         DocumentShow.url_text
-        self.xfer_class = XferContainerAcknowledge
         initial_thirds_fr()
         LucteriosTest.setUp(self)
         default_compta_fr(with12=False)
