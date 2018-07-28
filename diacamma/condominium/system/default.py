@@ -90,6 +90,8 @@ class DefaultSystemCondo(object):
                     owner_account = part.owner.third.get_account(fiscal_year, part.owner.get_third_mask(type_owner))
                     last_line = EntryLineAccount.objects.create(account=owner_account, amount=-1 * value, entry=close_entry, third=part.owner.third)
                     amount += value
+            if last_line is None:
+                raise LucteriosException(IMPORTANT, _('The class load %s has no owner') % own_set)
             diff = currency_round(result - amount)
             if abs(diff) > 0.0001:
                 last_line.amount -= diff
