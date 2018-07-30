@@ -16,10 +16,7 @@ class Migration(migrations.Migration):
     operations = [
         migrations.CreateModel(
             name='CallFundsSupporting',
-            fields=[
-                ('supporting_ptr', models.OneToOneField(primary_key=True, serialize=False, on_delete=models.CASCADE,
-                                                        to='payoff.Supporting', auto_created=True, parent_link=True)),
-            ],
+            fields=[],
             options={
                 'default_permissions': [],
             },
