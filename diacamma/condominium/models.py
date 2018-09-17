@@ -247,8 +247,8 @@ class Set(LucteriosModel):
         if Params.getvalue("condominium-mode-current-callfunds") == 1:
             nb_seq = 12
         year = FiscalYear.get_current()
-        nb_current = len(CallDetail.objects.filter(set=self, callfunds__date__gte=year.begin, callfunds__date__lte=year.end, callfunds__type_call=0))
-        amount_current = CallDetail.objects.filter(set=self, callfunds__date__gte=year.begin, callfunds__date__lte=year.end, callfunds__type_call=0).aggregate(Sum('price'))
+        nb_current = len(CallDetail.objects.filter(set=self, callfunds__date__gte=year.begin, callfunds__date__lte=year.end, type_call=0))
+        amount_current = CallDetail.objects.filter(set=self, callfunds__date__gte=year.begin, callfunds__date__lte=year.end, type_call=0).aggregate(Sum('price'))
         if amount_current['price__sum'] is None:
             amount_current = 0.0
         else:
@@ -643,20 +643,30 @@ class Owner(Supporting):
         if type_call < 0:
             totalfilter = Q()
         else:
-            totalfilter = Q(type_call=type_call)
-        for callfunds in self.callfunds_set.filter(self.callfunds_query & totalfilter):
-            val += currency_round(callfunds.get_total())
+            totalfilter = Q(calldetail__type_call=type_call)
+        for callfunds in self.callfunds_set.filter(self.callfunds_query & totalfilter).distinct():
+            if type_call < 0:
+                val += currency_round(callfunds.get_total())
+            else:
+                for calldetail in callfunds.calldetail_set.filter(type_call=type_call):
+                    val += currency_round(calldetail.price)
         return val
 
-    def get_total_payed(self, ignore_payoff=-1, type_call=1):
+    def get_total_payed(self, ignore_payoff=-1, type_call=0):
         val = Supporting.get_total_payed(self, ignore_payoff=ignore_payoff)
         if type_call < 0:
             totalfilter = Q()
         else:
-            totalfilter = ~Q(type_call=type_call)
-        for callfunds in self.callfunds_set.filter(self.callfunds_query & totalfilter):
+            totalfilter = Q(calldetail__type_call=type_call)
+        for callfunds in self.callfunds_set.filter(self.callfunds_query & totalfilter).distinct():
             callfunds.check_supporting()
-            val += currency_round(callfunds.supporting.get_total_payed(ignore_payoff))
+            total_payed = callfunds.supporting.get_total_payed(ignore_payoff)
+            if type_call < 0:
+                val += currency_round(total_payed)
+            else:
+                total = callfunds.get_total()
+                for calldetail in callfunds.calldetail_set.filter(type_call=type_call):
+                    val += currency_round(float(calldetail.price) * total_payed / total)
         return val
 
     def get_total_initial(self, owner_type=1):
@@ -780,7 +790,7 @@ class Owner(Supporting):
 
     def get_total_rest_topay(self):
         val = Supporting.get_total_rest_topay(self)
-        for callfunds in self.callfunds_set.filter(self.callfunds_query & ~Q(type_call=1)):
+        for callfunds in self.callfunds_set.filter(self.callfunds_query & ~Q(calldetail__type_call=1)):
             callfunds.check_supporting()
             val -= currency_round(callfunds.supporting.get_total_rest_topay())
         return val
@@ -1006,15 +1016,19 @@ class CallFundsSupporting(Supporting):
     def get_total(self):
         return self.callfunds.get_total()
 
-    def get_third_mask(self):
-        if Params.getvalue("condominium-old-accounting"):
-            return current_system_account().get_societary_mask()
-        else:
-            try:
-                account = Params.getvalue("condominium-default-owner-account%d" % (self.callfunds.type_call + 1))
-                return "^" + account + "[0-9a-zA-Z]*$"
-            except BaseException:
-                return current_system_account().get_societary_mask()
+    def get_third_mask(self, type_owner=1):
+        third_mask = self.callfunds.owner.get_third_mask(type_owner)
+        return third_mask
+
+    def get_third_masks_by_amount(self, amount):
+        masks = {}
+        total = self.callfunds.get_total()
+        for calldetail in self.callfunds.calldetail_set.all():
+            mask = self.get_third_mask(type_owner=calldetail.type_call + 1)
+            if mask not in masks:
+                masks[mask] = 0
+            masks[mask] += float(calldetail.price) * amount / total
+        return masks.items()
 
     def payoff_is_revenu(self):
         return True
@@ -1052,8 +1066,7 @@ class CallFunds(LucteriosModel):
     num = models.IntegerField(verbose_name=_('numeros'), null=True)
     date = models.DateField(verbose_name=_('date'), null=False)
     comment = models.TextField(_('comment'), null=True, default="")
-    type_call = models.IntegerField(verbose_name=_('type of call'),
-                                    choices=((0, _('current')), (1, _('exceptional')), (2, _('cash advance')), (3, _('borrowing')), (4, _('fund for works'))), null=False, default=0, db_index=True)
+    type_call = models.IntegerField(verbose_name=_('type of call'), choices=(), null=True, default=None, db_index=True)
     status = FSMIntegerField(verbose_name=_('status'),
                              choices=((0, _('building')), (1, _('valid')), (2, _('ended'))), null=False, default=0, db_index=True)
 
@@ -1062,15 +1075,15 @@ class CallFunds(LucteriosModel):
 
     @classmethod
     def get_default_fields(cls):
-        return ["num", (_('type of call'), 'type_call_ex'), "date", "owner", "comment", (_('total'), 'total'), (_('rest to pay'), 'supporting.total_rest_topay')]
+        return ["num", "date", "owner", "comment", (_('total'), 'total'), (_('rest to pay'), 'supporting.total_rest_topay')]
 
     @classmethod
     def get_edit_fields(cls):
-        return ["status", 'type_call', "date", "comment"]
+        return ["status", "date", "comment"]
 
     @classmethod
     def get_show_fields(cls):
-        return [("num", "date"), ("owner", (_('type of call'), 'type_call_ex')), "calldetail_set", "comment", ("status", (_('total'), 'total'))]
+        return [("num", "date"), "owner", "calldetail_set", "comment", ("status", (_('total'), 'total'))]
 
     def get_total(self):
         self.check_supporting()
@@ -1082,15 +1095,6 @@ class CallFunds(LucteriosModel):
     @property
     def total(self):
         return format_devise(self.get_total(), 5)
-
-    @property
-    def type_call_ex(self):
-        result = "#%d" % self.type_call
-        for callfunds_id, callfunds_title in current_system_condo().get_callfunds_list():
-            if callfunds_id == self.type_call:
-                result = callfunds_title
-                break
-        return result
 
     def can_delete(self):
         if self.status != 0:
@@ -1110,7 +1114,7 @@ class CallFunds(LucteriosModel):
         last_call = None
         calls_by_owner = {}
         for owner in Owner.objects.all():
-            calls_by_owner[owner.id] = CallFunds.objects.create(num=new_num, date=self.date, owner=owner, comment=self.comment, type_call=self.type_call,
+            calls_by_owner[owner.id] = CallFunds.objects.create(num=new_num, date=self.date, owner=owner, comment=self.comment,
                                                                 status=1, supporting=CallFundsSupporting.objects.create(third=owner.third))
             last_call = calls_by_owner[owner.id]
         for calldetail in self.calldetail_set.all():
@@ -1118,8 +1122,8 @@ class CallFunds(LucteriosModel):
             new_detail = None
             for part in calldetail.set.partition_set.all().order_by('value'):
                 if part.value > 0.001:
-                    new_detail = CallDetail.objects.create(
-                        set=calldetail.set, designation=calldetail.designation)
+                    new_detail = CallDetail.objects.create(type_call=calldetail.type_call,
+                                                           set=calldetail.set, designation=calldetail.designation)
                     new_detail.callfunds = calls_by_owner[part.owner.id]
                     new_detail.price = currency_round(float(calldetail.price) * part.get_ratio() / 100.0)
                     amount -= new_detail.price
@@ -1173,17 +1177,28 @@ class CallDetail(LucteriosModel):
     price = models.DecimalField(verbose_name=_('amount'), max_digits=10, decimal_places=3, default=0.0, validators=[
         MinValueValidator(0.0), MaxValueValidator(9999999.999)])
     entry = models.ForeignKey(EntryAccount, verbose_name=_('entry'), null=True, on_delete=models.PROTECT)
+    type_call = models.IntegerField(verbose_name=_('type of call'),
+                                    choices=((0, _('current')), (1, _('exceptional')), (2, _('cash advance')), (3, _('borrowing')), (4, _('fund for works'))), null=False, default=0, db_index=True)
 
     def __str__(self):
         return "%s - %s" % (self.callfunds, self.designation)
 
     @classmethod
     def get_default_fields(cls):
-        return ["set", "designation", (_('total'), 'total_amount'), (_('tantime sum'), 'set.total_part'), (_('tantime'), 'owner_part'), (_('amount'), 'price_txt')]
+        return [(_('type of call'), 'type_call_ex'), "set", "designation", (_('total'), 'total_amount'), (_('tantime sum'), 'set.total_part'), (_('tantime'), 'owner_part'), (_('amount'), 'price_txt')]
 
     @classmethod
     def get_edit_fields(cls):
-        return ["set", "designation", "price"]
+        return ['type_call', "set", "designation", "price"]
+
+    @property
+    def type_call_ex(self):
+        result = "#%d" % self.type_call
+        for callfunds_id, callfunds_title in current_system_condo().get_callfunds_list():
+            if callfunds_id == self.type_call:
+                result = callfunds_title
+                break
+        return result
 
     @property
     def price_txt(self):
@@ -1474,13 +1489,10 @@ def convert_accounting(year, thirds_convert):
         if (call_funds.status == 2):
             call_funds.status = 1
         call_funds.check_supporting()
-        type_call = 0
         for call_detail in call_funds.calldetail_set.all():
             if call_detail.set.type_load == 1:
-                type_call = 1
-                break
-        call_funds.type_call = type_call
-        call_funds.save()
+                call_funds.type_call = 1
+                call_funds.save()
         call_funds.generate_accounting(year)
     expense_list = []
     for expense in Expense.objects.filter(status__gte=1, date__gte=year.begin, date__lte=year.end):
@@ -1495,6 +1507,26 @@ def convert_accounting(year, thirds_convert):
         expense.valid()
     for pay_off in Payoff.objects.filter(date__gte=year.begin, date__lte=year.end):
         pay_off.save()
+
+
+def migrate_budget():
+    set_list = Set.objects.filter(is_active=True)
+    for setitem in set_list:
+        setitem.rename_all_cost_accounting()
+        if len(setitem.current_cost_accounting.budget_set.all()) == 0:
+            setitem.convert_budget()
+    for budget_item in Budget.objects.filter(year__isnull=True):
+        budget_item.year = FiscalYear.get_current()
+        budget_item.save()
+
+
+def migrate_callfunds_type():
+    for call_funds in CallFunds.objects.filter(type_call__isnull=False):
+        for detail in call_funds.calldetail_set.all():
+            detail.type_call = call_funds.type_call
+            detail.save()
+        call_funds.type_call = None
+        call_funds.save()
 
 
 @Signal.decorate('checkparam')
@@ -1559,12 +1591,6 @@ def condominium_checkparam():
         Parameter.change_value('condominium-old-accounting', len(Owner.objects.all()) != 0)
         for current_set in Set.objects.all():
             current_set.convert_cost()
-    set_list = Set.objects.filter(is_active=True)
-    for setitem in set_list:
-        setitem.rename_all_cost_accounting()
-        if len(setitem.current_cost_accounting.budget_set.all()) == 0:
-            setitem.convert_budget()
-    for budget_item in Budget.objects.filter(year__isnull=True):
-        budget_item.year = FiscalYear.get_current()
-        budget_item.save()
+    migrate_budget()
     Set.correct_costaccounting()
+    migrate_callfunds_type()

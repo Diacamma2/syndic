@@ -89,29 +89,27 @@ class FrenchSystemCondo(DefaultSystemCondo):
             calls = CallFunds.objects.filter(date__gte=year.begin, date__lte=year.end, type_call=0)
             return len(calls) == 0
 
-    def generate_account_callfunds(self, call_funds, fiscal_year):
-        owner_account_filter = call_funds.supporting.get_third_mask()
+    def _generate_account_callfunds_by_type(self, new_entry, type_call, calldetails):
         detail_account_filter = None
-        if call_funds.type_call == 0:
+        if type_call == 0:
             detail_account_filter = Params.getvalue("condominium-current-revenue-account")
-        if call_funds.type_call == 1:
+        if type_call == 1:
             detail_account_filter = Params.getvalue("condominium-exceptional-reserve-account")
-        if call_funds.type_call == 2:
+        if type_call == 2:
             detail_account_filter = Params.getvalue("condominium-advance-reserve-account")
-        if call_funds.type_call == 4:
+        if type_call == 4:
             detail_account_filter = Params.getvalue("condominium-fundforworks-reserve-account")
-        owner_account = call_funds.owner.third.get_account(fiscal_year, owner_account_filter)
-        detail_account = ChartsAccount.get_account(detail_account_filter, fiscal_year)
+        detail_account = ChartsAccount.get_account(detail_account_filter, new_entry.year)
         if detail_account is None:
             raise LucteriosException(IMPORTANT, _("incorrect account for call of found"))
-        new_entry = EntryAccount.objects.create(year=fiscal_year, date_value=call_funds.date, designation=call_funds.__str__(), journal_id=3)
         total = 0
-        for calldetail in call_funds.calldetail_set.all():
-            EntryLineAccount.objects.create(account=detail_account, amount=calldetail.price, entry=new_entry, costaccounting=calldetail.set.current_cost_accounting)
+        for calldetail in calldetails:
+            EntryLineAccount.objects.create(account=detail_account, amount=calldetail.price, entry=new_entry,
+                                            costaccounting=calldetail.set.current_cost_accounting)
             total += calldetail.price
             calldetail.entry = new_entry
             calldetail.save()
-        EntryLineAccount.objects.create(account=owner_account, amount=total, entry=new_entry, third=call_funds.owner.third)
+        return total
 
     def _generate_revenue_for_expense_oldaccounting(self, expense_detail, is_asset, fiscal_year):
         revenue_code = expense_detail.set.revenue_account

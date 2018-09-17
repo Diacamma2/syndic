@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-07-28 13:19+0000\n"
+"POT-Creation-Date: 2018-09-17 15:50+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -81,32 +81,37 @@ msgstr "Appel de fonds N°%(num)d de l'exercice du %(begin)s au %(end)s"
 msgid "%(type)s - #%(num)d"
 msgstr "%(type)s - N°%(num)d"
 
-#: system/belgium.py:117 system/french.py:106
+#: system/belgium.py:115 system/french.py:104
 msgid "incorrect account for call of found"
 msgstr "compte incorrect pour l'appel de fonds !"
 
-#: system/belgium.py:133 system/belgium.py:137 system/belgium.py:161
-#: system/french.py:121 system/french.py:144 system/french.py:148
-#: system/french.py:172
+#: system/belgium.py:131 system/belgium.py:135 system/belgium.py:159
+#: system/french.py:119 system/french.py:142 system/french.py:146
+#: system/french.py:170
 #, python-format
 msgid "code account %s unknown!"
 msgstr "code comptable %s non trouvé !"
 
-#: system/belgium.py:151 system/belgium.py:168 system/french.py:130
-#: system/french.py:162 system/french.py:179
+#: system/belgium.py:149 system/belgium.py:166 system/french.py:128
+#: system/french.py:160 system/french.py:177
 msgid "Error in accounting generator!"
 msgstr "Erreur dans la génération comptable !"
 
-#: system/default.py:66 system/default.py:69 system/default.py:72
+#: system/default.py:67 system/default.py:82 system/default.py:85
 msgid "This system condomium is not implemented"
 msgstr "Ce système de copropriété n'est pas implémenté !"
 
-#: system/default.py:82 system/default.py:109
+#: system/default.py:73
+#, python-format
+msgid "call of funds \"%(type)s\" #%(num)d - %(date)s"
+msgstr "appel de fonds \"%(type)s\" N°%(num)d - %(date)s"
+
+#: system/default.py:95 system/default.py:122
 #, python-format
 msgid "Ventilation for %s"
 msgstr "Ventilation pour %s"
 
-#: system/default.py:94
+#: system/default.py:107
 #, python-format
 msgid "The class load %s has no owner"
 msgstr "La catégorie de charges %s n'a pas de copropriétaire"

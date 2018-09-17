@@ -32,6 +32,7 @@ from diacamma.accounting.tools import currency_round
 from diacamma.accounting.models import FiscalYear, EntryAccount, EntryLineAccount, ChartsAccount
 
 from diacamma.condominium.models import CallDetail, Owner, PropertyLot
+from lucterios.framework.models import get_value_converted
 
 
 class DefaultSystemCondo(object):
@@ -62,8 +63,20 @@ class DefaultSystemCondo(object):
     def owner_account_changed(self, account_item):
         pass
 
-    def generate_account_callfunds(self, call_funds, fiscal_year):
+    def _generate_account_callfunds_by_type(self, new_entry, type_call, calldetails):
         raise LucteriosException(IMPORTANT, _('This system condomium is not implemented'))
+
+    def generate_account_callfunds(self, call_funds, fiscal_year):
+        for type_call, type_title in self.get_callfunds_list():
+            calldetails = call_funds.calldetail_set.filter(type_call=type_call)
+            if len(calldetails) > 0:
+                designation = _('call of funds "%(type)s" #%(num)d - %(date)s') % {'num': call_funds.num, 'type': type_title,
+                                                                                   'date': get_value_converted(call_funds.date)}
+                new_entry = EntryAccount.objects.create(year=fiscal_year, date_value=call_funds.date, designation=designation, journal_id=3)
+                owner_account_filter = call_funds.supporting.get_third_mask(type_owner=type_call + 1)
+                owner_account = call_funds.owner.third.get_account(fiscal_year, owner_account_filter)
+                total = self._generate_account_callfunds_by_type(new_entry, type_call, calldetails)
+                EntryLineAccount.objects.create(account=owner_account, amount=total, entry=new_entry, third=call_funds.owner.third)
 
     def generate_revenue_for_expense(self, expense, is_asset, fiscal_year):
         raise LucteriosException(IMPORTANT, _('This system condomium is not implemented'))

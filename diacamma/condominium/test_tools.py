@@ -112,21 +112,21 @@ def default_setowner_be(with_lots=True):
 
 
 def add_test_callfunds(simple=True, with_payoff=False):
-    call1 = CallFunds.objects.create(date='2015-06-10', comment='uvw 987', type_call=0)
-    CallDetail.objects.create(callfunds=call1, set_id=1, price='250.00', designation='set 1')
-    CallDetail.objects.create(callfunds=call1, set_id=2, price='25.00', designation='set 2')
+    call1 = CallFunds.objects.create(date='2015-06-10', comment='uvw 987')
+    CallDetail.objects.create(callfunds=call1, type_call=0, set_id=1, price='250.00', designation='set 1')
+    CallDetail.objects.create(callfunds=call1, type_call=0, set_id=2, price='25.00', designation='set 2')
     call1.valid()  # => 5 6 7
     if not simple:
-        call2 = CallFunds.objects.create(date='2015-07-14', comment='working...', type_call=1)
-        CallDetail.objects.create(callfunds=call2, set_id=3, price='100.00', designation='set 3')
+        call2 = CallFunds.objects.create(date='2015-07-14', comment='working...')
+        CallDetail.objects.create(callfunds=call2, type_call=1, set_id=3, price='100.00', designation='set 3')
         call2.valid()  # => 9 10 11
     if with_payoff:
-        pay = Payoff(supporting_id=4, date='2015-06-15', mode=0, amount=100.0)
-        pay.editor.before_save(None)
-        pay.save()
-        pay = Payoff(supporting_id=7, date='2015-07-21', mode=0, amount=30.0)
-        pay.editor.before_save(None)
-        pay.save()
+        pay1 = Payoff(supporting_id=4, date='2015-06-15', mode=0, amount=100.0)
+        pay1.editor.before_save(None)
+        pay1.save()
+        pay2 = Payoff(supporting_id=7, date='2015-07-21', mode=0, amount=30.0)
+        pay2.editor.before_save(None)
+        pay2.save()
 
 
 def _add_test_expenses(expense_account1, expense_account2, simple, with_payoff):

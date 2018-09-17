@@ -199,11 +199,7 @@ class CallFundsEditor(LucteriosEditor):
             self.item.supporting.edit.before_save(xfer)
 
     def edit(self, xfer):
-        type_call = xfer.get_components('type_call')
-        type_call.set_select(current_system_condo().get_callfunds_list())
         xfer.change_to_readonly('status')
-        if len(self.item.calldetail_set.all()) > 0:
-            xfer.change_to_readonly('type_call')
 
     def show(self, xfer):
         self.item.check_supporting()
@@ -226,8 +222,11 @@ class CallFundsEditor(LucteriosEditor):
 class CallDetailEditor(LucteriosEditor):
 
     def edit(self, xfer):
+        type_call = xfer.get_components('type_call')
+        type_call.set_select(current_system_condo().get_callfunds_list())
+        type_call.set_action(xfer.request, xfer.get_action(), close=CLOSE_NO, modal=FORMTYPE_REFRESH)
         set_comp = xfer.get_components('set')
-        if self.item.callfunds.type_call == 1:
+        if int(self.item.type_call) == 1:
             type_load = 1
         else:
             type_load = 0
@@ -240,9 +239,9 @@ class CallDetailEditor(LucteriosEditor):
         set_comp.get_json()
         current_set = Set.objects.get(id=set_comp.value)
         if current_set.type_load == 0:
-            if self.item.callfunds.type_call == 0:
+            if int(self.item.type_call) == 0:
                 xfer.get_components('price').value = current_set.get_new_current_callfunds()
-            elif self.item.callfunds.type_call == 4:
+            elif int(self.item.type_call) == 4:
                 xfer.get_components('price').value = current_set.get_current_budget() * 0.05
             else:
                 xfer.get_components('price').value = 0.0
