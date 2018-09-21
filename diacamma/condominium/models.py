@@ -556,13 +556,71 @@ class Owner(Supporting):
             for setitem in Set.objects.all():
                 Partition.objects.create(set=setitem, owner=self)
 
-    @property
-    def thirdinitial(self):
+    def get_third_initial(self):
         if self.date_begin is None:
             self.set_dates()
         third_total = get_amount_sum(EntryLineAccount.objects.filter(Q(third=self.third) & Q(entry__date_value__lt=self.date_begin)).aggregate(Sum('amount')))
         third_total -= get_amount_sum(EntryLineAccount.objects.filter(Q(third=self.third) & Q(entry__date_value=self.date_begin) & Q(entry__journal__id=1)).aggregate(Sum('amount')))
-        return format_devise(third_total, 5)
+        return third_total
+
+    @property
+    def thirdinitial(self):
+        return format_devise(self.get_third_initial(), 5)
+
+    def check_initial_operation(self):
+        if FiscalYear.get_current().status != 2:
+            self.date_begin = FiscalYear.get_current().begin
+            entries_init = EntryAccount.objects.filter(Q(entrylineaccount__third=self.third) & Q(date_value=self.date_begin) & Q(journal__id=1))
+            if len(entries_init) > 0:
+                third_initial = self.get_third_initial()
+                if (third_initial > 0.0001) and (len(Payoff.objects.filter((Q(supporting=self) | Q(supporting__callfundssupporting__third=self.third)) & Q(entry=entries_init[0]))) == 0):
+                    init_paypoff = Payoff(supporting=self, date=self.date_begin, payer=six.text_type(self.third), mode=4,
+                                          reference=_('Last year report'), bank_fee=0)
+                    init_paypoff.amount = third_initial
+                    init_paypoff.entry = entries_init[0]
+                    init_paypoff.save(do_generate=False)
+                elif (third_initial < 0.0001) and (len(CallDetail.objects.filter(callfunds__owner=self, entry=entries_init[0])) == 0):
+                    init_call = CallFunds(owner=self, num=None, date=self.date_begin, comment=_('Last year report'), status=2)
+                    init_call.check_supporting()
+                    init_detail = CallDetail(callfunds=init_call, set=None, designation=_('Last year report'), type_call=0)
+                    init_detail.price = abs(third_initial)
+                    init_detail.entry = entries_init[0]
+                    init_detail.save()
+
+    def check_ventilate_payoff(self):
+        # move payoff in owner general list
+        callfunds_supportings = Supporting.objects.filter(Q(third=self.third) & Q(callfundssupporting__callfunds__date__gte=self.date_begin) &
+                                                          Q(callfundssupporting__callfunds__date__lte=self.date_end) & Q(payoff__entry__close=False))
+        export_payoff_filter = Q(supporting__in=callfunds_supportings) & Q(entry__close=False)
+        export_payoff_list = Payoff.objects.filter(export_payoff_filter).values('entry_id', 'mode',
+                                                                                'payer', 'reference',
+                                                                                'bank_account_id', 'date').annotate(amount=Sum('amount'), bank_fee=Sum('bank_fee'))
+        supportings = [six.text_type(self.id)]
+        for export_payoff in export_payoff_list:
+            entry = EntryAccount.objects.get(id=export_payoff['entry_id'])
+            amount = get_amount_sum(entry.entrylineaccount_set.filter(account__code__regex=current_system_account().get_cash_mask()).aggregate(Sum('amount')))
+            Payoff.multi_save(supportings=supportings, amount=abs(amount),
+                              mode=export_payoff['mode'], payer=export_payoff['payer'],
+                              reference=export_payoff['reference'],
+                              bank_account=export_payoff['bank_account_id'] if export_payoff['bank_account_id'] is not None else 0,
+                              date=export_payoff['date'], bank_fee=export_payoff['bank_fee'], repartition=1)
+            entry.delete()
+        # move payoff from general to call of funds
+        for call_fund in self.callfunds_set.filter(date__gte=self.date_begin, date__lte=self.date_end):
+            if call_fund.supporting.get_total_rest_topay() > 0.0001:
+                supportings.append(six.text_type(call_fund.supporting_id))
+        payoffs_filter = Q(date__gte=self.date_begin) & Q(date__lte=self.date_end) & (Q(entry__close=False) | (Q(entry__entrylineaccount__third=self.third) & Q(entry__date_value=FiscalYear.get_current().begin) & Q(entry__journal__id=1)))
+        payoffs = self.payoff_set.filter(payoffs_filter).distinct().order_by('date')
+        for payoff in payoffs:
+            Payoff.multi_save(supportings=supportings, amount=payoff.amount, mode=payoff.mode,
+                              payer=payoff.payer, reference=payoff.reference,
+                              bank_account=payoff.bank_account_id if payoff.bank_account_id is not None else 0,
+                              date=payoff.date, bank_fee=payoff.bank_fee, repartition=1,
+                              entry=payoff.entry if (payoff.entry_id is not None) and payoff.entry.close else None)
+            if payoff.entry.close:
+                payoff.entry = None
+                payoff.save(do_generate=False)
+            payoff.delete()
 
     @property
     def entryline_set(self):
@@ -1071,7 +1129,10 @@ class CallFunds(LucteriosModel):
                              choices=((0, _('building')), (1, _('valid')), (2, _('ended'))), null=False, default=0, db_index=True)
 
     def __str__(self):
-        return _('call of funds #%(num)d - %(date)s') % {'num': self.num, 'date': get_value_converted(self.date)}
+        if self.num is not None:
+            return _('call of funds #%(num)d - %(date)s') % {'num': self.num, 'date': get_value_converted(self.date)}
+        else:
+            return _('call of funds "last year report" - %(date)s') % {'date': get_value_converted(self.date)}
 
     @classmethod
     def get_default_fields(cls):
@@ -1168,11 +1229,12 @@ class CallFunds(LucteriosModel):
     class Meta(object):
         verbose_name = _('call of funds')
         verbose_name_plural = _('calls of funds')
+        ordering = ['date', 'num']
 
 
 class CallDetail(LucteriosModel):
     callfunds = models.ForeignKey(CallFunds, verbose_name=_('call of funds'), null=True, default=None, db_index=True, on_delete=models.CASCADE)
-    set = models.ForeignKey(Set, verbose_name=_('set'), null=False, db_index=True, on_delete=models.PROTECT)
+    set = models.ForeignKey(Set, verbose_name=_('set'), null=True, db_index=True, on_delete=models.PROTECT)
     designation = models.TextField(verbose_name=_('designation'))
     price = models.DecimalField(verbose_name=_('amount'), max_digits=10, decimal_places=3, default=0.0, validators=[
         MinValueValidator(0.0), MaxValueValidator(9999999.999)])

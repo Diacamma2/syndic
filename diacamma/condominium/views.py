@@ -27,11 +27,12 @@ from lucterios.contacts.tools import ContactSelection
 from diacamma.accounting.models import AccountThird, FiscalYear
 from diacamma.accounting.tools import correct_accounting_code, format_devise
 from diacamma.payoff.views import PayoffAddModify
-from diacamma.payoff.models import Payoff
+from diacamma.payoff.models import Payoff, Supporting
 
 from diacamma.condominium.models import PropertyLot, Owner, Set, SetCost, convert_accounting, OwnerContact
 from diacamma.condominium.views_classload import fill_params
 from diacamma.condominium.system import current_system_condo
+from django.db.models.aggregates import Sum
 
 
 @MenuManage.describ('condominium.change_set', FORMTYPE_NOMODAL, 'condominium.manage', _('Manage of owners and property lots'))
@@ -260,16 +261,10 @@ class OwnerVentilatePay(XferContainerAcknowledge):
     field_id = 'owner'
 
     def fillresponse(self, begin_date, end_date):
+        self.item.check_initial_operation()
         self.item.set_dates(begin_date, end_date)
-        supportings = [six.text_type(self.item.id)]
-        for call_fund in self.item.callfunds_set.filter(date__gte=self.item.date_begin, date__lte=self.item.date_end):
-            if call_fund.supporting.get_total_rest_topay() > 0.0001:
-                supportings.append(six.text_type(call_fund.supporting_id))
-        payoffs = self.item.payoff_set.filter(date__gte=self.item.date_begin, date__lte=self.item.date_end, entry__close=False).order_by('date')
-        if (len(payoffs) > 0) and (len(supportings) > 1) and self.confirme(_('Do you want to ventilate general payoff on calls of funds ?')):
-            for payoff in payoffs:
-                Payoff.multi_save(supportings, payoff.amount, payoff.mode, payoff.payer, payoff.reference, payoff.bank_account_id, payoff.date, 1)
-                payoff.delete()
+        if self.confirme(_('Do you want to check ventilate payoff on calls of funds ?')):
+            self.item.check_ventilate_payoff()
 
 
 @ActionsManage.affect_grid(TITLE_PRINT, "images/print.png", unique=SELECT_MULTI)
