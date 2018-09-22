@@ -29,26 +29,24 @@ from base64 import b64decode
 from django.utils import six
 
 from lucterios.framework.test import LucteriosTest
-from lucterios.framework.xfergraphic import XferContainerAcknowledge
 from lucterios.framework.filetools import get_user_dir
 
-from diacamma.accounting.test_tools import initial_thirds_fr, default_compta_fr, default_costaccounting,\
-    default_compta_be, initial_thirds_be
+from diacamma.accounting.test_tools import initial_thirds_fr, default_compta_fr, default_costaccounting, default_compta_be, initial_thirds_be
 from diacamma.accounting.views import ThirdShow
 from diacamma.accounting.models import EntryAccount, FiscalYear
 from diacamma.accounting.views_entries import EntryAccountList
 from diacamma.accounting.views_accounts import FiscalYearClose, FiscalYearBegin, FiscalYearReportLastYear
 from diacamma.accounting.views_other import CostAccountingList
 
-from diacamma.payoff.test_tools import default_bankaccount_fr, default_paymentmethod, PaymentTest,\
-    default_bankaccount_be
+from diacamma.payoff.test_tools import default_bankaccount_fr, default_paymentmethod, PaymentTest, default_bankaccount_be
 from diacamma.payoff.views import PayableShow, PayableEmail
 
 from diacamma.condominium.views_classload import SetList, SetAddModify, SetDel, SetShow, PartitionAddModify, CondominiumConf, SetClose
-from diacamma.condominium.views import OwnerAndPropertyLotList, OwnerAdd, OwnerDel, OwnerShow, PropertyLotAddModify, CondominiumConvert
-from diacamma.condominium.test_tools import default_setowner_fr, add_test_callfunds, old_accounting, add_test_expenses_fr, init_compta, add_years,\
-    default_setowner_be
+from diacamma.condominium.views import OwnerAndPropertyLotList, OwnerAdd, OwnerDel, OwnerShow, PropertyLotAddModify, CondominiumConvert,\
+    OwnerVentilatePay
+from diacamma.condominium.test_tools import default_setowner_fr, add_test_callfunds, old_accounting, add_test_expenses_fr, init_compta, add_years, default_setowner_be
 from diacamma.condominium.views_report import FinancialStatus, GeneralManageAccounting, CurrentManageAccounting, ExceptionalManageAccounting
+from diacamma.payoff.models import Payoff
 
 
 class SetOwnerTest(LucteriosTest):
@@ -482,14 +480,14 @@ class ReportTest(PaymentTest):
         self.assert_count_equal('', 4)
         self.assert_count_equal('report_1', 17)
         self.assert_json_equal('', 'report_1/@1/left', '[512] 512')
-        self.assert_json_equal('', 'report_1/@1/left_n', '16.84€')
+        self.assert_json_equal('', 'report_1/@1/left_n', '4.34€')
         self.assert_json_equal('', 'report_1/@2/left', '[531] 531')
         self.assert_json_equal('', 'report_1/@2/left_n', '20.00€')
 
         self.assert_json_equal('', 'report_1/@7/left', '[4501 Minimum]')
         self.assert_json_equal('', 'report_1/@7/left_n', '7.80€')
         self.assert_json_equal('', 'report_1/@8/left', '[4501 Dalton William]')
-        self.assert_json_equal('', 'report_1/@8/left_n', '87.50€')
+        self.assert_json_equal('', 'report_1/@8/left_n', '100.00€')
         self.assert_json_equal('', 'report_1/@9/left', '[4501 Dalton Joe]')
         self.assert_json_equal('', 'report_1/@9/left_n', '56.25€')
         self.assert_json_equal('', 'report_1/@10/left', '[4502 Minimum]')
@@ -744,9 +742,9 @@ class OwnerTest(PaymentTest):
         self.check_account(year_id=1, code='105', value=0.0)
         self.check_account(year_id=1, code='120', value=25.0)
         self.check_account(year_id=1, code='401', value=65.0)
-        self.check_account(year_id=1, code='4501', value=151.55)
+        self.check_account(year_id=1, code='4501', value=164.05)
         self.check_account(year_id=1, code='4502', value=64.27)
-        self.check_account(year_id=1, code='512', value=16.84)
+        self.check_account(year_id=1, code='512', value=4.34)
         self.check_account(year_id=1, code='531', value=20.0)
         self.check_account(year_id=1, code='602', value=75.0)
         self.check_account(year_id=1, code='604', value=100.0)
@@ -793,7 +791,7 @@ class OwnerTest(PaymentTest):
         self.calljson('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '5', 'filter': '0'}, False)
         self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
         self.assert_count_equal('entryline', 2)
-        self.assert_json_equal('LABELFORM', 'result', '{[center]}{[b]}Produit :{[/b]} 350.00€ - {[b]}Charge :{[/b]} 187.34€ = {[b]}Résultat :{[/b]} 162.66€{[br/]}{[b]}Trésorerie :{[/b]} 36.84€ - {[b]}Validé :{[/b]} 16.84€{[/center]}')
+        self.assert_json_equal('LABELFORM', 'result', '{[center]}{[b]}Produit :{[/b]} 350.00€ - {[b]}Charge :{[/b]} 187.34€ = {[b]}Résultat :{[/b]} 162.66€{[br/]}{[b]}Trésorerie :{[/b]} 24.34€ - {[b]}Validé :{[/b]} 4.34€{[/center]}')
 
         self.factory.xfer = SetShow()
         self.calljson('/diacamma.condominium/setShow', {'set': 3}, False)
@@ -825,7 +823,7 @@ class OwnerTest(PaymentTest):
         self.calljson('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '5', 'filter': '0'}, False)
         self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
         self.assert_count_equal('entryline', 6)
-        self.assert_json_equal('LABELFORM', 'result', '{[center]}{[b]}Produit :{[/b]} 350.00€ - {[b]}Charge :{[/b]} 187.34€ = {[b]}Résultat :{[/b]} 162.66€{[br/]}{[b]}Trésorerie :{[/b]} 36.84€ - {[b]}Validé :{[/b]} 36.84€{[/center]}')
+        self.assert_json_equal('LABELFORM', 'result', '{[center]}{[b]}Produit :{[/b]} 350.00€ - {[b]}Charge :{[/b]} 187.34€ = {[b]}Résultat :{[/b]} 162.66€{[br/]}{[b]}Trésorerie :{[/b]} 24.34€ - {[b]}Validé :{[/b]} 24.34€{[/center]}')
 
         self.assert_json_equal('', 'entryline/@2/costaccounting', '---')
         self.assert_json_equal('', 'entryline/@2/entry_account', '[120] 120')
@@ -838,9 +836,9 @@ class OwnerTest(PaymentTest):
 
         self.check_account(year_id=1, code='120', value=0.00)
         self.check_account(year_id=1, code='401', value=65.0)
-        self.check_account(year_id=1, code='4501', value=151.55)
+        self.check_account(year_id=1, code='4501', value=164.05)
         self.check_account(year_id=1, code='4502', value=39.27)
-        self.check_account(year_id=1, code='512', value=16.84)
+        self.check_account(year_id=1, code='512', value=4.34)
         self.check_account(year_id=1, code='531', value=20.0)
         self.check_account(year_id=1, code='701', value=275.0)
         self.check_account(year_id=1, code='702', value=75.0)
@@ -873,9 +871,9 @@ class OwnerTest(PaymentTest):
         self.check_account(year_id=1, code='105', value=0.0)
         self.check_account(year_id=1, code='120', value=25.0)
         self.check_account(year_id=1, code='401', value=65.0)
-        self.check_account(year_id=1, code='4501', value=-11.11)
+        self.check_account(year_id=1, code='4501', value=1.39)
         self.check_account(year_id=1, code='4502', value=64.27)
-        self.check_account(year_id=1, code='512', value=16.84)
+        self.check_account(year_id=1, code='512', value=4.34)
         self.check_account(year_id=1, code='531', value=20.0)
         self.check_account(year_id=1, code='602', value=75.0)
         self.check_account(year_id=1, code='604', value=100.0)
@@ -895,9 +893,9 @@ class OwnerTest(PaymentTest):
         self.check_account(year_id=2, code='120', value=25.0)
         self.check_account(year_id=1, code='129', value=None)
         self.check_account(year_id=2, code='401', value=65.0)
-        self.check_account(year_id=2, code='4501', value=-11.11)
+        self.check_account(year_id=2, code='4501', value=1.39)
         self.check_account(year_id=2, code='4502', value=64.27)
-        self.check_account(year_id=2, code='512', value=16.84)
+        self.check_account(year_id=2, code='512', value=4.34)
         self.check_account(year_id=2, code='531', value=20.0)
         self.check_account(year_id=2, code='602', value=None)
         self.check_account(year_id=2, code='604', value=None)
@@ -936,9 +934,9 @@ class OwnerTest(PaymentTest):
         self.check_account(year_id=1, code='120', value=25.0)
         self.check_account(year_id=1, code='129', value=None)
         self.check_account(year_id=1, code='401', value=65.0)
-        self.check_account(year_id=1, code='4501', value=151.55)
+        self.check_account(year_id=1, code='4501', value=164.05)
         self.check_account(year_id=1, code='4502', value=64.27)
-        self.check_account(year_id=1, code='512', value=16.84)
+        self.check_account(year_id=1, code='512', value=4.34)
         self.check_account(year_id=1, code='531', value=20.0)
         self.check_account(year_id=1, code='602', value=75.0)
         self.check_account(year_id=1, code='604', value=100.0)
@@ -958,15 +956,144 @@ class OwnerTest(PaymentTest):
         self.check_account(year_id=2, code='120', value=25.0)
         self.check_account(year_id=1, code='129', value=None)
         self.check_account(year_id=2, code='401', value=65.0)
-        self.check_account(year_id=2, code='4501', value=151.55)
+        self.check_account(year_id=2, code='4501', value=164.05)
         self.check_account(year_id=2, code='4502', value=64.27)
-        self.check_account(year_id=2, code='512', value=16.84)
+        self.check_account(year_id=2, code='512', value=4.34)
         self.check_account(year_id=2, code='531', value=20.0)
         self.check_account(year_id=2, code='602', value=None)
         self.check_account(year_id=2, code='604', value=None)
         self.check_account(year_id=2, code='627', value=None)
         self.check_account(year_id=2, code='701', value=None)
         self.check_account(year_id=2, code='702', value=None)
+
+    def test_ventilation_credit(self):
+        add_test_callfunds(False, True)
+        add_test_expenses_fr(False, True)
+        init_compta()
+
+        self.factory.xfer = OwnerShow()
+        self.calljson('/diacamma.condominium/ownerShow', {'owner': 1}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'ownerShow')
+        self.assert_json_equal('LABELFORM', 'thirdinitial', '29.18€')
+        self.assert_count_equal('entryline', 4)
+        self.assert_json_equal('', 'entryline/@0/entry.date_value', "2015-06-10")
+        self.assert_json_equal('', 'entryline/@0/debit', '{[font color="blue"]}131.25€{[/font]}')
+        self.assert_json_equal('', 'entryline/@1/entry.date_value', "2015-06-15")
+        self.assert_json_equal('', 'entryline/@1/credit', '{[font color="green"]}100.00€{[/font]}')
+        self.assert_json_equal('', 'entryline/@2/entry.date_value', "2015-07-14")
+        self.assert_json_equal('', 'entryline/@2/debit', '{[font color="blue"]}45.00€{[/font]}')
+        self.assert_json_equal('', 'entryline/@3/entry.date_value', "2015-07-21")
+        self.assert_json_equal('', 'entryline/@3/credit', '{[font color="green"]}30.00€{[/font]}')
+        self.assert_json_equal('LABELFORM', 'thirdtotal', '-17.07€')
+        self.assert_json_equal('LABELFORM', 'sumtopay', '17.07€')
+        self.assert_count_equal('callfunds', 2)
+        self.assert_json_equal('', 'callfunds/@0/num', '1')
+        self.assert_json_equal('', 'callfunds/@0/date', '2015-06-10')
+        self.assert_json_equal('', 'callfunds/@0/total', '131.25€')
+        self.assert_json_equal('', 'callfunds/@0/supporting.total_rest_topay', '31.25€')
+        self.assert_json_equal('', 'callfunds/@1/num', '2')
+        self.assert_json_equal('', 'callfunds/@1/date', '2015-07-14')
+        self.assert_json_equal('', 'callfunds/@1/total', '45.00€')
+        self.assert_json_equal('', 'callfunds/@1/supporting.total_rest_topay', '15.00€')
+        self.assert_count_equal('payoff', 0)
+
+        self.factory.xfer = OwnerVentilatePay()
+        self.calljson('/diacamma.condominium/ownerVentilatePay', {'CONFIRME': 'YES', 'owner': 1}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'ownerVentilatePay')
+
+        self.factory.xfer = OwnerShow()
+        self.calljson('/diacamma.condominium/ownerShow', {'owner': 1}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'ownerShow')
+        self.assert_json_equal('LABELFORM', 'thirdinitial', '29.18€')
+        self.assert_count_equal('entryline', 4)
+        self.assert_json_equal('', 'entryline/@0/entry.date_value', "2015-06-10")
+        self.assert_json_equal('', 'entryline/@0/debit', '{[font color="blue"]}131.25€{[/font]}')
+        self.assert_json_equal('', 'entryline/@1/entry.date_value', "2015-06-15")
+        self.assert_json_equal('', 'entryline/@1/credit', '{[font color="green"]}100.00€{[/font]}')
+        self.assert_json_equal('', 'entryline/@2/entry.date_value', "2015-07-14")
+        self.assert_json_equal('', 'entryline/@2/debit', '{[font color="blue"]}45.00€{[/font]}')
+        self.assert_json_equal('', 'entryline/@3/entry.date_value', "2015-07-21")
+        self.assert_json_equal('', 'entryline/@3/credit', '{[font color="green"]}30.00€{[/font]}')
+        self.assert_json_equal('LABELFORM', 'thirdtotal', '-17.07€')
+        self.assert_json_equal('LABELFORM', 'sumtopay', '17.07€')
+        self.assert_count_equal('callfunds', 2)
+        self.assert_json_equal('', 'callfunds/@0/num', '1')
+        self.assert_json_equal('', 'callfunds/@0/date', '2015-06-10')
+        self.assert_json_equal('', 'callfunds/@0/total', '131.25€')
+        self.assert_json_equal('', 'callfunds/@0/supporting.total_rest_topay', '0.00€')
+        self.assert_json_equal('', 'callfunds/@1/num', '2')
+        self.assert_json_equal('', 'callfunds/@1/date', '2015-07-14')
+        self.assert_json_equal('', 'callfunds/@1/total', '45.00€')
+        self.assert_json_equal('', 'callfunds/@1/supporting.total_rest_topay', '17.07€')
+        self.assert_count_equal('payoff', 0)
+
+    def test_ventilation_debit(self):
+        add_test_callfunds(False, True)
+        add_test_expenses_fr(False, True)
+        init_compta()
+        pay1 = Payoff(supporting_id=2, date='2015-07-31', mode=0, amount=150.0)
+        pay1.editor.before_save(None)
+        pay1.save()
+
+        self.factory.xfer = OwnerShow()
+        self.calljson('/diacamma.condominium/ownerShow', {'owner': 2}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'ownerShow')
+        self.assert_json_equal('LABELFORM', 'thirdinitial', '-12.50€')
+        self.assert_count_equal('entryline', 3)
+        self.assert_json_equal('', 'entryline/@0/entry.date_value', "2015-06-10")
+        self.assert_json_equal('', 'entryline/@0/debit', '{[font color="blue"]}87.50€{[/font]}')
+        self.assert_json_equal('', 'entryline/@1/entry.date_value', "2015-07-14")
+        self.assert_json_equal('', 'entryline/@1/debit', '{[font color="blue"]}35.00€{[/font]}')
+        self.assert_json_equal('', 'entryline/@2/entry.date_value', "2015-07-31")
+        self.assert_json_equal('', 'entryline/@2/credit', '{[font color="green"]}150.00€{[/font]}')
+        self.assert_json_equal('LABELFORM', 'thirdtotal', '15.00€')
+        self.assert_json_equal('LABELFORM', 'sumtopay', '0.00€')
+        self.assert_count_equal('callfunds', 2)
+        self.assert_json_equal('', 'callfunds/@0/num', '1')
+        self.assert_json_equal('', 'callfunds/@0/date', '2015-06-10')
+        self.assert_json_equal('', 'callfunds/@0/total', '87.50€')
+        self.assert_json_equal('', 'callfunds/@0/supporting.total_rest_topay', '87.50€')
+        self.assert_json_equal('', 'callfunds/@1/num', '2')
+        self.assert_json_equal('', 'callfunds/@1/date', '2015-07-14')
+        self.assert_json_equal('', 'callfunds/@1/total', '35.00€')
+        self.assert_json_equal('', 'callfunds/@1/supporting.total_rest_topay', '35.00€')
+        self.assert_count_equal('payoff', 1)
+        self.assert_json_equal('', 'payoff/@0/date', '2015-07-31')
+        self.assert_json_equal('', 'payoff/@0/value', '150.00€')
+
+        self.factory.xfer = OwnerVentilatePay()
+        self.calljson('/diacamma.condominium/ownerVentilatePay', {'CONFIRME': 'YES', 'owner': 2}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'ownerVentilatePay')
+
+        self.factory.xfer = OwnerShow()
+        self.calljson('/diacamma.condominium/ownerShow', {'owner': 2}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'ownerShow')
+        self.assert_json_equal('LABELFORM', 'thirdinitial', '-12.50€')
+        self.assert_count_equal('entryline', 3)
+        self.assert_json_equal('', 'entryline/@0/entry.date_value', "2015-06-10")
+        self.assert_json_equal('', 'entryline/@0/debit', '{[font color="blue"]}87.50€{[/font]}')
+        self.assert_json_equal('', 'entryline/@1/entry.date_value', "2015-07-14")
+        self.assert_json_equal('', 'entryline/@1/debit', '{[font color="blue"]}35.00€{[/font]}')
+        self.assert_json_equal('', 'entryline/@2/entry.date_value', "2015-07-31")
+        self.assert_json_equal('', 'entryline/@2/credit', '{[font color="green"]}150.00€{[/font]}')
+        self.assert_json_equal('LABELFORM', 'thirdtotal', '15.00€')
+        self.assert_json_equal('LABELFORM', 'sumtopay', '0.00€')
+        self.assert_count_equal('callfunds', 3)
+        self.assert_json_equal('', 'callfunds/@0/num', '---')
+        self.assert_json_equal('', 'callfunds/@0/date', '2015-01-01')
+        self.assert_json_equal('', 'callfunds/@0/total', '12.50€')
+        self.assert_json_equal('', 'callfunds/@0/supporting.total_rest_topay', '0.00€')
+        self.assert_json_equal('', 'callfunds/@1/num', '1')
+        self.assert_json_equal('', 'callfunds/@1/date', '2015-06-10')
+        self.assert_json_equal('', 'callfunds/@1/total', '87.50€')
+        self.assert_json_equal('', 'callfunds/@1/supporting.total_rest_topay', '0.00€')
+        self.assert_json_equal('', 'callfunds/@2/num', '2')
+        self.assert_json_equal('', 'callfunds/@2/date', '2015-07-14')
+        self.assert_json_equal('', 'callfunds/@2/total', '35.00€')
+        self.assert_json_equal('', 'callfunds/@2/supporting.total_rest_topay', '0.00€')
+        self.assert_count_equal('payoff', 1)
+        self.assert_json_equal('', 'payoff/@0/date', '2015-07-31')
+        self.assert_json_equal('', 'payoff/@0/value', '15.00€')
 
 
 class OwnerBelgiumTest(PaymentTest):
