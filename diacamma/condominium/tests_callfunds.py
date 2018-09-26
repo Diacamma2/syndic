@@ -784,10 +784,9 @@ class CallFundsTest(LucteriosTest):
 class CallFundsBelgiumTest(LucteriosTest):
 
     def setUp(self):
-        initial_thirds_be()
         LucteriosTest.setUp(self)
         default_compta_be(with12=False)
-        default_costaccounting()
+        initial_thirds_be()
         default_bankaccount_be()
         default_setowner_be()
         rmtree(get_user_dir(), True)
@@ -1053,23 +1052,23 @@ class CallFundsBelgiumTest(LucteriosTest):
         self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
         self.assert_count_equal('entryline', 8)
         self.assert_json_equal('', 'entryline/@0/costaccounting', '---')
-        self.assert_json_equal('', 'entryline/@0/entry_account', '[4100 Minimum]')
+        self.assert_json_equal('', 'entryline/@0/entry_account', '[410100 Minimum]')
         self.assert_json_equal('', 'entryline/@1/costaccounting', '[1] AAA 2015')
-        self.assert_json_equal('', 'entryline/@1/entry_account', '[700] 700')
+        self.assert_json_equal('', 'entryline/@1/entry_account', '[701100] 701100')
         self.assert_json_equal('', 'entryline/@2/costaccounting', '[2] BBB 2015')
-        self.assert_json_equal('', 'entryline/@2/entry_account', '[700] 700')
+        self.assert_json_equal('', 'entryline/@2/entry_account', '[701100] 701100')
 
         self.assert_json_equal('', 'entryline/@3/costaccounting', '---')
-        self.assert_json_equal('', 'entryline/@3/entry_account', '[4100 Dalton William]')
+        self.assert_json_equal('', 'entryline/@3/entry_account', '[410100 Dalton William]')
         self.assert_json_equal('', 'entryline/@4/costaccounting', '[1] AAA 2015')
-        self.assert_json_equal('', 'entryline/@4/entry_account', '[700] 700')
+        self.assert_json_equal('', 'entryline/@4/entry_account', '[701100] 701100')
 
         self.assert_json_equal('', 'entryline/@5/costaccounting', '---')
-        self.assert_json_equal('', 'entryline/@5/entry_account', '[4100 Dalton Joe]')
+        self.assert_json_equal('', 'entryline/@5/entry_account', '[410100 Dalton Joe]')
         self.assert_json_equal('', 'entryline/@6/costaccounting', '[1] AAA 2015')
-        self.assert_json_equal('', 'entryline/@6/entry_account', '[700] 700')
+        self.assert_json_equal('', 'entryline/@6/entry_account', '[701100] 701100')
         self.assert_json_equal('', 'entryline/@7/costaccounting', '[2] BBB 2015')
-        self.assert_json_equal('', 'entryline/@7/entry_account', '[700] 700')
+        self.assert_json_equal('', 'entryline/@7/entry_account', '[701100] 701100')
         self.assert_json_equal('LABELFORM', 'result',
                                '{[center]}{[b]}Produit :{[/b]} 275.00€ - {[b]}Charge :{[/b]} 0.00€ = {[b]}Résultat :{[/b]} 275.00€{[br/]}{[b]}Trésorerie :{[/b]} 0.00€ - {[b]}Validé :{[/b]} 0.00€{[/center]}')
 
@@ -1079,16 +1078,16 @@ class CallFundsBelgiumTest(LucteriosTest):
         self.assert_count_equal('entryline', 8)
 
         self.factory.xfer = PayoffAddModify()
-        self.calljson('/diacamma.payoff/payoffAddModify', {'SAVE': 'YES', 'supporting': 4, 'amount': '100.0', 'payer': "Minimum", 'date': '2015-06-12', 'mode': 0, 'reference': 'abc', 'bank_account': 0}, False)
+        self.calljson('/diacamma.payoff/payoffAddModify', {'SAVE': 'YES', 'supporting': 4, 'amount': '100.0', 'payer': "Minimum", 'date': '2015-06-12', 'mode': 2, 'reference': 'abc', 'bank_account': 1}, False)
         self.assert_observer('core.acknowledge', 'diacamma.payoff', 'payoffAddModify')
 
         self.factory.xfer = EntryAccountList()
         self.calljson('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '-1', 'filter': '0'}, False)
         self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
         self.assert_count_equal('entryline', 10)
-        self.assert_json_equal('', 'entryline/@8/entry_account', '[4100 Minimum]')
+        self.assert_json_equal('', 'entryline/@8/entry_account', '[410100 Minimum]')
         self.assert_json_equal('', 'entryline/@8/costaccounting', '---')
-        self.assert_json_equal('', 'entryline/@9/entry_account', '[570] 570')
+        self.assert_json_equal('', 'entryline/@9/entry_account', '[550000] 550000')
         self.assert_json_equal('', 'entryline/@9/costaccounting', '---')
 
     def test_valid_working(self):
@@ -1135,21 +1134,21 @@ class CallFundsBelgiumTest(LucteriosTest):
         self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
         self.assert_count_equal('entryline', 6)
         self.assert_json_equal('', 'entryline/@0/costaccounting', '---')
-        self.assert_json_equal('', 'entryline/@0/entry_account', '[160] 160')
-        self.assert_json_equal('', 'entryline/@1/costaccounting', '---')
-        self.assert_json_equal('', 'entryline/@1/entry_account', '[4101 Minimum]')
+        self.assert_json_equal('', 'entryline/@0/entry_account', '[410000 Minimum]')
+        self.assert_json_equal('', 'entryline/@1/costaccounting', '[3] CCC')
+        self.assert_json_equal('', 'entryline/@1/entry_account', '[700100] 700100')
 
         self.assert_json_equal('', 'entryline/@2/costaccounting', '---')
-        self.assert_json_equal('', 'entryline/@2/entry_account', '[160] 160')
-        self.assert_json_equal('', 'entryline/@3/costaccounting', '---')
-        self.assert_json_equal('', 'entryline/@3/entry_account', '[4101 Dalton William]')
+        self.assert_json_equal('', 'entryline/@2/entry_account', '[410000 Dalton William]')
+        self.assert_json_equal('', 'entryline/@3/costaccounting', '[3] CCC')
+        self.assert_json_equal('', 'entryline/@3/entry_account', '[700100] 700100')
 
         self.assert_json_equal('', 'entryline/@4/costaccounting', '---')
-        self.assert_json_equal('', 'entryline/@4/entry_account', '[160] 160')
-        self.assert_json_equal('', 'entryline/@5/costaccounting', '---')
-        self.assert_json_equal('', 'entryline/@5/entry_account', '[4101 Dalton Joe]')
+        self.assert_json_equal('', 'entryline/@4/entry_account', '[410000 Dalton Joe]')
+        self.assert_json_equal('', 'entryline/@5/costaccounting', '[3] CCC')
+        self.assert_json_equal('', 'entryline/@5/entry_account', '[700100] 700100')
         self.assert_json_equal('LABELFORM', 'result',
-                               '{[center]}{[b]}Produit :{[/b]} 0.00€ - {[b]}Charge :{[/b]} 0.00€ = {[b]}Résultat :{[/b]} 0.00€{[br/]}{[b]}Trésorerie :{[/b]} 0.00€ - {[b]}Validé :{[/b]} 0.00€{[/center]}')
+                               '{[center]}{[b]}Produit :{[/b]} 250.00€ - {[b]}Charge :{[/b]} 0.00€ = {[b]}Résultat :{[/b]} 250.00€{[br/]}{[b]}Trésorerie :{[/b]} 0.00€ - {[b]}Validé :{[/b]} 0.00€{[/center]}')
 
         self.factory.xfer = EntryAccountList()
         self.calljson('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '3', 'filter': '0'}, False)
@@ -1157,16 +1156,16 @@ class CallFundsBelgiumTest(LucteriosTest):
         self.assert_count_equal('entryline', 6)
 
         self.factory.xfer = PayoffAddModify()
-        self.calljson('/diacamma.payoff/payoffAddModify', {'SAVE': 'YES', 'supporting': 4, 'amount': '100.0', 'payer': "Minimum", 'date': '2015-06-12', 'mode': 0, 'reference': 'abc', 'bank_account': 0}, False)
+        self.calljson('/diacamma.payoff/payoffAddModify', {'SAVE': 'YES', 'supporting': 4, 'amount': '100.0', 'payer': "Minimum", 'date': '2015-06-12', 'mode': 2, 'reference': 'abc', 'bank_account': 1}, False)
         self.assert_observer('core.acknowledge', 'diacamma.payoff', 'payoffAddModify')
 
         self.factory.xfer = EntryAccountList()
         self.calljson('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '-1', 'filter': '0'}, False)
         self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
         self.assert_count_equal('entryline', 8)
-        self.assert_json_equal('', 'entryline/@6/entry_account', '[4101 Minimum]')
-        self.assert_json_equal('', 'entryline/@7/entry_account', '[570] 570')
-        self.assert_json_equal('LABELFORM', 'result', '{[center]}{[b]}Produit :{[/b]} 0.00€ - {[b]}Charge :{[/b]} 0.00€ = {[b]}Résultat :{[/b]} 0.00€{[br/]}{[b]}Trésorerie :{[/b]} 100.00€ - {[b]}Validé :{[/b]} 0.00€{[/center]}')
+        self.assert_json_equal('', 'entryline/@6/entry_account', '[410000 Minimum]')
+        self.assert_json_equal('', 'entryline/@7/entry_account', '[550000] 550000')
+        self.assert_json_equal('LABELFORM', 'result', '{[center]}{[b]}Produit :{[/b]} 250.00€ - {[b]}Charge :{[/b]} 0.00€ = {[b]}Résultat :{[/b]} 250.00€{[br/]}{[b]}Trésorerie :{[/b]} 100.00€ - {[b]}Validé :{[/b]} 0.00€{[/center]}')
 
     def test_valid_rolling(self):
         self.factory.xfer = EntryAccountList()
@@ -1212,21 +1211,21 @@ class CallFundsBelgiumTest(LucteriosTest):
         self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
         self.assert_count_equal('entryline', 6)
         self.assert_json_equal('', 'entryline/@0/costaccounting', '---')
-        self.assert_json_equal('', 'entryline/@0/entry_account', '[100] 100')
-        self.assert_json_equal('', 'entryline/@1/costaccounting', '---')
-        self.assert_json_equal('', 'entryline/@1/entry_account', '[4101 Minimum]')
+        self.assert_json_equal('', 'entryline/@0/entry_account', '[410100 Minimum]')
+        self.assert_json_equal('', 'entryline/@1/costaccounting', '[1] AAA 2015')
+        self.assert_json_equal('', 'entryline/@1/entry_account', '[701200] 701200')
 
         self.assert_json_equal('', 'entryline/@2/costaccounting', '---')
-        self.assert_json_equal('', 'entryline/@2/entry_account', '[100] 100')
-        self.assert_json_equal('', 'entryline/@3/costaccounting', '---')
-        self.assert_json_equal('', 'entryline/@3/entry_account', '[4101 Dalton William]')
+        self.assert_json_equal('', 'entryline/@2/entry_account', '[410100 Dalton William]')
+        self.assert_json_equal('', 'entryline/@3/costaccounting', '[1] AAA 2015')
+        self.assert_json_equal('', 'entryline/@3/entry_account', '[701200] 701200')
 
         self.assert_json_equal('', 'entryline/@4/costaccounting', '---')
-        self.assert_json_equal('', 'entryline/@4/entry_account', '[100] 100')
-        self.assert_json_equal('', 'entryline/@5/costaccounting', '---')
-        self.assert_json_equal('', 'entryline/@5/entry_account', '[4101 Dalton Joe]')
+        self.assert_json_equal('', 'entryline/@4/entry_account', '[410100 Dalton Joe]')
+        self.assert_json_equal('', 'entryline/@5/costaccounting', '[1] AAA 2015')
+        self.assert_json_equal('', 'entryline/@5/entry_account', '[701200] 701200')
         self.assert_json_equal('LABELFORM', 'result',
-                               '{[center]}{[b]}Produit :{[/b]} 0.00€ - {[b]}Charge :{[/b]} 0.00€ = {[b]}Résultat :{[/b]} 0.00€{[br/]}{[b]}Trésorerie :{[/b]} 0.00€ - {[b]}Validé :{[/b]} 0.00€{[/center]}')
+                               '{[center]}{[b]}Produit :{[/b]} 100.00€ - {[b]}Charge :{[/b]} 0.00€ = {[b]}Résultat :{[/b]} 100.00€{[br/]}{[b]}Trésorerie :{[/b]} 0.00€ - {[b]}Validé :{[/b]} 0.00€{[/center]}')
 
         self.factory.xfer = EntryAccountList()
         self.calljson('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '3', 'filter': '0'}, False)
@@ -1234,17 +1233,17 @@ class CallFundsBelgiumTest(LucteriosTest):
         self.assert_count_equal('entryline', 6)
 
         self.factory.xfer = PayoffAddModify()
-        self.calljson('/diacamma.payoff/payoffAddModify', {'SAVE': 'YES', 'supporting': 4, 'amount': '100.0', 'payer': "Minimum", 'date': '2015-06-12', 'mode': 0, 'reference': 'abc', 'bank_account': 0}, False)
+        self.calljson('/diacamma.payoff/payoffAddModify', {'SAVE': 'YES', 'supporting': 4, 'amount': '100.0', 'payer': "Minimum", 'date': '2015-06-12', 'mode': 2, 'reference': 'abc', 'bank_account': 1}, False)
         self.assert_observer('core.acknowledge', 'diacamma.payoff', 'payoffAddModify')
 
         self.factory.xfer = EntryAccountList()
         self.calljson('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '-1', 'filter': '0'}, False)
         self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
         self.assert_count_equal('entryline', 8)
-        self.assert_json_equal('', 'entryline/@6/entry_account', '[4101 Minimum]')
-        self.assert_json_equal('', 'entryline/@7/entry_account', '[570] 570')
+        self.assert_json_equal('', 'entryline/@6/entry_account', '[410100 Minimum]')
+        self.assert_json_equal('', 'entryline/@7/entry_account', '[550000] 550000')
         self.assert_json_equal('LABELFORM', 'result',
-                               '{[center]}{[b]}Produit :{[/b]} 0.00€ - {[b]}Charge :{[/b]} 0.00€ = {[b]}Résultat :{[/b]} 0.00€{[br/]}{[b]}Trésorerie :{[/b]} 100.00€ - {[b]}Validé :{[/b]} 0.00€{[/center]}')
+                               '{[center]}{[b]}Produit :{[/b]} 100.00€ - {[b]}Charge :{[/b]} 0.00€ = {[b]}Résultat :{[/b]} 100.00€{[br/]}{[b]}Trésorerie :{[/b]} 100.00€ - {[b]}Validé :{[/b]} 0.00€{[/center]}')
 
     def test_valid_reserved(self):
         self.factory.xfer = EntryAccountList()
@@ -1290,21 +1289,21 @@ class CallFundsBelgiumTest(LucteriosTest):
         self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
         self.assert_count_equal('entryline', 6)
         self.assert_json_equal('', 'entryline/@0/costaccounting', '---')
-        self.assert_json_equal('', 'entryline/@0/entry_account', '[100] 100')
-        self.assert_json_equal('', 'entryline/@1/costaccounting', '---')
-        self.assert_json_equal('', 'entryline/@1/entry_account', '[4101 Minimum]')
+        self.assert_json_equal('', 'entryline/@0/entry_account', '[410000 Minimum]')
+        self.assert_json_equal('', 'entryline/@1/costaccounting', '[1] AAA 2015')
+        self.assert_json_equal('', 'entryline/@1/entry_account', '[700000] 700000')
 
         self.assert_json_equal('', 'entryline/@2/costaccounting', '---')
-        self.assert_json_equal('', 'entryline/@2/entry_account', '[100] 100')
-        self.assert_json_equal('', 'entryline/@3/costaccounting', '---')
-        self.assert_json_equal('', 'entryline/@3/entry_account', '[4101 Dalton William]')
+        self.assert_json_equal('', 'entryline/@2/entry_account', '[410000 Dalton William]')
+        self.assert_json_equal('', 'entryline/@3/costaccounting', '[1] AAA 2015')
+        self.assert_json_equal('', 'entryline/@3/entry_account', '[700000] 700000')
 
         self.assert_json_equal('', 'entryline/@4/costaccounting', '---')
-        self.assert_json_equal('', 'entryline/@4/entry_account', '[100] 100')
-        self.assert_json_equal('', 'entryline/@5/costaccounting', '---')
-        self.assert_json_equal('', 'entryline/@5/entry_account', '[4101 Dalton Joe]')
+        self.assert_json_equal('', 'entryline/@4/entry_account', '[410000 Dalton Joe]')
+        self.assert_json_equal('', 'entryline/@5/costaccounting', '[1] AAA 2015')
+        self.assert_json_equal('', 'entryline/@5/entry_account', '[700000] 700000')
         self.assert_json_equal('LABELFORM', 'result',
-                               '{[center]}{[b]}Produit :{[/b]} 0.00€ - {[b]}Charge :{[/b]} 0.00€ = {[b]}Résultat :{[/b]} 0.00€{[br/]}{[b]}Trésorerie :{[/b]} 0.00€ - {[b]}Validé :{[/b]} 0.00€{[/center]}')
+                               '{[center]}{[b]}Produit :{[/b]} 100.00€ - {[b]}Charge :{[/b]} 0.00€ = {[b]}Résultat :{[/b]} 100.00€{[br/]}{[b]}Trésorerie :{[/b]} 0.00€ - {[b]}Validé :{[/b]} 0.00€{[/center]}')
 
         self.factory.xfer = EntryAccountList()
         self.calljson('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '3', 'filter': '0'}, False)
@@ -1312,17 +1311,17 @@ class CallFundsBelgiumTest(LucteriosTest):
         self.assert_count_equal('entryline', 6)
 
         self.factory.xfer = PayoffAddModify()
-        self.calljson('/diacamma.payoff/payoffAddModify', {'SAVE': 'YES', 'supporting': 4, 'amount': '100.0', 'payer': "Minimum", 'date': '2015-06-12', 'mode': 0, 'reference': 'abc', 'bank_account': 0}, False)
+        self.calljson('/diacamma.payoff/payoffAddModify', {'SAVE': 'YES', 'supporting': 4, 'amount': '100.0', 'payer': "Minimum", 'date': '2015-06-12', 'mode': 2, 'reference': 'abc', 'bank_account': 1}, False)
         self.assert_observer('core.acknowledge', 'diacamma.payoff', 'payoffAddModify')
 
         self.factory.xfer = EntryAccountList()
         self.calljson('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '-1', 'filter': '0'}, False)
         self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
         self.assert_count_equal('entryline', 8)
-        self.assert_json_equal('', 'entryline/@6/entry_account', '[4101 Minimum]')
-        self.assert_json_equal('', 'entryline/@7/entry_account', '[570] 570')
+        self.assert_json_equal('', 'entryline/@6/entry_account', '[410000 Minimum]')
+        self.assert_json_equal('', 'entryline/@7/entry_account', '[550000] 550000')
         self.assert_json_equal('LABELFORM', 'result',
-                               '{[center]}{[b]}Produit :{[/b]} 0.00€ - {[b]}Charge :{[/b]} 0.00€ = {[b]}Résultat :{[/b]} 0.00€{[br/]}{[b]}Trésorerie :{[/b]} 100.00€ - {[b]}Validé :{[/b]} 0.00€{[/center]}')
+                               '{[center]}{[b]}Produit :{[/b]} 100.00€ - {[b]}Charge :{[/b]} 0.00€ = {[b]}Résultat :{[/b]} 100.00€{[br/]}{[b]}Trésorerie :{[/b]} 100.00€ - {[b]}Validé :{[/b]} 0.00€{[/center]}')
 
 
 class CallFundsTestOldAccounting(LucteriosTest):

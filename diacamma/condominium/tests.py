@@ -31,22 +31,21 @@ from django.utils import six
 from lucterios.framework.test import LucteriosTest
 from lucterios.framework.filetools import get_user_dir
 
-from diacamma.accounting.test_tools import initial_thirds_fr, default_compta_fr, default_costaccounting, default_compta_be, initial_thirds_be
-from diacamma.accounting.views import ThirdShow
 from diacamma.accounting.models import EntryAccount, FiscalYear
+from diacamma.accounting.views import ThirdShow
 from diacamma.accounting.views_entries import EntryAccountList
 from diacamma.accounting.views_accounts import FiscalYearClose, FiscalYearBegin, FiscalYearReportLastYear
 from diacamma.accounting.views_other import CostAccountingList
+from diacamma.accounting.test_tools import initial_thirds_fr, default_compta_fr, default_costaccounting, default_compta_be, initial_thirds_be
 
-from diacamma.payoff.test_tools import default_bankaccount_fr, default_paymentmethod, PaymentTest, default_bankaccount_be
+from diacamma.payoff.models import Payoff
 from diacamma.payoff.views import PayableShow, PayableEmail
+from diacamma.payoff.test_tools import default_bankaccount_fr, default_paymentmethod, PaymentTest, default_bankaccount_be
 
 from diacamma.condominium.views_classload import SetList, SetAddModify, SetDel, SetShow, PartitionAddModify, CondominiumConf, SetClose
-from diacamma.condominium.views import OwnerAndPropertyLotList, OwnerAdd, OwnerDel, OwnerShow, PropertyLotAddModify, CondominiumConvert,\
-    OwnerVentilatePay
-from diacamma.condominium.test_tools import default_setowner_fr, add_test_callfunds, old_accounting, add_test_expenses_fr, init_compta, add_years, default_setowner_be
+from diacamma.condominium.views import OwnerAndPropertyLotList, OwnerAdd, OwnerDel, OwnerShow, PropertyLotAddModify, CondominiumConvert, OwnerVentilatePay
 from diacamma.condominium.views_report import FinancialStatus, GeneralManageAccounting, CurrentManageAccounting, ExceptionalManageAccounting
-from diacamma.payoff.models import Payoff
+from diacamma.condominium.test_tools import default_setowner_fr, add_test_callfunds, old_accounting, add_test_expenses_fr, init_compta, add_years, default_setowner_be, add_test_expenses_be
 
 
 class SetOwnerTest(LucteriosTest):
@@ -1100,9 +1099,9 @@ class OwnerBelgiumTest(PaymentTest):
 
     def setUp(self):
         # six.print_('>> %s' % self._testMethodName)
-        initial_thirds_be()
         LucteriosTest.setUp(self)
         default_compta_be(with12=False)
+        initial_thirds_be()
         default_costaccounting()
         default_bankaccount_be()
         default_setowner_be()
@@ -1114,22 +1113,20 @@ class OwnerBelgiumTest(PaymentTest):
 
     def test_owner_situation(self):
         add_test_callfunds(False, True)
-        add_test_expenses_fr(False, True)
+        add_test_expenses_be(False, True)
         init_compta()
 
         self.factory.xfer = OwnerShow()
         self.calljson('/diacamma.condominium/ownerShow', {'owner': 1}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'ownerShow')
-        self.assert_count_equal('', 45)
+        self.assert_count_equal('', 43)
         self.assert_json_equal('LABELFORM', 'third.custom_1', '')
         self.assert_json_equal('LABELFORM', 'third.custom_2', '')
-        self.assert_json_equal('LABELFORM', 'total_current_initial', "23.45€")
         self.assert_json_equal('LABELFORM', 'total_current_call', "131.25€")
         self.assert_json_equal('LABELFORM', 'total_current_payoff', "100.00€")
-        self.assert_json_equal('LABELFORM', 'total_current_owner', "-7.80€")
         self.assert_json_equal('LABELFORM', 'total_current_ventilated', "75.00€")
         self.assert_json_equal('LABELFORM', 'total_current_regularization', "56.25€")
-        self.assert_json_equal('LABELFORM', 'total_extra', "-5.55€")
+        self.assert_json_equal('LABELFORM', 'total_extra', "5.70€")
 
         self.assert_grid_equal('exceptionnal', {"set": "catégorie de charges", "ratio": "ratio", "total_callfunds": "total des appels de fonds", "ventilated_txt": "ventilé", "total_current_regularization": "régularisation estimée"}, 1)  # nb=5
         self.assert_json_equal('', 'exceptionnal/@0/set', "[3] CCC")

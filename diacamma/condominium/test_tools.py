@@ -96,17 +96,17 @@ def default_setowner_fr(with_lots=True):
 
 
 def default_setowner_be(with_lots=True):
-    create_account(['4100', '4101'], 0, FiscalYear.get_current())
-    create_account(['100', '160'], 2, FiscalYear.get_current())
-    create_account(['702', '703'], 3, FiscalYear.get_current())
+    create_account(['410000', '410100'], 0, FiscalYear.get_current())
+    create_account(['100000', '160000'], 2, FiscalYear.get_current())
+    create_account(['700100', '701100', '701200'], 3, FiscalYear.get_current())
     set1 = Set.objects.create(name="AAA", is_link_to_lots=with_lots, type_load=0)
-    _set_budget(set1, '602', 1200)
+    _set_budget(set1, '602000', 1200)
     set2 = Set.objects.create(name="BBB", type_load=0)
-    _set_budget(set2, '602', 120)
+    _set_budget(set2, '602000', 120)
     set3 = Set.objects.create(name="CCC", type_load=1)
-    _set_budget(set3, '602', 600)
+    _set_budget(set3, '602000', 600)
     set4 = Set.objects.create(name="OLD", type_load=1, is_active=False)
-    _set_budget(set4, '601', 120)
+    _set_budget(set4, '601000', 120)
     _create_owners(set1, set2, set3, set4, with_lots)
     Owner.check_all_account()
 
@@ -155,7 +155,7 @@ def add_test_expenses_fr(simple=True, with_payoff=False):
 
 
 def add_test_expenses_be(simple=True, with_payoff=False):
-    _add_test_expenses('602', '601', simple, with_payoff)
+    _add_test_expenses('602000', '601000', simple, with_payoff)
 
 
 def old_accounting():

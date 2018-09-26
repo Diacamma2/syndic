@@ -1639,6 +1639,8 @@ def condominium_checkparam():
                                args="{'Multi':False}", value=correct_accounting_code('701'), meta='("accounting","ChartsAccount", Q(type_of_account=3) & Q(year__is_actif=True), "code", True)')
     Parameter.check_and_create(name='condominium-exceptional-revenue-account', typeparam=0, title=_("condominium-exceptional-revenue-account"),
                                args="{'Multi':False}", value=correct_accounting_code('702'), meta='("accounting","ChartsAccount", Q(type_of_account=3) & Q(year__is_actif=True), "code", True)')
+    Parameter.check_and_create(name='condominium-advance-revenue-account', typeparam=0, title=_("condominium-fundforworks-revenue-account"),
+                               args="{'Multi':False}", value=correct_accounting_code('705'), meta='("accounting","ChartsAccount", Q(type_of_account=3) & Q(year__is_actif=True), "code", True)')
     Parameter.check_and_create(name='condominium-fundforworks-revenue-account', typeparam=0, title=_("condominium-fundforworks-revenue-account"),
                                args="{'Multi':False}", value=correct_accounting_code('705'), meta='("accounting","ChartsAccount", Q(type_of_account=3) & Q(year__is_actif=True), "code", True)')
     Parameter.check_and_create(name='condominium-exceptional-reserve-account', typeparam=0, title=_("condominium-exceptional-reserve-account"),
