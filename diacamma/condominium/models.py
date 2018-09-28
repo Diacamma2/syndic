@@ -1216,7 +1216,11 @@ class CallFunds(LucteriosModel):
             current_system_condo().generate_account_callfunds(self, fiscal_year)
 
     def check_supporting(self):
-        if (self.owner is not None) and (self.supporting is None):
+        try:
+            support = self.supporting
+        except ObjectDoesNotExist:
+            self.supporting_id = None
+        if (self.owner is not None) and (self.supporting_id is None):
             self.supporting = CallFundsSupporting.objects.create(third=self.owner.third)
             self.save()
 
@@ -1583,12 +1587,17 @@ def migrate_budget():
 
 
 def migrate_callfunds_type():
+    correct_nb = 0
     for call_funds in CallFunds.objects.filter(type_call__isnull=False):
         for detail in call_funds.calldetail_set.all():
             detail.type_call = call_funds.type_call
             detail.save()
         call_funds.type_call = None
+        call_funds.check_supporting()
         call_funds.save()
+        correct_nb += 1
+    if correct_nb > 0:
+        six.print_('migrate callfunds type Nb=%d' % correct_nb)
 
 
 @Signal.decorate('checkparam')
