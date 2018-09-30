@@ -93,14 +93,14 @@ class BelgiumSystemCondo(DefaultSystemCondo):
         if Params.getvalue("condominium-mode-current-callfunds") == 1:
             nb_seq = 12
         year = FiscalYear.get_current()
-        calls = CallFunds.objects.filter(date__gte=year.begin, date__lte=year.end, type_call=0)
+        calls = CallFunds.objects.filter(date__gte=year.begin, date__lte=year.end, calldetail__type_call=0).distinct()
         nb_curent = len(calls)
         if to_create:
             year = FiscalYear.get_current()
             date = same_day_months_after(year.begin, int(nb_curent * 12 / nb_seq))
-            new_call = CallFunds.objects.create(date=date, comment=_("Call of funds #%(num)d of year from %(begin)s to %(end)s") % {'num': nb_curent + 1, 'begin': get_value_converted(year.begin), 'end': get_value_converted(year.end)}, type_call=0, status=0)
+            new_call = CallFunds.objects.create(date=date, comment=_("Call of funds #%(num)d of year from %(begin)s to %(end)s") % {'num': nb_curent + 1, 'begin': get_value_converted(year.begin), 'end': get_value_converted(year.end)}, status=0)
             for category in Set.objects.filter(type_load=0, is_active=True):
-                CallDetail.objects.create(set=category, callfunds=new_call, price=category.get_new_current_callfunds(), designation=_("%(type)s - #%(num)d") % {'type': _('current'), 'num': nb_curent + 1})
+                CallDetail.objects.create(set=category, type_call=0, callfunds=new_call, price=category.get_new_current_callfunds(), designation=_("%(type)s - #%(num)d") % {'type': _('current'), 'num': nb_curent + 1})
         else:
             return nb_curent < nb_seq
 

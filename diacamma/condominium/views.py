@@ -261,9 +261,9 @@ class OwnerVentilatePay(XferContainerAcknowledge):
     field_id = 'owner'
 
     def fillresponse(self, begin_date, end_date):
-        self.item.check_initial_operation()
-        self.item.set_dates(begin_date, end_date)
         if self.confirme(_('Do you want to check ventilate payoff on calls of funds ?')):
+            self.item.check_initial_operation()
+            self.item.set_dates(begin_date, end_date)
             self.item.check_ventilate_payoff()
 
 

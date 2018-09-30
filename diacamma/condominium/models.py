@@ -580,8 +580,8 @@ class Owner(Supporting):
                     init_paypoff.entry = entries_init[0]
                     init_paypoff.save(do_generate=False)
                 elif (third_initial < 0.0001) and (len(CallDetail.objects.filter(callfunds__owner=self, entry=entries_init[0])) == 0):
-                    init_call = CallFunds(owner=self, num=None, date=self.date_begin, comment=_('Last year report'), status=2)
-                    init_call.check_supporting()
+                    init_call = CallFunds(owner=self, num=None, date=self.date_begin, comment=_('Last year report'), status=2, supporting=CallFundsSupporting.objects.create(third=self.third))
+                    init_call.save()
                     init_detail = CallDetail(callfunds=init_call, set=None, designation=_('Last year report'), type_call=0)
                     init_detail.price = abs(third_initial)
                     init_detail.entry = entries_init[0]
@@ -1216,12 +1216,22 @@ class CallFunds(LucteriosModel):
             current_system_condo().generate_account_callfunds(self, fiscal_year)
 
     def check_supporting(self):
-        try:
-            support = self.supporting
-        except ObjectDoesNotExist:
-            self.supporting_id = None
-        if (self.owner is not None) and (self.supporting_id is None):
-            self.supporting = CallFundsSupporting.objects.create(third=self.owner.third)
+        is_modify = False
+        if self.owner is not None:
+            try:
+                support = self.supporting
+            except ObjectDoesNotExist:
+                support = None
+            if support is None:
+                self.supporting = CallFundsSupporting.objects.create(third=self.owner.third)
+                is_modify = True
+        if self.type_call is not None:
+            for detail in self.calldetail_set.all():
+                detail.type_call = self.type_call
+                detail.save()
+            self.type_call = None
+            is_modify = True
+        if is_modify:
             self.save()
 
     def payoff_have_payment(self):
@@ -1586,20 +1596,6 @@ def migrate_budget():
         budget_item.save()
 
 
-def migrate_callfunds_type():
-    correct_nb = 0
-    for call_funds in CallFunds.objects.filter(type_call__isnull=False):
-        for detail in call_funds.calldetail_set.all():
-            detail.type_call = call_funds.type_call
-            detail.save()
-        call_funds.type_call = None
-        call_funds.check_supporting()
-        call_funds.save()
-        correct_nb += 1
-    if correct_nb > 0:
-        six.print_('migrate callfunds type Nb=%d' % correct_nb)
-
-
 @Signal.decorate('checkparam')
 def condominium_checkparam():
     Parameter.check_and_create(
@@ -1666,4 +1662,3 @@ def condominium_checkparam():
             current_set.convert_cost()
     migrate_budget()
     Set.correct_costaccounting()
-    migrate_callfunds_type()
