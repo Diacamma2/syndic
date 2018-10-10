@@ -1,0 +1,77 @@
+code;name
+100000;FDRO : Fonds de roulement
+162000;FDRS : Fonds de réserve
+162100;FDRS : Fonds de réserve travaux prévu
+310000;Stock mazout
+320000;Stock clés
+410000;FDRS : Propriétaires
+410100;FDRO : Propriétaires
+417000;Propriét. - créances douteuses / Ex propriétaires
+440000;Fournisseurs
+444000;Facture/note crédit à recevoir
+499000;Compte d'attente
+499500;Sinistres
+499900;Arrondis
+550000;FDRS : Banque
+551000;FDRO : Banque
+570000;Caisse
+580000;Transfert internet
+610000;Entretien protection incendie
+610100;Ascenseurs : Frais périodique
+610110;Ascenseurs : Entretiens/Réparation divers (hors contrat) (O)
+610120;Ascenseurs : Entretiens/Réparation divers (hors contrat) (P)
+610200;Instalallations électriques : Réparation / Travaux (O)
+610210;Instalallations électriques : Réparation / Travaux (P)
+610220;Instalallations électriques : Sonnettes/parlophones
+610300;Chauffage : Frais périodique (entretien, petit réparation, …)
+610360;Evacuation, égoûts : entretien
+610390;Compteurs & relevés compteurs
+610399;Frais chauffage & eau : Travaux (P)
+610400;Menuiserie : entretien
+610440;Porte de garage : entretien
+610450;Travaux menuiseries (p)
+610500;Nettoyage bâtiment
+610540;Ordures : Location containers, fourniture de sac, …
+610600;Jardins : Entretien
+610660;Parkings & chemins : Entretien
+610700;Entretien bâtiments (fondation, façades, terrasses, toits, …)
+610770;Travaux hall & escaliers
+610780;Bâtiment - travaux divers
+611000;FDRS : Fonds de réserve
+611010;FDRS : Fonds de réserve travaux prévu
+612000;Eau : A répartire
+612010;Eau : Commun
+612020;Eau : Abonnement
+612030;Eau : Adoucisseur, sel
+612040;Eau : Adoucisseur, entretien
+612100;Electricité : Communs
+612110;Electricité : Ascenseurs
+612120;Electricité : Chauffage
+612200;Gaz : Fourniture
+612300;Mazout : Fourniture
+612310;Mazout : Entretien cuves
+612399;Imputation décompte chauffage / eau
+613000;Honoraires syndic
+613010;Honoraires avocats
+613100;Conseil de Copropriété : Frais généraux
+614000;Assurances
+616000;Frais administratifs : syndic
+616100;Frais de réunions (Assemblée générale)
+616200;Traduction de documents
+616300;Frais de procédure : Recouvrement
+616400;Publication et Acte : Nomination syndic, changement status, …
+616600;Frais divers de gestion : Licence logiciele, hébergement web, …
+640000;Autre Charges : Taxes et redevances
+642000;Autre Charges  : Frais privatifs propriétaires
+642100;Autre Charges : Frais privatifs occupants
+649000;Autre Charges : Arrondis décompte
+650000;Frais bancaires
+700000;FDRS : Appels fonds de réserve 
+700001;FDRS : Appels fonds de réserve travaux
+701100;FDRO : Appel provision de charge
+701200;FDRO : Augmentation fonds de roulement
+741000;Compte de répartition de charges
+744000;FDRS : Emménag./déménagement
+751000;FDRS - Intérêts bancaires
+756000;FDRS - Intérêts retard coprop.
+760000;Produits exceptionnels
