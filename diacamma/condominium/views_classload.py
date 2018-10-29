@@ -389,12 +389,17 @@ def comptenofound_condo(known_codes, accompt_returned):
         account_filter = Q(name='condominium-default-owner-account')
         set_unknown = Set.objects.exclude(revenue_account__in=known_codes).values_list('revenue_account', flat=True)
     else:
-        account_filter = Q(name='condominium-default-owner-account1') | Q(name='condominium-default-owner-account2') | Q(name='condominium-default-owner-account3') | Q(name='condominium-default-owner-account4')
+        account_filter = Q()
+        for param_item in current_system_condo().get_config_params(True):
+            account_filter |= Q(name=param_item)
         set_unknown = []
     param_unknown = Parameter.objects.filter(account_filter).exclude(value__in=known_codes).values_list('value', flat=True)
     comptenofound = ""
     if (len(set_unknown) > 0):
         comptenofound = _("set") + ":" + ",".join(set(set_unknown)) + " "
+    param_unknown = list(param_unknown)
+    if '0' in param_unknown:
+        param_unknown.remove('0')
     if (len(param_unknown) > 0):
         comptenofound += _("parameters") + ":" + ",".join(set(param_unknown))
     if comptenofound != "":

@@ -503,7 +503,10 @@ class Owner(Supporting):
                                          ((_('exceptional initial state'), 'total_exceptional_initial'),),
                                          ((_('exceptional total call for funds'), 'total_exceptional_call'), (_('exceptional total payoff'), 'total_exceptional_payoff')),
                                          ((_('exceptional total owner'), 'total_exceptional_owner'), )],
-                  _("007@callfunds"): ['callfunds_set', 'payoff_set'],
+                  _("007@Funds"): [((_('cash advance total call for funds'), 'total_cash_advance_call'), (_('cash advance total payoff'), 'total_cash_advance_payoff')),
+                                   ((_('fund for works total call for funds'), 'total_fund_works_call'), (_('fund for works total payoff'), 'total_fund_works_payoff'))
+                                   ],
+                  _("008@callfunds"): ['callfunds_set', 'payoff_set'],
                   }
         if Params.getvalue("condominium-old-accounting"):
             del fields[_("005@Situation")][5]
@@ -546,6 +549,11 @@ class Owner(Supporting):
                        (_('exceptional total call for funds'), 'total_exceptional_call'),
                        (_('exceptional total payoff'), 'total_exceptional_payoff'),
                        (_('exceptional total owner'), 'total_exceptional_owner')])
+        fields.extend([(_('cash advance total call for funds'), 'total_cash_advance_call'),
+                       (_('cash advance total payoff'), 'total_cash_advance_payoff'),
+                       (_('fund for works total call for funds'), 'total_fund_works_call'),
+                       (_('fund for works total payoff'), 'total_fund_works_payoff')])
+
         return fields
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
@@ -818,6 +826,22 @@ class Owner(Supporting):
     @property
     def total_exceptional_initial(self):
         return format_devise(self.get_total_initial(2), 5)
+
+    @property
+    def total_cash_advance_call(self):
+        return format_devise(self.get_total_call(2), 5)
+
+    @property
+    def total_cash_advance_payoff(self):
+        return format_devise(self.get_total_payoff(3), 5)
+
+    @property
+    def total_fund_works_call(self):
+        return format_devise(self.get_total_call(4), 5)
+
+    @property
+    def total_fund_works_payoff(self):
+        return format_devise(self.get_total_payoff(5), 5)
 
     @property
     def total_exceptional_owner(self):
@@ -1113,6 +1137,9 @@ class CallFundsSupporting(Supporting):
 
     def payoff_have_payment(self):
         return (self.callfunds.status == 1) and (self.get_total_rest_topay() > 0.001)
+
+    def get_send_email_objects(self):
+        return [self.callfunds]
 
     class Meta(object):
         default_permissions = []

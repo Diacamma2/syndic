@@ -107,20 +107,26 @@ value = """
 <text height="20.0" width="100.0" top="190.0" left="0.0" padding="1.0" spacing="0.0" border_color="black" border_style="" border_width="0.2" text_align="left" line_height="9" font_family="sans-serif" font_weight="" font_size="9">
 #comment
 </text>
-<text height="5.0" width="130.0" top="205.0" left="00.0" padding="1.0" spacing="0.0" border_color="black" border_style="" border_width="0.2" text_align="center" line_height="9" font_family="sans-serif" font_weight="" font_size="9">
+<text height="5.0" width="130.0" top="200.0" left="00.0" padding="1.0" spacing="0.0" border_color="black" border_style="" border_width="0.2" text_align="center" line_height="9" font_family="sans-serif" font_weight="" font_size="9">
 {[u]}{[i]}%(situation)s{[/i]}{[/u]}
 </text>
-<text height="15.0" width="50.0" top="210.0" left="00.0" padding="1.0" spacing="0.0" border_color="black" border_style="" border_width="0.2" text_align="right" line_height="9" font_family="sans-serif" font_weight="" font_size="9">
+<text height="15.0" width="50.0" top="205.0" left="00.0" padding="1.0" spacing="0.0" border_color="black" border_style="" border_width="0.2" text_align="right" line_height="9" font_family="sans-serif" font_weight="" font_size="9">
 {[i]}%(total_initial)s{[/i]}{[br/]}
 {[i]}%(total_call)s{[/i]}{[br/]}
 {[i]}%(total_payed)s{[/i]}{[br/]}
 {[i]}%(total_estimate)s{[/i]}{[br/]}
+{[br/]}
+{[i]}%(total_cash_advance_call)s{[/i]}{[br/]}
+{[i]}%(total_cash_advance_payoff)s{[/i]}{[br/]}
 </text>
 <text height="15.0" width="15.0" top="210.0" left="50.0" padding="1.0" spacing="0.0" border_color="black" border_style="" border_width="0.2" text_align="right" line_height="9" font_family="sans-serif" font_weight="" font_size="9">
 #owner.total_current_initial{[br/]}
 #owner.total_current_call{[br/]}
 #owner.total_current_payoff{[br/]}
 #owner.total_current_owner{[br/]}
+{[br/]}
+#owner.total_cash_advance_call{[br/]}
+#owner.total_cash_advance_payoff{[br/]}
 </text>
 
 <text height="15.0" width="60.0" top="210.0" left="70.0" padding="1.0" spacing="0.0" border_color="black" border_style="" border_width="0.2" text_align="right" line_height="9" font_family="sans-serif" font_weight="" font_size="9">
@@ -128,15 +134,21 @@ value = """
 {[i]}%(total_excep_call)s{[/i]}{[br/]}
 {[i]}%(total_excep_payed)s{[/i]}{[br/]}
 {[i]}%(total_excep_estimate)s{[/i]}{[br/]}
+{[br/]}
+{[i]}%(total_fund_works_call)s{[/i]}{[br/]}
+{[i]}%(total_fund_works_payoff)s{[/i]}{[br/]}
 </text>
 <text height="15.0" width="15.0" top="210.0" left="130.0" padding="1.0" spacing="0.0" border_color="black" border_style="" border_width="0.2" text_align="right" line_height="9" font_family="sans-serif" font_weight="" font_size="9">
 #owner.total_exceptional_initial{[br/]}
 #owner.total_exceptional_call{[br/]}
 #owner.total_exceptional_payoff{[br/]}
 #owner.total_exceptional_owner{[br/]}
+{[br/]}
+#owner.total_fund_works_call{[br/]}
+#owner.total_fund_works_payoff{[br/]}
 </text>
 
-<text height="10.0" width="190.0" top="230.0" left="0.0" padding="1.0" spacing="0.0" border_color="black" border_style="" border_width="0.2
+<text height="10.0" width="190.0" top="235.0" left="0.0" padding="1.0" spacing="0.0" border_color="black" border_style="" border_width="0.2
 " text_align="center" line_height="11" font_family="sans-serif" font_weight="" font_size="11">
 {[b]}{[u]}%(sumtopay)s : #owner.sumtopay{[/u]}{[/b]}
 </text>
@@ -160,6 +172,10 @@ value = """
         'total_excep_call': _('exceptional total call for funds'),
         'total_excep_payed': _('exceptional total payoff'),
         'total_excep_estimate': _('exceptional total owner'),
+        'total_cash_advance_call': _('cash advance total call for funds'),
+        'total_cash_advance_payoff': _('cash advance total payoff'),
+        'total_fund_works_call': _('fund for works total call for funds'),
+        'total_fund_works_payoff': _('fund for works total payoff'),
         'total': _('total'),
         'sumtopay': _('sum to pay'),
 }
