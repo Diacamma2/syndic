@@ -119,7 +119,7 @@ value = """
 {[i]}%(total_cash_advance_call)s{[/i]}{[br/]}
 {[i]}%(total_cash_advance_payoff)s{[/i]}{[br/]}
 </text>
-<text height="15.0" width="15.0" top="210.0" left="50.0" padding="1.0" spacing="0.0" border_color="black" border_style="" border_width="0.2" text_align="right" line_height="9" font_family="sans-serif" font_weight="" font_size="9">
+<text height="15.0" width="15.0" top="205.0" left="50.0" padding="1.0" spacing="0.0" border_color="black" border_style="" border_width="0.2" text_align="right" line_height="9" font_family="sans-serif" font_weight="" font_size="9">
 #owner.total_current_initial{[br/]}
 #owner.total_current_call{[br/]}
 #owner.total_current_payoff{[br/]}
@@ -129,7 +129,7 @@ value = """
 #owner.total_cash_advance_payoff{[br/]}
 </text>
 
-<text height="15.0" width="60.0" top="210.0" left="70.0" padding="1.0" spacing="0.0" border_color="black" border_style="" border_width="0.2" text_align="right" line_height="9" font_family="sans-serif" font_weight="" font_size="9">
+<text height="15.0" width="60.0" top="205.0" left="70.0" padding="1.0" spacing="0.0" border_color="black" border_style="" border_width="0.2" text_align="right" line_height="9" font_family="sans-serif" font_weight="" font_size="9">
 {[i]}%(total_excep_initial)s{[/i]}{[br/]}
 {[i]}%(total_excep_call)s{[/i]}{[br/]}
 {[i]}%(total_excep_payed)s{[/i]}{[br/]}
@@ -138,7 +138,7 @@ value = """
 {[i]}%(total_fund_works_call)s{[/i]}{[br/]}
 {[i]}%(total_fund_works_payoff)s{[/i]}{[br/]}
 </text>
-<text height="15.0" width="15.0" top="210.0" left="130.0" padding="1.0" spacing="0.0" border_color="black" border_style="" border_width="0.2" text_align="right" line_height="9" font_family="sans-serif" font_weight="" font_size="9">
+<text height="15.0" width="15.0" top="205.0" left="130.0" padding="1.0" spacing="0.0" border_color="black" border_style="" border_width="0.2" text_align="right" line_height="9" font_family="sans-serif" font_weight="" font_size="9">
 #owner.total_exceptional_initial{[br/]}
 #owner.total_exceptional_call{[br/]}
 #owner.total_exceptional_payoff{[br/]}
