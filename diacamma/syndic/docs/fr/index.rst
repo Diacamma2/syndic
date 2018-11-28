@@ -1,10 +1,7 @@
 Diacamma Syndic
 ===============
 
-Déscription du logiciel Diacamma Syndic.
-
-Sommaire:
-=========
+Présentation du logiciel Diacamma Syndic.
 
 .. toctree::
    :maxdepth: 2
