@@ -7,7 +7,6 @@ Sommaire:
    syndic/index.rst
    condominium/index.rst
    accounting/index.rst
-   invoice/index.rst
    payoff/index.rst
    contacts/index.rst
    mailing/index.rst
