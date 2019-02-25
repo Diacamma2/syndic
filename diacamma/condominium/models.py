@@ -25,6 +25,7 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import unicode_literals
 from datetime import date
 from logging import getLogger
+from decimal import Decimal, getcontext
 
 from django.db import models
 from django.db.models import Q
@@ -282,9 +283,10 @@ class Set(LucteriosModel):
     def total_part(self):
         total = self.partition_set.all().aggregate(sum=Sum('value'))
         if 'sum' in total.keys():
-            return total['sum']
+            res = total['sum']
         else:
-            return 0
+            res = Decimal(0.0)
+        return res
 
     def get_expenselist(self):
         if self.date_begin is None:

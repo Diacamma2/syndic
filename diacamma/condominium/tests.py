@@ -415,7 +415,7 @@ class SetOwnerTest(LucteriosTest):
         self.assert_json_equal('', 'partition/@2/value', '0.00')
         self.assert_json_equal('', 'partition/@2/owner', 'Dalton Joe')
         self.assert_count_equal('#partition/actions', 1)
-        self.assert_json_equal('LABELFORM', 'total_part', '0.00')
+        self.assert_json_equal('LABELFORM', 'total_part', '0')
         self.assert_json_equal('LABELFORM', 'sumexpense_txt', "0.00€")
         self.assert_json_equal('LABELFORM', 'current_cost_accounting', "[1] AAA 2015")
 
@@ -444,7 +444,7 @@ class SetOwnerTest(LucteriosTest):
         self.assert_json_equal('', 'partition/@1/ratio', '33.3 %')
         self.assert_json_equal('', 'partition/@2/value', '30.00')
         self.assert_json_equal('', 'partition/@2/ratio', '50.0 %')
-        self.assert_json_equal('LABELFORM', 'total_part', '60.00')
+        self.assert_json_equal('LABELFORM', 'total_part', '60')
 
         self.factory.xfer = OwnerAndPropertyLotList()
         self.calljson('/diacamma.condominium/ownerAndPropertyLotList', {}, False)
