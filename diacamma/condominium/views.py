@@ -311,11 +311,11 @@ class PropertyLotDel(XferDelete):
 def get_owners(request):
     contacts = []
     if not request.user.is_anonymous:
-        for contact in Individual.objects.filter(user=request.user):
+        for contact in Individual.objects.filter(user=request.user).distinct():
             contacts.append(contact.id)
-        for contact in LegalEntity.objects.filter(responsability__individual__user=request.user):
+        for contact in LegalEntity.objects.filter(responsability__individual__user=request.user).distinct():
             contacts.append(contact.id)
-    return Owner.objects.filter(third__contact_id__in=contacts)
+    return Owner.objects.filter(third__contact_id__in=contacts).distinct()
 
 
 def current_owner(request):

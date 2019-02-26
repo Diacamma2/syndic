@@ -580,7 +580,7 @@ class Owner(Supporting):
     def check_initial_operation(self):
         if FiscalYear.get_current().status != 2:
             self.date_begin = FiscalYear.get_current().begin
-            entries_init = EntryAccount.objects.filter(Q(entrylineaccount__third=self.third) & Q(date_value=self.date_begin) & Q(journal__id=1))
+            entries_init = EntryAccount.objects.filter(Q(entrylineaccount__third=self.third) & Q(date_value=self.date_begin) & Q(journal__id=1)).distinct()
             if len(entries_init) > 0:
                 third_initial = self.get_third_initial()
                 if (third_initial > 0.0001) and (len(Payoff.objects.filter((Q(supporting=self) | Q(supporting__callfundssupporting__third=self.third)) & Q(entry=entries_init[0]))) == 0):
@@ -600,7 +600,7 @@ class Owner(Supporting):
     def check_ventilate_payoff(self):
         # move payoff in owner general list
         callfunds_supportings = Supporting.objects.filter(Q(third=self.third) & Q(callfundssupporting__callfunds__date__gte=self.date_begin) &
-                                                          Q(callfundssupporting__callfunds__date__lte=self.date_end) & Q(payoff__entry__close=False))
+                                                          Q(callfundssupporting__callfunds__date__lte=self.date_end) & Q(payoff__entry__close=False)).distinct()
         export_payoff_filter = Q(supporting__in=callfunds_supportings) & Q(entry__close=False)
         export_payoff_list = Payoff.objects.filter(export_payoff_filter).values('entry_id', 'mode',
                                                                                 'payer', 'reference',
@@ -636,7 +636,7 @@ class Owner(Supporting):
     def entryline_set(self):
         if self.date_begin is None:
             self.set_dates()
-        return OwnerEntryLineAccount.objects.filter(Q(third=self.third) & Q(entry__date_value__gte=self.date_begin) & Q(entry__date_value__lte=self.date_end) & ~Q(entry__journal__id=1))
+        return OwnerEntryLineAccount.objects.filter(Q(third=self.third) & Q(entry__date_value__gte=self.date_begin) & Q(entry__date_value__lte=self.date_end) & ~Q(entry__journal__id=1)).distinct()
 
     @property
     def thirdtotal(self):
@@ -665,7 +665,7 @@ class Owner(Supporting):
 
     @property
     def exceptionnal_set(self):
-        return PartitionExceptional.objects.filter(Q(owner=self) & Q(set__is_active=True) & Q(set__type_load=1))
+        return PartitionExceptional.objects.filter(Q(owner=self) & Q(set__is_active=True) & Q(set__type_load=1)).distinct()
 
     @property
     def partition_query(self):
@@ -946,7 +946,7 @@ class Partition(LucteriosModel):
                 if self.set.date_end < year.begin:
                     return 0
             result = 0
-            for set_cost in SetCost.objects.filter((Q(year=year) | Q(year__isnull=True)) & Q(set=self.set)):
+            for set_cost in SetCost.objects.filter((Q(year=year) | Q(year__isnull=True)) & Q(set=self.set)).distinct():
                 result += set_cost.cost_accounting.get_total_expense()
             value = result * ratio / 100.0
         return value
@@ -959,7 +959,7 @@ class Partition(LucteriosModel):
         value = 0
         ratio = self.get_ratio()
         if abs(ratio) > 0.01:
-            for calldetail in CallDetail.objects.filter(callfunds__owner=self.owner, set=self.set, callfunds__date__gte=self.set.date_begin, callfunds__date__lte=self.set.date_end):
+            for calldetail in CallDetail.objects.filter(callfunds__owner=self.owner, set=self.set, callfunds__date__gte=self.set.date_begin, callfunds__date__lte=self.set.date_end).distinct():
                 value += currency_round(calldetail.price)
         return value
 
