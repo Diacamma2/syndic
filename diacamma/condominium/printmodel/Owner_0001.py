@@ -120,6 +120,14 @@ value = """
         #total_current_ventilated
         </cell>
     </rows>
+    <rows>
+        <cell border_color="black" border_style="" border_width="0.2" text_align="right" line_height="11" font_family="sans-serif" font_weight="" font_size="10">
+        {[b]}%(total_recoverable_load)s{[/b]}
+        </cell>
+        <cell border_color="black" border_style="" border_width="0.2" text_align="right" line_height="11" font_family="sans-serif" font_weight="" font_size="10">
+        #total_recoverable_load
+        </cell>
+    </rows>
 </table>
 
 <text height="10.0" width="75.0" top="45.0" left="100.0" padding="1.0" spacing="0.0" border_color="black" border_style="" border_width="0.2" text_align="left" line_height="11" font_family="sans-serif" font_weight="" font_size="11">
@@ -232,20 +240,23 @@ value = """
     <columns width="30.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
     {[b]}%(set)s{[/b]}
     </columns>
-    <columns width="17.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
+    <columns width="15.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="9" font_family="sans-serif" font_weight="" font_size="8">
     {[b]}%(budget)s{[/b]}
     </columns>
-    <columns width="17.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
+    <columns width="15.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="9" font_family="sans-serif" font_weight="" font_size="8">
     {[b]}%(expense)s{[/b]}
     </columns>
-    <columns width="17.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
+    <columns width="15.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="9" font_family="sans-serif" font_weight="" font_size="8">
     {[b]}%(value)s{[/b]}
     </columns>
-    <columns width="12.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
+    <columns width="12.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="9" font_family="sans-serif" font_weight="" font_size="8">
     {[b]}%(ratio)s{[/b]}
     </columns>
-    <columns width="17.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
+    <columns width="15.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="9" font_family="sans-serif" font_weight="" font_size="8">
     {[b]}%(ventilated)s{[/b]}
+    </columns>
+    <columns width="15.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="9" font_family="sans-serif" font_weight="" font_size="8">
+    {[b]}%(recover_load)s{[/b]}
     </columns>
     <rows data="partition_set">
         <cell display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="start" line_height="7" font_family="sans-serif" font_weight="" font_size="7">
@@ -265,6 +276,9 @@ value = """
         </cell>
         <cell display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="start" line_height="7" font_family="sans-serif" font_weight="" font_size="7">
 #ventilated_txt
+        </cell>
+        <cell display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="start" line_height="7" font_family="sans-serif" font_weight="" font_size="7">
+#recovery_load_txt
         </cell>
     </rows>
 </table>
@@ -355,7 +369,7 @@ value = """
 </model>""" % {'title': _('Owner situation'), 'info': _('information'), 'call of funds': _('call of funds'), 'num': _('numeros'), 'date': _('date'), 'comment': _('comment'), 'total': _('total'),
                'exceptional': _('exceptional'), 'current': _('current'),
                'partition': _('partition'), 'set': _('set'), 'budget': _('budget'), 'expense': _('expense'), 'value': _('tantime'), 'ratio': _('ratio'),
-               'ventilated': _('ventilated'), 'total_callfunds': _('total call for funds'), 'rest_to_pay': _('rest to pay'),
+               'ventilated': _('ventilated'), 'recover_load': _('recover. load'), 'total_callfunds': _('total call for funds'), 'rest_to_pay': _('rest to pay'),
                'property': _('property lot'), 'num': _('numeros'), 'value': _('tantime'), 'ratio': _("ratio"), 'description': _('description'),
                'payoff': _('payoff'), 'amount': _('amount'), 'payer': _('payer'), 'mode': _('mode'), 'bank_account': _('bank account'), 'reference': _('reference'),
                'total_current_initial': _('current initial state'),
@@ -363,6 +377,7 @@ value = """
                'total_current_payoff': _('current total payoff'),
                'total_current_regularization': _('estimated regularization'),
                'total_current_ventilated': _('current total ventilated'),
+               'total_recoverable_load': _('total recoverable load'),
                'total_current_owner': _('current total owner'),
 
                'total_exceptional_initial': _('exceptional initial state'),

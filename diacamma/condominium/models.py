@@ -499,7 +499,7 @@ class Owner(Supporting):
                                        ((_('current total call for funds'), 'total_current_call'), (_('current total payoff'), 'total_current_payoff')),
                                        ((_('current total owner'), 'total_current_owner'), ),
                                        ((_('current total ventilated'), 'total_current_ventilated'), (_('estimated regularization'), 'total_current_regularization')),
-                                       ((_('extra revenus/expenses'), 'total_extra'),),
+                                       ((_('total recoverable load'), 'total_recoverable_load'), (_('extra revenus/expenses'), 'total_extra')),
                                        ],
                   _("006@Exceptional"): ['exceptionnal_set',
                                          ((_('exceptional initial state'), 'total_exceptional_initial'),),
@@ -764,6 +764,13 @@ class Owner(Supporting):
             value += part.get_ventilated()
         return value
 
+    def get_total_recoverable_load(self):
+        value = 0.0
+        for part in self.partition_set.filter(self.partition_query):
+            part.set.set_dates(self.date_begin, self.date_end)
+            value += part.get_recovery_load()
+        return value
+
     def get_total_extra(self):
         value, total_part = self.get_property_part()
         if value is not None:
@@ -812,6 +819,10 @@ class Owner(Supporting):
     @property
     def total_current_ventilated(self):
         return format_devise(self.get_total_current_ventilated(), 5)
+
+    @property
+    def total_recoverable_load(self):
+        return format_devise(self.get_total_recoverable_load(), 5)
 
     @property
     def total_current_regularization(self):
@@ -913,12 +924,17 @@ class Partition(LucteriosModel):
     value = models.DecimalField(_('tantime'), max_digits=7, decimal_places=2, default=0.0, validators=[
         MinValueValidator(0.0), MaxValueValidator(100000.00)])
 
+    def __init__(self, *args, **kwargs):
+        LucteriosModel.__init__(self, *args, **kwargs)
+        self.ventilated_value = 0.0
+        self.recovery_load_value = 0.0
+
     def __str__(self):
         return "%s : %s" % (self.owner, self.ratio)
 
     @classmethod
     def get_default_fields(cls):
-        return ["set", "set.budget", (_('expense'), 'set.sumexpense_txt'), "owner", "value", (_("ratio"), 'ratio'), (_('ventilated'), 'ventilated_txt')]
+        return ["set", (_('budget'), "set.budget_txt"), (_('expense'), 'set.sumexpense_txt'), "owner", "value", (_("ratio"), 'ratio'), (_('ventilated'), 'ventilated_txt'), (_('recoverable load'), 'recovery_load_txt')]
 
     @classmethod
     def get_edit_fields(cls):
@@ -935,8 +951,9 @@ class Partition(LucteriosModel):
         if xfer is not None:
             self.set.set_dates(xfer.getparam("begin_date"), xfer.getparam("end_date"))
 
-    def get_ventilated(self):
-        value = 0
+    def compute_values(self):
+        self.ventilated_value = 0.0
+        self.recovery_load_value = 0.0
         ratio = self.get_ratio()
         if abs(ratio) > 0.01:
             try:
@@ -945,15 +962,32 @@ class Partition(LucteriosModel):
                 year = FiscalYear.get_current()
                 if self.set.date_end < year.begin:
                     return 0
-            result = 0
-            for set_cost in SetCost.objects.filter((Q(year=year) | Q(year__isnull=True)) & Q(set=self.set)).distinct():
-                result += set_cost.cost_accounting.get_total_expense()
-            value = result * ratio / 100.0
-        return value
+            recovery_load_result = 0
+            self.ventilated_result = 0
+            for entry in EntryLineAccount.objects.filter(Q(account__type_of_account=4) & (Q(entry__year=year) | Q(entry__year__isnull=True)) & Q(costaccounting__setcost__set=self.set)).distinct():
+                recovery_load_ratio = RecoverableLoadRatio.objects.filter(code=entry.account.code)
+                self.ventilated_result += float(entry.amount)
+                if len(recovery_load_ratio) > 0:
+                    load_ratio = recovery_load_ratio[0].ratio
+                    recovery_load_result += float(entry.amount) * float(load_ratio) / 100.0
+            self.ventilated_value = self.ventilated_result * ratio / 100.0
+            self.recovery_load_value = recovery_load_result * ratio / 100.0
+
+    def get_ventilated(self):
+        self.compute_values()
+        return self.ventilated_value
 
     @property
     def ventilated_txt(self):
         return format_devise(self.get_ventilated(), 5)
+
+    def get_recovery_load(self):
+        self.compute_values()
+        return self.recovery_load_value
+
+    @property
+    def recovery_load_txt(self):
+        return format_devise(self.get_recovery_load(), 5)
 
     def get_callfunds(self):
         value = 0

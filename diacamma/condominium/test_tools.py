@@ -30,8 +30,7 @@ from lucterios.CORE.parameters import Params
 from diacamma.accounting.models import FiscalYear, Budget
 from diacamma.accounting.test_tools import create_account, add_entry
 from diacamma.payoff.models import Payoff
-from diacamma.condominium.models import Set, Owner, Partition, CallFunds, CallDetail, Expense, ExpenseDetail,\
-    PropertyLot
+from diacamma.condominium.models import Set, Owner, Partition, CallFunds, CallDetail, Expense, ExpenseDetail, PropertyLot, RecoverableLoadRatio
 
 
 def _set_budget(setitem, code, amount):
@@ -77,6 +76,9 @@ def _create_owners(set1, set2, set3, set4, with_lots=True):
 
 
 def default_setowner_fr(with_lots=True):
+    RecoverableLoadRatio.objects.create(code='602', ratio=60)
+    RecoverableLoadRatio.objects.create(code='604', ratio=40)
+
     if Params.getvalue("condominium-old-accounting"):
         create_account(['450'], 0, FiscalYear.get_current())
     else:
@@ -96,6 +98,9 @@ def default_setowner_fr(with_lots=True):
 
 
 def default_setowner_be(with_lots=True):
+    RecoverableLoadRatio.objects.create(code='601000', ratio=60)
+    RecoverableLoadRatio.objects.create(code='602000', ratio=40)
+
     create_account(['410000', '410100'], 0, FiscalYear.get_current())
     create_account(['100000', '160000'], 2, FiscalYear.get_current())
     create_account(['700100', '701100', '701200'], 3, FiscalYear.get_current())

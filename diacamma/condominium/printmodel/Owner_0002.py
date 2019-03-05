@@ -61,20 +61,20 @@ value = """<model hmargin="10.0" vmargin="10.0" page_width="210.0" page_height="
     <columns width="30.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
     {[b]}%(set)s{[/b]}
     </columns>
-    <columns width="15.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
+    <columns width="15.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="9" font_family="sans-serif" font_weight="" font_size="8">
     {[b]}%(budget)s{[/b]}
     </columns>
-    <columns width="15.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
+    <columns width="15.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="9" font_family="sans-serif" font_weight="" font_size="8">
     {[b]}%(expense)s{[/b]}
     </columns>
-    <columns width="15.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
-    {[b]}%(value)s{[/b]}
-    </columns>
-    <columns width="10.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
+    <columns width="12.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="9" font_family="sans-serif" font_weight="" font_size="8">
     {[b]}%(ratio)s{[/b]}
     </columns>
-    <columns width="15.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
+    <columns width="15.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="9" font_family="sans-serif" font_weight="" font_size="8">
     {[b]}%(ventilated)s{[/b]}
+    </columns>
+    <columns width="15.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="9" font_family="sans-serif" font_weight="" font_size="8">
+    {[b]}%(recover_load)s{[/b]}
     </columns>
     <rows data="partition_set">
         <cell display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="start" line_height="7" font_family="sans-serif" font_weight="" font_size="7">
@@ -87,13 +87,13 @@ value = """<model hmargin="10.0" vmargin="10.0" page_width="210.0" page_height="
 #set.sumexpense_txt
         </cell>
         <cell display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="start" line_height="7" font_family="sans-serif" font_weight="" font_size="7">
-#value
-        </cell>
-        <cell display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="start" line_height="7" font_family="sans-serif" font_weight="" font_size="7">
 #ratio
         </cell>
         <cell display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="start" line_height="7" font_family="sans-serif" font_weight="" font_size="7">
 #ventilated_txt
+        </cell>
+        <cell display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="start" line_height="7" font_family="sans-serif" font_weight="" font_size="7">
+#recovery_load_txt
         </cell>
     </rows>
 </table>
@@ -199,7 +199,7 @@ value = """<model hmargin="10.0" vmargin="10.0" page_width="210.0" page_height="
 </body>
 </model>""" % {'title': _('Owner situation'), 'email': _('emai'), 'tel': _('tel'), 'TO PAY': _('sum to pay'),
                'partition': _('partition'), 'set': _('set'), 'budget': _('budget'), 'expense': _('expense'), 'value': _('tantime'), 'ratio': _('ratio'),
-               'ventilated': _('ventilated'), 'total_callfunds': _('total call for funds'), 'rest_to_pay': _('rest to pay'),
+               'ventilated': _('ventilated'), 'recover_load': _('recover. load'), 'total_callfunds': _('total call for funds'), 'rest_to_pay': _('rest to pay'),
                'property': _('property lot'), 'num': _('numeros'), 'description': _('description'),
                'account detail': _('account detail'), 'third_initial': _('total owner initial'), 'thirdtotal': _('total owner'),
                'date': _('date'), 'designation': _('designation'), 'debit': _('debit'), 'credit': _('credit')}

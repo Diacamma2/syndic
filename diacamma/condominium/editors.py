@@ -59,7 +59,7 @@ class SetEditor(LucteriosEditor):
             xfer.remove_component('partitionfill')
         partition = xfer.get_components(part_name)
         partition.delete_header('set')
-        partition.delete_header('set.budget')
+        partition.delete_header('set.budget_txt')
         partition.delete_header('set.sumexpense_txt')
 
 
