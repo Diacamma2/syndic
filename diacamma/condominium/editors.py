@@ -36,7 +36,8 @@ from lucterios.CORE.parameters import Params
 from diacamma.accounting.tools import current_system_account
 from diacamma.accounting.models import Third, FiscalYear
 from diacamma.payoff.editors import SupportingEditor
-from diacamma.condominium.models import Set, CallDetail, CallFundsSupporting, Owner
+from diacamma.condominium.models import Set, CallDetail, CallFundsSupporting, Owner,\
+    RecoverableLoadRatio
 from lucterios.contacts.models import CustomField
 from lucterios.framework.xferadvance import XferSave
 from diacamma.condominium.system import current_system_condo
@@ -173,6 +174,22 @@ class OwnerEditor(SupportingEditor):
         btn.set_location(callfunds.col + 1, row)
         btn.set_action(xfer.request, ActionsManage.get_action_url('condominium.Owner', 'VentilatePay', xfer), modal=FORMTYPE_MODAL, close=CLOSE_NO)
         xfer.add_component(btn)
+
+
+class RecoverableLoadRatioEditor(LucteriosEditor):
+
+    def edit(self, xfer):
+        old_account = xfer.get_components("code")
+        xfer.remove_component("code")
+        sel_code = XferCompSelect("code")
+        sel_code.set_location(old_account.col, old_account.row, old_account.colspan + 1, old_account.rowspan)
+        existed_codes = []
+        for acc_ratio in RecoverableLoadRatio.objects.all():
+            existed_codes.append(acc_ratio.code)
+        for item in FiscalYear.get_current().chartsaccount_set.all().filter(code__regex=current_system_account().get_expence_mask()).exclude(code__in=existed_codes).order_by('code'):
+            sel_code.select_list.append((item.code, six.text_type(item)))
+        sel_code.set_value(self.item.code)
+        xfer.add_component(sel_code)
 
 
 class PartitionEditor(LucteriosEditor):

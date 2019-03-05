@@ -42,7 +42,9 @@ from diacamma.payoff.models import Payoff
 from diacamma.payoff.views import PayableShow, PayableEmail
 from diacamma.payoff.test_tools import default_bankaccount_fr, default_paymentmethod, PaymentTest, default_bankaccount_be
 
-from diacamma.condominium.views_classload import SetList, SetAddModify, SetDel, SetShow, PartitionAddModify, CondominiumConf, SetClose
+from diacamma.condominium.views_classload import SetList, SetAddModify, SetDel, SetShow, PartitionAddModify, CondominiumConf, SetClose,\
+    OwnerLinkAddModify, OwnerLinkDel, RecoverableLoadRatioAddModify,\
+    RecoverableLoadRatioDel
 from diacamma.condominium.views import OwnerAndPropertyLotList, OwnerAdd, OwnerDel, OwnerShow, PropertyLotAddModify, CondominiumConvert, OwnerVentilatePay
 from diacamma.condominium.views_report import FinancialStatus, GeneralManageAccounting, CurrentManageAccounting, ExceptionalManageAccounting
 from diacamma.condominium.test_tools import default_setowner_fr, add_test_callfunds, old_accounting, add_test_expenses_fr, init_compta, add_years, default_setowner_be, add_test_expenses_be
@@ -61,7 +63,7 @@ class SetOwnerTest(LucteriosTest):
         self.factory.xfer = CondominiumConf()
         self.calljson('/diacamma.condominium/condominiumConf', {}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'condominiumConf')
-        self.assert_count_equal('', 2 + 15 + 2)
+        self.assert_count_equal('', 2 + 15 + 2 + 2)
         self.assert_json_equal('LABELFORM', 'condominium-default-owner-account1', '4501')
         self.assert_json_equal('LABELFORM', 'condominium-default-owner-account2', '4502')
         self.assert_json_equal('LABELFORM', 'condominium-default-owner-account3', '4503')
@@ -74,15 +76,99 @@ class SetOwnerTest(LucteriosTest):
         self.assert_json_equal('LABELFORM', 'condominium-advance-reserve-account', '103')
         self.assert_json_equal('LABELFORM', 'condominium-fundforworks-reserve-account', '105')
         self.assert_json_equal('LABELFORM', 'condominium-mode-current-callfunds', 'trimestrielle')
-        self.assert_count_equal('ownerlink', 4)
 
     def test_config_old_accounting(self):
         old_accounting()
         self.factory.xfer = CondominiumConf()
         self.calljson('/diacamma.condominium/condominiumConf', {}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'condominiumConf')
-        self.assert_count_equal('', 2 + 4 + 2)
+        self.assert_count_equal('', 2 + 4 + 2 + 2)
         self.assert_json_equal('LABELFORM', 'condominium-default-owner-account', '450')
+
+    def test_config_owner_link(self):
+        self.factory.xfer = CondominiumConf()
+        self.calljson('/diacamma.condominium/condominiumConf', {}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'condominiumConf')
+        self.assert_count_equal('ownerlink', 4)
+
+        self.factory.xfer = OwnerLinkAddModify()
+        self.calljson('/diacamma.condominium/ownerLinkAddModify', {'SAVE': 'YES', 'name': 'ami'}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'ownerLinkAddModify')
+
+        self.factory.xfer = CondominiumConf()
+        self.calljson('/diacamma.condominium/condominiumConf', {}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'condominiumConf')
+        self.assert_count_equal('ownerlink', 5)
+        self.assert_json_equal('', 'ownerlink/@4/id', '5')
+        self.assert_json_equal('', 'ownerlink/@4/name', 'ami')
+
+        self.factory.xfer = OwnerLinkDel()
+        self.calljson('/diacamma.condominium/ownerLinkDel', {'CONFIRME': 'YES', 'ownerlink': '5'}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'ownerLinkDel')
+
+        self.factory.xfer = CondominiumConf()
+        self.calljson('/diacamma.condominium/condominiumConf', {}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'condominiumConf')
+        self.assert_count_equal('ownerlink', 4)
+
+        self.factory.xfer = OwnerLinkDel()
+        self.calljson('/diacamma.condominium/ownerLinkDel', {'ownerlink': '1'}, False)
+        self.assert_observer('core.exception', 'diacamma.condominium', 'ownerLinkDel')
+        self.assert_json_equal('', 'message', "Cet nature de relation n'est pas supprimable !")
+
+        self.factory.xfer = OwnerLinkDel()
+        self.calljson('/diacamma.condominium/ownerLinkDel', {'ownerlink': '2'}, False)
+        self.assert_observer('core.exception', 'diacamma.condominium', 'ownerLinkDel')
+        self.assert_json_equal('', 'message', "Cet nature de relation n'est pas supprimable !")
+
+        self.factory.xfer = OwnerLinkDel()
+        self.calljson('/diacamma.condominium/ownerLinkDel', {'CONFIRME': 'YES', 'ownerlink': '3'}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'ownerLinkDel')
+
+        self.factory.xfer = CondominiumConf()
+        self.calljson('/diacamma.condominium/condominiumConf', {}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'condominiumConf')
+        self.assert_count_equal('ownerlink', 3)
+
+    def test_config_recoverableloadratio(self):
+        self.factory.xfer = CondominiumConf()
+        self.calljson('/diacamma.condominium/condominiumConf', {}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'condominiumConf')
+        self.assert_count_equal('recoverableloadratio', 0)
+
+        self.factory.xfer = RecoverableLoadRatioAddModify()
+        self.calljson('/diacamma.condominium/recoverableLoadRatioAddModify', {}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'recoverableLoadRatioAddModify')
+        self.assert_count_equal('', 3)
+        self.assert_select_equal('code', {'601': '[601] 601', '602': '[602] 602', '604': '[604] 604', '607': '[607] 607', '627': '[627] 627'})
+        self.assert_json_equal('FLOAT', 'ratio', '100')
+
+        self.factory.xfer = RecoverableLoadRatioAddModify()
+        self.calljson('/diacamma.condominium/recoverableLoadRatioAddModify', {'SAVE': 'YES', 'code': '602', 'ratio': 40}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'recoverableLoadRatioAddModify')
+
+        self.factory.xfer = CondominiumConf()
+        self.calljson('/diacamma.condominium/condominiumConf', {}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'condominiumConf')
+        self.assert_count_equal('recoverableloadratio', 1)
+        self.assert_json_equal('', 'recoverableloadratio/@0/code_txt', '[602] 602')
+        self.assert_json_equal('', 'recoverableloadratio/@0/ratio', '40')
+
+        self.factory.xfer = RecoverableLoadRatioAddModify()
+        self.calljson('/diacamma.condominium/recoverableLoadRatioAddModify', {}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'recoverableLoadRatioAddModify')
+        self.assert_count_equal('', 3)
+        self.assert_select_equal('code', {'601': '[601] 601', '604': '[604] 604', '607': '[607] 607', '627': '[627] 627'})
+        self.assert_json_equal('FLOAT', 'ratio', '100')
+
+        self.factory.xfer = RecoverableLoadRatioDel()
+        self.calljson('/diacamma.condominium/recoverableLoadRatioDel', {'CONFIRME': 'YES', 'recoverableloadratio': '1'}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'recoverableLoadRatioDel')
+
+        self.factory.xfer = CondominiumConf()
+        self.calljson('/diacamma.condominium/condominiumConf', {}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'condominiumConf')
+        self.assert_count_equal('recoverableloadratio', 0)
 
     def test_add_set(self):
         self.factory.xfer = CostAccountingList()

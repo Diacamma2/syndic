@@ -25,7 +25,7 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import unicode_literals
 from datetime import date
 from logging import getLogger
-from decimal import Decimal, getcontext
+from decimal import Decimal
 
 from django.db import models
 from django.db.models import Q
@@ -1021,6 +1021,33 @@ class OwnerContact(LucteriosModel):
         verbose_name = _('owner contact')
         verbose_name_plural = _('owner contacts')
         default_permissions = []
+
+
+class RecoverableLoadRatio(LucteriosModel):
+    code = models.CharField(_('account'), max_length=50)
+    ratio = models.DecimalField(_('ratio'), max_digits=4, decimal_places=0, default=100, validators=[MinValueValidator(1.0), MaxValueValidator(100.0)])
+
+    def __str__(self):
+        return self.code
+
+    @classmethod
+    def get_default_fields(cls):
+        return [(_('account'), "code_txt"), "ratio"]
+
+    @classmethod
+    def get_edit_fields(cls):
+        return ["code", "ratio"]
+
+    @property
+    def code_txt(self):
+        chart = ChartsAccount.get_chart_account(self.code)
+        return six.text_type(chart)
+
+    class Meta(object):
+        verbose_name = _('recoverable load ratio')
+        verbose_name_plural = _('recoverable load ratios')
+        default_permissions = []
+        ordering = ["code"]
 
 
 class PartitionExceptional(Partition):

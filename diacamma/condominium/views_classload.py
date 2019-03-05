@@ -49,7 +49,8 @@ from diacamma.accounting.models import CostAccounting, FiscalYear
 from diacamma.accounting.views_budget import BudgetList
 from diacamma.accounting.views_reports import CostAccountingIncomeStatement
 
-from diacamma.condominium.models import Set, Partition, ExpenseDetail, Owner, PropertyLot, SetCost, OwnerLink
+from diacamma.condominium.models import Set, Partition, ExpenseDetail, Owner, PropertyLot, SetCost, OwnerLink,\
+    RecoverableLoadRatio
 from diacamma.condominium.system import clear_system_condo, current_system_condo
 
 
@@ -91,6 +92,11 @@ class CondominiumConf(XferListEditor):
         self.add_component(btn)
         self.new_tab(_('Links'))
 
+    def fillresponse(self):
+        XferListEditor.fillresponse(self)
+        self.new_tab(_('Recoverable loads'))
+        self.fill_grid(self.get_max_row() + 1, RecoverableLoadRatio, 'recoverableloadratio', RecoverableLoadRatio.objects.all())
+
 
 @ActionsManage.affect_grid(TITLE_ADD, "images/add.png")
 @MenuManage.describ('CORE.add_parameter')
@@ -115,6 +121,25 @@ class OwnerLinkDel(XferDelete):
             if sub_item.id in (1, 2):
                 raise LucteriosException(IMPORTANT, _('Link not deletable !'))
         XferDelete.fillresponse(self)
+
+
+@ActionsManage.affect_grid(TITLE_ADD, "images/add.png")
+@MenuManage.describ('CORE.add_parameter')
+class RecoverableLoadRatioAddModify(XferAddEditor):
+    icon = "condominium.png"
+    model = RecoverableLoadRatio
+    field_id = 'recoverableloadratio'
+    caption_add = _("Add recoverable load ratio")
+    caption_modify = _("Modify recoverable load ratio")
+
+
+@ActionsManage.affect_grid(TITLE_DELETE, "images/delete.png", unique=SELECT_MULTI)
+@MenuManage.describ('CORE.add_parameter')
+class RecoverableLoadRatioDel(XferDelete):
+    caption = _("Delete recoverable load ratio")
+    icon = "condominium.png"
+    model = RecoverableLoadRatio
+    field_id = 'recoverableloadratio'
 
 
 MenuManage.add_sub("condominium", None, "diacamma.condominium/images/condominium.png",
