@@ -159,6 +159,14 @@ class OwnerEditor(SupportingEditor):
         lots.actions = []
         lots.delete_header('owner')
         xfer.get_components('payoff').colspan = 2
+
+        xfer.tab = partition.tab
+        row = xfer.get_max_row() + 1
+        btn = XferCompButton('show_load_count')
+        btn.set_location(partition.col, row)
+        btn.set_action(xfer.request, ActionsManage.get_action_url('condominium.Owner', 'LoadCount', xfer), modal=FORMTYPE_MODAL, close=CLOSE_NO)
+        xfer.add_component(btn)
+
         callfunds = xfer.get_components('callfunds')
         callfunds.actions = []
         callfunds.colspan = 2

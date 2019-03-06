@@ -45,7 +45,8 @@ from diacamma.payoff.test_tools import default_bankaccount_fr, default_paymentme
 from diacamma.condominium.views_classload import SetList, SetAddModify, SetDel, SetShow, PartitionAddModify, CondominiumConf, SetClose,\
     OwnerLinkAddModify, OwnerLinkDel, RecoverableLoadRatioAddModify,\
     RecoverableLoadRatioDel
-from diacamma.condominium.views import OwnerAndPropertyLotList, OwnerAdd, OwnerDel, OwnerShow, PropertyLotAddModify, CondominiumConvert, OwnerVentilatePay
+from diacamma.condominium.views import OwnerAndPropertyLotList, OwnerAdd, OwnerDel, OwnerShow, PropertyLotAddModify, CondominiumConvert, OwnerVentilatePay,\
+    OwnerLoadCount
 from diacamma.condominium.views_report import FinancialStatus, GeneralManageAccounting, CurrentManageAccounting, ExceptionalManageAccounting
 from diacamma.condominium.test_tools import default_setowner_fr, add_test_callfunds, old_accounting, add_test_expenses_fr, init_compta, add_years, default_setowner_be, add_test_expenses_be
 
@@ -845,7 +846,7 @@ class OwnerTest(PaymentTest):
         self.factory.xfer = OwnerShow()
         self.calljson('/diacamma.condominium/ownerShow', {'owner': 1}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'ownerShow')
-        self.assert_count_equal('', 51)
+        self.assert_count_equal('', 52)
         self.assert_json_equal('LABELFORM', 'total_current_initial', "23.45€")
         self.assert_json_equal('LABELFORM', 'total_current_call', "131.25€")
         self.assert_json_equal('LABELFORM', 'total_current_payoff', "100.00€")
@@ -1206,7 +1207,7 @@ class OwnerBelgiumTest(PaymentTest):
         self.factory.xfer = OwnerShow()
         self.calljson('/diacamma.condominium/ownerShow', {'owner': 1}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'ownerShow')
-        self.assert_count_equal('', 49)
+        self.assert_count_equal('', 50)
         self.assert_json_equal('LABELFORM', 'third.custom_1', '')
         self.assert_json_equal('LABELFORM', 'third.custom_2', '')
         self.assert_grid_equal('partition', {"set": "catégorie de charges", 'set.budget_txt': 'budget', 'set.sumexpense_txt': 'dépense',
@@ -1233,6 +1234,36 @@ class OwnerBelgiumTest(PaymentTest):
         self.assert_json_equal('', 'exceptionnal/@0/total_current_regularization', "11.25€")
         self.assert_json_equal('LABELFORM', 'total_exceptional_call', "45.00€")
         self.assert_json_equal('LABELFORM', 'total_exceptional_payoff', "30.00€")
+
+    def test_owner_load_count(self):
+        add_test_callfunds(False, True)
+        add_test_expenses_be(False, True)
+        init_compta()
+
+        self.factory.xfer = OwnerLoadCount()
+        self.calljson('/diacamma.condominium/ownerLoadCount', {'owner': 1}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'ownerLoadCount')
+        self.assert_count_equal('', 5)
+        self.assert_count_equal('loadcount', 9)
+        self.assert_json_equal('', 'loadcount/@0/designation', "{[b]}[601000] 601000{[/b]} ({[i]}[3] CCC{[/i]})")
+        self.assert_json_equal('', 'loadcount/@2/designation', "")
+        self.assert_json_equal('', 'loadcount/@2/total', "{[b]}75.00€{[/b]}")
+        self.assert_json_equal('', 'loadcount/@2/ratio', "45/100")
+        self.assert_json_equal('', 'loadcount/@2/ventilated', "{[b]}33.75€{[/b]}")
+        self.assert_json_equal('', 'loadcount/@2/recoverable_load', "{[b]}20.25€{[/b]}")
+
+        self.assert_json_equal('', 'loadcount/@4/designation', "{[b]}[602000] 602000{[/b]} ({[i]}[2] BBB{[/i]})")
+        self.assert_json_equal('', 'loadcount/@6/designation', "")
+        self.assert_json_equal('', 'loadcount/@6/total', "{[b]}100.00€{[/b]}")
+        self.assert_json_equal('', 'loadcount/@6/ratio', "75/100")
+        self.assert_json_equal('', 'loadcount/@6/ventilated', "{[b]}75.00€{[/b]}")
+        self.assert_json_equal('', 'loadcount/@6/recoverable_load', "{[b]}30.00€{[/b]}")
+
+        self.assert_json_equal('', 'loadcount/@8/designation', "")
+        self.assert_json_equal('', 'loadcount/@8/total', "{[u]}{[b]}175.00€{[/b]}{[/u]}")
+        self.assert_json_equal('', 'loadcount/@8/ratio', "")
+        self.assert_json_equal('', 'loadcount/@8/ventilated', "{[u]}{[b]}108.75€{[/b]}{[/u]}")
+        self.assert_json_equal('', 'loadcount/@8/recoverable_load', "{[u]}{[b]}50.25€{[/b]}{[/u]}")
 
 
 class OwnerTestOldAccounting(PaymentTest):

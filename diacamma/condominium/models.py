@@ -50,6 +50,8 @@ from diacamma.payoff.models import Supporting, Payoff
 from django.conf import settings
 from lucterios.contacts.models import AbstractContact
 from diacamma.condominium.system import current_system_condo
+from django.db.models.query import QuerySet
+from diacamma.accounting.tools_reports import get_spaces
 
 
 class Set(LucteriosModel):
@@ -399,6 +401,82 @@ class OwnerEntryLineAccount(EntryLineAccount):
         proxy = True
 
 
+class LoadCount(LucteriosModel):
+
+    id = models.IntegerField(verbose_name=_('id'), null=False, default=0, db_index=True)
+    designation = models.TextField(_('designation'), null=False, default="")
+    total = models.TextField(_('total'), null=False, default="")
+    ratio = models.TextField(_('ratio'), null=False, default="")
+    ventilated = models.TextField(_('ventilated'), null=False, default="")
+    recoverable_load = models.TextField(_('recoverable load'), null=False, default="")
+
+    @classmethod
+    def get_default_fields(cls, status=-1):
+        return ['designation', 'total', 'ratio', 'ventilated', 'recoverable_load']
+
+    class Meta(object):
+        abstract = True
+        verbose_name = _('load count')
+        verbose_name_plural = _('load counts')
+
+
+class LoadCountSet(QuerySet):
+
+    def __init__(self, model=None, query=None, using=None, hints=None):
+        QuerySet.__init__(self, model=LoadCount, query=query, using=using, hints=hints)
+        self._result_cache = None
+        self.pt_id = 0
+        self.model._meta.pk = Set()._meta.pk
+        self.owner = self._hints['owner']
+
+    def fill_title(self, designation, total='', ratio='', ventilated='', recoverable_load=''):
+        self._result_cache.append(LoadCount(id=self.pt_id, designation=designation, total=total,
+                                            ratio=ratio, ventilated=ventilated, recoverable_load=recoverable_load))
+        self.pt_id += 1
+
+    def _fetch_all(self):
+        if self._result_cache is None:
+            self._result_cache = []
+            self.pt_id = 1
+            general_total = 0
+            ventilated_total = 0
+            recoverable_load_total = 0
+            getLogger("diacamma.condominium").debug("LoadCountSet._fetch_all: %s " % self.owner)
+            account_query = Q(type_of_account=4)
+            account_query &= Q(entrylineaccount__entry__date_value__gte=self.owner.date_begin) & Q(entrylineaccount__entry__date_value__lte=self.owner.date_end)
+            account_query &= Q(entrylineaccount__costaccounting__setcost__set__partition__owner=self.owner) & Q(entrylineaccount__costaccounting__setcost__set__partition__value__gt=0)
+            partition_query = Q(owner=self.owner) & Q(value__gt=0)
+            partition_query &= Q(set__setcost__cost_accounting__entrylineaccount__entry__date_value__gte=self.owner.date_begin) & Q(set__setcost__cost_accounting__entrylineaccount__entry__date_value__lte=self.owner.date_end)
+            line_query = Q(entry__date_value__gte=self.owner.date_begin) & Q(entry__date_value__lte=self.owner.date_end)
+            for account in ChartsAccount.objects.filter(account_query).order_by('code').distinct():
+                recovery_load_ratio = RecoverableLoadRatio.objects.filter(code=account.code)
+                if len(recovery_load_ratio) > 0:
+                    load_ratio = float(recovery_load_ratio[0].ratio) / 100.0
+                else:
+                    load_ratio = 0
+                for partition_item in Partition.objects.filter(partition_query & Q(set__setcost__cost_accounting__entrylineaccount__account=account)).distinct():
+                    ratio = float(partition_item.value / partition_item.set.total_part)
+                    total = 0
+                    designation = "{[b]}%s{[/b]} ({[i]}%s{[/i]})" % (account, partition_item.set)
+                    self.fill_title(designation)
+                    for entry_line in EntryLineAccount.objects.filter(line_query & Q(account=account) & Q(costaccounting__setcost__set__partition=partition_item)).distinct().order_by('entry__date_value'):
+                        designation = get_spaces(10) + "{[i]}%s{[/i]} - %s" % (get_value_converted(entry_line.entry.date_value),
+                                                                               entry_line.entry.designation.replace('{[br/]}', ' - '))
+                        self.fill_title(designation, total=format_devise(entry_line.amount, 5))
+                        total += entry_line.amount
+                    self.fill_title('', total="{[b]}%s{[/b]}" % format_devise(total, 5),
+                                    ratio="%d/%d" % (partition_item.value, partition_item.set.total_part),
+                                    ventilated="{[b]}%s{[/b]}" % format_devise(total * ratio, 5),
+                                    recoverable_load="{[b]}%s{[/b]}" % format_devise(total * ratio * load_ratio, 5))
+                    general_total += total
+                    ventilated_total += total * ratio
+                    recoverable_load_total += total * ratio * load_ratio
+                    self.fill_title('')
+            self.fill_title('', total="{[u]}{[b]}%s{[/b]}{[/u]}" % format_devise(general_total, 5),
+                            ventilated="{[u]}{[b]}%s{[/b]}{[/u]}" % format_devise(ventilated_total, 5),
+                            recoverable_load="{[u]}{[b]}%s{[/b]}{[/u]}" % format_devise(recoverable_load_total, 5))
+
+
 class Owner(Supporting):
     information = models.CharField(
         _('information'), max_length=200, null=True, default='')
@@ -639,6 +717,12 @@ class Owner(Supporting):
         return OwnerEntryLineAccount.objects.filter(Q(third=self.third) & Q(entry__date_value__gte=self.date_begin) & Q(entry__date_value__lte=self.date_end) & ~Q(entry__journal__id=1)).distinct()
 
     @property
+    def loadcount_set(self):
+        if self.date_begin is None:
+            self.set_dates()
+        return LoadCountSet(hints={'owner': self})
+
+    @property
     def thirdtotal(self):
         if self.date_begin is None:
             self.set_dates()
@@ -669,7 +753,7 @@ class Owner(Supporting):
 
     @property
     def partition_query(self):
-        return Q(set__is_active=True) & Q(set__type_load=0)
+        return Q(set__is_active=True) & Q(set__type_load=0) & Q(value__gt=0)
 
     @property
     def callfunds_query(self):

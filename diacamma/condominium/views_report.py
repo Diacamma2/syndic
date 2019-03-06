@@ -28,7 +28,8 @@ from django.utils.translation import ugettext_lazy as _
 from django.db.models import Q
 from django.utils import six
 
-from lucterios.framework.tools import MenuManage, FORMTYPE_NOMODAL, convert_date, CLOSE_NO, FORMTYPE_REFRESH, WrapAction
+from lucterios.framework.tools import MenuManage, FORMTYPE_NOMODAL, convert_date, CLOSE_NO, FORMTYPE_REFRESH, WrapAction,\
+    get_icon_path
 from lucterios.framework.xfergraphic import XferContainerCustom
 from lucterios.framework.xfercomponents import XferCompImage, XferCompSelect, XferCompGrid, XferCompLabelForm
 from lucterios.framework.xferadvance import TITLE_CLOSE, TITLE_PRINT
@@ -39,6 +40,8 @@ from diacamma.accounting.views_reports import FiscalYearReportPrint
 from diacamma.accounting.tools import current_system_account, format_devise
 from diacamma.accounting.tools_reports import get_spaces, convert_query_to_account, add_item_in_grid, fill_grid, add_cell_in_grid
 from diacamma.condominium.models import Set
+from lucterios.framework.filetools import get_user_path, readimage_to_base64
+from os.path import exists
 
 
 MenuManage.add_sub("condominium.print", "condominium", "diacamma.condominium/images/report.png",
@@ -48,11 +51,19 @@ MenuManage.add_sub("condominium.print", "condominium", "diacamma.condominium/ima
 class CondominiumReport(XferContainerCustom):
     model = FiscalYear
     field_id = 'year'
+    icon = "report.png"
 
     def __init__(self, **kwargs):
         XferContainerCustom.__init__(self, **kwargs)
         self.filter = None
         self.lastfilter = None
+
+    def current_image(self, icon_path=None):
+        img_path = get_user_path("contacts", "Image_1.jpg")
+        if exists(img_path):
+            return readimage_to_base64(img_path)
+        else:
+            return self.icon_path(icon_path)
 
     def fillresponse(self):
         self.fill_header()
@@ -68,7 +79,8 @@ class CondominiumReport(XferContainerCustom):
             self.item.begin = new_begin
             self.item.end = new_end
         img = XferCompImage('img')
-        img.set_value(self.icon_path())
+        img.set_value(self.current_image())
+        img.type = 'jpg'
         img.set_location(0, 0, 1, 5)
         self.add_component(img)
 
@@ -103,7 +115,6 @@ class CondominiumReport(XferContainerCustom):
 
 @MenuManage.describ('condominium.change_owner', FORMTYPE_NOMODAL, 'condominium.print', _('Show financial status report'))
 class FinancialStatus(CondominiumReport):
-    icon = "report.png"
     caption = _("Financial status")
 
     def define_gridheader(self):
@@ -231,7 +242,6 @@ class ManageAccounting(CondominiumReport):
 
 @MenuManage.describ('condominium.change_owner', FORMTYPE_NOMODAL, 'condominium.print', _('Show General manage accounting report'))
 class GeneralManageAccounting(ManageAccounting):
-    icon = "report.png"
     caption = _("General manage accounting")
 
     def fill_body(self):
@@ -266,7 +276,6 @@ class GeneralManageAccounting(ManageAccounting):
 
 @MenuManage.describ('condominium.change_owner', FORMTYPE_NOMODAL, 'condominium.print', _('Show Current manage accounting report'))
 class CurrentManageAccounting(ManageAccounting):
-    icon = "report.png"
     caption = _("Current manage accounting")
 
     def fill_body(self):
@@ -318,7 +327,6 @@ class CurrentManageAccounting(ManageAccounting):
 
 @MenuManage.describ('condominium.change_owner', FORMTYPE_NOMODAL, 'condominium.print', _('Show Exeptional manage accounting report'))
 class ExceptionalManageAccounting(ManageAccounting):
-    icon = "report.png"
     caption = _("Exceptional manage accounting")
 
     def fill_header(self):

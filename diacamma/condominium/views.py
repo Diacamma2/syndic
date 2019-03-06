@@ -11,8 +11,10 @@ from django.db.models import Q, Value
 
 from lucterios.framework.xferadvance import TITLE_MODIFY, TITLE_ADD, TITLE_EDIT, TITLE_DELETE, TITLE_PRINT, TITLE_CANCEL, TITLE_OK
 from lucterios.framework.xferadvance import XferListEditor, XferShowEditor, XferAddEditor, XferDelete
-from lucterios.framework.xfercomponents import XferCompLabelForm, XferCompDate, XferCompButton, XferCompImage, XferCompSelect, XferCompEdit
-from lucterios.framework.xfergraphic import XferContainerAcknowledge
+from lucterios.framework.xfercomponents import XferCompLabelForm, XferCompDate, XferCompButton, XferCompImage, XferCompSelect, XferCompEdit,\
+    XferCompGrid
+from lucterios.framework.xfergraphic import XferContainerAcknowledge,\
+    XferContainerCustom
 from lucterios.framework.tools import FORMTYPE_NOMODAL, ActionsManage, MenuManage, WrapAction
 from lucterios.framework.tools import SELECT_SINGLE, CLOSE_NO, FORMTYPE_REFRESH, FORMTYPE_MODAL, CLOSE_YES, SELECT_MULTI
 from lucterios.framework.error import LucteriosException, IMPORTANT
@@ -233,6 +235,43 @@ class OwnerContactDel(XferDelete):
     icon = "condominium.png"
     model = OwnerContact
     field_id = 'ownercontact'
+
+
+@ActionsManage.affect_other(_('load count'), 'images/show.png', close=CLOSE_NO)
+@MenuManage.describ('payoff.add_owner')
+class OwnerLoadCount(XferContainerCustom):
+    caption = _("Load count of owner")
+    icon = "condominium.png"
+    model = Owner
+    field_id = 'owner'
+
+    def fillresponse(self, begin_date, end_date):
+        self.item.set_dates(begin_date, end_date)
+        date_init = XferCompDate("begin_date")
+        date_init.set_needed(True)
+        date_init.set_value(self.item.date_begin)
+        date_init.set_location(1, 0)
+        date_init.description = _('initial date')
+        date_init.set_action(self.request, self.get_action(), close=CLOSE_NO, modal=FORMTYPE_REFRESH)
+        self.add_component(date_init)
+        date_end = XferCompDate("end_date")
+        date_end.set_needed(True)
+        date_end.set_value(self.item.date_end)
+        date_end.set_location(2, 0)
+        date_end.description = _('current date')
+        date_end.set_action(self.request, self.get_action(), close=CLOSE_NO, modal=FORMTYPE_REFRESH)
+        self.add_component(date_end)
+        img = XferCompImage('img')
+        img.set_value(self.icon_path())
+        img.set_location(0, 0, 1, 6)
+        self.add_component(img)
+        self.fill_from_model(1, 1, True, [((_('name'), 'third'),)])
+        grid = XferCompGrid('loadcount')
+        grid.set_model(self.item.loadcount_set.all(), None)
+        grid.set_location(1, 2, 2)
+        self.add_component(grid)
+
+        self.add_action(WrapAction(_('Close'), 'images/close.png'))
 
 
 @ActionsManage.affect_other(_('payoff'), 'images/add.png', close=CLOSE_NO)
