@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-03-06 15:08+0000\n"
+"POT-Creation-Date: 2019-03-07 09:58+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -127,11 +127,11 @@ msgstr "cost of class load"
 msgid "costs of class load"
 msgstr "costs of class load"
 
-#: models.py:398 printmodel/Owner_0002.py:205
+#: models.py:398 printmodel/Owner_0002.py:205 printmodel/Owner_0003.py:173
 msgid "debit"
 msgstr "debit"
 
-#: models.py:398 printmodel/Owner_0002.py:205
+#: models.py:398 printmodel/Owner_0002.py:205 printmodel/Owner_0003.py:173
 msgid "credit"
 msgstr "credit"
 
@@ -140,28 +140,30 @@ msgid "id"
 msgstr "id"
 
 #: models.py:407 models.py:1426 models.py:1638 printmodel/CallFunds_0001.py:161
-#: printmodel/Owner_0002.py:205
+#: printmodel/Owner_0002.py:205 printmodel/Owner_0003.py:171
 msgid "designation"
 msgstr "designation"
 
 #: models.py:408 models.py:617 models.py:1271 models.py:1313 models.py:1321
 #: models.py:1438 models.py:1505 models.py:1519
 #: printmodel/CallFunds_0001.py:162 printmodel/CallFunds_0001.py:179
-#: printmodel/Owner_0001.py:369 views_report.py:148 views_report.py:149
-#: views_report.py:168 views_report.py:169 views_report.py:172
-#: views_report.py:173 views_report.py:229 views_report.py:317
-#: views_report.py:364
+#: printmodel/Owner_0001.py:369 printmodel/Owner_0003.py:171
+#: views_report.py:148 views_report.py:149 views_report.py:168
+#: views_report.py:169 views_report.py:172 views_report.py:173
+#: views_report.py:229 views_report.py:317 views_report.py:364
 msgid "total"
 msgstr "total"
 
 #: models.py:409 models.py:619 models.py:622 models.py:1021 models.py:1146
 #: models.py:1174 models.py:1203 models.py:1649 printmodel/Owner_0001.py:371
 #: printmodel/Owner_0001.py:373 printmodel/Owner_0002.py:201
+#: printmodel/Owner_0003.py:169
 msgid "ratio"
 msgstr "ratio"
 
 #: models.py:410 models.py:619 models.py:622 models.py:1021 models.py:1175
 #: printmodel/Owner_0001.py:372 printmodel/Owner_0002.py:202
+#: printmodel/Owner_0003.py:171
 msgid "ventilated"
 msgstr "ventilated"
 
@@ -190,6 +192,7 @@ msgid "property tantime"
 msgstr "property tantime"
 
 #: models.py:547 models.py:574 models.py:613 printmodel/Owner_0002.py:204
+#: printmodel/Owner_0003.py:172
 msgid "total owner initial"
 msgstr "total owner initial"
 
@@ -203,12 +206,12 @@ msgid "total payoff"
 msgstr "total payoff"
 
 #: models.py:548 models.py:574 models.py:613 models.py:982
-#: printmodel/Owner_0002.py:204
+#: printmodel/Owner_0002.py:204 printmodel/Owner_0003.py:172
 msgid "total owner"
 msgstr "total owner"
 
 #: models.py:548 models.py:574 models.py:613 printmodel/CallFunds_0001.py:180
-#: printmodel/Owner_0002.py:200
+#: printmodel/Owner_0002.py:200 printmodel/Owner_0003.py:168
 msgid "sum to pay"
 msgstr "sum to pay"
 
@@ -348,6 +351,7 @@ msgstr "category of loads"
 #: models.py:1008 models.py:1193 models.py:1438
 #: printmodel/CallFunds_0001.py:164 printmodel/Owner_0001.py:371
 #: printmodel/Owner_0001.py:373 printmodel/Owner_0002.py:201
+#: printmodel/Owner_0003.py:169
 msgid "tantime"
 msgstr "tantime"
 
@@ -397,10 +401,12 @@ msgstr "exceptional class loads"
 
 #: models.py:1192 models.py:1298 models.py:1487 printmodel/Owner_0001.py:369
 #: printmodel/Owner_0001.py:373 printmodel/Owner_0002.py:203
+#: printmodel/Owner_0003.py:169
 msgid "numeros"
 msgstr "numeros"
 
 #: models.py:1194 printmodel/Owner_0001.py:373 printmodel/Owner_0002.py:203
+#: printmodel/Owner_0003.py:169
 msgid "description"
 msgstr "description"
 
@@ -413,7 +419,7 @@ msgid "property lots"
 msgstr "property lots"
 
 #: models.py:1299 models.py:1488 printmodel/Owner_0001.py:369
-#: printmodel/Owner_0002.py:205
+#: printmodel/Owner_0002.py:205 printmodel/Owner_0003.py:173
 msgid "date"
 msgstr "date"
 
@@ -659,9 +665,36 @@ msgstr "email"
 msgid "tel"
 msgstr "tel"
 
-#: printmodel/Owner_0002.py:204
+#: printmodel/Owner_0002.py:204 printmodel/Owner_0003.py:172
 msgid "account detail"
 msgstr "account detail"
+
+#: printmodel/Owner_0003.py:9
+msgid "Load count"
+msgstr "Load count"
+
+#: printmodel/Owner_0003.py:168
+msgid "OWNER INDIVIDUAL COUNT"
+msgstr "OWNER INDIVIDUAL COUNT"
+
+#: printmodel/Owner_0003.py:168
+msgid "Fiscal year"
+msgstr "Fiscal year"
+
+#: printmodel/Owner_0003.py:170
+msgid "Distribution of common and individual expenses"
+msgstr "Distribution of common and individual expenses"
+
+#: printmodel/Owner_0003.py:171
+msgid "recov. load"
+msgstr "recov. load"
+
+#: printmodel/Owner_0003.py:174
+msgid "warning about recoverable load"
+msgstr ""
+"{[u]} Warning {[/ u]} Recoverable charge information is for informational "
+"purposes only. The owner remains the only responsible for its distribution "
+"with its tenants on the basis of its lease contract."
 
 #: views.py:40
 msgid "Manage of owners and property lots"
