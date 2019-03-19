@@ -429,52 +429,86 @@ class LoadCountSet(QuerySet):
         self.model._meta.pk = Set()._meta.pk
         self.owner = self._hints['owner']
 
+        self.partition_query = Q(owner=self.owner) & Q(value__gt=0)
+        self.partition_query &= Q(set__setcost__cost_accounting__entrylineaccount__entry__date_value__gte=self.owner.date_begin) & Q(set__setcost__cost_accounting__entrylineaccount__entry__date_value__lte=self.owner.date_end)
+        self.account_query = Q(type_of_account=4)
+        self.account_query &= Q(entrylineaccount__entry__date_value__gte=self.owner.date_begin) & Q(entrylineaccount__entry__date_value__lte=self.owner.date_end)
+        self.account_query &= Q(entrylineaccount__costaccounting__setcost__set__partition__owner=self.owner) & Q(entrylineaccount__costaccounting__setcost__set__partition__value__gt=0)
+        self.line_query = Q(entry__date_value__gte=self.owner.date_begin) & Q(entry__date_value__lte=self.owner.date_end)
+
+        self.general_total = 0
+        self.ventilated_total = 0
+        self.recoverable_load_total = 0
+
+        self.partition_general_total = 0
+        self.partition_ventilated_total = 0
+        self.partition_recoverable_load_total = 0
+
     def fill_title(self, designation, total='', ratio='', ventilated='', recoverable_load=''):
         self._result_cache.append(LoadCount(id=self.pt_id, designation=designation, total=total,
                                             ratio=ratio, ventilated=ventilated, recoverable_load=recoverable_load))
         self.pt_id += 1
+        return self.pt_id - 1, len(self._result_cache) - 1
+
+    def change_value(self, ident, total='', ratio='', ventilated='', recoverable_load=''):
+        pt_id, result_cache_id = ident
+        designation = self._result_cache[result_cache_id].designation
+        self._result_cache[result_cache_id] = LoadCount(id=pt_id, designation=designation, total=total, ratio=ratio,
+                                                        ventilated=ventilated, recoverable_load=recoverable_load)
+
+    def fill_account(self, partition_item, account, ratio):
+        recovery_load_ratio = RecoverableLoadRatio.objects.filter(code=account.code)
+        if len(recovery_load_ratio) > 0:
+            load_ratio = float(recovery_load_ratio[0].ratio) / 100.0
+        else:
+            load_ratio = 0
+        total = 0
+        designation = get_spaces(8) + "{[b]}%s{[/b]}" % account
+        code_ident = self.fill_title(designation)
+        for entry_line in EntryLineAccount.objects.filter(self.line_query & Q(account=account) & Q(costaccounting__setcost__set__partition=partition_item)).distinct().order_by('entry__date_value'):
+            designation = get_spaces(15) + "{[i]}%s{[/i]} - %s" % (get_value_converted(entry_line.entry.date_value), entry_line.entry.designation.replace('{[br/]}', ' - '))
+            self.fill_title(designation, total=format_devise(entry_line.amount, 5))
+            total += entry_line.amount
+        self.change_value(code_ident,
+                          total="{[b]}%s{[/b]}" % format_devise(total, 5),
+                          ratio="{[b]}%d/%d{[/b]}" % (partition_item.value, partition_item.set.total_part),
+                          ventilated="{[b]}%s{[/b]}" % format_devise(total * ratio, 5),
+                          recoverable_load="{[b]}%s{[/b]}" % format_devise(total * ratio * load_ratio, 5))
+        self.partition_general_total += total
+        self.partition_ventilated_total += total * ratio
+        self.partition_recoverable_load_total += total * ratio * load_ratio
+        self.fill_title('')
+
+    def fill_partition(self, partition_item):
+        ratio = float(partition_item.value / partition_item.set.total_part)
+        partition_description = "{[i]}%s{[/i]}" % partition_item.set
+        self.partition_general_total = 0
+        self.partition_ventilated_total = 0
+        self.partition_recoverable_load_total = 0
+        partition_ident = None
+        for account in ChartsAccount.objects.filter(self.account_query & Q(entrylineaccount__costaccounting__setcost__set__partition=partition_item)).order_by('code').distinct():
+            if partition_description != '':
+                partition_ident = self.fill_title(partition_description)
+                partition_description = ''
+            self.fill_account(partition_item, account, ratio)
+        if partition_ident is not None:
+            self.change_value(partition_ident, total="{[i]}%s{[/i]}" % format_devise(self.partition_general_total, 5), ratio="{[i]}%d/%d{[/i]}" % (partition_item.value, partition_item.set.total_part), ventilated="{[i]}%s{[/i]}" % format_devise(self.partition_ventilated_total, 5), recoverable_load="{[i]}%s{[/i]}" % format_devise(self.partition_recoverable_load_total, 5))
+        self.general_total += self.partition_general_total
+        self.ventilated_total += self.partition_ventilated_total
+        self.recoverable_load_total += self.partition_recoverable_load_total
 
     def _fetch_all(self):
         if self._result_cache is None:
             self._result_cache = []
             self.pt_id = 1
-            general_total = 0
-            ventilated_total = 0
-            recoverable_load_total = 0
-            getLogger("diacamma.condominium").debug("LoadCountSet._fetch_all: %s " % self.owner)
-            account_query = Q(type_of_account=4)
-            account_query &= Q(entrylineaccount__entry__date_value__gte=self.owner.date_begin) & Q(entrylineaccount__entry__date_value__lte=self.owner.date_end)
-            account_query &= Q(entrylineaccount__costaccounting__setcost__set__partition__owner=self.owner) & Q(entrylineaccount__costaccounting__setcost__set__partition__value__gt=0)
-            partition_query = Q(owner=self.owner) & Q(value__gt=0)
-            partition_query &= Q(set__setcost__cost_accounting__entrylineaccount__entry__date_value__gte=self.owner.date_begin) & Q(set__setcost__cost_accounting__entrylineaccount__entry__date_value__lte=self.owner.date_end)
-            line_query = Q(entry__date_value__gte=self.owner.date_begin) & Q(entry__date_value__lte=self.owner.date_end)
-            for account in ChartsAccount.objects.filter(account_query).order_by('code').distinct():
-                recovery_load_ratio = RecoverableLoadRatio.objects.filter(code=account.code)
-                if len(recovery_load_ratio) > 0:
-                    load_ratio = float(recovery_load_ratio[0].ratio) / 100.0
-                else:
-                    load_ratio = 0
-                for partition_item in Partition.objects.filter(partition_query & Q(set__setcost__cost_accounting__entrylineaccount__account=account)).distinct():
-                    ratio = float(partition_item.value / partition_item.set.total_part)
-                    total = 0
-                    designation = "{[b]}%s{[/b]} ({[i]}%s{[/i]})" % (account, partition_item.set)
-                    self.fill_title(designation)
-                    for entry_line in EntryLineAccount.objects.filter(line_query & Q(account=account) & Q(costaccounting__setcost__set__partition=partition_item)).distinct().order_by('entry__date_value'):
-                        designation = get_spaces(10) + "{[i]}%s{[/i]} - %s" % (get_value_converted(entry_line.entry.date_value),
-                                                                               entry_line.entry.designation.replace('{[br/]}', ' - '))
-                        self.fill_title(designation, total=format_devise(entry_line.amount, 5))
-                        total += entry_line.amount
-                    self.fill_title('', total="{[b]}%s{[/b]}" % format_devise(total, 5),
-                                    ratio="%d/%d" % (partition_item.value, partition_item.set.total_part),
-                                    ventilated="{[b]}%s{[/b]}" % format_devise(total * ratio, 5),
-                                    recoverable_load="{[b]}%s{[/b]}" % format_devise(total * ratio * load_ratio, 5))
-                    general_total += total
-                    ventilated_total += total * ratio
-                    recoverable_load_total += total * ratio * load_ratio
-                    self.fill_title('')
-            self.fill_title('', total="{[u]}{[b]}%s{[/b]}{[/u]}" % format_devise(general_total, 5),
-                            ventilated="{[u]}{[b]}%s{[/b]}{[/u]}" % format_devise(ventilated_total, 5),
-                            recoverable_load="{[u]}{[b]}%s{[/b]}{[/u]}" % format_devise(recoverable_load_total, 5))
+            self.general_total = 0
+            self.ventilated_total = 0
+            self.recoverable_load_total = 0
+            for partition_item in Partition.objects.filter(self.partition_query).distinct():
+                self.fill_partition(partition_item)
+            self.fill_title('', total="{[u]}%s{[/u]}" % format_devise(self.general_total, 5),
+                            ventilated="{[u]}%s{[/u]}" % format_devise(self.ventilated_total, 5),
+                            recoverable_load="{[u]}%s{[/u]}" % format_devise(self.recoverable_load_total, 5))
 
 
 class Owner(Supporting):
@@ -507,12 +541,21 @@ class Owner(Supporting):
             self.set_dates(xfer.getparam("begin_date"), xfer.getparam("end_date"))
 
     def get_third_mask(self, type_owner=1):
+        def add_account_rex(typeowner):
+            account = Params.getvalue("condominium-default-owner-account%d" % typeowner)
+            account_rex_list.append("^" + account + "[0-9a-zA-Z]*$")
+
         if Params.getvalue("condominium-old-accounting"):
             return current_system_account().get_societary_mask()
         else:
             try:
-                account = Params.getvalue("condominium-default-owner-account%d" % type_owner)
-                return "^" + account + "[0-9a-zA-Z]*$"
+                account_rex_list = []
+                if type_owner == 0:
+                    for typeowner in range(1, 6):
+                        add_account_rex(typeowner)
+                else:
+                    add_account_rex(type_owner)
+                return "|".join(account_rex_list)
             except BaseException:
                 return current_system_account().get_societary_mask()
 
@@ -714,7 +757,12 @@ class Owner(Supporting):
     def entryline_set(self):
         if self.date_begin is None:
             self.set_dates()
-        return OwnerEntryLineAccount.objects.filter(Q(third=self.third) & Q(entry__date_value__gte=self.date_begin) & Q(entry__date_value__lte=self.date_end) & ~Q(entry__journal__id=1)).distinct()
+        query = Q(third=self.third)
+        query &= Q(account__code__regex=self.get_third_mask(0))
+        query &= Q(entry__date_value__gte=self.date_begin)
+        query &= Q(entry__date_value__lte=self.date_end)
+        query &= ~Q(entry__journal__id=1)
+        return OwnerEntryLineAccount.objects.filter(query).distinct()
 
     @property
     def loadcount_set(self):
@@ -737,6 +785,13 @@ class Owner(Supporting):
     @property
     def total_all_call(self):
         return format_devise(self.get_total_call(-1), 5)
+
+    @property
+    def total_current_estimated_total(self):
+        estimated_total = self.get_third_initial()
+        estimated_total += self.get_total_payoff(1)
+        estimated_total -= self.get_total_current_ventilated()
+        return format_devise(estimated_total, 5)
 
     @property
     def total_payoff(self):

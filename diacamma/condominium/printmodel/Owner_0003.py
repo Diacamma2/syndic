@@ -121,14 +121,21 @@ value = """<model hmargin="10.0" vmargin="10.0" page_width="210.0" page_height="
         </cell>
     </rows>
 </table>
+<text height="10.0" width="190.0" top="115.0" left="0.0" padding="1.0" spacing="0.1" border_color="black" border_style="" border_width="0.2" text_align="left" line_height="11" font_family="sans-serif" font_weight="" font_size="11">
+{[b]}%(total_current_call)s{[/b]} : #total_current_call{[br/]}
+{[b]}%(total_current_ventilated)s{[/b]} : #total_current_ventilated{[br/]}
+{[b]}%(total_current_regularization)s{[/b]} : #total_current_regularization{[br/]}
+{[b]}%(total_current_payoff)s{[/b]} : #total_current_payoff{[br/]}
+{[b]}%(total_current_estimated_total)s{[/b]} : #total_current_estimated_total{[br/]}
+</text>
 
-<text height="10.0" width="190.0" top="140.0" left="0.0" padding="1.0" spacing="3.0" border_color="black" border_style="" border_width="0.2" text_align="left" line_height="11" font_family="sans-serif" font_weight="" font_size="11">
+<text height="10.0" width="190.0" top="130.0" left="0.0" padding="1.0" spacing="3.0" border_color="black" border_style="" border_width="0.2" text_align="left" line_height="11" font_family="sans-serif" font_weight="" font_size="11">
 {[b]}%(account detail)s{[/b]}
 </text>
-<text height="10.0" width="190.0" top="140.0" left="0.0" padding="1.0" spacing="0.1" border_color="black" border_style="" border_width="0.2" text_align="left" line_height="11" font_family="sans-serif" font_weight="" font_size="10">
+<text height="10.0" width="190.0" top="135.0" left="0.0" padding="1.0" spacing="0.1" border_color="black" border_style="" border_width="0.2" text_align="left" line_height="11" font_family="sans-serif" font_weight="" font_size="10">
 {[u]}{[i]}%(third_initial)s :{[/i]}{[/u]} #thirdinitial
 </text>
-<table height="10.0" width="190.0" top="150.0" left="0.0" padding="1.0" spacing="0.1" border_color="black" border_style="" border_width="0.2">
+<table height="10.0" width="190.0" top="145.0" left="0.0" padding="1.0" spacing="0.1" border_color="black" border_style="" border_width="0.2">
     <columns width="25.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
     {[b]}%(date)s{[/b]}
     </columns>
@@ -156,11 +163,11 @@ value = """<model hmargin="10.0" vmargin="10.0" page_width="210.0" page_height="
         </cell>
     </rows>
 </table>
-<text height="10.0" width="190.0" top="160.0" left="0.0" padding="1.0" spacing="0.1" border_color="black" border_style="" border_width="0.2" text_align="left" line_height="10" font_family="sans-serif" font_weight="" font_size="10">
+<text height="10.0" width="190.0" top="155.0" left="0.0" padding="1.0" spacing="0.1" border_color="black" border_style="" border_width="0.2" text_align="left" line_height="10" font_family="sans-serif" font_weight="" font_size="10">
 {[u]}{[i]}%(thirdtotal)s :{[/i]}{[/u]} #thirdtotal
 </text>
 
-<text height="10.0" width="190.0" top="180.0" left="0.0" padding="1.0" spacing="0.1" border_color="black" border_style="" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="10">
+<text height="10.0" width="190.0" top="170.0" left="0.0" padding="1.0" spacing="0.1" border_color="black" border_style="" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="10">
 {[i]}%(warning about recoverable load)s{[/i]}
 </text>
 
@@ -169,8 +176,14 @@ value = """<model hmargin="10.0" vmargin="10.0" page_width="210.0" page_height="
                'num': _('numeros'), 'value': _('tantime'), 'ratio': _('ratio'), 'description': _('description'),
                'Distribution of common and individual expenses': _('Distribution of common and individual expenses'),
                'designation': _('designation'), 'total': _('total'), 'ventilated': _('ventilated'), 'recov. load': _('recov. load'),
-               'account detail': _('account detail'), 'third_initial': _('total owner initial'), 'thirdtotal': _('total owner'),
+               'account detail': _('Account detail'), 'third_initial': _('total owner initial'), 'thirdtotal': _('total owner'),
                'date': _('date'), 'debit': _('debit'), 'credit': _('credit'),
-               'warning about recoverable load': _('warning about recoverable load')}
+               'warning about recoverable load': _('warning about recoverable load'),
+               'total_current_call': _('current total call for funds'),
+               'total_current_ventilated': _('current total ventilated'),
+               'total_current_regularization': _('estimated regularization'),
+               'total_current_payoff': _('current total payoff'),
+               'total_current_estimated_total': _('estimated total'),
+               }
 
 mode = 0
