@@ -850,12 +850,12 @@ class Owner(Supporting):
         if type_call < 0:
             totalfilter = Q()
         else:
-            totalfilter = Q(calldetail__type_call=type_call)
+            totalfilter = Q(calldetail__type_call=type_call) & Q(calldetail__set__isnull=False)
         for callfunds in self.callfunds_set.filter(self.callfunds_query & totalfilter).distinct():
             if type_call < 0:
                 val += currency_round(callfunds.get_total())
             else:
-                for calldetail in callfunds.calldetail_set.filter(type_call=type_call):
+                for calldetail in callfunds.calldetail_set.filter(type_call=type_call, set__isnull=False):
                     val += currency_round(calldetail.price)
         return val
 
@@ -1023,10 +1023,11 @@ class Owner(Supporting):
         return currency_round(max(0, Supporting.get_total_rest_topay(self)))
 
     def get_total_rest_topay(self):
-        val = Supporting.get_total_rest_topay(self)
-        for callfunds in self.callfunds_set.filter(self.callfunds_query & ~Q(calldetail__type_call=1)):
+        val = -1 * Supporting.get_total_payed(self)
+        for callfunds in self.callfunds_set.filter(self.callfunds_query):
             callfunds.check_supporting()
-            val -= currency_round(callfunds.supporting.get_total_rest_topay())
+            val_callfunds = currency_round(callfunds.supporting.get_total_rest_topay())
+            val += val_callfunds
         return val
 
     def payoff_have_payment(self):
