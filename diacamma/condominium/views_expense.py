@@ -84,7 +84,7 @@ class ExpenseDel(XferDelete):
     caption = _("Delete expense")
 
 
-@ActionsManage.affect_transition("status", close=CLOSE_NO)
+@ActionsManage.affect_transition("status", close=CLOSE_NO, multi_list=('close',))
 @MenuManage.describ('condominium.add_expense')
 class ExpenseTransition(XferTransition):
     icon = "expense.png"

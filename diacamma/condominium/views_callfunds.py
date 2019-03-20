@@ -122,7 +122,7 @@ class CallFundsDel(XferDelete):
     caption = _("Delete call of funds")
 
 
-@ActionsManage.affect_transition("status", close=CLOSE_YES)
+@ActionsManage.affect_transition("status", close=CLOSE_YES, multi_list=('close',))
 @MenuManage.describ('condominium.add_callfunds')
 class CallFundsTransition(XferTransition):
     icon = "callfunds.png"
