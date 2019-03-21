@@ -39,14 +39,14 @@ from diacamma.accounting.views_other import CostAccountingList
 from diacamma.accounting.test_tools import initial_thirds_fr, default_compta_fr, default_costaccounting, default_compta_be, initial_thirds_be
 
 from diacamma.payoff.models import Payoff
-from diacamma.payoff.views import PayableShow, PayableEmail
+from diacamma.payoff.views import PayableShow, PayableEmail, PayoffAddModify
 from diacamma.payoff.test_tools import default_bankaccount_fr, default_paymentmethod, PaymentTest, default_bankaccount_be
 
 from diacamma.condominium.views_classload import SetList, SetAddModify, SetDel, SetShow, PartitionAddModify, CondominiumConf, SetClose,\
     OwnerLinkAddModify, OwnerLinkDel, RecoverableLoadRatioAddModify,\
     RecoverableLoadRatioDel
 from diacamma.condominium.views import OwnerAndPropertyLotList, OwnerAdd, OwnerDel, OwnerShow, PropertyLotAddModify, CondominiumConvert, OwnerVentilatePay,\
-    OwnerLoadCount
+    OwnerLoadCount, OwnerMultiPay
 from diacamma.condominium.views_report import FinancialStatus, GeneralManageAccounting, CurrentManageAccounting, ExceptionalManageAccounting
 from diacamma.condominium.test_tools import default_setowner_fr, add_test_callfunds, old_accounting, add_test_expenses_fr, init_compta, add_years, default_setowner_be, add_test_expenses_be
 
@@ -1114,6 +1114,22 @@ class OwnerTest(PaymentTest):
         self.assert_json_equal('', 'callfunds/@1/supporting.total_rest_topay', '17.07€')
         self.assert_count_equal('payoff', 0)
 
+        self.factory.xfer = OwnerMultiPay()
+        self.calljson('/diacamma.condominium/ownerMultiPay', {'owner': 1}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'ownerMultiPay')
+        self.assertEqual(self.response_json['action']['id'], "diacamma.payoff/payoffAddModify")
+        self.assertEqual(len(self.response_json['action']['params']), 3)
+        self.assertEqual(self.response_json['action']['params']['supportings'], '1;7')
+        self.assertEqual(self.response_json['action']['params']['NO_REPARTITION'], 'yes')
+        self.assertEqual(self.response_json['action']['params']['repartition'], '1')
+
+        self.factory.xfer = PayoffAddModify()
+        self.calljson('/diacamma.payoff/payoffAddModify', {'supportings': '1;7', 'NO_REPARTITION': 'yes', 'repartition': '1'}, False)
+        self.assert_observer('core.custom', 'diacamma.payoff', 'payoffAddModify')
+        self.assert_json_equal('FLOAT', 'amount', "17.07")
+        self.assert_json_equal('EDIT', 'payer', "Minimum")
+        self.assert_json_equal('LABELFORM', 'supportings', "{[center]}Minimum{[br/]}appel de fonds N°2 - 14 juillet 2015{[/center]}")
+
     def test_ventilation_debit(self):
         add_test_callfunds(False, True)
         add_test_expenses_fr(False, True)
@@ -1181,6 +1197,22 @@ class OwnerTest(PaymentTest):
         self.assert_count_equal('payoff', 1)
         self.assert_json_equal('', 'payoff/@0/date', '2015-07-31')
         self.assert_json_equal('', 'payoff/@0/value', '15.00€')
+
+        self.factory.xfer = OwnerMultiPay()
+        self.calljson('/diacamma.condominium/ownerMultiPay', {'owner': 2}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'ownerMultiPay')
+        self.assertEqual(self.response_json['action']['id'], "diacamma.payoff/payoffAddModify")
+        self.assertEqual(len(self.response_json['action']['params']), 3)
+        self.assertEqual(self.response_json['action']['params']['supportings'], '2')
+        self.assertEqual(self.response_json['action']['params']['NO_REPARTITION'], 'yes')
+        self.assertEqual(self.response_json['action']['params']['repartition'], '1')
+
+        self.factory.xfer = PayoffAddModify()
+        self.calljson('/diacamma.payoff/payoffAddModify', {'supportings': '2', 'NO_REPARTITION': 'yes', 'repartition': '1'}, False)
+        self.assert_observer('core.custom', 'diacamma.payoff', 'payoffAddModify')
+        self.assert_json_equal('FLOAT', 'amount', "0.00")
+        self.assert_json_equal('EDIT', 'payer', "Dalton William")
+        self.assert_json_equal('LABELFORM', 'supportings', "{[center]}Dalton William{[/center]}")
 
 
 class OwnerBelgiumTest(PaymentTest):

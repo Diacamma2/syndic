@@ -1023,12 +1023,7 @@ class Owner(Supporting):
         return currency_round(max(0, Supporting.get_total_rest_topay(self)))
 
     def get_total_rest_topay(self):
-        val = -1 * Supporting.get_total_payed(self)
-        for callfunds in self.callfunds_set.filter(self.callfunds_query):
-            callfunds.check_supporting()
-            val_callfunds = currency_round(callfunds.supporting.get_total_rest_topay())
-            val += val_callfunds
-        return val
+        return -1 * Supporting.get_total_payed(self)
 
     def payoff_have_payment(self):
         return (Supporting.get_total_rest_topay(self) > 0.001)
