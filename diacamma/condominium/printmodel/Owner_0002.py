@@ -12,19 +12,19 @@ modelname = Owner.get_long_name()
 
 value = """<model hmargin="10.0" vmargin="10.0" page_width="210.0" page_height="297.0">
 <header extent="25.0">
-<text height="20.0" width="120.0" top="5.0" left="70.0" padding="1.0" spacing="0.0" border_color="black" border_style="" border_width="0.2" text_align="center" line_height="20" font_family="sans-serif" font_weight="" font_size="20">
+<text height="10.0" width="120.0" top="0.0" left="70.0" padding="1.0" spacing="0.0" border_color="black" border_style="" border_width="0.2" text_align="center" line_height="20" font_family="sans-serif" font_weight="" font_size="20">
 {[b]}#OUR_DETAIL.name{[/b]}
+</text>
+<text height="10.0" width="120.0" top="10.0" left="70.0" padding="1.0" spacing="0.0" border_color="black" border_style="" border_width="0.2" text_align="center" line_height="8" font_family="sans-serif" font_weight="" font_size="8">
+{[italic]}
+#OUR_DETAIL.address - #OUR_DETAIL.postal_code #OUR_DETAIL.city - #OUR_DETAIL.tel1 #OUR_DETAIL.tel2 #OUR_DETAIL.email{[br/]}#OUR_DETAIL.identify_number
+{[/italic]}
 </text>
 <image height="25.0" width="30.0" top="0.0" left="10.0" padding="1.0" spacing="0.0" border_color="black" border_style="" border_width="0.2">
 #OUR_DETAIL.image
 </image>
 </header>
 <bottom extent="10.0">
-<text height="10.0" width="190.0" top="00.0" left="0.0" padding="1.0" spacing="0.0" border_color="black" border_style="" border_width="0.2" text_align="center" line_height="8" font_family="sans-serif" font_weight="" font_size="8">
-{[italic]}
-#OUR_DETAIL.address - #OUR_DETAIL.postal_code #OUR_DETAIL.city - #OUR_DETAIL.tel1 #OUR_DETAIL.tel2 #OUR_DETAIL.email{[br/]}#OUR_DETAIL.identify_number
-{[/italic]}
-</text>
 </bottom>
 <body>
 <text height="8.0" width="190.0" top="0.0" left="0.0" padding="1.0" spacing="0.0" border_color="black" border_style="" border_width="0.2" text_align="center" line_height="15" font_family="sans-serif" font_weight="" font_size="15">
@@ -54,26 +54,29 @@ value = """<model hmargin="10.0" vmargin="10.0" page_width="210.0" page_height="
     <rows><cell line_height="0" font_family="sans-serif" font_weight="" font_size="0"> </cell></rows>
 </table>
 
-<text height="10.0" width="100.0" top="70.0" left="0.0" padding="1.0" spacing="0.0" border_color="black" border_style="" border_width="0.2" text_align="left" line_height="11" font_family="sans-serif" font_weight="" font_size="11">
-{[b]}%(partition)s{[/b]}
+<text height="10.0" width="180.0" top="70.0" left="0.0" padding="1.0" spacing="0.0" border_color="black" border_style="" border_width="0.2" text_align="left" line_height="11" font_family="sans-serif" font_weight="" font_size="11">
+{[u]}{[b]}%(partition)s{[/b]}{[/u]}
 </text>
-<table height="50.0" width="100.0" top="80.0" left="0.0" padding="1.0" spacing="0.0" border_color="black" border_style="" border_width="0.2">
-    <columns width="30.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
+<text height="10.0" width="170.0" top="75.0" left="10.0" padding="1.0" spacing="0.1" border_color="black" border_style="" border_width="0.2" text_align="left" line_height="11" font_family="sans-serif" font_weight="" font_size="11">
+{[i]}%(current)s{[/i]}
+</text>
+<table height="20.0" width="180.0" top="85.0" left="0.0" padding="1.0" spacing="0.1" border_color="black" border_style="" border_width="0.2">
+    <columns width="60.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
     {[b]}%(set)s{[/b]}
     </columns>
-    <columns width="15.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="9" font_family="sans-serif" font_weight="" font_size="8">
+    <columns width="25.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="9" font_family="sans-serif" font_weight="" font_size="8">
     {[b]}%(budget)s{[/b]}
     </columns>
-    <columns width="15.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="9" font_family="sans-serif" font_weight="" font_size="8">
+    <columns width="25.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="9" font_family="sans-serif" font_weight="" font_size="8">
     {[b]}%(expense)s{[/b]}
     </columns>
-    <columns width="12.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="9" font_family="sans-serif" font_weight="" font_size="8">
+    <columns width="25.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="9" font_family="sans-serif" font_weight="" font_size="8">
     {[b]}%(ratio)s{[/b]}
     </columns>
-    <columns width="15.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="9" font_family="sans-serif" font_weight="" font_size="8">
+    <columns width="25.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="9" font_family="sans-serif" font_weight="" font_size="8">
     {[b]}%(ventilated)s{[/b]}
     </columns>
-    <columns width="15.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="9" font_family="sans-serif" font_weight="" font_size="8">
+    <columns width="25.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="9" font_family="sans-serif" font_weight="" font_size="8">
     {[b]}%(recover_load)s{[/b]}
     </columns>
     <rows data="partition_set">
@@ -97,17 +100,21 @@ value = """<model hmargin="10.0" vmargin="10.0" page_width="210.0" page_height="
         </cell>
     </rows>
 </table>
-<table height="40.0" width="76.0" top="80.0" left="110.0" padding="1.0" spacing="0.0" border_color="black" border_style="" border_width="0.2">
-    <columns width="30.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
+
+<text height="10.0" width="170.0" top="110.0" left="10.0" padding="1.0" spacing="0.1" border_color="black" border_style="" border_width="0.2" text_align="left" line_height="11" font_family="sans-serif" font_weight="" font_size="11">
+{[i]}%(exceptionnal)s{[/i]}
+</text>
+<table height="20.0" width="180.0" top="120.0" left="0.0" padding="1.0" spacing="0.1" border_color="black" border_style="" border_width="0.2">
+    <columns width="60.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
     {[b]}%(set)s{[/b]}
     </columns>
-    <columns width="12.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
+    <columns width="25.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
     {[b]}%(ratio)s{[/b]}
     </columns>
-    <columns width="17.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
+    <columns width="30.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
     {[b]}%(total_callfunds)s{[/b]}
     </columns>
-    <columns width="17.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
+    <columns width="30.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
     {[b]}%(ventilated)s{[/b]}
     </columns>
     <rows data="exceptionnal_set">
@@ -126,10 +133,10 @@ value = """<model hmargin="10.0" vmargin="10.0" page_width="210.0" page_height="
     </rows>
 </table>
 
-<text height="10.0" width="70.0" top="120.0" left="0.0" padding="1.0" spacing="0.0" border_color="black" border_style="" border_width="0.2" text_align="left" line_height="11" font_family="sans-serif" font_weight="" font_size="11">
-{[b]}%(property)s{[/b]}
+<text height="10.0" width="180.0" top="130.0" left="0.0" padding="1.0" spacing="0.1" border_color="black" border_style="" border_width="0.2" text_align="left" line_height="11" font_family="sans-serif" font_weight="" font_size="11">
+{[u]}{[b]}%(property)s{[/b]}{[/u]}
 </text>
-<table height="30.0" width="70.0" top="130.0" left="0.0" padding="1.0" spacing="0.0" border_color="black" border_style="" border_width="0.2">
+<table height="20.0" width="180.0" top="135.0" left="0.0" padding="1.0" spacing="0.1" border_color="black" border_style="" border_width="0.2">
     <columns width="10.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
     {[b]}%(num)s{[/b]}
     </columns>
@@ -158,23 +165,23 @@ value = """<model hmargin="10.0" vmargin="10.0" page_width="210.0" page_height="
     </rows>
 </table>
 
-<text height="10.0" width="100.0" top="120.0" left="90.0" padding="1.0" spacing="0.0" border_color="black" border_style="" border_width="0.2" text_align="left" line_height="11" font_family="sans-serif" font_weight="" font_size="11">
-{[b]}%(account detail)s{[/b]}
+<text height="10.0" width="180.0" top="145.0" left="0.0" padding="1.0" spacing="0.1" border_color="black" border_style="" border_width="0.2" text_align="left" line_height="11" font_family="sans-serif" font_weight="" font_size="11">
+{[u]}{[b]}%(account detail)s{[/b]}{[/u]}
 </text>
-<text height="10.0" width="100.0" top="130.0" left="90.0" padding="1.0" spacing="0.0" border_color="black" border_style="" border_width="0.2" text_align="left" line_height="10" font_family="sans-serif" font_weight="" font_size="10">
+<text height="10.0" width="180.0" top="150.0" left="0.0" padding="1.0" spacing="0.1" border_color="black" border_style="" border_width="0.2" text_align="left" line_height="10" font_family="sans-serif" font_weight="" font_size="10">
 {[u]}{[i]}%(third_initial)s :{[/i]}{[/u]} #thirdinitial
 </text>
-<table height="30.0" width="100.0" top="140.0" left="90.0" padding="1.0" spacing="0.0" border_color="black" border_style="" border_width="0.2">
-    <columns width="20.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
+<table height="20.0" width="180.0" top="155.0" left="0.0" padding="1.0" spacing="0.1" border_color="black" border_style="" border_width="0.2">
+    <columns width="40.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
     {[b]}%(date)s{[/b]}
     </columns>
-    <columns width="50.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
+    <columns width="80.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
     {[b]}%(designation)s{[/b]}
     </columns>
-    <columns width="15.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
+    <columns width="30.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
     {[b]}%(debit)s{[/b]}
     </columns>
-    <columns width="15.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
+    <columns width="30.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
     {[b]}%(credit)s{[/b]}
     </columns>
     <rows data="entryline_set">
@@ -192,12 +199,13 @@ value = """<model hmargin="10.0" vmargin="10.0" page_width="210.0" page_height="
         </cell>
     </rows>
 </table>
-<text height="10.0" width="100.0" top="160.0" left="90.0" padding="1.0" spacing="0.1" border_color="black" border_style="" border_width="0.2" text_align="left" line_height="10" font_family="sans-serif" font_weight="" font_size="10">
+<text height="10.0" width="180.0" top="155.0" left="0.0" padding="1.0" spacing="0.1" border_color="black" border_style="" border_width="0.2" text_align="left" line_height="10" font_family="sans-serif" font_weight="" font_size="10">
 {[u]}{[i]}%(thirdtotal)s :{[/i]}{[/u]} #thirdtotal
 </text>
 
 </body>
 </model>""" % {'title': _('Owner situation'), 'email': _('emai'), 'tel': _('tel'), 'TO PAY': _('sum to pay'),
+               'exceptionnal': _('exceptional'), 'current': _('current'),
                'partition': _('partition'), 'set': _('set'), 'budget': _('budget'), 'expense': _('expense'), 'value': _('tantime'), 'ratio': _('ratio'),
                'ventilated': _('ventilated'), 'recover_load': _('recover. load'), 'total_callfunds': _('total call for funds'), 'rest_to_pay': _('rest to pay'),
                'property': _('property lot'), 'num': _('numeros'), 'description': _('description'),
