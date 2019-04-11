@@ -80,7 +80,8 @@ class CondominiumReport(XferContainerCustom):
             self.item.end = new_end
         img = XferCompImage('img')
         img.set_value(self.current_image())
-        img.type = 'jpg'
+        if not img.value.startswith('/static/'):
+            img.type = 'jpg'
         img.set_location(0, 0, 1, 5)
         self.add_component(img)
 
