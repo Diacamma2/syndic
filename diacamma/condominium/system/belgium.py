@@ -143,6 +143,7 @@ class BelgiumSystemCondo(DefaultSystemCondo):
         EntryLineAccount.objects.create(account=third_account, amount=is_asset * total, third=expense.third, entry=new_entry)
         no_change, debit_rest, credit_rest = new_entry.serial_control(new_entry.get_serial())
         if not no_change or (abs(debit_rest) > 0.001) or (abs(credit_rest) > 0.001):
-            raise LucteriosException(GRAVE, _("Error in accounting generator!") +
-                                     "{[br/]} no_change=%s debit_rest=%.3f credit_rest=%.3f" % (no_change, debit_rest, credit_rest))
+            message = _("Error in accounting generator!")
+            message += "{[br/]} no_change=%s debit_rest=%.3f credit_rest=%.3f" % (no_change, debit_rest, credit_rest)
+            raise LucteriosException(GRAVE, message)
         expense.entries.set(EntryAccount.objects.filter(id=new_entry.id))

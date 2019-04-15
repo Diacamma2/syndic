@@ -125,8 +125,9 @@ class FrenchSystemCondo(DefaultSystemCondo):
             EntryLineAccount.objects.create(account=third_account, amount=ratio.value, entry=new_entry, third=ratio.owner.third)
         no_change, debit_rest, credit_rest = new_entry.serial_control(new_entry.get_serial())
         if not no_change or (abs(debit_rest) > 0.001) or (abs(credit_rest) > 0.001):
-            raise LucteriosException(GRAVE, _("Error in accounting generator!") +
-                                     "{[br/]} no_change=%s debit_rest=%.3f credit_rest=%.3f" % (no_change, debit_rest, credit_rest))
+            message = _("Error in accounting generator!")
+            message += "{[br/]} no_change=%s debit_rest=%.3f credit_rest=%.3f" % (no_change, debit_rest, credit_rest)
+            raise LucteriosException(GRAVE, message)
         expense_detail.entry = new_entry
         expense_detail.save()
 
@@ -157,8 +158,9 @@ class FrenchSystemCondo(DefaultSystemCondo):
             EntryLineAccount.objects.create(account=reserve_account, amount=-1 * is_asset * total, entry=new_entry)
             no_change, debit_rest, credit_rest = new_entry.serial_control(new_entry.get_serial())
             if not no_change or (abs(debit_rest) > 0.001) or (abs(credit_rest) > 0.001):
-                raise LucteriosException(GRAVE, _("Error in accounting generator!") +
-                                         "{[br/]} no_change=%s debit_rest=%.3f credit_rest=%.3f" % (no_change, debit_rest, credit_rest))
+                message = _("Error in accounting generator!")
+                message += "{[br/]} no_change=%s debit_rest=%.3f credit_rest=%.3f" % (no_change, debit_rest, credit_rest)
+                raise LucteriosException(GRAVE, message)
 
     def generate_expense_for_expense(self, expense, is_asset, fiscal_year):
         third_account = expense.get_third_account(current_system_account().get_provider_mask(), fiscal_year)
@@ -174,6 +176,7 @@ class FrenchSystemCondo(DefaultSystemCondo):
         EntryLineAccount.objects.create(account=third_account, amount=is_asset * total, third=expense.third, entry=new_entry)
         no_change, debit_rest, credit_rest = new_entry.serial_control(new_entry.get_serial())
         if not no_change or (abs(debit_rest) > 0.001) or (abs(credit_rest) > 0.001):
-            raise LucteriosException(GRAVE, _("Error in accounting generator!") +
-                                     "{[br/]} no_change=%s debit_rest=%.3f credit_rest=%.3f" % (no_change, debit_rest, credit_rest))
+            message = _("Error in accounting generator!")
+            message += "{[br/]} no_change=%s debit_rest=%.3f credit_rest=%.3f" % (no_change, debit_rest, credit_rest)
+            raise LucteriosException(GRAVE, message)
         expense.entries.set(EntryAccount.objects.filter(id=new_entry.id))

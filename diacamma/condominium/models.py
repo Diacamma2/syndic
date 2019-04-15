@@ -720,8 +720,9 @@ class Owner(Supporting):
 
     def check_ventilate_payoff(self):
         # move payoff in owner general list
-        callfunds_supportings = Supporting.objects.filter(Q(third=self.third) & Q(callfundssupporting__callfunds__date__gte=self.date_begin) &
-                                                          Q(callfundssupporting__callfunds__date__lte=self.date_end) & Q(payoff__entry__close=False)).distinct()
+        support_query = Q(third=self.third) & Q(callfundssupporting__callfunds__date__gte=self.date_begin)
+        support_query &= Q(callfundssupporting__callfunds__date__lte=self.date_end) & Q(payoff__entry__close=False)
+        callfunds_supportings = Supporting.objects.filter(support_query).distinct()
         export_payoff_filter = Q(supporting__in=callfunds_supportings) & Q(entry__close=False)
         export_payoff_list = Payoff.objects.filter(export_payoff_filter).values('entry_id', 'mode',
                                                                                 'payer', 'reference',
@@ -797,8 +798,9 @@ class Owner(Supporting):
     def total_payoff(self):
         if self.date_begin is None:
             self.set_dates()
-        third_total = -1 * get_amount_sum(EntryLineAccount.objects.filter(Q(third=self.third) & Q(entry__date_value__gte=self.date_begin) &
-                                                                          Q(entry__date_value__lte=self.date_end) & Q(amount__lt=0)).aggregate(Sum('amount')))
+        entry_query = Q(third=self.third) & Q(entry__date_value__gte=self.date_begin)
+        entry_query &= Q(entry__date_value__lte=self.date_end) & Q(amount__lt=0)
+        third_total = -1 * get_amount_sum(EntryLineAccount.objects.filter(entry_query).aggregate(Sum('amount')))
         third_total += get_amount_sum(EntryLineAccount.objects.filter(Q(third=self.third) & Q(entry__date_value=self.date_begin) & Q(entry__journal__id=1) & Q(amount__lt=0)).aggregate(Sum('amount')))
         return format_devise(third_total, 5)
 
@@ -879,18 +881,22 @@ class Owner(Supporting):
     def get_total_initial(self, owner_type=1):
         if self.date_begin is None:
             self.set_dates()
-        third_total = get_amount_sum(EntryLineAccount.objects.filter(Q(third=self.third) & Q(entry__date_value__lt=self.date_begin) &
-                                                                     Q(account__code__regex=self.get_third_mask(owner_type))).aggregate(Sum('amount')))
-        third_total -= get_amount_sum(EntryLineAccount.objects.filter(Q(third=self.third) & Q(entry__date_value=self.date_begin) &
-                                                                      Q(entry__journal__id=1) & Q(account__code__regex=self.get_third_mask(owner_type))).aggregate(Sum('amount')))
+        entry_query = Q(third=self.third) & Q(entry__date_value__lt=self.date_begin)
+        entry_query &= Q(account__code__regex=self.get_third_mask(owner_type))
+        third_total = get_amount_sum(EntryLineAccount.objects.filter(entry_query).aggregate(Sum('amount')))
+
+        entry_query = Q(third=self.third) & Q(entry__date_value=self.date_begin)
+        entry_query &= Q(entry__journal__id=1) & Q(account__code__regex=self.get_third_mask(owner_type))
+        third_total -= get_amount_sum(EntryLineAccount.objects.filter(entry_query).aggregate(Sum('amount')))
         return third_total
 
     def get_total_payoff(self, owner_type=1):
         if self.date_begin is None:
             self.set_dates()
-        third_total = -1 * get_amount_sum(EntryLineAccount.objects.filter(Q(third=self.third) & Q(entry__date_value__gte=self.date_begin) &
-                                                                          Q(entry__date_value__lte=self.date_end) & Q(entry__journal__id=4) &
-                                                                          Q(account__code__regex=self.get_third_mask(owner_type))).aggregate(Sum('amount')))
+        entry_query = Q(third=self.third) & Q(entry__date_value__gte=self.date_begin)
+        entry_query &= Q(entry__date_value__lte=self.date_end) & Q(entry__journal__id=4)
+        entry_query &= Q(account__code__regex=self.get_third_mask(owner_type))
+        third_total = -1 * get_amount_sum(EntryLineAccount.objects.filter(entry_query).aggregate(Sum('amount')))
         return third_total
 
     def get_total(self):
@@ -951,8 +957,9 @@ class Owner(Supporting):
     def total_current_owner(self):
         if self.date_begin is None:
             self.set_dates()
-        third_total = get_amount_sum(EntryLineAccount.objects.filter(Q(third=self.third) & Q(entry__date_value__lte=self.date_end) &
-                                                                     Q(account__code__regex=self.get_third_mask(1))).aggregate(Sum('amount')))
+        entry_query = Q(third=self.third) & Q(entry__date_value__lte=self.date_end)
+        entry_query &= Q(account__code__regex=self.get_third_mask(1))
+        third_total = get_amount_sum(EntryLineAccount.objects.filter(entry_query).aggregate(Sum('amount')))
         return format_devise(-1 * third_total, 5)
 
     @property
@@ -999,8 +1006,9 @@ class Owner(Supporting):
     def total_exceptional_owner(self):
         if self.date_begin is None:
             self.set_dates()
-        third_total = get_amount_sum(EntryLineAccount.objects.filter(Q(third=self.third) & Q(entry__date_value__lte=self.date_end) &
-                                                                     Q(account__code__regex=self.get_third_mask(2))).aggregate(Sum('amount')))
+        entry_query = Q(third=self.third) & Q(entry__date_value__lte=self.date_end)
+        entry_query &= Q(account__code__regex=self.get_third_mask(2))
+        third_total = get_amount_sum(EntryLineAccount.objects.filter(entry_query).aggregate(Sum('amount')))
         return format_devise(-1 * third_total, 5)
 
     def get_max_payoff(self, ignore_payoff=-1):

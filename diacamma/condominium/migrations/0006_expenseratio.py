@@ -21,7 +21,7 @@ def convert_expense_ratio(*args):
                 for line in expense_detail.entry.entrylineaccount_set.filter(third__isnull=False).order_by('third_id'):
                     owner = Owner.objects.get(third=line.third)
                     ExpenseRatio.objects.create(expensedetail=expense_detail, value=is_asset * line.amount, owner=owner)
-            except:
+            except Exception:
                 expense_detail.generate_ratio(is_asset)
 
 

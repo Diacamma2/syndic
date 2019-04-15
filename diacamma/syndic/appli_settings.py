@@ -47,6 +47,7 @@ def get_support():
 {[/table]}
 """ % (diacamma.syndic.__version__, _('Meet the {[i]}Diacamma{[/i]} community on our forum and blog'))
 
+
 APPLIS_NAME = diacamma.syndic.__title__()
 APPLIS_VERSION = diacamma.syndic.__version__
 APPLI_EMAIL = "support@diacamma.org"
