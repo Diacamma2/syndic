@@ -580,6 +580,10 @@ class Owner(Supporting):
     def __str__(self):
         return six.text_type(self.third)
 
+    @property
+    def reference(self):
+        return _("Situation of '%s'") % self.third
+
     @classmethod
     def throw_not_allowed(cls):
         if hasattr(settings, "DIACAMMA_MAXOWNER") and (len(cls.objects.all()) > getattr(settings, "DIACAMMA_MAXOWNER")):
@@ -598,6 +602,13 @@ class Owner(Supporting):
     @classmethod
     def get_edit_fields(cls):
         return []
+
+    @classmethod
+    def get_search_fields(cls):
+        result = []
+        for field_name in Third.get_search_fields():
+            result.append(cls.convert_field_for_search('third', field_name))
+        return result
 
     @classmethod
     def is_owner_account_doubled(cls, owner_type):
@@ -1301,6 +1312,10 @@ class CallFundsSupporting(Supporting):
     def __str__(self):
         return self.callfunds.__str__()
 
+    @property
+    def reference(self):
+        return self.callfunds.reference
+
     def get_total(self):
         return self.callfunds.get_total()
 
@@ -1367,6 +1382,13 @@ class CallFunds(LucteriosModel):
         else:
             return _('call of funds "last year report" - %(date)s') % {'date': get_value_converted(self.date)}
 
+    @property
+    def reference(self):
+        if self.num is not None:
+            return _('call of funds #%(num)d') % {'num': self.num}
+        else:
+            return _('call of funds')
+
     @classmethod
     def get_default_fields(cls):
         return ["num", "date", "owner", "comment", (_('total'), 'total'), (_('rest to pay'), 'supporting.total_rest_topay')]
@@ -1378,6 +1400,18 @@ class CallFunds(LucteriosModel):
     @classmethod
     def get_show_fields(cls):
         return [("num", "date"), "owner", "calldetail_set", "comment", ("status", (_('total'), 'total'))]
+
+    @classmethod
+    def get_search_fields(cls):
+        return []
+
+    def __getattr__(self, name):
+        if hasattr(self.supporting, name):
+            return getattr(self.supporting, name)
+        raise AttributeError(name)
+
+    def __call__(self, *args, **kwargs):
+        return self.supporting.__call__(*args, **kwargs)
 
     def get_total(self):
         self.check_supporting()

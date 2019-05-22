@@ -24,6 +24,7 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import unicode_literals
 from shutil import rmtree
+from base64 import b64decode
 
 from lucterios.framework.test import LucteriosTest
 from lucterios.framework.filetools import get_user_dir
@@ -34,12 +35,18 @@ from diacamma.accounting.models import ChartsAccount, FiscalYear, Budget
 from diacamma.accounting.views_entries import EntryAccountList
 from diacamma.accounting.test_tools import initial_thirds_fr, default_compta_fr, default_costaccounting, initial_thirds_be,\
     default_compta_be
-from diacamma.payoff.views import PayoffAddModify
-from diacamma.payoff.test_tools import default_bankaccount_fr, default_bankaccount_be
+from diacamma.payoff.views import PayoffAddModify, PayableEmail
+from diacamma.payoff.test_tools import default_bankaccount_fr, default_bankaccount_be,\
+    default_paymentmethod
 from diacamma.condominium.views_callfunds import CallFundsList, CallFundsAddModify, CallFundsDel, \
-    CallFundsShow, CallDetailAddModify, CallFundsTransition, CallFundsPrint, CallFundsAddCurrent
-from diacamma.condominium.test_tools import default_setowner_fr, old_accounting, default_setowner_be
+    CallFundsShow, CallDetailAddModify, CallFundsTransition, CallFundsPrint, CallFundsAddCurrent,\
+    CallFundsPayableEmail
+from diacamma.condominium.test_tools import default_setowner_fr, old_accounting, default_setowner_be,\
+    add_test_callfunds
 from diacamma.condominium.models import Set
+from lucterios.mailing.test_tools import decode_b64
+from lucterios.mailing.models import Message
+from lucterios.framework.models import LucteriosScheduler
 
 
 class CallFundsTest(LucteriosTest):
@@ -779,6 +786,112 @@ class CallFundsTest(LucteriosTest):
                          ChartsAccount.objects.get(id=2).current_total, '512')
         self.assertEqual('{[font color="blue"]}Débit: 100.00€{[/font]}',
                          ChartsAccount.objects.get(id=3).current_total, '531')
+
+    def test_send(self):
+        from lucterios.mailing.tests import configSMTP, TestReceiver
+        add_test_callfunds()
+        configSMTP('localhost', 2025)
+
+        self.factory.xfer = CallFundsShow()
+        self.calljson('/diacamma.condominium/callFundsShow', {'callfunds': 2}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'callFundsShow')
+        self.assert_json_equal('LABELFORM', 'num', 1)
+        self.assert_json_equal('LABELFORM', 'owner', "Minimum")
+        self.assertEqual(len(self.json_actions), 4)
+        self.assert_action_equal(self.json_actions[2], ('Envoyer', 'lucterios.mailing/images/email.png', 'diacamma.condominium', 'callFundsPayableEmail', 0, 1, 1))
+
+        self.factory.xfer = CallFundsPayableEmail()
+        self.calljson('/diacamma.condominium/callFundsPayableEmail', {'callfunds': 2}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'callFundsPayableEmail')
+        self.assertEqual(self.response_json['action']['id'], "diacamma.payoff/payableEmail")
+        self.assertEqual(self.response_json['action']['params'], {'item_name': 'callfunds', 'modelname': 'condominium.CallFunds'})
+
+        server = TestReceiver()
+        server.start(2025)
+        try:
+            self.assertEqual(0, server.count())
+            self.factory.xfer = PayableEmail()
+            self.calljson('/diacamma.payoff/payableEmail',
+                          {'item_name': 'callfunds', 'callfunds': 2, 'modelname': 'condominium.CallFunds'}, False)
+            self.assert_observer('core.custom', 'diacamma.payoff', 'payableEmail')
+            self.assert_count_equal('', 4)
+
+            self.factory.xfer = PayableEmail()
+            self.calljson('/diacamma.payoff/payableEmail',
+                          {'callfunds': 2, 'OK': 'YES', 'item_name': 'callfunds', 'modelname': 'condominium.CallFunds', 'subject': 'my call of funds', 'message': 'this is a call of funds.', 'model': 8}, False)
+            self.assert_observer('core.acknowledge', 'diacamma.payoff', 'payableEmail')
+            self.assertEqual(1, server.count())
+            self.assertEqual('mr-sylvestre@worldcompany.com', server.get(0)[1])
+            self.assertEqual(['Minimum@worldcompany.com', 'mr-sylvestre@worldcompany.com'], server.get(0)[2])
+            msg, msg_txt, msg_file = server.check_first_message('my call of funds', 3, {'To': 'Minimum@worldcompany.com'})
+            self.assertEqual('text/plain', msg_txt.get_content_type())
+            self.assertEqual('text/html', msg.get_content_type())
+            self.assertEqual('base64', msg.get('Content-Transfer-Encoding', ''))
+            self.assertEqual('<html>this is a call of funds.</html>', decode_b64(msg.get_payload()))
+
+            self.assertIn('appel_de_fonds_N%C2%B01__10_juin_2015.pdf', msg_file.get('Content-Type', ''))
+            self.assertEqual("%PDF".encode('ascii', 'ignore'), b64decode(msg_file.get_payload())[:4])
+        finally:
+            server.stop()
+
+    def test_multi_send(self):
+        from lucterios.mailing.tests import configSMTP, TestReceiver
+        add_test_callfunds()
+        configSMTP('localhost', 2025)
+
+        self.factory.xfer = CallFundsList()
+        self.calljson('/diacamma.condominium/callFundsList', {'status_filter': 1}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'callFundsList')
+        self.assert_count_equal('callfunds', 3)
+        self.assert_json_equal('', 'callfunds/@0/id', 2)
+        self.assert_json_equal('', 'callfunds/@1/id', 3)
+        self.assert_json_equal('', 'callfunds/@2/id', 4)
+        self.assert_count_equal("#callfunds/actions", 4)
+        self.assert_action_equal("#callfunds/actions/@2", ('Envoyer', 'lucterios.mailing/images/email.png', 'diacamma.condominium', 'callFundsPayableEmail', 0, 1, 2))
+
+        self.factory.xfer = CallFundsPayableEmail()
+        self.calljson('/diacamma.condominium/callFundsPayableEmail', {'callfunds': '2;3;4'}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'callFundsPayableEmail')
+        self.assertEqual(self.response_json['action']['id'], "diacamma.payoff/payableEmail")
+        self.assertEqual(self.response_json['action']['params'], {'item_name': 'callfunds', 'modelname': 'condominium.CallFunds'})
+
+        server = TestReceiver()
+        server.start(2025)
+        try:
+            self.assertEqual(0, server.count())
+            self.factory.xfer = PayableEmail()
+            self.calljson('/diacamma.payoff/payableEmail',
+                          {'item_name': 'callfunds', 'callfunds': '2;3;4', 'modelname': 'condominium.CallFunds'}, False)
+            self.assert_observer('core.custom', 'diacamma.payoff', 'payableEmail')
+            self.assert_count_equal('', 5)
+            self.assert_json_equal('LABELFORM', "nb_item", '3')
+
+            self.factory.xfer = PayableEmail()
+            self.calljson('/diacamma.payoff/payableEmail',
+                          {'callfunds': '2;3;4', 'OK': 'YES', 'item_name': 'callfunds', 'modelname': 'condominium.CallFunds', 'subject': '#reference', 'message': 'this is a call of funds.', 'model': 8}, False)
+            self.assert_observer('core.acknowledge', 'diacamma.payoff', 'payableEmail')
+
+            email_msg = Message.objects.get(id=1)
+            self.assertEqual(email_msg.subject, '#reference')
+            self.assertEqual(email_msg.body, 'this is a call of funds.')
+            self.assertEqual(email_msg.status, 2)
+            self.assertEqual(email_msg.recipients, "condominium.CallFunds id||8||2;3;4\n")
+            self.assertEqual(email_msg.email_to_send, "condominium.CallFunds:2:8\ncondominium.CallFunds:3:8\ncondominium.CallFunds:4:8")
+
+            self.assertEqual(1, len(LucteriosScheduler.get_list()))
+            LucteriosScheduler.stop_scheduler()
+            email_msg.sendemail(10, "http://testserver")
+            self.assertEqual(3, server.count())
+            self.assertEqual(3, server.count())
+            self.assertEqual(['Minimum@worldcompany.com', 'mr-sylvestre@worldcompany.com'], server.get(0)[2])
+            server.get_msg_index(0, "=?utf-8?q?appel_de_fonds_N=C2=B01?=")
+            self.assertEqual(['William.Dalton@worldcompany.com', 'mr-sylvestre@worldcompany.com'], server.get(1)[2])
+            server.get_msg_index(1, "=?utf-8?q?appel_de_fonds_N=C2=B01?=")
+            self.assertEqual(['Joe.Dalton@worldcompany.com', 'mr-sylvestre@worldcompany.com'], server.get(2)[2])
+            server.get_msg_index(2, "=?utf-8?q?appel_de_fonds_N=C2=B01?=")
+
+        finally:
+            server.stop()
 
 
 class CallFundsBelgiumTest(LucteriosTest):

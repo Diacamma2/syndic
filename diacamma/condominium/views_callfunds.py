@@ -17,6 +17,9 @@ from lucterios.CORE.xferprint import XferPrintReporting
 from diacamma.condominium.models import CallFunds, CallDetail
 from lucterios.framework.xfergraphic import XferContainerAcknowledge
 from diacamma.condominium.system import current_system_condo
+from diacamma.payoff.views import can_send_email
+from lucterios.framework.xfersearch import get_criteria_list
+from django.utils import six
 
 
 @MenuManage.describ('condominium.change_callfunds', FORMTYPE_NOMODAL, 'condominium.manage', _('Manage of calls of funds'))
@@ -90,11 +93,33 @@ class CallFundsShow(XferShowEditor):
         XferShowEditor.fillresponse(self)
         self.add_action(ActionsManage.get_action_url('payoff.Supporting', 'Show', self),
                         close=CLOSE_NO, params={'item_name': 'callfundssupporting', 'callfundssupporting': self.item.supporting_id}, pos_act=0)
-        self.add_action(ActionsManage.get_action_url('payoff.Supporting', 'Email', self),
-                        close=CLOSE_NO, params={'item_name': 'callfundssupporting', 'callfundssupporting': self.item.supporting_id}, pos_act=0)
 
 
-@ActionsManage.affect_grid(TITLE_PRINT, "images/print.png", unique=SELECT_MULTI, condition=lambda xfer, gridname='': xfer.getparam('status_filter', 1) > 0)
+def can_printing(xfer, gridname=''):
+    if xfer.getparam('CRITERIA') is not None:
+        for criteria_item in get_criteria_list(xfer.getparam('CRITERIA')):
+            if (criteria_item[0] == 'status') and (criteria_item[2] in ('1', '2', '1;2')):
+                return True
+        return False
+    else:
+        return xfer.getparam('status_filter', 0) in (1, 2)
+
+
+@ActionsManage.affect_grid(_("Send"), "lucterios.mailing/images/email.png", close=CLOSE_NO, unique=SELECT_MULTI, condition=lambda xfer, gridname='': can_printing(xfer) and can_send_email(xfer))
+@ActionsManage.affect_show(_("Send"), "lucterios.mailing/images/email.png", close=CLOSE_NO, condition=lambda xfer: xfer.item.status in (1, 2) and can_send_email(xfer))
+@MenuManage.describ('condominium.change_callfunds')
+class CallFundsPayableEmail(XferContainerAcknowledge):
+    caption = _("Send by email")
+    icon = "callfunds.png"
+    model = CallFunds
+    field_id = 'callfunds'
+
+    def fillresponse(self):
+        self.redirect_action(ActionsManage.get_action_url('payoff.Supporting', 'Email', self),
+                             close=CLOSE_NO, params={'item_name': self.field_id, "modelname": self.model.get_long_name()})
+
+
+@ActionsManage.affect_grid(TITLE_PRINT, "images/print.png", unique=SELECT_MULTI, condition=can_printing)
 @ActionsManage.affect_show(TITLE_PRINT, "images/print.png", close=CLOSE_NO, condition=lambda xfer: xfer.item.status in (1, 2))
 @MenuManage.describ('condominium.change_callfunds')
 class CallFundsPrint(XferPrintReporting):

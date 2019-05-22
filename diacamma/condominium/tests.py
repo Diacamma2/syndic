@@ -46,9 +46,12 @@ from diacamma.condominium.views_classload import SetList, SetAddModify, SetDel, 
     OwnerLinkAddModify, OwnerLinkDel, RecoverableLoadRatioAddModify,\
     RecoverableLoadRatioDel
 from diacamma.condominium.views import OwnerAndPropertyLotList, OwnerAdd, OwnerDel, OwnerShow, PropertyLotAddModify, CondominiumConvert, OwnerVentilatePay,\
-    OwnerLoadCount, OwnerMultiPay
+    OwnerLoadCount, OwnerMultiPay, OwnerPayableEmail
 from diacamma.condominium.views_report import FinancialStatus, GeneralManageAccounting, CurrentManageAccounting, ExceptionalManageAccounting
 from diacamma.condominium.test_tools import default_setowner_fr, add_test_callfunds, old_accounting, add_test_expenses_fr, init_compta, add_years, default_setowner_be, add_test_expenses_be
+from lucterios.mailing.models import Message
+from lucterios.framework.models import LucteriosScheduler
+from lucterios.mailing.test_tools import decode_b64
 
 
 class SetOwnerTest(LucteriosTest):
@@ -712,7 +715,7 @@ class OwnerTest(PaymentTest):
         self.assert_json_equal('LABELFORM', 'total_current_payoff', "0.00€")
         self.assert_json_equal('LABELFORM', 'total_current_owner', "-131.25€")
         self.assertEqual(len(self.json_actions), 4)
-        self.assert_action_equal(self.json_actions[0], (six.text_type('Règlement'), 'diacamma.payoff/images/payments.png', 'diacamma.payoff', 'payableShow', 0, 1, 1))
+        self.assert_action_equal(self.json_actions[2], (six.text_type('Règlement'), 'diacamma.payoff/images/payments.png', 'diacamma.condominium', 'ownerPayableShow', 0, 1, 1))
 
         self.factory.xfer = PayableShow()
         self.calljson('/diacamma.payoff/payableShow',
@@ -722,7 +725,7 @@ class OwnerTest(PaymentTest):
         self.assert_json_equal('LABELFORM', 'total_current_owner', "-131.25€")
         self.check_payment(1, "copropriete de Minimum", "131.25")
 
-    def __test_payment_paypal_owner(self):
+    def test_payment_paypal_owner(self):
         default_paymentmethod()
         add_test_callfunds()
         self.check_payment_paypal(1, "copropriete de Minimum")
@@ -734,11 +737,11 @@ class OwnerTest(PaymentTest):
         self.assert_json_equal('LABELFORM', 'total_current_call', "131.25€")
         self.assert_json_equal('LABELFORM', 'total_current_payoff', "100.00€")
         self.assert_json_equal('LABELFORM', 'total_current_owner', "-31.25€")
-        self.assert_json_equal('LABELFORM', 'thirdtotal', "31.25€")
+        self.assert_json_equal('LABELFORM', 'thirdtotal', "-31.25€")
         self.assert_json_equal('LABELFORM', 'sumtopay', "31.25€")
         self.assertEqual(len(self.json_actions), 4)
 
-    def __test_payment_paypal_callfund(self):
+    def test_payment_paypal_callfund(self):
         default_paymentmethod()
         add_test_callfunds()
         self.check_payment_paypal(4, "appel de fonds pour Minimum")
@@ -752,9 +755,8 @@ class OwnerTest(PaymentTest):
         self.assert_json_equal('LABELFORM', 'total_current_owner', "-31.25€")
         self.assertEqual(len(self.json_actions), 4)
 
-    def __test_send_owner(self):
+    def test_send_owner(self):
         from lucterios.mailing.tests import configSMTP, TestReceiver
-        default_paymentmethod()
         add_test_callfunds()
         configSMTP('localhost', 2025)
 
@@ -762,7 +764,14 @@ class OwnerTest(PaymentTest):
         self.calljson('/diacamma.condominium/ownerShow', {'owner': 1}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'ownerShow')
         self.assert_json_equal('LABELFORM', 'total_current_owner', "-131.25€")
-        self.assertEqual(len(self.json_actions), 5)
+        self.assertEqual(len(self.json_actions), 4)
+        self.assert_action_equal(self.json_actions[2], (six.text_type('Envoyer'), 'lucterios.mailing/images/email.png', 'diacamma.condominium', 'ownerPayableEmail', 0, 1, 1))
+
+        self.factory.xfer = OwnerPayableEmail()
+        self.calljson('/diacamma.condominium/ownerPayableEmail', {'owner': 1}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'ownerPayableEmail')
+        self.assertEqual(self.response_json['action']['id'], "diacamma.payoff/payableEmail")
+        self.assertEqual(self.response_json['action']['params'], {'item_name': 'owner'})
 
         server = TestReceiver()
         server.start(2025)
@@ -776,18 +785,61 @@ class OwnerTest(PaymentTest):
 
             self.factory.xfer = PayableEmail()
             self.calljson('/diacamma.payoff/payableEmail',
-                          {'owner': 1, 'OK': 'YES', 'item_name': 'owner', 'subject': 'my bill', 'message': 'this is a bill.', 'model': 8}, False)
+                          {'owner': 1, 'OK': 'YES', 'item_name': 'owner', 'subject': 'my owner', 'message': 'this is a owner.', 'model': 9}, False)
             self.assert_observer('core.acknowledge', 'diacamma.payoff', 'payableEmail')
             self.assertEqual(1, server.count())
             self.assertEqual('mr-sylvestre@worldcompany.com', server.get(0)[1])
             self.assertEqual(['Minimum@worldcompany.com', 'mr-sylvestre@worldcompany.com'], server.get(0)[2])
-            msg, msg_file = server.check_first_message('my bill', 2, {'To': 'Minimum@worldcompany.com'})
+            msg, msg_txt, msg_file = server.check_first_message('my owner', 3, {'To': 'Minimum@worldcompany.com'})
+            self.assertEqual('text/plain', msg_txt.get_content_type())
             self.assertEqual('text/html', msg.get_content_type())
             self.assertEqual('base64', msg.get('Content-Transfer-Encoding', ''))
-            self.check_email_msg(msg, 1, "copropriete de Minimum", "131.25")
+            self.assertEqual('<html>this is a owner.</html>', decode_b64(msg.get_payload()))
 
             self.assertTrue('copropriete_de_Minimum.pdf' in msg_file.get('Content-Type', ''), msg_file.get('Content-Type', ''))
             self.assertEqual("%PDF".encode('ascii', 'ignore'), b64decode(msg_file.get_payload())[:4])
+        finally:
+            server.stop()
+
+    def test_send_multi_owner(self):
+        from lucterios.mailing.tests import configSMTP, TestReceiver
+        default_paymentmethod()
+        add_test_callfunds()
+        configSMTP('localhost', 2025)
+        server = TestReceiver()
+        server.start(2025)
+        try:
+            self.assertEqual(0, server.count())
+            self.factory.xfer = PayableEmail()
+            self.calljson('/diacamma.payoff/payableEmail',
+                          {'item_name': 'owner', 'owner': '1;2;3'}, False)
+            self.assert_observer('core.custom', 'diacamma.payoff', 'payableEmail')
+            self.assert_count_equal('', 5)
+            self.assert_json_equal('LABELFORM', "nb_item", '3')
+
+            self.factory.xfer = PayableEmail()
+            self.calljson('/diacamma.payoff/payableEmail',
+                          {'owner': '1;2;3', 'OK': 'YES', 'item_name': 'owner', 'subject': '#reference', 'message': 'this is a owner.', 'model': 9}, False)
+            self.assert_observer('core.acknowledge', 'diacamma.payoff', 'payableEmail')
+
+            email_msg = Message.objects.get(id=1)
+            self.assertEqual(email_msg.subject, '#reference')
+            self.assertEqual(email_msg.body, 'this is a owner.')
+            self.assertEqual(email_msg.status, 2)
+            self.assertEqual(email_msg.recipients, "condominium.Owner id||8||1;2;3\n")
+            self.assertEqual(email_msg.email_to_send, "condominium.Owner:1:9\ncondominium.Owner:2:9\ncondominium.Owner:3:9")
+
+            self.assertEqual(1, len(LucteriosScheduler.get_list()))
+            LucteriosScheduler.stop_scheduler()
+            email_msg.sendemail(10, "http://testserver")
+            self.assertEqual(3, server.count())
+            self.assertEqual(['Minimum@worldcompany.com', 'mr-sylvestre@worldcompany.com'], server.get(0)[2])
+            server.get_msg_index(0, "Situation de 'Minimum'")
+            self.assertEqual(['William.Dalton@worldcompany.com', 'mr-sylvestre@worldcompany.com'], server.get(1)[2])
+            server.get_msg_index(1, "Situation de 'Dalton William'")
+            self.assertEqual(['Joe.Dalton@worldcompany.com', 'mr-sylvestre@worldcompany.com'], server.get(2)[2])
+            server.get_msg_index(2, "Situation de 'Dalton Joe'")
+
         finally:
             server.stop()
 

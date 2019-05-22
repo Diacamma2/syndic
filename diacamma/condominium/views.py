@@ -28,13 +28,12 @@ from lucterios.contacts.tools import ContactSelection
 
 from diacamma.accounting.models import AccountThird, FiscalYear
 from diacamma.accounting.tools import correct_accounting_code, format_devise
-from diacamma.payoff.views import PayoffAddModify
-from diacamma.payoff.models import Payoff, Supporting
+from diacamma.payoff.views import PayoffAddModify, can_send_email
 
 from diacamma.condominium.models import PropertyLot, Owner, Set, SetCost, convert_accounting, OwnerContact
 from diacamma.condominium.views_classload import fill_params
 from diacamma.condominium.system import current_system_condo
-from django.db.models.aggregates import Sum
+from diacamma.payoff.models import PaymentMethod
 
 
 @MenuManage.describ('condominium.change_set', FORMTYPE_NOMODAL, 'condominium.manage', _('Manage of owners and property lots'))
@@ -165,12 +164,7 @@ class OwnerShow(XferShowEditor):
         date_end.description = _('current date')
         date_end.set_action(self.request, self.get_action(), close=CLOSE_NO, modal=FORMTYPE_REFRESH)
         self.add_component(date_end)
-
         XferShowEditor.fillresponse(self)
-        self.add_action(ActionsManage.get_action_url('payoff.Supporting', 'Show', self),
-                        close=CLOSE_NO, params={'item_name': self.field_id}, pos_act=0)
-        self.add_action(ActionsManage.get_action_url('payoff.Supporting', 'Email', self),
-                        close=CLOSE_NO, params={'item_name': self.field_id}, pos_act=0)
 
 
 @ActionsManage.affect_other(TITLE_ADD, "images/add.png")
@@ -327,6 +321,33 @@ class OwnerReport(XferPrintReporting):
             return six.text_type(self.caption)
 
 
+@ActionsManage.affect_show(_("Payment"), "diacamma.payoff/images/payments.png", close=CLOSE_NO, condition=lambda xfer: xfer.item.payoff_have_payment() and (len(PaymentMethod.objects.all()) > 0))
+@MenuManage.describ('condominium.change_owner')
+class OwnerPayableShow(XferContainerAcknowledge):
+    caption = _("Payment")
+    icon = "owner.png"
+    model = Owner
+    field_id = 'owner'
+
+    def fillresponse(self):
+        self.redirect_action(ActionsManage.get_action_url('payoff.Supporting', 'Show', self),
+                             close=CLOSE_NO, params={'item_name': self.field_id})
+
+
+@ActionsManage.affect_grid(_("Send"), "lucterios.mailing/images/email.png", close=CLOSE_NO, unique=SELECT_MULTI, condition=lambda xfer, gridname='': can_send_email(xfer))
+@ActionsManage.affect_show(_("Send"), "lucterios.mailing/images/email.png", close=CLOSE_NO, condition=lambda xfer: can_send_email(xfer))
+@MenuManage.describ('condominium.change_owner')
+class OwnerPayableEmail(XferContainerAcknowledge):
+    caption = _("Send by email")
+    icon = "owner.png"
+    model = Owner
+    field_id = 'owner'
+
+    def fillresponse(self):
+        self.redirect_action(ActionsManage.get_action_url('payoff.Supporting', 'Email', self),
+                             close=CLOSE_NO, params={'item_name': self.field_id})
+
+
 @ActionsManage.affect_grid(TITLE_MODIFY, "images/edit.png", unique=SELECT_SINGLE)
 @ActionsManage.affect_grid(TITLE_ADD, "images/add.png")
 @MenuManage.describ('condominium.add_owner')
@@ -378,7 +399,7 @@ class CurrentOwneShow(OwnerShow):
         self.add_action(CurrentOwnePrint.get_action(TITLE_PRINT, "images/print.png"), close=CLOSE_NO, pos_act=0)
 
 
-@MenuManage.describ(None)
+@MenuManage.describ(current_owner)
 class CurrentOwnePrint(OwnerReport):
     pass
 

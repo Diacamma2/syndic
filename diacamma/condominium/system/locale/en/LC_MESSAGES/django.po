@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-03-19 15:06+0000\n"
+"POT-Creation-Date: 2019-05-22 10:07+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -96,14 +96,14 @@ msgstr "%(type)s - #%(num)d"
 msgid "incorrect account for call of found"
 msgstr "incorrect account for call of found"
 
-#: system/belgium.py:139 system/french.py:119 system/french.py:142
-#: system/french.py:146 system/french.py:170
+#: system/belgium.py:139 system/french.py:119 system/french.py:143
+#: system/french.py:147 system/french.py:172
 #, python-format
 msgid "code account %s unknown!"
 msgstr "code account %s unknown!"
 
-#: system/belgium.py:146 system/french.py:128 system/french.py:160
-#: system/french.py:177
+#: system/belgium.py:146 system/french.py:128 system/french.py:161
+#: system/french.py:179
 msgid "Error in accounting generator!"
 msgstr "Error in accounting generator!"
 
