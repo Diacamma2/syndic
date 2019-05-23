@@ -797,7 +797,7 @@ class OwnerTest(PaymentTest):
             self.assertEqual('<html>this is a owner.</html>', decode_b64(msg.get_payload()))
 
             self.assertTrue('copropriete_de_Minimum.pdf' in msg_file.get('Content-Type', ''), msg_file.get('Content-Type', ''))
-            self.assertEqual("%PDF".encode('ascii', 'ignore'), b64decode(msg_file.get_payload())[:4])
+            self.save_pdf(base64_content=msg_file.get_payload())
         finally:
             server.stop()
 

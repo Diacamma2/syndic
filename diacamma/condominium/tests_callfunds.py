@@ -830,7 +830,7 @@ class CallFundsTest(LucteriosTest):
             self.assertEqual('<html>this is a call of funds.</html>', decode_b64(msg.get_payload()))
 
             self.assertIn('appel_de_fonds_N%C2%B01__10_juin_2015.pdf', msg_file.get('Content-Type', ''))
-            self.assertEqual("%PDF".encode('ascii', 'ignore'), b64decode(msg_file.get_payload())[:4])
+            self.save_pdf(base64_content=msg_file.get_payload())
         finally:
             server.stop()
 
@@ -883,12 +883,18 @@ class CallFundsTest(LucteriosTest):
             email_msg.sendemail(10, "http://testserver")
             self.assertEqual(3, server.count())
             self.assertEqual(3, server.count())
+
             self.assertEqual(['Minimum@worldcompany.com', 'mr-sylvestre@worldcompany.com'], server.get(0)[2])
-            server.get_msg_index(0, "=?utf-8?q?appel_de_fonds_N=C2=B01?=")
+            _msg, _msg_txt, msg_file = server.get_msg_index(0, "=?utf-8?q?appel_de_fonds_N=C2=B01?=")
+            self.save_pdf(base64_content=msg_file.get_payload(), ident=1)
+
             self.assertEqual(['William.Dalton@worldcompany.com', 'mr-sylvestre@worldcompany.com'], server.get(1)[2])
-            server.get_msg_index(1, "=?utf-8?q?appel_de_fonds_N=C2=B01?=")
+            _msg, _msg_txt, msg_file = server.get_msg_index(1, "=?utf-8?q?appel_de_fonds_N=C2=B01?=")
+            self.save_pdf(base64_content=msg_file.get_payload(), ident=2)
+
             self.assertEqual(['Joe.Dalton@worldcompany.com', 'mr-sylvestre@worldcompany.com'], server.get(2)[2])
-            server.get_msg_index(2, "=?utf-8?q?appel_de_fonds_N=C2=B01?=")
+            _msg, _msg_txt, msg_file = server.get_msg_index(2, "=?utf-8?q?appel_de_fonds_N=C2=B01?=")
+            self.save_pdf(base64_content=msg_file.get_payload(), ident=3)
 
         finally:
             server.stop()
