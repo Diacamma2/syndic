@@ -29,7 +29,7 @@ from django.db.models import Q
 from django.utils import six
 
 from lucterios.framework.xferadvance import XferListEditor, TITLE_MODIFY, TITLE_PRINT, TITLE_ADD, TITLE_DELETE, TITLE_EDIT,\
-    TITLE_OK, TITLE_CANCEL, TITLE_CLOSE
+    TITLE_OK, TITLE_CANCEL, TITLE_CLOSE, TITLE_CREATE
 from lucterios.framework.xferadvance import XferAddEditor
 from lucterios.framework.xferadvance import XferShowEditor
 from lucterios.framework.xferadvance import XferDelete
@@ -182,7 +182,7 @@ class SetPrint(XferPrintAction):
     with_text_export = True
 
 
-@ActionsManage.affect_grid(TITLE_ADD, "images/add.png")
+@ActionsManage.affect_grid(TITLE_CREATE, "images/new.png")
 @ActionsManage.affect_show(TITLE_MODIFY, "images/edit.png", close=CLOSE_YES, condition=lambda xfer: xfer.item.is_active)
 @MenuManage.describ('condominium.add_set')
 class SetAddModify(XferAddEditor):

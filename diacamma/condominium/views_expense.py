@@ -5,7 +5,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.db.models import Q
 
 from lucterios.framework.xferadvance import XferListEditor, TITLE_EDIT, TITLE_ADD, TITLE_MODIFY, TITLE_DELETE,\
-    XferTransition
+    XferTransition, TITLE_CREATE
 from lucterios.framework.xferadvance import XferAddEditor
 from lucterios.framework.xferadvance import XferShowEditor
 from lucterios.framework.xferadvance import XferDelete
@@ -55,7 +55,7 @@ class ExpenseList(XferListEditor):
             self.filter &= Q(date__gte=current_year.begin) & Q(date__lte=current_year.end)
 
 
-@ActionsManage.affect_grid(TITLE_ADD, "images/add.png", condition=lambda xfer, gridname='': xfer.getparam('status_filter', 0) == 0)
+@ActionsManage.affect_grid(TITLE_CREATE, "images/new.png", condition=lambda xfer, gridname='': xfer.getparam('status_filter', 0) == 0)
 @ActionsManage.affect_show(TITLE_MODIFY, "images/edit.png", close=CLOSE_YES, condition=lambda xfer: xfer.item.status == 0)
 @MenuManage.describ('condominium.add_expense')
 class ExpenseAddModify(XferAddEditor):

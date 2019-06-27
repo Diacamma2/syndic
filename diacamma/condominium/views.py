@@ -9,7 +9,8 @@ from django.db.models.query import QuerySet
 from django.db.models.functions import Concat
 from django.db.models import Q, Value
 
-from lucterios.framework.xferadvance import TITLE_MODIFY, TITLE_ADD, TITLE_EDIT, TITLE_DELETE, TITLE_PRINT, TITLE_CANCEL, TITLE_OK
+from lucterios.framework.xferadvance import TITLE_MODIFY, TITLE_ADD, TITLE_EDIT, TITLE_DELETE, TITLE_PRINT, TITLE_CANCEL, TITLE_OK,\
+    TITLE_CREATE
 from lucterios.framework.xferadvance import XferListEditor, XferShowEditor, XferAddEditor, XferDelete
 from lucterios.framework.xfercomponents import XferCompLabelForm, XferCompDate, XferCompButton, XferCompImage, XferCompSelect, XferCompEdit,\
     XferCompGrid
@@ -105,7 +106,7 @@ class OwnerAndPropertyLotPrint(XferPrintAction):
     with_text_export = True
 
 
-@ActionsManage.affect_grid(TITLE_ADD, "images/add.png")
+@ActionsManage.affect_grid(TITLE_CREATE, "images/new.png")
 @MenuManage.describ('condominium.add_owner')
 class OwnerAdd(XferAddEditor):
     icon = "owner.png"

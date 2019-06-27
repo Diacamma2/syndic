@@ -4,7 +4,8 @@ from __future__ import unicode_literals
 from django.utils.translation import ugettext_lazy as _
 from django.db.models import Q
 
-from lucterios.framework.xferadvance import XferListEditor, TITLE_ADD, TITLE_MODIFY, TITLE_EDIT, TITLE_DELETE, TITLE_PRINT, XferTransition
+from lucterios.framework.xferadvance import XferListEditor, TITLE_ADD, TITLE_MODIFY, TITLE_EDIT, TITLE_DELETE, TITLE_PRINT, XferTransition,\
+    TITLE_CREATE
 from lucterios.framework.xferadvance import XferAddEditor
 from lucterios.framework.xferadvance import XferShowEditor
 from lucterios.framework.xferadvance import XferDelete
@@ -57,7 +58,7 @@ def CallFundsAddCurrent_cond(xfer):
         return False
 
 
-@ActionsManage.affect_list(_('Add current'), "images/add.png", condition=CallFundsAddCurrent_cond)
+@ActionsManage.affect_list(_('Add current'), "images/new.png", condition=CallFundsAddCurrent_cond)
 @MenuManage.describ('condominium.add_callfunds')
 class CallFundsAddCurrent(XferContainerAcknowledge):
     icon = "callfunds.png"
@@ -70,7 +71,7 @@ class CallFundsAddCurrent(XferContainerAcknowledge):
             current_system_condo().CurrentCallFundsAdding(True)
 
 
-@ActionsManage.affect_grid(TITLE_ADD, "images/add.png", condition=lambda xfer, gridname='': xfer.getparam('status_filter', 1) == 0)
+@ActionsManage.affect_grid(TITLE_CREATE, "images/new.png", condition=lambda xfer, gridname='': xfer.getparam('status_filter', 1) == 0)
 @ActionsManage.affect_show(TITLE_MODIFY, "images/edit.png", close=CLOSE_YES, condition=lambda xfer: xfer.item.status == 0)
 @MenuManage.describ('condominium.add_callfunds')
 class CallFundsAddModify(XferAddEditor):
