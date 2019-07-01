@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-05-22 10:07+0000\n"
+"POT-Creation-Date: 2019-07-01 14:48+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -51,7 +51,7 @@ msgid "security agency"
 msgstr "security agency"
 
 #: models.py:58 models.py:108 models.py:398 models.py:624 models.py:658
-#: models.py:1177 views.py:262
+#: models.py:1177 views.py:263
 msgid "name"
 msgstr "name"
 
@@ -173,7 +173,7 @@ msgstr "ventilated"
 msgid "recoverable load"
 msgstr "recoverable load"
 
-#: models.py:419 views.py:234
+#: models.py:419 views.py:235
 msgid "load count"
 msgstr "load count"
 
@@ -647,7 +647,7 @@ msgstr "partition"
 msgid "recover. load"
 msgstr "recover. load"
 
-#: printmodel/Owner_0001.py:374 views.py:271 views_expense.py:95
+#: printmodel/Owner_0001.py:374 views.py:272 views_expense.py:95
 msgid "payoff"
 msgstr "payoff"
 
@@ -718,148 +718,148 @@ msgstr ""
 msgid "estimated total"
 msgstr "estimated total"
 
-#: views.py:39
+#: views.py:40
 msgid "Manage of owners and property lots"
 msgstr "Manage of owners and property lots"
 
-#: views.py:44
+#: views.py:45
 msgid "Owners and property lots"
 msgstr "Owners and property lots"
 
-#: views.py:63 views_classload.py:491
+#: views.py:64 views_classload.py:491
 msgid "Owners"
 msgstr "Owners"
 
-#: views.py:70
+#: views.py:71
 msgid "Filtrer by owner"
 msgstr "Filtrer by owner"
 
-#: views.py:86 views.py:121
+#: views.py:87 views.py:122
 msgid "You have the maximum of owners!"
 msgstr "You have the maximum of owners!"
 
-#: views.py:89 views_classload.py:494
+#: views.py:90 views_classload.py:494
 msgid "Property lots"
 msgstr "Property lots"
 
-#: views.py:93 views_classload.py:498
+#: views.py:94 views_classload.py:498
 #, python-format
 msgid "Total of lot parts: %d"
 msgstr "Total of lot tantimes: %d"
 
-#: views.py:100
+#: views.py:101
 msgid "Print owners and property lots"
 msgstr "Print owners and property lots"
 
-#: views.py:114
+#: views.py:115
 msgid "Add owner"
 msgstr "Add owner"
 
-#: views.py:131
+#: views.py:132
 msgid "Modify owner"
 msgstr "Modify owner"
 
-#: views.py:140
+#: views.py:141
 msgid "Delete owner"
 msgstr "Delete owner"
 
-#: views.py:149
+#: views.py:150
 msgid "Show owner"
 msgstr "Show owner"
 
-#: views.py:157 views.py:248
+#: views.py:158 views.py:249
 msgid "initial date"
 msgstr "initial date"
 
-#: views.py:164 views.py:255
+#: views.py:165 views.py:256
 msgid "current date"
 msgstr "current date"
 
-#: views.py:176 views.py:191
+#: views.py:177 views.py:192
 msgid "Add owner contact"
 msgstr "Add owner contact"
 
-#: views.py:177
+#: views.py:178
 msgid "Modify owner contact"
 msgstr "Modify owner contact"
 
-#: views.py:211
+#: views.py:212
 msgid "Show owner contact"
 msgstr "Show owner contact"
 
-#: views.py:228
+#: views.py:229
 msgid "Delete owner contact"
 msgstr "Delete owner contact"
 
-#: views.py:237
+#: views.py:238
 msgid "Load count of owner"
 msgstr "Load count of owner"
 
-#: views.py:268
+#: views.py:269
 msgid "Close"
 msgstr "Close"
 
-#: views.py:274 views.py:291
+#: views.py:275 views.py:292
 msgid "Multi-pay owner"
 msgstr "Multi-pay owner"
 
-#: views.py:288
+#: views.py:289
 msgid "ventilate"
 msgstr "ventilate"
 
-#: views.py:297
+#: views.py:298
 msgid "Do you want to check ventilate payoff on calls of funds ?"
 msgstr "Do you want to check ventilate payoff on calls of funds ?"
 
-#: views.py:311
+#: views.py:312
 msgid "Print owner"
 msgstr "Print owner"
 
-#: views.py:324 views.py:327
+#: views.py:325 views.py:328
 msgid "Payment"
 msgstr "Payment"
 
-#: views.py:337 views.py:338 views_callfunds.py:108 views_callfunds.py:109
+#: views.py:338 views.py:339 views_callfunds.py:109 views_callfunds.py:110
 msgid "Send"
 msgstr "Send"
 
-#: views.py:341 views_callfunds.py:112
+#: views.py:342 views_callfunds.py:113
 msgid "Send by email"
 msgstr "Send by email"
 
-#: views.py:358
+#: views.py:359
 msgid "Add property lot"
 msgstr "Add property lot"
 
-#: views.py:359
+#: views.py:360
 msgid "Modify property lot"
 msgstr "Modify property lot"
 
-#: views.py:368
+#: views.py:369
 msgid "Delete property lot"
 msgstr "Delete property lot"
 
-#: views.py:388
+#: views.py:389
 msgid "View situation of your condominium."
 msgstr "View situation of your condominium."
 
-#: views.py:390
+#: views.py:391
 msgid "Your condominium"
 msgstr "Your condominium"
 
-#: views.py:395
+#: views.py:396
 msgid "Bad access!"
 msgstr "Bad access!"
 
-#: views.py:410
+#: views.py:411
 msgid "Condominium conversion"
 msgstr "Condominium conversion"
 
-#: views.py:414
+#: views.py:415
 msgid "How do want to convert owner third account?"
 msgstr "How do want to convert owner third account?"
 
-#: views.py:452
+#: views.py:453
 #, python-format
 msgid ""
 "This conversion tool will change your account to respect French law about "
@@ -880,36 +880,36 @@ msgstr ""
 "{[center]}{[u]}{[b]}Warning: This action is  definitive.{[/b]}{[/u]}"
 "{[center]}"
 
-#: views.py:456
+#: views.py:457
 msgid "Third accounts"
 msgstr "Third accounts"
 
-#: views.py:458 views_classload.py:87
+#: views.py:459 views_classload.py:87
 msgid "Parameters"
 msgstr "Parameters"
 
-#: views.py:479
+#: views.py:480
 msgid "Data converted"
 msgstr "Condominium accounting data converted"
 
-#: views.py:491 views.py:532 views.py:572 views_classload.py:437
+#: views.py:492 views.py:533 views.py:573 views_classload.py:437
 msgid "Condominium"
 msgstr "Condominium"
 
-#: views.py:495
+#: views.py:496
 msgid "You are a owner"
 msgstr "You are a owner"
 
-#: views.py:507
+#: views.py:508
 msgid "Your owner's balance"
 msgstr "Your owner's balance"
 
-#: views.py:538
+#: views.py:539
 #, python-format
 msgid "There are %(set)d classes of loads for %(owner)d owners"
 msgstr "There are %(set)d classes of loads for %(owner)d owners"
 
-#: views.py:543
+#: views.py:544
 msgid ""
 "Your condominium account is not in respect of French law{[newline]}An "
 "conversion is necessary."
@@ -917,85 +917,85 @@ msgstr ""
 "Your condominium account is not in respect of French law{[newline]}An "
 "conversion is necessary."
 
-#: views.py:549
+#: views.py:550
 msgid "Convertion ..."
 msgstr "Convertion ..."
 
-#: views.py:553
+#: views.py:554
 #, python-format
 msgid "limitation: %d owners allowed"
 msgstr "limitation: %d owners allowed"
 
-#: views.py:603
+#: views.py:604
 msgid "This fiscal year has entries not closed!"
 msgstr "This fiscal year has entries not closed!"
 
-#: views.py:608
+#: views.py:609
 #, python-format
 msgid "This fiscal year has a result no null equals to %s."
 msgstr "This fiscal year has a result no null equals to %s."
 
-#: views.py:612
+#: views.py:613
 msgid "Where do you want to ventilate this amount?"
 msgstr "Where do you want to ventilate this amount?"
 
-#: views.py:615
+#: views.py:616
 msgid "For each owner"
 msgstr "For each owner"
 
-#: views_callfunds.py:25
+#: views_callfunds.py:26
 msgid "Manage of calls of funds"
 msgstr "Manage of calls of funds"
 
-#: views_callfunds.py:30
+#: views_callfunds.py:31
 msgid "Calls of funds"
 msgstr "Calls of funds"
 
-#: views_callfunds.py:38 views_expense.py:39
+#: views_callfunds.py:39 views_expense.py:39
 msgid "Filter by type"
 msgstr "Filter by type"
 
-#: views_callfunds.py:60
+#: views_callfunds.py:61
 msgid "Add current"
 msgstr "Add current"
 
-#: views_callfunds.py:66 views_callfunds.py:80
+#: views_callfunds.py:67 views_callfunds.py:81
 msgid "Add call of funds"
 msgstr "Add call of funds"
 
-#: views_callfunds.py:69
+#: views_callfunds.py:70
 msgid "Do you want create current call of funds of this year?"
 msgstr "Do you want create current call of funds of this year?"
 
-#: views_callfunds.py:81
+#: views_callfunds.py:82
 msgid "Modify call of funds"
 msgstr "Modify call of funds"
 
-#: views_callfunds.py:90
+#: views_callfunds.py:91
 msgid "Show call of funds"
 msgstr "Show call of funds"
 
-#: views_callfunds.py:129
+#: views_callfunds.py:130
 msgid "Print call of funds"
 msgstr "Print call of funds"
 
-#: views_callfunds.py:138
+#: views_callfunds.py:139
 msgid "No call of funds to print!"
 msgstr "No call of funds to print!"
 
-#: views_callfunds.py:147
+#: views_callfunds.py:148
 msgid "Delete call of funds"
 msgstr "Delete call of funds"
 
-#: views_callfunds.py:165
+#: views_callfunds.py:166
 msgid "Add detail of call"
 msgstr "Add detail of call"
 
-#: views_callfunds.py:166 views_expense.py:115
+#: views_callfunds.py:167 views_expense.py:115
 msgid "Modify detail of call"
 msgstr "Modify detail of call"
 
-#: views_callfunds.py:175
+#: views_callfunds.py:176
 msgid "Delete detail of call"
 msgstr "Delete detail of call"
 
@@ -1059,13 +1059,19 @@ msgstr "Delete recoverable load ratio"
 msgid "condominium"
 msgstr "condominium"
 
-#: views_classload.py:146 views_classload.py:150
-msgid "Manage of condominium"
-msgstr "Manage of condominium"
+#: views_classload.py:146
+#, fuzzy
+#| msgid "Condominium"
+msgid "Condominium tools"
+msgstr "Condominium"
 
 #: views_classload.py:150
 msgid "Manage"
 msgstr "Manage"
+
+#: views_classload.py:150
+msgid "Manage of condominium"
+msgstr "Manage of condominium"
 
 #: views_classload.py:153
 msgid "Manage of class loads"

@@ -143,7 +143,7 @@ class RecoverableLoadRatioDel(XferDelete):
 
 
 MenuManage.add_sub("condominium", None, "diacamma.condominium/images/condominium.png",
-                   _("condominium"), _("Manage of condominium"), 20)
+                   _("condominium"), _("Condominium tools"), 20)
 
 
 MenuManage.add_sub("condominium.manage", "condominium", "diacamma.condominium/images/condominium.png",

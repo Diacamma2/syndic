@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-05-22 10:07+0000\n"
+"POT-Creation-Date: 2019-07-01 14:48+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -52,7 +52,7 @@ msgid "security agency"
 msgstr "agence de sécurité (alarme)"
 
 #: models.py:58 models.py:108 models.py:398 models.py:624 models.py:658
-#: models.py:1177 views.py:262
+#: models.py:1177 views.py:263
 msgid "name"
 msgstr "nom"
 
@@ -174,7 +174,7 @@ msgstr "ventilé"
 msgid "recoverable load"
 msgstr "charges récupérables"
 
-#: models.py:419 views.py:234
+#: models.py:419 views.py:235
 msgid "load count"
 msgstr "décompte de charge"
 
@@ -648,7 +648,7 @@ msgstr "partition"
 msgid "recover. load"
 msgstr "charges récup."
 
-#: printmodel/Owner_0001.py:374 views.py:271 views_expense.py:95
+#: printmodel/Owner_0001.py:374 views.py:272 views_expense.py:95
 msgid "payoff"
 msgstr "réglement"
 
@@ -719,149 +719,149 @@ msgstr ""
 msgid "estimated total"
 msgstr "solde estimé"
 
-#: views.py:39
+#: views.py:40
 msgid "Manage of owners and property lots"
 msgstr "Gérer les copropriétaires et les lots"
 
-#: views.py:44
+#: views.py:45
 msgid "Owners and property lots"
 msgstr "Les propriétaires et les lots"
 
-#: views.py:63 views_classload.py:491
+#: views.py:64 views_classload.py:491
 msgid "Owners"
 msgstr "Les propriétaires"
 
-#: views.py:70
+#: views.py:71
 msgid "Filtrer by owner"
 msgstr "Filtre par copropriétaire"
 
-#: views.py:86 views.py:121
+#: views.py:87 views.py:122
 msgid "You have the maximum of owners!"
 msgstr "Vous avez le maximum de propriétaires !"
 
-#: views.py:89 views_classload.py:494
+#: views.py:90 views_classload.py:494
 msgid "Property lots"
 msgstr "Les lots"
 
-#: views.py:93 views_classload.py:498
+#: views.py:94 views_classload.py:498
 #, python-format
 msgid "Total of lot parts: %d"
 msgstr "Total des tantièmes de lots : %d"
 
-#: views.py:100
+#: views.py:101
 msgid "Print owners and property lots"
 msgstr "Impression des propriétaires et des lots"
 
-#: views.py:114
+#: views.py:115
 msgid "Add owner"
 msgstr "Ajouter un propriétaire"
 
-#: views.py:131
+#: views.py:132
 msgid "Modify owner"
 msgstr "Modifier un propriétaire"
 
-#: views.py:140
+#: views.py:141
 msgid "Delete owner"
 msgstr "Supprimer un propriétaire"
 
-#: views.py:149
+#: views.py:150
 msgid "Show owner"
 msgstr "Voir le propriétaire"
 
-#: views.py:157 views.py:248
+#: views.py:158 views.py:249
 msgid "initial date"
 msgstr "date initiale"
 
-#: views.py:164 views.py:255
+#: views.py:165 views.py:256
 msgid "current date"
 msgstr "date courante"
 
-#: views.py:176 views.py:191
+#: views.py:177 views.py:192
 msgid "Add owner contact"
 msgstr "Ajouter un contact de propriétaire"
 
-#: views.py:177
+#: views.py:178
 msgid "Modify owner contact"
 msgstr "Modifier un contact de propriétaire"
 
-#: views.py:211
+#: views.py:212
 msgid "Show owner contact"
 msgstr "Voir un contact de propriétaire"
 
-#: views.py:228
+#: views.py:229
 msgid "Delete owner contact"
 msgstr "Supprimer un contact de propriétaire"
 
-#: views.py:237
+#: views.py:238
 msgid "Load count of owner"
 msgstr "décompte de charge individuel"
 
-#: views.py:268
+#: views.py:269
 msgid "Close"
 msgstr "Fermer"
 
-#: views.py:274 views.py:291
+#: views.py:275 views.py:292
 msgid "Multi-pay owner"
 msgstr "Multi-payement de copropriétaire"
 
-#: views.py:288
+#: views.py:289
 msgid "ventilate"
 msgstr "ventilation"
 
-#: views.py:297
+#: views.py:298
 msgid "Do you want to check ventilate payoff on calls of funds ?"
 msgstr ""
 "Voulez vous vérifier la ventilation des règlements sur des appels de fonds ?"
 
-#: views.py:311
+#: views.py:312
 msgid "Print owner"
 msgstr "Imprimer le propriétaire"
 
-#: views.py:324 views.py:327
+#: views.py:325 views.py:328
 msgid "Payment"
 msgstr "Paiement"
 
-#: views.py:337 views.py:338 views_callfunds.py:108 views_callfunds.py:109
+#: views.py:338 views.py:339 views_callfunds.py:109 views_callfunds.py:110
 msgid "Send"
 msgstr "Envoyer"
 
-#: views.py:341 views_callfunds.py:112
+#: views.py:342 views_callfunds.py:113
 msgid "Send by email"
 msgstr "Envoyer par courriel"
 
-#: views.py:358
+#: views.py:359
 msgid "Add property lot"
 msgstr "Ajouter un lot"
 
-#: views.py:359
+#: views.py:360
 msgid "Modify property lot"
 msgstr "Modifier un lot"
 
-#: views.py:368
+#: views.py:369
 msgid "Delete property lot"
 msgstr "Supprimer un lot"
 
-#: views.py:388
+#: views.py:389
 msgid "View situation of your condominium."
 msgstr "Voir la situation de votre copropriété"
 
-#: views.py:390
+#: views.py:391
 msgid "Your condominium"
 msgstr "Votre copropriété"
 
-#: views.py:395
+#: views.py:396
 msgid "Bad access!"
 msgstr "Mauvais accès !"
 
-#: views.py:410
+#: views.py:411
 msgid "Condominium conversion"
 msgstr "Conversion comptable de copropriété"
 
-#: views.py:414
+#: views.py:415
 msgid "How do want to convert owner third account?"
 msgstr "Comment voulez-vous convertir les comptes de tiers des propriétaires ?"
 
-#: views.py:452
+#: views.py:453
 #, python-format
 msgid ""
 "This conversion tool will change your account to respect French law about "
@@ -883,36 +883,36 @@ msgstr ""
 "pour les appels de fonds, les dépenses et les règlements.{[br/]}{[center]}"
 "{[u]}{[b]}Attention: Cet action est définitive.{[/b]}{[/u]}{[center]}"
 
-#: views.py:456
+#: views.py:457
 msgid "Third accounts"
 msgstr "Comptes de tiers"
 
-#: views.py:458 views_classload.py:87
+#: views.py:459 views_classload.py:87
 msgid "Parameters"
 msgstr "Paramètres"
 
-#: views.py:479
+#: views.py:480
 msgid "Data converted"
 msgstr "Données comptables de copropriété converties."
 
-#: views.py:491 views.py:532 views.py:572 views_classload.py:437
+#: views.py:492 views.py:533 views.py:573 views_classload.py:437
 msgid "Condominium"
 msgstr "Copropriété"
 
-#: views.py:495
+#: views.py:496
 msgid "You are a owner"
 msgstr "Vous êtes un copropriétaire"
 
-#: views.py:507
+#: views.py:508
 msgid "Your owner's balance"
 msgstr "Votre solde de co-propriétaire"
 
-#: views.py:538
+#: views.py:539
 #, python-format
 msgid "There are %(set)d classes of loads for %(owner)d owners"
 msgstr "Il y a %(set)d catégories de charges pour %(owner)d propriétaires"
 
-#: views.py:543
+#: views.py:544
 msgid ""
 "Your condominium account is not in respect of French law{[newline]}An "
 "conversion is necessary."
@@ -920,86 +920,86 @@ msgstr ""
 "Votre comptabilité de copropriété ne respecte pas la loi Française.{[br/]}"
 "Une conversion est nécessaire."
 
-#: views.py:549
+#: views.py:550
 msgid "Convertion ..."
 msgstr "Conversion ..."
 
-#: views.py:553
+#: views.py:554
 #, python-format
 msgid "limitation: %d owners allowed"
 msgstr "limitation : %d propriétaires autorisés"
 
-#: views.py:603
+#: views.py:604
 msgid "This fiscal year has entries not closed!"
 msgstr "Cet exercice a des écritures non validées !"
 
-#: views.py:608
+#: views.py:609
 #, python-format
 msgid "This fiscal year has a result no null equals to %s."
 msgstr "Cet exercice a un résultat non nul égal à %s"
 
-#: views.py:612
+#: views.py:613
 msgid "Where do you want to ventilate this amount?"
 msgstr "Où voulez-vous ventiler ce montant ?"
 
-#: views.py:615
+#: views.py:616
 msgid "For each owner"
 msgstr "Pour chaque copropriétaire"
 
-#: views_callfunds.py:25
+#: views_callfunds.py:26
 msgid "Manage of calls of funds"
 msgstr "Gestion des appels de fonds"
 
-#: views_callfunds.py:30
+#: views_callfunds.py:31
 msgid "Calls of funds"
 msgstr "Les appels de fonds"
 
-#: views_callfunds.py:38 views_expense.py:39
+#: views_callfunds.py:39 views_expense.py:39
 msgid "Filter by type"
 msgstr "Filtre par type"
 
-#: views_callfunds.py:60
+#: views_callfunds.py:61
 msgid "Add current"
 msgstr "Charges courantes"
 
-#: views_callfunds.py:66 views_callfunds.py:80
+#: views_callfunds.py:67 views_callfunds.py:81
 msgid "Add call of funds"
 msgstr "Ajouter un appel de fonds"
 
-#: views_callfunds.py:69
+#: views_callfunds.py:70
 msgid "Do you want create current call of funds of this year?"
 msgstr ""
 "Voulez-vous créer les appels de fonds des charges courantes de cet exercice ?"
 
-#: views_callfunds.py:81
+#: views_callfunds.py:82
 msgid "Modify call of funds"
 msgstr "Modifier un appel de fonds"
 
-#: views_callfunds.py:90
+#: views_callfunds.py:91
 msgid "Show call of funds"
 msgstr "Voir l'appel de fonds"
 
-#: views_callfunds.py:129
+#: views_callfunds.py:130
 msgid "Print call of funds"
 msgstr "Imprimer un appel de fonds"
 
-#: views_callfunds.py:138
+#: views_callfunds.py:139
 msgid "No call of funds to print!"
 msgstr "Aucun appel de fonds imprimable !"
 
-#: views_callfunds.py:147
+#: views_callfunds.py:148
 msgid "Delete call of funds"
 msgstr "Supprimer un appel de fonds"
 
-#: views_callfunds.py:165
+#: views_callfunds.py:166
 msgid "Add detail of call"
 msgstr "Ajouter un détail d'appel"
 
-#: views_callfunds.py:166 views_expense.py:115
+#: views_callfunds.py:167 views_expense.py:115
 msgid "Modify detail of call"
 msgstr "Modifier un détail d'appel"
 
-#: views_callfunds.py:175
+#: views_callfunds.py:176
 msgid "Delete detail of call"
 msgstr "Supprimer un détail d'appel"
 
@@ -1063,13 +1063,24 @@ msgstr "Supprimer un ratio de charge récupérable"
 msgid "condominium"
 msgstr "copropriété"
 
-#: views_classload.py:146 views_classload.py:150
-msgid "Manage of condominium"
-msgstr "Gestion de copropriété"
+#: views_classload.py:146
+msgid "Condominium tools"
+msgstr "Ensemble d'outils pour la gestion d'une copropriété."
 
 #: views_classload.py:150
 msgid "Manage"
 msgstr "Gestion"
+
+#: views_classload.py:150
+msgid "Manage of condominium"
+msgstr ""
+"Ensemble d'actions permettant la gestion d'une copropriété:{[br/]}{[ul]}"
+"{[li]}Création des fiches de copropriétaire et de leurs lots associés.{[/li]}"
+"{[li]}Gestion des catégories de charges régissant la ventillation des "
+"dépenses entres les copropriétaires.{[/li]}{[li]}Création des appels de "
+"fonds.{[/li]}{[li]}Gestion des dépenses et des factures fournisseurs.{[/li]}"
+"{[/ul]}Ces actions sont des sur-couche spécifique à la gestion de "
+"copropriété permettant la génération automatique des opérations comptables."
 
 #: views_classload.py:153
 msgid "Manage of class loads"
@@ -1222,7 +1233,10 @@ msgstr "Voir l'ensemble"
 
 #: views_report.py:48
 msgid "Report of condominium"
-msgstr "Tableaux de synthèse"
+msgstr ""
+"Ensemble des tableaux de synthèse de la gestion d'une copropriété.{[br/]}"
+"Permet d'avoir des rapports officiels à présenter à l'assemblée générale des "
+"copropriétaires."
 
 #: views_report.py:91 views_report.py:125 views_report.py:130
 #: views_report.py:202
