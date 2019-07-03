@@ -31,26 +31,26 @@ from django.db import models
 from django.db.models import Q
 from django.db.models.aggregates import Sum, Max
 from django.db.utils import IntegrityError
+from django.db.models.query import QuerySet
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.utils.translation import ugettext_lazy as _
 from django.utils import six, formats
 from django.core.exceptions import ObjectDoesNotExist
+from django.conf import settings
 from django_fsm import FSMIntegerField, transition
 
-from lucterios.framework.models import LucteriosModel, get_value_converted, get_subfield_show
+from lucterios.framework.models import LucteriosModel, get_subfield_show, get_date_formating
 from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.framework.tools import convert_date
 from lucterios.framework.signal_and_lock import Signal
 from lucterios.CORE.models import Parameter
 from lucterios.CORE.parameters import Params
+from lucterios.contacts.models import AbstractContact
 
 from diacamma.accounting.models import CostAccounting, EntryAccount, ChartsAccount, EntryLineAccount, FiscalYear, Budget, AccountThird, Third
 from diacamma.accounting.tools import format_devise, currency_round, current_system_account, get_amount_sum, correct_accounting_code
 from diacamma.payoff.models import Supporting, Payoff
-from django.conf import settings
-from lucterios.contacts.models import AbstractContact
 from diacamma.condominium.system import current_system_condo
-from django.db.models.query import QuerySet
 from diacamma.accounting.tools_reports import get_spaces
 
 
@@ -466,7 +466,7 @@ class LoadCountSet(QuerySet):
         designation = get_spaces(8) + "{[b]}%s{[/b]}" % account
         code_ident = self.fill_title(designation)
         for entry_line in EntryLineAccount.objects.filter(self.line_query & Q(account=account) & Q(costaccounting__setcost__set__partition=partition_item)).distinct().order_by('entry__date_value'):
-            designation = get_spaces(15) + "{[i]}%s{[/i]} - %s" % (get_value_converted(entry_line.entry.date_value), entry_line.entry.designation.replace('{[br/]}', ' - '))
+            designation = get_spaces(15) + "{[i]}%s{[/i]} - %s" % (get_date_formating(entry_line.entry.date_value), entry_line.entry.designation.replace('{[br/]}', ' - '))
             self.fill_title(designation, total=format_devise(entry_line.amount, 5))
             total += entry_line.amount
         self.change_value(code_ident,
@@ -1378,9 +1378,9 @@ class CallFunds(LucteriosModel):
 
     def __str__(self):
         if self.num is not None:
-            return _('call of funds #%(num)d - %(date)s') % {'num': self.num, 'date': get_value_converted(self.date)}
+            return _('call of funds #%(num)d - %(date)s') % {'num': self.num, 'date': get_date_formating(self.date)}
         else:
-            return _('call of funds "last year report" - %(date)s') % {'date': get_value_converted(self.date)}
+            return _('call of funds "last year report" - %(date)s') % {'date': get_date_formating(self.date)}
 
     @property
     def reference(self):

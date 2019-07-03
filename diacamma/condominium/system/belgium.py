@@ -35,7 +35,7 @@ from diacamma.accounting.models import ChartsAccount, EntryAccount, EntryLineAcc
 from diacamma.condominium.system.default import DefaultSystemCondo
 from diacamma.condominium.models import CallFunds, Set, CallDetail
 from lucterios.framework.tools import same_day_months_after
-from lucterios.framework.models import get_value_converted
+from lucterios.framework.models import get_date_formating
 
 
 class BelgiumSystemCondo(DefaultSystemCondo):
@@ -98,7 +98,7 @@ class BelgiumSystemCondo(DefaultSystemCondo):
         if to_create:
             year = FiscalYear.get_current()
             date = same_day_months_after(year.begin, int(nb_curent * 12 / nb_seq))
-            new_call = CallFunds.objects.create(date=date, comment=_("Call of funds #%(num)d of year from %(begin)s to %(end)s") % {'num': nb_curent + 1, 'begin': get_value_converted(year.begin), 'end': get_value_converted(year.end)}, status=0)
+            new_call = CallFunds.objects.create(date=date, comment=_("Call of funds #%(num)d of year from %(begin)s to %(end)s") % {'num': nb_curent + 1, 'begin': get_date_formating(year.begin), 'end': get_date_formating(year.end)}, status=0)
             for category in Set.objects.filter(type_load=0, is_active=True):
                 CallDetail.objects.create(set=category, type_call=0, callfunds=new_call, price=category.get_new_current_callfunds(), designation=_("%(type)s - #%(num)d") % {'type': _('current'), 'num': nb_curent + 1})
         else:

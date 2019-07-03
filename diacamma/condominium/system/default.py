@@ -32,7 +32,7 @@ from diacamma.accounting.tools import currency_round
 from diacamma.accounting.models import FiscalYear, EntryAccount, EntryLineAccount, ChartsAccount
 
 from diacamma.condominium.models import CallDetail, Owner, PropertyLot
-from lucterios.framework.models import get_value_converted
+from lucterios.framework.models import get_date_formating
 
 
 class DefaultSystemCondo(object):
@@ -71,7 +71,7 @@ class DefaultSystemCondo(object):
             calldetails = call_funds.calldetail_set.filter(type_call=type_call)
             if len(calldetails) > 0:
                 designation = _('call of funds "%(type)s" #%(num)d - %(date)s') % {'num': call_funds.num, 'type': type_title,
-                                                                                   'date': get_value_converted(call_funds.date)}
+                                                                                   'date': get_date_formating(call_funds.date)}
                 new_entry = EntryAccount.objects.create(year=fiscal_year, date_value=call_funds.date, designation=designation, journal_id=3)
                 owner_account_filter = call_funds.supporting.get_third_mask(type_owner=type_call + 1)
                 owner_account = call_funds.owner.third.get_account(fiscal_year, owner_account_filter)
