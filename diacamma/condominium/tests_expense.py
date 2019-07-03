@@ -26,7 +26,6 @@ from __future__ import unicode_literals
 from shutil import rmtree
 
 from lucterios.framework.test import LucteriosTest
-from lucterios.framework.xfergraphic import XferContainerAcknowledge
 from lucterios.framework.filetools import get_user_dir
 
 from diacamma.accounting.test_tools import initial_thirds_fr, default_compta_fr, default_costaccounting,\
@@ -82,7 +81,7 @@ class ExpenseTest(PaymentTest):
         self.assert_count_equal('', 11)
         self.assertEqual(len(self.json_actions), 2)
         self.assert_json_equal('LABELFORM', 'third', None)
-        self.assert_json_equal('LABELFORM', 'info', "aucun tiers sélectionné")
+        self.assert_json_equal('LABELFORM', 'info', ["aucun tiers sélectionné"])
         self.assert_grid_equal('expensedetail', {"set": "catégorie de charges", "designation": "désignation", "expense_account": "compte", "price_txt": "prix", "ratio_txt": "ratio"}, 0)  # nb=5
         self.assert_count_equal('#expensedetail/actions', 4)
         self.assert_json_equal('LABELFORM', 'status', 0)
@@ -99,7 +98,7 @@ class ExpenseTest(PaymentTest):
         self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
         self.assert_count_equal('', 12)
         self.assert_json_equal('LINK', 'third', "Minimum")
-        self.assert_json_equal('LABELFORM', 'info', "")
+        self.assert_json_equal('LABELFORM', 'info', [])
         self.assertEqual(len(self.json_actions), 3)
 
         self.factory.xfer = ExpenseDel()
@@ -831,7 +830,7 @@ class ExpenseBelgiumTest(PaymentTest):
         self.assert_count_equal('', 11)
         self.assertEqual(len(self.json_actions), 2)
         self.assert_json_equal('LABELFORM', 'third', None)
-        self.assert_json_equal('LABELFORM', 'info', "aucun tiers sélectionné")
+        self.assert_json_equal('LABELFORM', 'info', ["aucun tiers sélectionné"])
         self.assert_grid_equal('expensedetail', {"set": "catégorie de charges", "designation": "désignation", "expense_account": "compte", "price_txt": "prix", "ratio_txt": "ratio"}, 0)  # nb=5
         self.assert_count_equal('#expensedetail/actions', 4)
         self.assert_json_equal('LABELFORM', 'status', 0)
@@ -848,7 +847,7 @@ class ExpenseBelgiumTest(PaymentTest):
         self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
         self.assert_count_equal('', 12)
         self.assert_json_equal('LINK', 'third', "Minimum")
-        self.assert_json_equal('LABELFORM', 'info', "")
+        self.assert_json_equal('LABELFORM', 'info', [])
         self.assertEqual(len(self.json_actions), 3)
 
         self.factory.xfer = ExpenseDel()
@@ -899,7 +898,7 @@ class ExpenseBelgiumTest(PaymentTest):
         self.assert_json_equal('LABELFORM', 'total', '180.00€')
         self.assert_json_equal('LINK', 'third', 'Minimum')
         self.assert_json_equal('LABELFORM', 'status', 0)
-        self.assert_json_equal('LABELFORM', 'info', "")
+        self.assert_json_equal('LABELFORM', 'info', [])
         self.assertEqual(len(self.json_actions), 3)
         self.assertEqual(self.json_actions[0]["action"], 'expenseTransition')
         self.assertEqual(self.json_actions[0]['params']['TRANSITION'], 'valid')
@@ -944,7 +943,7 @@ class ExpenseBelgiumTest(PaymentTest):
         self.factory.xfer = ExpenseShow()
         self.calljson('/diacamma.condominium/expenseShow', {'expense': 4}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
-        self.assert_json_equal('LABELFORM', 'info', "")
+        self.assert_json_equal('LABELFORM', 'info', [])
 
         self.factory.xfer = ExpenseTransition()
         self.calljson('/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 4, 'TRANSITION': 'valid'}, False)
@@ -1058,7 +1057,7 @@ class ExpenseBelgiumTest(PaymentTest):
         self.factory.xfer = ExpenseShow()
         self.calljson('/diacamma.condominium/expenseShow', {'expense': 4}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
-        self.assert_json_equal('LABELFORM', 'info', "")
+        self.assert_json_equal('LABELFORM', 'info', [])
 
         self.factory.xfer = ExpenseTransition()
         self.calljson('/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 4, 'TRANSITION': 'valid'}, False)

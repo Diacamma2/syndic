@@ -1682,7 +1682,7 @@ class Expense(Supporting):
 
     transitionname__valid = _("Valid")
 
-    @transition(field=status, source=0, target=1, conditions=[lambda item:item.get_info_state() == ''])
+    @transition(field=status, source=0, target=1, conditions=[lambda item:item.get_info_state() == []])
     def valid(self):
         if self.expensetype == 0:
             is_asset = 1
@@ -1714,10 +1714,9 @@ class Expense(Supporting):
     def get_info_state(self):
         info = []
         if self.status == 0:
-            info = Supporting.get_info_state(
-                self, current_system_account().get_provider_mask())
+            info = Supporting.get_info_state(self, current_system_account().get_provider_mask())
         info.extend(self.check_date(self.date.isoformat()))
-        return "{[br/]}".join(info)
+        return info
 
     class Meta(object):
         verbose_name = _('expense')
