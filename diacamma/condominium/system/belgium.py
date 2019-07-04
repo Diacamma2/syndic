@@ -25,6 +25,7 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 from django.utils.translation import ugettext_lazy as _
 
 from lucterios.framework.error import LucteriosException, IMPORTANT, GRAVE
+from lucterios.framework.tools import get_date_formating
 from lucterios.CORE.models import Parameter
 from lucterios.CORE.parameters import Params
 from lucterios.contacts.models import CustomField
@@ -35,7 +36,6 @@ from diacamma.accounting.models import ChartsAccount, EntryAccount, EntryLineAcc
 from diacamma.condominium.system.default import DefaultSystemCondo
 from diacamma.condominium.models import CallFunds, Set, CallDetail
 from lucterios.framework.tools import same_day_months_after
-from lucterios.framework.models import get_date_formating
 
 
 class BelgiumSystemCondo(DefaultSystemCondo):

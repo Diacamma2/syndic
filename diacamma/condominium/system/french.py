@@ -27,14 +27,13 @@ from django.utils.translation import ugettext_lazy as _
 from lucterios.framework.error import LucteriosException, IMPORTANT, GRAVE
 from lucterios.CORE.models import Parameter
 from lucterios.CORE.parameters import Params
+from lucterios.framework.tools import same_day_months_after, get_date_formating
 
 from diacamma.accounting.tools import correct_accounting_code, currency_round, current_system_account
 from diacamma.accounting.models import ChartsAccount, EntryAccount, EntryLineAccount, Journal,\
     FiscalYear
 from diacamma.condominium.system.default import DefaultSystemCondo
 from diacamma.condominium.models import CallFunds, Set, CallDetail
-from lucterios.framework.tools import same_day_months_after
-from lucterios.framework.models import get_date_formating
 
 
 class FrenchSystemCondo(DefaultSystemCondo):

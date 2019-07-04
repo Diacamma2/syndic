@@ -3,16 +3,17 @@
 from __future__ import unicode_literals
 
 from django.db import migrations, models
-from django.utils import translation
 from django.utils.translation import ugettext_lazy as _
 import django.db.models.deletion
 from django.conf import settings
+
+from lucterios.framework.tools import set_locale_lang
 from lucterios.CORE.models import PrintModel
 
 
 def initial_values(*_args):
     from diacamma.condominium.models import OwnerLink
-    translation.activate(settings.LANGUAGE_CODE)
+    set_locale_lang(settings.LANGUAGE_CODE)
     link1, created = OwnerLink.objects.get_or_create(id=1)
     if created:
         link1.name = _('lodger')
@@ -32,7 +33,7 @@ def initial_values(*_args):
 
 
 def printer_model(*_args):
-    translation.activate(settings.LANGUAGE_CODE)
+    set_locale_lang(settings.LANGUAGE_CODE)
     PrintModel().load_model("diacamma.condominium", "Owner_0002", is_default=True)
 
 

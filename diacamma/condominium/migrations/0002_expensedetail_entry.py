@@ -4,14 +4,14 @@ from __future__ import unicode_literals
 
 from django.db import migrations, models
 import django.db.models.deletion
-from django.utils import translation
 from django.conf import settings
 
+from lucterios.framework.tools import set_locale_lang
 from lucterios.CORE.models import PrintModel
 
 
 def printer_model(*args):
-    translation.activate(settings.LANGUAGE_CODE)
+    set_locale_lang(settings.LANGUAGE_CODE)
     PrintModel().load_model("diacamma.condominium", "Owner_0001", is_default=True)
 
 

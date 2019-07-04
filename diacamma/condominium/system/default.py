@@ -27,12 +27,12 @@ from django.db.models.aggregates import Sum
 
 from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.CORE.parameters import Params
+from lucterios.framework.tools import get_date_formating
 
 from diacamma.accounting.tools import currency_round
 from diacamma.accounting.models import FiscalYear, EntryAccount, EntryLineAccount, ChartsAccount
 
 from diacamma.condominium.models import CallDetail, Owner, PropertyLot
-from lucterios.framework.models import get_date_formating
 
 
 class DefaultSystemCondo(object):
