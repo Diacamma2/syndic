@@ -395,7 +395,7 @@ class OwnerEntryLineAccount(EntryLineAccount):
 
     @classmethod
     def get_default_fields(cls):
-        return ['entry.date_value', (_('name'), 'designation_ref'), (_('debit'), 'debit'), (_('credit'), 'credit')]
+        return ['entry.date_value', 'designation_ref', 'debit', 'credit']
 
     class Meta(object):
         proxy = True
@@ -1314,24 +1314,36 @@ class CallFundsSupporting(Supporting):
 
     @property
     def reference(self):
-        return self.callfunds.reference
+        try:
+            return self.callfunds.reference
+        except Exception:
+            return ""
 
     def get_total(self):
-        return self.callfunds.get_total()
+        try:
+            return self.callfunds.get_total()
+        except Exception:
+            return 0
 
     def get_third_mask(self, type_owner=1):
-        third_mask = self.callfunds.owner.get_third_mask(type_owner)
-        return third_mask
+        try:
+            third_mask = self.callfunds.owner.get_third_mask(type_owner)
+            return third_mask
+        except Exception:
+            return ""
 
     def get_third_masks_by_amount(self, amount):
-        masks = {}
-        total = self.callfunds.get_total()
-        for calldetail in self.callfunds.calldetail_set.all():
-            mask = self.get_third_mask(type_owner=calldetail.type_call + 1)
-            if mask not in masks:
-                masks[mask] = 0
-            masks[mask] += float(calldetail.price) * amount / total
-        return masks.items()
+        try:
+            masks = {}
+            total = self.callfunds.get_total()
+            for calldetail in self.callfunds.calldetail_set.all():
+                mask = self.get_third_mask(type_owner=calldetail.type_call + 1)
+                if mask not in masks:
+                    masks[mask] = 0
+                masks[mask] += float(calldetail.price) * amount / total
+            return masks.items()
+        except Exception:
+            return []
 
     def payoff_is_revenu(self):
         return True
@@ -1348,7 +1360,10 @@ class CallFundsSupporting(Supporting):
         return self
 
     def get_current_date(self):
-        return self.callfunds.date
+        try:
+            return self.callfunds.date
+        except Exception:
+            return None
 
     def get_tax(self):
         return 0
@@ -1357,10 +1372,16 @@ class CallFundsSupporting(Supporting):
         return self.get_total_rest_topay()
 
     def payoff_have_payment(self):
-        return (self.callfunds.status == 1) and (self.get_total_rest_topay() > 0.001)
+        try:
+            return (self.callfunds.status == 1) and (self.get_total_rest_topay() > 0.001)
+        except Exception:
+            return False
 
     def get_send_email_objects(self):
-        return [self.callfunds]
+        try:
+            return [self.callfunds]
+        except Exception:
+            return []
 
     class Meta(object):
         default_permissions = []
@@ -1597,7 +1618,7 @@ class Expense(Supporting):
     def get_default_fields(cls, status=-1):
         fields = ["num", "date", "third", "comment", (_('total'), 'total')]
         if status == 1:
-            fields.append(Supporting.get_payoff_fields()[-1][-1])
+            fields.append(Supporting.get_payoff_fields()[-1])
         return fields
 
     def get_third_mask(self):

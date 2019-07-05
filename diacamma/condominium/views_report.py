@@ -23,13 +23,14 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from __future__ import unicode_literals
+from os.path import exists
 
 from django.utils.translation import ugettext_lazy as _
 from django.db.models import Q
 from django.utils import six
 
-from lucterios.framework.tools import MenuManage, FORMTYPE_NOMODAL, convert_date, CLOSE_NO, FORMTYPE_REFRESH, WrapAction,\
-    get_icon_path
+from lucterios.framework.filetools import get_user_path, readimage_to_base64
+from lucterios.framework.tools import MenuManage, FORMTYPE_NOMODAL, convert_date, CLOSE_NO, FORMTYPE_REFRESH, WrapAction
 from lucterios.framework.xfergraphic import XferContainerCustom
 from lucterios.framework.xfercomponents import XferCompImage, XferCompSelect, XferCompGrid, XferCompLabelForm
 from lucterios.framework.xferadvance import TITLE_CLOSE, TITLE_PRINT
@@ -37,11 +38,9 @@ from lucterios.CORE.parameters import Params
 
 from diacamma.accounting.models import FiscalYear, EntryAccount
 from diacamma.accounting.views_reports import FiscalYearReportPrint
-from diacamma.accounting.tools import current_system_account, format_devise
+from diacamma.accounting.tools import current_system_account, format_with_devise
 from diacamma.accounting.tools_reports import get_spaces, convert_query_to_account, add_item_in_grid, fill_grid, add_cell_in_grid
 from diacamma.condominium.models import Set
-from lucterios.framework.filetools import get_user_path, readimage_to_base64
-from os.path import exists
 
 
 MenuManage.add_sub("condominium.print", "condominium", "diacamma.condominium/images/report.png",
@@ -122,13 +121,13 @@ class FinancialStatus(CondominiumReport):
         self.grid = XferCompGrid('report_%d' % self.item.id)
         self.grid.add_header('left', _('Designation'))
         if self.item.last_fiscalyear is not None:
-            self.grid.add_header('left_n_1', _('year N-1'))
-        self.grid.add_header('left_n', _('year N'))
+            self.grid.add_header('left_n_1', _('year N-1'), format_with_devise(7))
+        self.grid.add_header('left_n', _('year N'), format_with_devise(7))
         self.grid.add_header('space', '')
         self.grid.add_header('right', _('Designation'))
         if self.item.last_fiscalyear is not None:
-            self.grid.add_header('right_n_1', _('year N-1'))
-        self.grid.add_header('right_n', _('year N'))
+            self.grid.add_header('right_n_1', _('year N-1'), format_with_devise(7))
+        self.grid.add_header('right_n', _('year N'), format_with_devise(7))
         self.grid.set_location(0, 10, 6)
         self.grid.no_pager = True
         self.add_component(self.grid)
@@ -199,13 +198,13 @@ class ManageAccounting(CondominiumReport):
         self.grid = XferCompGrid('report_%d' % self.item.id)
         self.grid.add_header('design', _('Designation'))
         if self.item.last_fiscalyear is not None:
-            self.grid.add_header('year_n_1', _('year N-1'))
-        self.grid.add_header('budget_n', _('budget N'))
-        self.grid.add_header('year_n', _('year N'))
+            self.grid.add_header('year_n_1', _('year N-1'), format_with_devise(7))
+        self.grid.add_header('budget_n', _('budget N'), format_with_devise(7))
+        self.grid.add_header('year_n', _('year N'), format_with_devise(7))
         if self.next_year is not None:
-            self.grid.add_header('budget_n1', _('budget N+1'))
+            self.grid.add_header('budget_n1', _('budget N+1'), format_with_devise(7))
         if self.next_year_again is not None:
-            self.grid.add_header('budget_n2', _('budget N+2'))
+            self.grid.add_header('budget_n2', _('budget N+2'), format_with_devise(7))
         self.grid.set_location(0, 10, 6)
         self.grid.no_pager = True
         self.add_component(self.grid)
@@ -216,26 +215,26 @@ class ManageAccounting(CondominiumReport):
         line_idx = index_begin + 1
         for data_item in data_line:
             add_cell_in_grid(self.grid, line_idx, 'design', data_item[0])
-            add_cell_in_grid(self.grid, line_idx, 'year_n', format_devise(data_item[1], 5))
-            add_cell_in_grid(self.grid, line_idx, 'budget_n', format_devise(data_item[3], 5))
+            add_cell_in_grid(self.grid, line_idx, 'year_n', data_item[1])
+            add_cell_in_grid(self.grid, line_idx, 'budget_n', data_item[3])
             if self.next_year is not None:
-                add_cell_in_grid(self.grid, line_idx, 'budget_n1', format_devise(data_item[4], 5))
+                add_cell_in_grid(self.grid, line_idx, 'budget_n1', data_item[4])
             if self.next_year_again is not None:
-                add_cell_in_grid(self.grid, line_idx, 'budget_n2', format_devise(data_item[5], 5))
+                add_cell_in_grid(self.grid, line_idx, 'budget_n2', data_item[5])
             if self.item.last_fiscalyear is not None:
-                add_cell_in_grid(self.grid, line_idx, 'year_n_1', format_devise(data_item[2], 5))
+                add_cell_in_grid(self.grid, line_idx, 'year_n_1', data_item[2])
             line_idx += 1
         add_cell_in_grid(self.grid, line_idx, 'design', '')
         line_idx += 1
         add_cell_in_grid(self.grid, line_idx, 'design', get_spaces(5) + "{[u]}%s{[/u]}" % _('total'))
-        add_cell_in_grid(self.grid, line_idx, 'year_n', "{[u]}%s{[/u]}" % format_devise(total1, 5))
-        add_cell_in_grid(self.grid, line_idx, 'budget_n', "{[u]}%s{[/u]}" % format_devise(totalb[0], 5))
+        add_cell_in_grid(self.grid, line_idx, 'year_n', total1, "{[u]}%s{[/u]}")
+        add_cell_in_grid(self.grid, line_idx, 'budget_n', totalb[0], "{[u]}%s{[/u]}")
         if self.next_year is not None:
-            add_cell_in_grid(self.grid, line_idx, 'budget_n1', "{[u]}%s{[/u]}" % format_devise(totalb[1], 5))
+            add_cell_in_grid(self.grid, line_idx, 'budget_n1', totalb[1], "{[u]}%s{[/u]}")
         if self.next_year_again is not None:
-            add_cell_in_grid(self.grid, line_idx, 'budget_n2', "{[u]}%s{[/u]}" % format_devise(totalb[2], 5))
+            add_cell_in_grid(self.grid, line_idx, 'budget_n2', totalb[2], "{[u]}%s{[/u]}")
         if self.item.last_fiscalyear is not None:
-            add_cell_in_grid(self.grid, line_idx, 'year_n_1', "{[u]}%s{[/u]}" % format_devise(total2, 5))
+            add_cell_in_grid(self.grid, line_idx, 'year_n_1', total2, "{[u]}%s{[/u]}")
         line_idx += 1
         add_cell_in_grid(self.grid, line_idx, 'design', '')
         return line_idx, total1, total2, totalb
@@ -316,14 +315,14 @@ class CurrentManageAccounting(ManageAccounting):
             if self.next_year_again is not None:
                 totalb[2] += subtotalb[2]
         add_cell_in_grid(self.grid, line_idx, 'design', get_spaces(5) + "{[b]}%s{[/b]}" % _('total'))
-        add_cell_in_grid(self.grid, line_idx, 'year_n', "{[b]}%s{[/b]}" % format_devise(total1, 5))
-        add_cell_in_grid(self.grid, line_idx, 'budget_n', "{[b]}%s{[/b]}" % format_devise(totalb[0], 5))
+        add_cell_in_grid(self.grid, line_idx, 'year_n', total1, "{[b]}%s{[/b]}")
+        add_cell_in_grid(self.grid, line_idx, 'budget_n', totalb[0], "{[b]}%s{[/b]}")
         if self.item.last_fiscalyear is not None:
-            add_cell_in_grid(self.grid, line_idx, 'year_n_1', "{[b]}%s{[/b]}" % format_devise(total2, 5))
+            add_cell_in_grid(self.grid, line_idx, 'year_n_1', total2, "{[b]}%s{[/b]}")
         if self.next_year is not None:
-            add_cell_in_grid(self.grid, line_idx, 'budget_n1', "{[b]}%s{[/b]}" % format_devise(totalb[1], 5))
+            add_cell_in_grid(self.grid, line_idx, 'budget_n1', totalb[1], "{[b]}%s{[/b]}")
         if self.next_year_again is not None:
-            add_cell_in_grid(self.grid, line_idx, 'budget_n2', "{[b]}%s{[/b]}" % format_devise(totalb[2], 5))
+            add_cell_in_grid(self.grid, line_idx, 'budget_n2', totalb[2], "{[b]}%s{[/b]}")
 
 
 @MenuManage.describ('condominium.change_owner', FORMTYPE_NOMODAL, 'condominium.print', _('Show Exeptional manage accounting report'))
@@ -340,8 +339,8 @@ class ExceptionalManageAccounting(ManageAccounting):
 
     def define_gridheader(self):
         ManageAccounting.define_gridheader(self)
-        self.grid.add_header('calloffund', _('call of funds'))
-        self.grid.add_header('result', _('result general'))
+        self.grid.add_header('calloffund', _('call of funds'), format_with_devise(7))
+        self.grid.add_header('result', _('result general'), format_with_devise(7))
 
     def fill_body(self):
         line_idx = 0
@@ -356,12 +355,12 @@ class ExceptionalManageAccounting(ManageAccounting):
             query_budget = [~Q(code=revenue_account) & Q(cost_accounting=classloaditem.current_cost_accounting) & Q(year=self.item)]
             line__current_dep, subtotal1, subtotal2, subtotalb = self.fill_part_of_grid(current_request, query_budget, line_idx, six.text_type(classloaditem), sign_value=False)
             total_call = classloaditem.get_total_calloffund(self.item)
-            add_cell_in_grid(self.grid, line__current_dep - 1, 'calloffund', "{[u]}%s{[/u]}" % format_devise(total_call, 5))
-            add_cell_in_grid(self.grid, line__current_dep - 1, 'result', "{[u]}%s{[/u]}" % format_devise(total_call - subtotal1, 5))
+            add_cell_in_grid(self.grid, line__current_dep - 1, 'calloffund', total_call, "{[u]}%s{[/u]}")
+            add_cell_in_grid(self.grid, line__current_dep - 1, 'result', total_call - subtotal1, "{[u]}%s{[/u]}")
             line_idx = line__current_dep + 1
             total1 += subtotal1
             total2 += subtotal2
             totalb[0] += subtotalb[0]
         add_cell_in_grid(self.grid, line_idx, 'design', get_spaces(5) + "{[b]}%s{[/b]}" % _('total'))
-        add_cell_in_grid(self.grid, line_idx, 'year_n', "{[b]}%s{[/b]}" % format_devise(total1, 5))
-        add_cell_in_grid(self.grid, line_idx, 'budget_n', "{[b]}%s{[/b]}" % format_devise(totalb[0], 5))
+        add_cell_in_grid(self.grid, line_idx, 'year_n', total1, "{[b]}%s{[/b]}")
+        add_cell_in_grid(self.grid, line_idx, 'budget_n', totalb[0], "{[b]}%s{[/b]}")
