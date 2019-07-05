@@ -381,10 +381,10 @@ class ExpenseTest(PaymentTest):
         self.assert_json_equal('LABELFORM', 'contact', 'Luke Lucky')
         self.assert_count_equal('accountthird', 2)
         self.assert_json_equal('', 'accountthird/@0/code', '411')
-        self.assert_json_equal('', 'accountthird/@0/total_txt', '{[font color="green"]}Crédit: 0.00€{[/font]}')
+        self.assert_json_equal('', 'accountthird/@0/total_txt', 0.00)
         self.assert_json_equal('', 'accountthird/@1/code', '401')
-        self.assert_json_equal('', 'accountthird/@1/total_txt', '{[font color="green"]}Crédit: 0.00€{[/font]}')
-        self.assert_json_equal('LABELFORM', 'total', '0.00€')
+        self.assert_json_equal('', 'accountthird/@1/total_txt', 0.00)
+        self.assert_json_equal('LABELFORM', 'total', 0.0)
 
         self.factory.xfer = ExpenseTransition()
         self.calljson('/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 4, 'TRANSITION': 'valid'}, False)
@@ -397,8 +397,8 @@ class ExpenseTest(PaymentTest):
         self.factory.xfer = ThirdShow()
         self.calljson('/diacamma.accounting/thirdShow', {"third": 3}, False)
         self.assert_observer('core.custom', 'diacamma.accounting', 'thirdShow')
-        self.assert_json_equal('', 'accountthird/@1/total_txt', '{[font color="green"]}Crédit: 180.00€{[/font]}')
-        self.assert_json_equal('LABELFORM', 'total', '180.00€')
+        self.assert_json_equal('', 'accountthird/@1/total_txt', 180.00)
+        self.assert_json_equal('LABELFORM', 'total', 180.00)
 
         self.factory.xfer = PayoffAddModify()
         self.calljson('/diacamma.payoff/payoffAddModify', {'SAVE': 'YES', 'supporting': 4, 'amount': '180.0',
@@ -412,8 +412,8 @@ class ExpenseTest(PaymentTest):
         self.factory.xfer = ThirdShow()
         self.calljson('/diacamma.accounting/thirdShow', {"third": 3}, False)
         self.assert_observer('core.custom', 'diacamma.accounting', 'thirdShow')
-        self.assert_json_equal('', 'accountthird/@1/total_txt', '{[font color="green"]}Crédit: 0.00€{[/font]}')
-        self.assert_json_equal('LABELFORM', 'total', '0.00€')
+        self.assert_json_equal('', 'accountthird/@1/total_txt', 0.00)
+        self.assert_json_equal('LABELFORM', 'total', 0.00)
 
         self.factory.xfer = ExpenseShow()
         self.calljson('/diacamma.condominium/expenseShow', {'expense': 4}, False)
@@ -473,10 +473,10 @@ class ExpenseTest(PaymentTest):
         self.assert_json_equal('LABELFORM', 'contact', 'Luke Lucky')
         self.assert_count_equal('accountthird', 2)
         self.assert_json_equal('', 'accountthird/@0/code', '411')
-        self.assert_json_equal('', 'accountthird/@0/total_txt', '{[font color="green"]}Crédit: 0.00€{[/font]}')
+        self.assert_json_equal('', 'accountthird/@0/total_txt', 0.00)
         self.assert_json_equal('', 'accountthird/@1/code', '401')
-        self.assert_json_equal('', 'accountthird/@1/total_txt', '{[font color="green"]}Crédit: 0.00€{[/font]}')
-        self.assert_json_equal('LABELFORM', 'total', '0.00€')
+        self.assert_json_equal('', 'accountthird/@1/total_txt', 0.00)
+        self.assert_json_equal('LABELFORM', 'total', 0.00)
 
         self.factory.xfer = ExpenseTransition()
         self.calljson('/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 4, 'TRANSITION': 'valid'}, False)
@@ -489,8 +489,8 @@ class ExpenseTest(PaymentTest):
         self.factory.xfer = ThirdShow()
         self.calljson('/diacamma.accounting/thirdShow', {"third": 3}, False)
         self.assert_observer('core.custom', 'diacamma.accounting', 'thirdShow')
-        self.assert_json_equal('', 'accountthird/@1/total_txt', '{[font color="blue"]}Débit: 180.00€{[/font]}')
-        self.assert_json_equal('LABELFORM', 'total', '-180.00€')
+        self.assert_json_equal('', 'accountthird/@1/total_txt', -180.00)
+        self.assert_json_equal('LABELFORM', 'total', -180.00)
 
         self.factory.xfer = PayoffAddModify()
         self.calljson('/diacamma.payoff/payoffAddModify', {'SAVE': 'YES', 'supporting': 4, 'amount': '180.0',
@@ -504,8 +504,8 @@ class ExpenseTest(PaymentTest):
         self.factory.xfer = ThirdShow()
         self.calljson('/diacamma.accounting/thirdShow', {"third": 3}, False)
         self.assert_observer('core.custom', 'diacamma.accounting', 'thirdShow')
-        self.assert_json_equal('', 'accountthird/@1/total_txt', '{[font color="green"]}Crédit: 0.00€{[/font]}')
-        self.assert_json_equal('LABELFORM', 'total', '0.00€')
+        self.assert_json_equal('', 'accountthird/@1/total_txt', 0.00)
+        self.assert_json_equal('LABELFORM', 'total', 0.00)
 
         self.factory.xfer = ExpenseShow()
         self.calljson('/diacamma.condominium/expenseShow', {'expense': 4}, False)
@@ -1371,10 +1371,10 @@ class ExpenseTestOldAccounting(LucteriosTest):
         self.assert_json_equal('LABELFORM', 'contact', 'Luke Lucky')
         self.assert_count_equal('accountthird', 2)
         self.assert_json_equal('', 'accountthird/@0/code', '411')
-        self.assert_json_equal('', 'accountthird/@0/total_txt', '{[font color="green"]}Crédit: 0.00€{[/font]}')
+        self.assert_json_equal('', 'accountthird/@0/total_txt', 0.00)
         self.assert_json_equal('', 'accountthird/@1/code', '401')
-        self.assert_json_equal('', 'accountthird/@1/total_txt', '{[font color="green"]}Crédit: 0.00€{[/font]}')
-        self.assert_json_equal('LABELFORM', 'total', '0.00€')
+        self.assert_json_equal('', 'accountthird/@1/total_txt', 0.00)
+        self.assert_json_equal('LABELFORM', 'total', 0.00)
 
         self.factory.xfer = ExpenseTransition()
         self.calljson('/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 4, 'TRANSITION': 'valid'}, False)
@@ -1383,8 +1383,8 @@ class ExpenseTestOldAccounting(LucteriosTest):
         self.factory.xfer = ThirdShow()
         self.calljson('/diacamma.accounting/thirdShow', {"third": 3}, False)
         self.assert_observer('core.custom', 'diacamma.accounting', 'thirdShow')
-        self.assert_json_equal('', 'accountthird/@1/total_txt', '{[font color="green"]}Crédit: 180.00€{[/font]}')
-        self.assert_json_equal('LABELFORM', 'total', '180.00€')
+        self.assert_json_equal('', 'accountthird/@1/total_txt', 180.00)
+        self.assert_json_equal('LABELFORM', 'total', 180.00)
 
         self.factory.xfer = PayoffAddModify()
         self.calljson('/diacamma.payoff/payoffAddModify', {'SAVE': 'YES', 'supporting': 4, 'amount': '180.0',
@@ -1394,8 +1394,8 @@ class ExpenseTestOldAccounting(LucteriosTest):
         self.factory.xfer = ThirdShow()
         self.calljson('/diacamma.accounting/thirdShow', {"third": 3}, False)
         self.assert_observer('core.custom', 'diacamma.accounting', 'thirdShow')
-        self.assert_json_equal('', 'accountthird/@1/total_txt', '{[font color="green"]}Crédit: 0.00€{[/font]}')
-        self.assert_json_equal('LABELFORM', 'total', '0.00€')
+        self.assert_json_equal('', 'accountthird/@1/total_txt', 0.00)
+        self.assert_json_equal('LABELFORM', 'total', 0.00)
 
         self.factory.xfer = ExpenseShow()
         self.calljson('/diacamma.condominium/expenseShow', {'expense': 4}, False)
