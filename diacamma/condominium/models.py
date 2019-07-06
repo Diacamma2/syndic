@@ -39,16 +39,19 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
 from django_fsm import FSMIntegerField, transition
 
-from lucterios.framework.models import LucteriosModel, get_subfield_show
+from lucterios.framework.models import LucteriosModel, get_subfield_show,\
+    LucteriosVirtualField, LucteriosDecimalField
 from lucterios.framework.error import LucteriosException, IMPORTANT
-from lucterios.framework.tools import convert_date, get_date_formating
+from lucterios.framework.tools import convert_date, get_date_formating,\
+    format_to_string
 from lucterios.framework.signal_and_lock import Signal
 from lucterios.CORE.models import Parameter
 from lucterios.CORE.parameters import Params
 from lucterios.contacts.models import AbstractContact
 
 from diacamma.accounting.models import CostAccounting, EntryAccount, ChartsAccount, EntryLineAccount, FiscalYear, Budget, AccountThird, Third
-from diacamma.accounting.tools import format_devise, currency_round, current_system_account, get_amount_sum, correct_accounting_code
+from diacamma.accounting.tools import format_devise, currency_round, current_system_account, get_amount_sum, correct_accounting_code,\
+    format_with_devise, get_amount_from_format_devise
 from diacamma.payoff.models import Supporting, Payoff
 from diacamma.condominium.system import current_system_condo
 from diacamma.accounting.tools_reports import get_spaces
@@ -66,6 +69,15 @@ class Set(LucteriosModel):
                                     choices=((0, _('current')), (1, _('exceptional'))), null=False, default=0, db_index=True)
     is_active = models.BooleanField(_('is active'), default=True)
     set_of_lots = models.ManyToManyField('PropertyLot', verbose_name=_('set of lots'), blank=True)
+
+    identify = LucteriosVirtualField(verbose_name=_('name'), compute_from="get_identify")
+    budget_txt = LucteriosVirtualField(verbose_name=_('budget'), compute_from="get_current_budget", format_string=lambda: format_with_devise(5))
+    sumexpense = LucteriosVirtualField(verbose_name=_('expense'), compute_from='get_sumexpense', format_string=lambda: format_with_devise(5))
+    total_part = LucteriosVirtualField(verbose_name=_('tantime sum'), compute_from='get_total_part', format_string="N2")
+    current_cost_accounting = LucteriosVirtualField(verbose_name=_('cost accounting'), compute_from='get_current_cost_accounting')
+
+    # for legacy
+    sumexpense_txt = LucteriosVirtualField(verbose_name=_('expense'), compute_from='get_sumexpense', format_string=lambda: format_with_devise(5))
 
     def __init__(self, *args, **kwargs):
         LucteriosModel.__init__(self, *args, **kwargs)
@@ -99,13 +111,14 @@ class Set(LucteriosModel):
     def partitionfill_set(self):
         return self.partition_set.filter(Q(value__gt=0.001))
 
-    @property
-    def identify(self):
+    def get_identify(self):
+        if self.id is None:
+            return None
         return "[%d] %s" % (self.id, self.name)
 
     @classmethod
     def get_default_fields(cls):
-        return [(_('name'), "identify"), 'type_load', (_('divisions'), 'partitionfill_set'), (_('budget'), "budget_txt"), (_('expense'), 'sumexpense_txt')]
+        return ["identify", 'type_load', (_('divisions'), 'partitionfill_set'), "budget_txt", 'sumexpense']
 
     @classmethod
     def get_edit_fields(cls):
@@ -117,11 +130,11 @@ class Set(LucteriosModel):
     @classmethod
     def get_show_fields(cls):
         if Params.getvalue("condominium-old-accounting"):
-            return [("name", ), ("revenue_account", (_('cost accounting'), 'current_cost_accounting')), ("type_load", 'is_active'), ('is_link_to_lots',
-                                                                                                                                     (_('tantime sum'), 'total_part')), 'partition_set', 'partitionfill_set', ((_('budget'), "budget_txt"), (_('expense'), 'sumexpense_txt'),)]
+            return [("name", ), ("revenue_account", 'current_cost_accounting'), ("type_load", 'is_active'),
+                    ('is_link_to_lots', 'total_part'), 'partition_set', 'partitionfill_set', ("budget_txt", 'sumexpense',)]
         else:
-            return [("name", (_('cost accounting'), 'current_cost_accounting')), ("type_load", 'is_active'), ('is_link_to_lots', (_('tantime sum'), 'total_part')),
-                    'partition_set', 'partitionfill_set', ((_('budget'), "budget_txt"), (_('expense'), 'sumexpense_txt'),)]
+            return [("name", 'current_cost_accounting'), ("type_load", 'is_active'), ('is_link_to_lots', 'total_part'),
+                    'partition_set', 'partitionfill_set', ("budget_txt", 'sumexpense',)]
 
     def _do_insert(self, manager, using, fields, update_pk, raw):
         new_id = LucteriosModel._do_insert(
@@ -130,8 +143,9 @@ class Set(LucteriosModel):
             Partition.objects.create(set_id=new_id, owner=owner)
         return new_id
 
-    @property
-    def current_cost_accounting(self):
+    def get_current_cost_accounting(self):
+        if self.id is None:
+            return None
         if self.type_load == 0:
             costs = self.setcost_set.filter(year=FiscalYear.get_current())
         else:
@@ -225,11 +239,9 @@ class Set(LucteriosModel):
                     year = year.last_fiscalyear
                     cost = cost.last_costaccounting
 
-    @property
-    def budget_txt(self):
-        return format_devise(self.get_current_budget(), 5)
-
     def get_current_budget(self):
+        if self.id is None:
+            return None
         if self.type_load == 1:
             account = Params.getvalue("condominium-exceptional-revenue-account")
             costs = self.setcost_set.all()
@@ -281,8 +293,9 @@ class Set(LucteriosModel):
         if abs(revenue) > 0.0001:
             Budget.objects.create(cost_accounting=cost_item, code=account, year_id=year, amount=revenue)
 
-    @property
-    def total_part(self):
+    def get_total_part(self):
+        if self.id is None:
+            return None
         total = self.partition_set.all().aggregate(sum=Sum('value'))
         if 'sum' in total.keys():
             res = total['sum']
@@ -296,6 +309,8 @@ class Set(LucteriosModel):
         return self.expensedetail_set.filter(expense__date__gte=self.date_begin, expense__date__lte=self.date_end)
 
     def get_sumexpense(self):
+        if self.id is None:
+            return None
         total = 0
         for expense_detail in self.get_expenselist():
             if expense_detail.expense.status != 0:
@@ -304,10 +319,6 @@ class Set(LucteriosModel):
                 else:
                     total -= expense_detail.price
         return total
-
-    @property
-    def sumexpense_txt(self):
-        return format_devise(self.get_sumexpense(), 5)
 
     def refresh_ratio_link_lots(self):
         if self.is_link_to_lots:
@@ -512,8 +523,7 @@ class LoadCountSet(QuerySet):
 
 
 class Owner(Supporting):
-    information = models.CharField(
-        _('information'), max_length=200, null=True, default='')
+    information = models.CharField(_('information'), max_length=200, null=True, default='')
 
     def __init__(self, *args, **kwargs):
         Supporting.__init__(self, *args, **kwargs)
@@ -669,11 +679,11 @@ class Owner(Supporting):
         fields.extend(['propertylot_set.num', 'propertylot_set.value', 'propertylot_set.ratio', 'propertylot_set.description'])
         fields.extend(["callfunds_set.num", "callfunds_set.date",
                        "callfunds_set.comment", (_('total'), 'callfunds_set.total')])
-        fields.extend(["partition_set.set.str", "partition_set.set.budget", (_('expense'), 'partition_set.set.sumexpense_txt'),
+        fields.extend(["partition_set.set.str", "partition_set.set.budget_txt", 'partition_set.set.sumexpense',
                        "partition_set.value", (_("ratio"), 'partition_set.ratio'), (_('ventilated'), 'partition_set.ventilated_txt')])
-        fields.extend(["exceptionnal_set.set.str", "exceptionnal_set.set.budget", (_('expense'), 'exceptionnal_set.set.sumexpense_txt'),
+        fields.extend(["exceptionnal_set.set.str", "exceptionnal_set.set.budget_txt", 'exceptionnal_set.set.sumexpense',
                        (_('total call for funds'), 'exceptionnal_set.total_callfunds'),
-                       "exceptionnal_set.value", (_("ratio"), 'exceptionnal_set.ratio'), (_('ventilated'), 'exceptionnal_set.ventilated_txt')])
+                       "exceptionnal_set.value", (_("ratio"), 'exceptionnal_set.ratio'), 'exceptionnal_set.ventilated'])
         fields.extend(['payoff_set'])
         fields.extend([(_('current total call for funds'), 'total_current_call'), (_('current total payoff'), 'total_current_payoff'),
                        (_('current initial state'), 'total_current_initial'), (_('current total ventilated'), 'total_current_ventilated'),
@@ -1071,12 +1081,20 @@ class Owner(Supporting):
 
 
 class Partition(LucteriosModel):
-    set = models.ForeignKey(
-        Set, verbose_name=_('set'), null=False, db_index=True, on_delete=models.CASCADE)
-    owner = models.ForeignKey(
-        Owner, verbose_name=_('owner'), null=False, db_index=True, on_delete=models.CASCADE)
-    value = models.DecimalField(_('tantime'), max_digits=7, decimal_places=2, default=0.0, validators=[
-        MinValueValidator(0.0), MaxValueValidator(100000.00)])
+    set = models.ForeignKey(Set, verbose_name=_('set'), null=False, db_index=True, on_delete=models.CASCADE)
+    owner = models.ForeignKey(Owner, verbose_name=_('owner'), null=False, db_index=True, on_delete=models.CASCADE)
+    value = LucteriosDecimalField(_('tantime'), max_digits=7, decimal_places=2, default=0.0, validators=[MinValueValidator(0.0), MaxValueValidator(100000.00)], format_string="N2")
+
+    ratio = LucteriosVirtualField(verbose_name=_("ratio"), compute_from='get_ratio', format_string='N1;{0} %')
+    ventilated = LucteriosVirtualField(verbose_name=_('ventilated'), compute_from='get_ventilated', format_string=lambda: format_with_devise(5))
+    recovery_load = LucteriosVirtualField(verbose_name=_('recoverable load'), compute_from='get_recovery_load', format_string=lambda: format_with_devise(5))
+
+    total_callfunds = LucteriosVirtualField(verbose_name=_("total call for funds"), compute_from='get_callfunds', format_string=lambda: format_with_devise(5))
+    total_current_regularization = LucteriosVirtualField(verbose_name=_('estimated regularization'), compute_from='get_total_current_regularization', format_string=lambda: format_with_devise(5))
+
+    # for legacy
+    ventilated_txt = LucteriosVirtualField(verbose_name=_('ventilated'), compute_from='get_ventilated', format_string=lambda: format_with_devise(5))
+    recovery_load_txt = LucteriosVirtualField(verbose_name=_('recoverable load'), compute_from='get_recovery_load', format_string=lambda: format_with_devise(5))
 
     def __init__(self, *args, **kwargs):
         LucteriosModel.__init__(self, *args, **kwargs)
@@ -1084,22 +1102,24 @@ class Partition(LucteriosModel):
         self.recovery_load_value = 0.0
 
     def __str__(self):
-        return "%s : %s" % (self.owner, self.ratio)
+        return "%s : %s" % (self.owner, format_to_string(self.ratio, 'N1', '{0} %'))
 
     @classmethod
     def get_default_fields(cls):
-        return ["set", (_('budget'), "set.budget_txt"), (_('expense'), 'set.sumexpense_txt'), "owner", "value", (_("ratio"), 'ratio'), (_('ventilated'), 'ventilated_txt'), (_('recoverable load'), 'recovery_load_txt')]
+        return ["set", "set.budget_txt", 'set.sumexpense', "owner", "value", 'ratio', 'ventilated', 'recovery_load']
 
     @classmethod
     def get_edit_fields(cls):
         return ["set", "owner", "value"]
 
     def get_ratio(self):
+        if self.id is None:
+            return 0.0
         total = self.set.total_part
         if abs(total) < 0.01:
             return 0.0
         else:
-            return float(100 * self.value / total)
+            return float(100 * float(self.value) / float(total))
 
     def set_context(self, xfer):
         if xfer is not None:
@@ -1112,9 +1132,9 @@ class Partition(LucteriosModel):
         if abs(ratio) > 0.01:
             try:
                 year = FiscalYear.objects.get(begin__lte=self.set.date_end, end__gte=self.set.date_end)
-            except ObjectDoesNotExist:
+            except (ObjectDoesNotExist, ValueError):
                 year = FiscalYear.get_current()
-                if self.set.date_end < year.begin:
+                if (year is None) or (self.set is None) or (self.set.date_end is None) or (self.set.date_end < year.begin):
                     return 0
             recovery_load_result = 0
             self.ventilated_result = 0
@@ -1128,22 +1148,20 @@ class Partition(LucteriosModel):
             self.recovery_load_value = recovery_load_result * ratio / 100.0
 
     def get_ventilated(self):
+        if self.id is None:
+            return None
         self.compute_values()
         return self.ventilated_value
 
-    @property
-    def ventilated_txt(self):
-        return format_devise(self.get_ventilated(), 5)
-
     def get_recovery_load(self):
+        if self.id is None:
+            return None
         self.compute_values()
         return self.recovery_load_value
 
-    @property
-    def recovery_load_txt(self):
-        return format_devise(self.get_recovery_load(), 5)
-
     def get_callfunds(self):
+        if (self.id is None) or (self.set is None) or (self.set.date_begin is None) or (self.set.date_end is None):
+            return 0
         value = 0
         ratio = self.get_ratio()
         if abs(ratio) > 0.01:
@@ -1151,20 +1169,10 @@ class Partition(LucteriosModel):
                 value += currency_round(calldetail.price)
         return value
 
-    @property
-    def total_callfunds(self):
-        return format_devise(self.get_callfunds(), 5)
-
     def get_total_current_regularization(self):
+        if self.id is None:
+            return None
         return currency_round(self.get_callfunds() - self.get_ventilated())
-
-    @property
-    def total_current_regularization(self):
-        return format_devise(self.get_total_current_regularization(), 5)
-
-    @property
-    def ratio(self):
-        return "%.1f %%" % self.get_ratio()
 
     class Meta(object):
         verbose_name = _("division")
@@ -1215,19 +1223,20 @@ class RecoverableLoadRatio(LucteriosModel):
     code = models.CharField(_('account'), max_length=50)
     ratio = models.DecimalField(_('ratio'), max_digits=4, decimal_places=0, default=100, validators=[MinValueValidator(1.0), MaxValueValidator(100.0)])
 
+    code_txt = LucteriosVirtualField(verbose_name=_('account'), compute_from="get_code")
+
     def __str__(self):
         return self.code
 
     @classmethod
     def get_default_fields(cls):
-        return [(_('account'), "code_txt"), "ratio"]
+        return ["code_txt", "ratio"]
 
     @classmethod
     def get_edit_fields(cls):
         return ["code", "ratio"]
 
-    @property
-    def code_txt(self):
+    def get_code(self):
         chart = ChartsAccount.get_chart_account(self.code)
         return six.text_type(chart)
 
@@ -1241,8 +1250,7 @@ class RecoverableLoadRatio(LucteriosModel):
 class PartitionExceptional(Partition):
     @classmethod
     def get_default_fields(cls):
-        return ["set", (_("ratio"), 'ratio'), (_('total call for funds'), 'total_callfunds'),
-                (_('ventilated'), 'ventilated_txt'), (_('estimated regularization'), 'total_current_regularization')]
+        return ["set", 'ratio', 'total_callfunds', 'ventilated', 'total_current_regularization']
 
     def set_context(self, xfer):
         if xfer is not None:
@@ -1265,12 +1273,14 @@ class PropertyLot(LucteriosModel):
     owner = models.ForeignKey(
         Owner, verbose_name=_('owner'), null=False, db_index=True, on_delete=models.CASCADE)
 
+    ratio = LucteriosVirtualField(verbose_name=_("ratio"), compute_from='get_ratio', format_string='N1;{0} %')
+
     def __str__(self):
         return "[%s] %s" % (self.num, self.description)
 
     @classmethod
     def get_default_fields(cls):
-        return ["num", "value", (_("ratio"), 'ratio'), "description", "owner"]
+        return ["num", "value", 'ratio', "description", "owner"]
 
     @classmethod
     def get_edit_fields(cls):
@@ -1290,10 +1300,6 @@ class PropertyLot(LucteriosModel):
             return 0.0
         else:
             return 100.0 * float(self.value) / float(total)
-
-    @property
-    def ratio(self):
-        return "%.1f %%" % self.get_ratio()
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         LucteriosModel.save(self, force_insert=force_insert, force_update=force_update, using=using, update_fields=update_fields)
@@ -1412,7 +1418,7 @@ class CallFunds(LucteriosModel):
 
     @classmethod
     def get_default_fields(cls):
-        return ["num", "date", "owner", "comment", (_('total'), 'total'), (_('rest to pay'), 'supporting.total_rest_topay')]
+        return ["num", "date", "owner", "comment", (_('total'), 'total'), 'supporting.total_rest_topay']
 
     @classmethod
     def get_edit_fields(cls):
@@ -1549,7 +1555,7 @@ class CallDetail(LucteriosModel):
 
     @classmethod
     def get_default_fields(cls):
-        return [(_('type of call'), 'type_call_ex'), "set", "designation", (_('total'), 'total_amount'), (_('tantime sum'), 'set.total_part'), (_('tantime'), 'owner_part'), (_('amount'), 'price_txt')]
+        return [(_('type of call'), 'type_call_ex'), "set", "designation", (_('total'), 'total_amount'), 'set.total_part', (_('tantime'), 'owner_part'), (_('amount'), 'price_txt')]
 
     @classmethod
     def get_edit_fields(cls):
@@ -1607,6 +1613,8 @@ class Expense(Supporting):
                              choices=((0, _('building')), (1, _('valid')), (2, _('ended'))), null=False, default=0, db_index=True)
     entries = models.ManyToManyField(EntryAccount, verbose_name=_('entries'))
 
+    total = LucteriosVirtualField(verbose_name=_('total'), compute_from='get_total', format_string=lambda: format_with_devise(5))
+
     def __str__(self):
         if self.expensetype == 0:
             typetxt = _('expense')
@@ -1630,7 +1638,7 @@ class Expense(Supporting):
 
     @classmethod
     def get_show_fields(cls):
-        return ["third", ("num", "date"), "expensetype", "expensedetail_set", "comment", ("status", (_('total'), 'total'))]
+        return ["third", ("num", "date"), "expensetype", "expensedetail_set", "comment", ("status", 'total')]
 
     def get_total(self):
         val = 0
@@ -1660,10 +1668,6 @@ class Expense(Supporting):
         if self.status != 0:
             return _('"%s" cannot be deleted!') % six.text_type(self)
         return ''
-
-    @property
-    def total(self):
-        return format_devise(self.get_total(), 5)
 
     def generate_revenue_entry(self, is_asset, fiscal_year):
         for detail in self.expensedetail_set.all():
@@ -1750,36 +1754,34 @@ class ExpenseDetail(LucteriosModel):
     set = models.ForeignKey(Set, verbose_name=_('set'), null=False, db_index=True, on_delete=models.PROTECT)
     designation = models.TextField(verbose_name=_('designation'))
     expense_account = models.CharField(verbose_name=_('account'), max_length=50)
-    price = models.DecimalField(verbose_name=_('price'), max_digits=10, decimal_places=3, default=0.0, validators=[
-        MinValueValidator(0.0), MaxValueValidator(9999999.999)])
+    price = LucteriosDecimalField(verbose_name=_('price'), max_digits=10, decimal_places=3, default=0.0, validators=[
+        MinValueValidator(0.0), MaxValueValidator(9999999.999)], format_string=lambda: format_with_devise(5))
     entry = models.ForeignKey(EntryAccount, verbose_name=_('entry'), null=True, on_delete=models.PROTECT)
+
+    ratio_txt = LucteriosVirtualField(verbose_name=_('ratio'), compute_from='get_ratio', format_string="N1;{0} %")
+
+    # for legacy
+    price_txt = LucteriosVirtualField(verbose_name=_('price'), compute_from=lambda item: item.price, format_string=lambda: format_with_devise(5))
 
     def __str__(self):
         return "%s: %s" % (self.expense, self.designation)
 
     @classmethod
     def get_default_fields(cls):
-        return ["set", "designation", "expense_account", (_('price'), 'price_txt'), (_('ratio'), 'ratio_txt')]
+        return ["set", "designation", "expense_account", 'price', 'ratio_txt']
 
     @classmethod
     def get_edit_fields(cls):
         return ["set", "designation", "expense_account", "price"]
 
-    @property
-    def price_txt(self):
-        return format_devise(self.price, 5)
-
-    @property
-    def ratio_txt(self):
-        ratio = ""
+    def get_ratio(self):
+        ratio = []
         if self.expense.status == 0:
             for part in self.set.partition_set.exclude(value=0.0):
-                ratio += six.text_type(part)
-                ratio += "{[br/]}"
+                ratio.append({'value': part.ratio, 'format': "%s : {0}" % part.owner})
         else:
             for part in self.expenseratio_set.all():
-                ratio += six.text_type(part)
-                ratio += "{[br/]}"
+                ratio.append({'value': part.ratio, 'format': "%s : {0}" % part.owner})
         return ratio
 
     def generate_ratio(self, is_asset):
@@ -1815,8 +1817,12 @@ class ExpenseRatio(LucteriosModel):
     value = models.DecimalField(_('value'), max_digits=7, decimal_places=2, default=0.0, validators=[
         MinValueValidator(0.0), MaxValueValidator(1000.00)])
 
+    @property
+    def ratio(self):
+        return 100.0 * float(abs(self.value)) / float(self.expensedetail.price)
+
     def __str__(self):
-        return "%s : %.1f %%" % (six.text_type(self.owner.third), 100.0 * float(abs(self.value)) / float(self.expensedetail.price))
+        return "%s : %.1f %%" % (six.text_type(self.owner.third), self.ratio)
 
     class Meta(object):
         verbose_name = _('detail of expense')

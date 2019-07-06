@@ -82,7 +82,7 @@ class ExpenseTest(PaymentTest):
         self.assertEqual(len(self.json_actions), 2)
         self.assert_json_equal('LABELFORM', 'third', None)
         self.assert_json_equal('LABELFORM', 'info', ["aucun tiers sélectionné"])
-        self.assert_grid_equal('expensedetail', {"set": "catégorie de charges", "designation": "désignation", "expense_account": "compte", "price_txt": "prix", "ratio_txt": "ratio"}, 0)  # nb=5
+        self.assert_grid_equal('expensedetail', {"set": "catégorie de charges", "designation": "désignation", "expense_account": "compte", "price": "prix", "ratio_txt": "ratio"}, 0)  # nb=5
         self.assert_count_equal('#expensedetail/actions', 4)
         self.assert_json_equal('LABELFORM', 'status', 0)
         self.assertEqual(len(self.json_actions), 2)
@@ -142,10 +142,13 @@ class ExpenseTest(PaymentTest):
         self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
         self.assert_count_equal('expensedetail', 2)
         self.assert_json_equal('', 'expensedetail/@0/set', '[1] AAA')
-        self.assert_json_equal('', 'expensedetail/@0/ratio_txt', 'Minimum : 45.0 %{[br/]}Dalton William : 35.0 %{[br/]}Dalton Joe : 20.0 %{[br/]}')
+        self.assert_json_equal('', 'expensedetail/@0/ratio_txt', [{'value': 45.0, 'format': 'Minimum : {0}'},
+                                                                  {'value': 35.0, 'format': 'Dalton William : {0}'},
+                                                                  {'value': 20.0, 'format': 'Dalton Joe : {0}'}])
         self.assert_json_equal('', 'expensedetail/@1/set', '[2] BBB')
-        self.assert_json_equal('', 'expensedetail/@1/ratio_txt', 'Minimum : 75.0 %{[br/]}Dalton Joe : 25.0 %{[br/]}')
-        self.assert_json_equal('LABELFORM', 'total', '180.00€')
+        self.assert_json_equal('', 'expensedetail/@1/ratio_txt', [{'value': 75.0, 'format': 'Minimum : {0}'},
+                                                                  {'value': 25.0, 'format': 'Dalton Joe : {0}'}])
+        self.assert_json_equal('LABELFORM', 'total', 180.00)
         self.assert_json_equal('LABELFORM', 'status', 0)
         self.assertEqual(len(self.json_actions), 3)
         self.assertEqual(self.json_actions[0]["action"], 'expenseTransition')
@@ -209,10 +212,13 @@ class ExpenseTest(PaymentTest):
         self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
         self.assert_count_equal('expensedetail', 2)
         self.assert_json_equal('', 'expensedetail/@0/set', '[1] AAA')
-        self.assert_json_equal('', 'expensedetail/@0/ratio_txt', 'Minimum : 45.0 %{[br/]}Dalton William : 35.0 %{[br/]}Dalton Joe : 20.0 %{[br/]}')
+        self.assert_json_equal('', 'expensedetail/@0/ratio_txt', [{'value': 45.0, 'format': 'Minimum : {0}'},
+                                                                  {'value': 35.0, 'format': 'Dalton William : {0}'},
+                                                                  {'value': 20.0, 'format': 'Dalton Joe : {0}'}])
         self.assert_json_equal('', 'expensedetail/@1/set', '[2] BBB')
-        self.assert_json_equal('', 'expensedetail/@1/ratio_txt', 'Minimum : 75.0 %{[br/]}Dalton Joe : 25.0 %{[br/]}')
-        self.assert_json_equal('LABELFORM', 'total', '180.00€')
+        self.assert_json_equal('', 'expensedetail/@1/ratio_txt', [{'value': 75.0, 'format': 'Minimum : {0}'},
+                                                                  {'value': 25.0, 'format': 'Dalton Joe : {0}'}])
+        self.assert_json_equal('LABELFORM', 'total', 180.00)
         self.assert_json_equal('LABELFORM', 'status', 1)
         self.assertEqual(len(self.json_actions), 3)
         self.assertEqual(self.json_actions[0]["action"], 'expenseTransition')
@@ -238,7 +244,7 @@ class ExpenseTest(PaymentTest):
         self.assert_observer('core.custom', 'diacamma.condominium', 'expenseList')
         self.assert_count_equal('expense', 1)
         self.assert_json_equal('', 'expense/@0/third', "Minimum")
-        self.assert_json_equal('', 'expense/@0/total', "180.00€")
+        self.assert_json_equal('', 'expense/@0/total', 180.00)
 
         self.factory.xfer = ExpenseTransition()
         self.calljson('/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 4, "TRANSITION": 'close'}, False)
@@ -265,7 +271,7 @@ class ExpenseTest(PaymentTest):
         self.calljson('/diacamma.condominium/expenseShow', {'expense': 4}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
         self.assert_count_equal('expensedetail', 2)
-        self.assert_json_equal('LABELFORM', 'total', '180.00€')
+        self.assert_json_equal('LABELFORM', 'total', 180.00)
         self.assert_json_equal('LABELFORM', 'status', 2)
         self.assertEqual(len(self.json_actions), 1)
 
@@ -320,8 +326,10 @@ class ExpenseTest(PaymentTest):
         self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
         self.assert_count_equal('expensedetail', 1)
         self.assert_json_equal('', 'expensedetail/@0/set', '[3] CCC')
-        self.assert_json_equal('', 'expensedetail/@0/ratio_txt', 'Minimum : 45.0 %{[br/]}Dalton William : 35.0 %{[br/]}Dalton Joe : 20.0 %{[br/]}')
-        self.assert_json_equal('LABELFORM', 'total', '200.00€')
+        self.assert_json_equal('', 'expensedetail/@0/ratio_txt', [{'value': 45.0, 'format': 'Minimum : {0}'},
+                                                                  {'value': 35.0, 'format': 'Dalton William : {0}'},
+                                                                  {'value': 20.0, 'format': 'Dalton Joe : {0}'}])
+        self.assert_json_equal('LABELFORM', 'total', 200.00)
         self.assert_json_equal('LABELFORM', 'status', 1)
 
         self.factory.xfer = ExpenseTransition()
@@ -371,7 +379,7 @@ class ExpenseTest(PaymentTest):
         self.calljson('/diacamma.condominium/expenseShow', {'expense': 4}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
         self.assert_count_equal('expensedetail', 2)
-        self.assert_json_equal('LABELFORM', 'total', '180.00€')
+        self.assert_json_equal('LABELFORM', 'total', 180.00)
         self.assert_json_equal('LABELFORM', 'expensetype', 0)
         self.assertEqual(len(self.json_actions), 3)
 
@@ -463,7 +471,7 @@ class ExpenseTest(PaymentTest):
         self.calljson('/diacamma.condominium/expenseShow', {'expense': 4}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
         self.assert_count_equal('expensedetail', 2)
-        self.assert_json_equal('LABELFORM', 'total', '180.00€')
+        self.assert_json_equal('LABELFORM', 'total', 180.00)
         self.assert_json_equal('LABELFORM', 'expensetype', 1)
         self.assertEqual(len(self.json_actions), 3)
 
@@ -598,13 +606,13 @@ class ExpenseTest(PaymentTest):
         self.factory.xfer = ExpenseShow()
         self.calljson('/diacamma.condominium/expenseShow', {'expense': 4}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
-        self.assert_json_equal('LABELFORM', 'total', '150.00€')
+        self.assert_json_equal('LABELFORM', 'total', 150.00)
         self.assert_json_equal('LABELFORM', 'total_rest_topay', 50.00)
 
         self.factory.xfer = ExpenseShow()
         self.calljson('/diacamma.condominium/expenseShow', {'expense': 5}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
-        self.assert_json_equal('LABELFORM', 'total', '30.00€')
+        self.assert_json_equal('LABELFORM', 'total', 30.00)
         self.assert_json_equal('LABELFORM', 'total_rest_topay', 10.00)
 
     def test_payoff_multi_bydate(self):
@@ -671,13 +679,13 @@ class ExpenseTest(PaymentTest):
         self.factory.xfer = ExpenseShow()
         self.calljson('/diacamma.condominium/expenseShow', {'expense': 4}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
-        self.assert_json_equal('LABELFORM', 'total', '150.00€')
+        self.assert_json_equal('LABELFORM', 'total', 150.00)
         self.assert_json_equal('LABELFORM', 'total_rest_topay', 60.00)
 
         self.factory.xfer = ExpenseShow()
         self.calljson('/diacamma.condominium/expenseShow', {'expense': 5}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
-        self.assert_json_equal('LABELFORM', 'total', '30.00€')
+        self.assert_json_equal('LABELFORM', 'total', 30.00)
         self.assert_json_equal('LABELFORM', 'total_rest_topay', 0.00)
 
     def test_reedit_fail1(self):
@@ -831,7 +839,7 @@ class ExpenseBelgiumTest(PaymentTest):
         self.assertEqual(len(self.json_actions), 2)
         self.assert_json_equal('LABELFORM', 'third', None)
         self.assert_json_equal('LABELFORM', 'info', ["aucun tiers sélectionné"])
-        self.assert_grid_equal('expensedetail', {"set": "catégorie de charges", "designation": "désignation", "expense_account": "compte", "price_txt": "prix", "ratio_txt": "ratio"}, 0)  # nb=5
+        self.assert_grid_equal('expensedetail', {"set": "catégorie de charges", "designation": "désignation", "expense_account": "compte", "price": "prix", "ratio_txt": "ratio"}, 0)  # nb=5
         self.assert_count_equal('#expensedetail/actions', 4)
         self.assert_json_equal('LABELFORM', 'status', 0)
         self.assertEqual(len(self.json_actions), 2)
@@ -892,10 +900,13 @@ class ExpenseBelgiumTest(PaymentTest):
         self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
         self.assert_count_equal('expensedetail', 2)
         self.assert_json_equal('', 'expensedetail/@0/set', '[1] AAA')
-        self.assert_json_equal('', 'expensedetail/@0/ratio_txt', 'Minimum : 45.0 %{[br/]}Dalton William : 35.0 %{[br/]}Dalton Joe : 20.0 %{[br/]}')
+        self.assert_json_equal('', 'expensedetail/@0/ratio_txt', [{'value': 45.0, 'format': 'Minimum : {0}'},
+                                                                  {'value': 35.0, 'format': 'Dalton William : {0}'},
+                                                                  {'value': 20.0, 'format': 'Dalton Joe : {0}'}])
         self.assert_json_equal('', 'expensedetail/@1/set', '[2] BBB')
-        self.assert_json_equal('', 'expensedetail/@1/ratio_txt', 'Minimum : 75.0 %{[br/]}Dalton Joe : 25.0 %{[br/]}')
-        self.assert_json_equal('LABELFORM', 'total', '180.00€')
+        self.assert_json_equal('', 'expensedetail/@1/ratio_txt', [{'value': 75.0, 'format': 'Minimum : {0}'},
+                                                                  {'value': 25.0, 'format': 'Dalton Joe : {0}'}])
+        self.assert_json_equal('LABELFORM', 'total', 180.00)
         self.assert_json_equal('LINK', 'third', 'Minimum')
         self.assert_json_equal('LABELFORM', 'status', 0)
         self.assert_json_equal('LABELFORM', 'info', [])
@@ -966,10 +977,13 @@ class ExpenseBelgiumTest(PaymentTest):
         self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
         self.assert_count_equal('expensedetail', 2)
         self.assert_json_equal('', 'expensedetail/@0/set', '[1] AAA')
-        self.assert_json_equal('', 'expensedetail/@0/ratio_txt', 'Minimum : 45.0 %{[br/]}Dalton William : 35.0 %{[br/]}Dalton Joe : 20.0 %{[br/]}')
+        self.assert_json_equal('', 'expensedetail/@0/ratio_txt', [{'value': 45.0, 'format': 'Minimum : {0}'},
+                                                                  {'value': 35.0, 'format': 'Dalton William : {0}'},
+                                                                  {'value': 20.0, 'format': 'Dalton Joe : {0}'}])
         self.assert_json_equal('', 'expensedetail/@1/set', '[2] BBB')
-        self.assert_json_equal('', 'expensedetail/@1/ratio_txt', 'Minimum : 75.0 %{[br/]}Dalton Joe : 25.0 %{[br/]}')
-        self.assert_json_equal('LABELFORM', 'total', '180.00€')
+        self.assert_json_equal('', 'expensedetail/@1/ratio_txt', [{'value': 75.0, 'format': 'Minimum : {0}'},
+                                                                  {'value': 25.0, 'format': 'Dalton Joe : {0}'}])
+        self.assert_json_equal('LABELFORM', 'total', 180.00)
         self.assert_json_equal('LABELFORM', 'status', 1)
         self.assertEqual(len(self.json_actions), 3)
         self.assertEqual(self.json_actions[0]["action"], 'expenseTransition')
@@ -995,7 +1009,7 @@ class ExpenseBelgiumTest(PaymentTest):
         self.assert_observer('core.custom', 'diacamma.condominium', 'expenseList')
         self.assert_count_equal('expense', 1)
         self.assert_json_equal('', 'expense/@0/third', "Minimum")
-        self.assert_json_equal('', 'expense/@0/total', "180.00€")
+        self.assert_json_equal('', 'expense/@0/total', 180.00)
 
         self.factory.xfer = ExpenseTransition()
         self.calljson('/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 4, "TRANSITION": 'close'}, False)
@@ -1022,7 +1036,7 @@ class ExpenseBelgiumTest(PaymentTest):
         self.calljson('/diacamma.condominium/expenseShow', {'expense': 4}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
         self.assert_count_equal('expensedetail', 2)
-        self.assert_json_equal('LABELFORM', 'total', '180.00€')
+        self.assert_json_equal('LABELFORM', 'total', 180.00)
         self.assert_json_equal('LABELFORM', 'status', 2)
         self.assertEqual(len(self.json_actions), 1)
 
@@ -1078,8 +1092,10 @@ class ExpenseBelgiumTest(PaymentTest):
         self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
         self.assert_count_equal('expensedetail', 1)
         self.assert_json_equal('', 'expensedetail/@0/set', '[3] CCC')
-        self.assert_json_equal('', 'expensedetail/@0/ratio_txt', 'Minimum : 45.0 %{[br/]}Dalton William : 35.0 %{[br/]}Dalton Joe : 20.0 %{[br/]}')
-        self.assert_json_equal('LABELFORM', 'total', '200.00€')
+        self.assert_json_equal('', 'expensedetail/@0/ratio_txt', [{'value': 45.0, 'format': 'Minimum : {0}'},
+                                                                  {'value': 35.0, 'format': 'Dalton William : {0}'},
+                                                                  {'value': 20.0, 'format': 'Dalton Joe : {0}'}])
+        self.assert_json_equal('LABELFORM', 'total', 200.00)
         self.assert_json_equal('LABELFORM', 'status', 1)
 
         self.factory.xfer = ExpenseTransition()
@@ -1193,12 +1209,13 @@ class ExpenseTestOldAccounting(LucteriosTest):
         self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
         self.assert_count_equal('expensedetail', 2)
         self.assert_json_equal('', 'expensedetail/@0/set', '[1] AAA')
-        self.assert_json_equal('', 'expensedetail/@0/ratio_txt',
-                               'Minimum : 45.0 %{[br/]}Dalton William : 35.0 %{[br/]}Dalton Joe : 20.0 %{[br/]}')
+        self.assert_json_equal('', 'expensedetail/@0/ratio_txt', [{'value': 45.0, 'format': 'Minimum : {0}'},
+                                                                  {'value': 35.0, 'format': 'Dalton William : {0}'},
+                                                                  {'value': 20.0, 'format': 'Dalton Joe : {0}'}])
         self.assert_json_equal('', 'expensedetail/@1/set', '[2] BBB')
-        self.assert_json_equal('', 'expensedetail/@1/ratio_txt',
-                               'Minimum : 75.0 %{[br/]}Dalton Joe : 25.0 %{[br/]}')
-        self.assert_json_equal('LABELFORM', 'total', '180.00€')
+        self.assert_json_equal('', 'expensedetail/@1/ratio_txt', [{'value': 75.0, 'format': 'Minimum : {0}'},
+                                                                  {'value': 25.0, 'format': 'Dalton Joe : {0}'}])
+        self.assert_json_equal('LABELFORM', 'total', 180.00)
         self.assert_json_equal('LABELFORM', 'status', 1)
         self.assertEqual(len(self.json_actions), 3)
         self.assertEqual(self.json_actions[0]["action"], 'expenseTransition')
@@ -1224,7 +1241,7 @@ class ExpenseTestOldAccounting(LucteriosTest):
         self.assert_observer('core.custom', 'diacamma.condominium', 'expenseList')
         self.assert_count_equal('expense', 1)
         self.assert_json_equal('', 'expense/@0/third', "Minimum")
-        self.assert_json_equal('', 'expense/@0/total', "180.00€")
+        self.assert_json_equal('', 'expense/@0/total', 180.00)
 
         self.factory.xfer = ExpenseTransition()
         self.calljson('/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 4, "TRANSITION": 'close'}, False)
@@ -1251,7 +1268,7 @@ class ExpenseTestOldAccounting(LucteriosTest):
         self.calljson('/diacamma.condominium/expenseShow', {'expense': 4}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
         self.assert_count_equal('expensedetail', 2)
-        self.assert_json_equal('LABELFORM', 'total', '180.00€')
+        self.assert_json_equal('LABELFORM', 'total', 180.00)
         self.assert_json_equal('LABELFORM', 'status', 2)
         self.assertEqual(len(self.json_actions), 1)
 
@@ -1315,8 +1332,10 @@ class ExpenseTestOldAccounting(LucteriosTest):
         self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
         self.assert_count_equal('expensedetail', 1)
         self.assert_json_equal('', 'expensedetail/@0/set', '[3] CCC')
-        self.assert_json_equal('', 'expensedetail/@0/ratio_txt', 'Minimum : 45.0 %{[br/]}Dalton William : 35.0 %{[br/]}Dalton Joe : 20.0 %{[br/]}')
-        self.assert_json_equal('LABELFORM', 'total', '200.00€')
+        self.assert_json_equal('', 'expensedetail/@0/ratio_txt', [{'value': 45.0, 'format': 'Minimum : {0}'},
+                                                                  {'value': 35.0, 'format': 'Dalton William : {0}'},
+                                                                  {'value': 20.0, 'format': 'Dalton Joe : {0}'}])
+        self.assert_json_equal('LABELFORM', 'total', 200.00)
         self.assert_json_equal('LABELFORM', 'status', 1)
 
         self.factory.xfer = ExpenseTransition()
@@ -1362,7 +1381,7 @@ class ExpenseTestOldAccounting(LucteriosTest):
         self.calljson('/diacamma.condominium/expenseShow', {'expense': 4}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
         self.assert_count_equal('expensedetail', 2)
-        self.assert_json_equal('LABELFORM', 'total', '180.00€')
+        self.assert_json_equal('LABELFORM', 'total', 180.00)
         self.assertEqual(len(self.json_actions), 3)
 
         self.factory.xfer = ThirdShow()

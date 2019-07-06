@@ -206,10 +206,10 @@ class SetShow(XferShowEditor):
         XferShowEditor.fillresponse(self)
         grid_set = self.get_components('partition')
         if grid_set is not None:
-            grid_set.delete_header('recovery_load_txt')
+            grid_set.delete_header('recovery_load')
         grid_set = self.get_components('partitionfill')
         if grid_set is not None:
-            grid_set.delete_header('recovery_load_txt')
+            grid_set.delete_header('recovery_load')
         self.add_action(ClassCategoryBudget.get_action(), pos_act=0, close=CLOSE_NO)
 
 
