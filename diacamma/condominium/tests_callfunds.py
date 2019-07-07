@@ -24,17 +24,19 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import unicode_literals
 from shutil import rmtree
-from base64 import b64decode
 
 from lucterios.framework.test import LucteriosTest
 from lucterios.framework.filetools import get_user_dir
+from lucterios.framework.models import LucteriosScheduler
 from lucterios.CORE.models import Parameter
 from lucterios.CORE.parameters import Params
 
+from lucterios.mailing.test_tools import decode_b64
+from lucterios.mailing.models import Message
+
 from diacamma.accounting.models import ChartsAccount, FiscalYear, Budget
 from diacamma.accounting.views_entries import EntryAccountList
-from diacamma.accounting.test_tools import initial_thirds_fr, default_compta_fr, default_costaccounting, initial_thirds_be,\
-    default_compta_be
+from diacamma.accounting.test_tools import initial_thirds_fr, default_compta_fr, default_costaccounting, initial_thirds_be, default_compta_be
 from diacamma.payoff.views import PayoffAddModify, PayableEmail
 from diacamma.payoff.test_tools import default_bankaccount_fr, default_bankaccount_be
 from diacamma.condominium.views_callfunds import CallFundsList, CallFundsAddModify, CallFundsDel, \
@@ -42,9 +44,6 @@ from diacamma.condominium.views_callfunds import CallFundsList, CallFundsAddModi
     CallFundsPayableEmail
 from diacamma.condominium.test_tools import default_setowner_fr, old_accounting, default_setowner_be, add_test_callfunds
 from diacamma.condominium.models import Set
-from lucterios.mailing.test_tools import decode_b64
-from lucterios.mailing.models import Message
-from lucterios.framework.models import LucteriosScheduler
 
 
 class CallFundsTest(LucteriosTest):
@@ -63,6 +62,8 @@ class CallFundsTest(LucteriosTest):
         self.calljson('/diacamma.condominium/callFundsList', {}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'callFundsList')
         self.assert_grid_equal('callfunds', {"num": "N°", "date": "date", "owner": "propriétaire", "comment": "commentaire", "total": "total"}, 0)
+        self.assert_json_equal('', '#callfunds/headers/@4/@0', 'total')
+        self.assert_json_equal('', '#callfunds/headers/@4/@2', 'C2EUR')
 
         self.factory.xfer = CallFundsAddModify()
         self.calljson('/diacamma.condominium/callFundsAddModify', {}, False)
@@ -102,7 +103,9 @@ class CallFundsTest(LucteriosTest):
         self.assert_observer('core.custom', 'diacamma.condominium', 'callFundsShow')
         self.assert_count_equal('', 8)
         self.assertEqual(len(self.json_actions), 2)
-        self.assert_grid_equal('calldetail', {"type_call_ex": "type d'appel", "set": "catégorie de charges", "designation": "désignation", "set.total_part": "somme des tantièmes", "price_txt": "montant", }, 0)
+        self.assert_grid_equal('calldetail', {"type_call_ex": "type d'appel", "set": "catégorie de charges", "designation": "désignation", "set.total_part": "somme des tantièmes", "price": "montant", }, 0)
+        self.assert_json_equal('', '#calldetail/headers/@4/@0', 'price')
+        self.assert_json_equal('', '#calldetail/headers/@4/@2', 'C2EUR')
         self.assert_count_equal('#calldetail/actions', 3)
 
         self.factory.xfer = CallDetailAddModify()
@@ -134,11 +137,11 @@ class CallFundsTest(LucteriosTest):
         self.assert_count_equal('calldetail', 2)
         self.assert_json_equal('', 'calldetail/@0/type_call_ex', 'charge courante')
         self.assert_json_equal('', 'calldetail/@0/set', '[1] AAA')
-        self.assert_json_equal('', 'calldetail/@0/price_txt', '250.00€')
+        self.assert_json_equal('', 'calldetail/@0/price', 250.00)
         self.assert_json_equal('', 'calldetail/@1/type_call_ex', 'charge courante')
         self.assert_json_equal('', 'calldetail/@1/set', '[2] BBB')
-        self.assert_json_equal('', 'calldetail/@1/price_txt', '25.00€')
-        self.assert_json_equal('LABELFORM', 'total', '275.00€')
+        self.assert_json_equal('', 'calldetail/@1/price', 25.00)
+        self.assert_json_equal('LABELFORM', 'total', 275.00)
 
     def test_add_default_current(self):
         self.factory.xfer = CallFundsList()
@@ -159,10 +162,10 @@ class CallFundsTest(LucteriosTest):
         self.assert_json_equal('', 'callfunds/@1/date', "2015-04-01")
         self.assert_json_equal('', 'callfunds/@2/date', "2015-07-01")
         self.assert_json_equal('', 'callfunds/@3/date', "2015-10-01")
-        self.assert_json_equal('', 'callfunds/@0/total', "275.00€")
-        self.assert_json_equal('', 'callfunds/@1/total', "275.00€")
-        self.assert_json_equal('', 'callfunds/@2/total', "275.00€")
-        self.assert_json_equal('', 'callfunds/@3/total', "275.00€")
+        self.assert_json_equal('', 'callfunds/@0/total', 275.00)
+        self.assert_json_equal('', 'callfunds/@1/total', 275.00)
+        self.assert_json_equal('', 'callfunds/@2/total', 275.00)
+        self.assert_json_equal('', 'callfunds/@3/total', 275.00)
         self.assertEqual(len(self.json_actions), 1)
 
     def test_add_default_current_monthly(self):
@@ -195,18 +198,18 @@ class CallFundsTest(LucteriosTest):
         self.assert_json_equal('', 'callfunds/@9/date', "2015-10-01")
         self.assert_json_equal('', 'callfunds/@10/date', "2015-11-01")
         self.assert_json_equal('', 'callfunds/@11/date', "2015-12-01")
-        self.assert_json_equal('', 'callfunds/@0/total', "91.66€")
-        self.assert_json_equal('', 'callfunds/@1/total', "91.66€")
-        self.assert_json_equal('', 'callfunds/@2/total', "91.66€")
-        self.assert_json_equal('', 'callfunds/@3/total', "91.66€")
-        self.assert_json_equal('', 'callfunds/@4/total', "91.66€")
-        self.assert_json_equal('', 'callfunds/@5/total', "91.66€")
-        self.assert_json_equal('', 'callfunds/@6/total', "91.66€")
-        self.assert_json_equal('', 'callfunds/@7/total', "91.66€")
-        self.assert_json_equal('', 'callfunds/@8/total', "91.66€")
-        self.assert_json_equal('', 'callfunds/@9/total', "91.66€")
-        self.assert_json_equal('', 'callfunds/@10/total', "91.66€")
-        self.assert_json_equal('', 'callfunds/@11/total', "91.66€")
+        self.assert_json_equal('', 'callfunds/@0/total', 91.66)
+        self.assert_json_equal('', 'callfunds/@1/total', 91.66)
+        self.assert_json_equal('', 'callfunds/@2/total', 91.66)
+        self.assert_json_equal('', 'callfunds/@3/total', 91.66)
+        self.assert_json_equal('', 'callfunds/@4/total', 91.66)
+        self.assert_json_equal('', 'callfunds/@5/total', 91.66)
+        self.assert_json_equal('', 'callfunds/@6/total', 91.66)
+        self.assert_json_equal('', 'callfunds/@7/total', 91.66)
+        self.assert_json_equal('', 'callfunds/@8/total', 91.66)
+        self.assert_json_equal('', 'callfunds/@9/total', 91.66)
+        self.assert_json_equal('', 'callfunds/@10/total', 91.66)
+        self.assert_json_equal('', 'callfunds/@11/total', 91.66)
         self.assertEqual(len(self.json_actions), 1)
 
     def test_valid_current(self):
@@ -250,17 +253,22 @@ class CallFundsTest(LucteriosTest):
         self.assertEqual(len(self.json_actions), 3)
         self.assert_count_equal('calldetail', 1)  # nb=6
         self.assert_count_equal('#calldetail/actions', 0)
+        self.assert_json_equal('', '#calldetail/headers/@3/@0', 'total_amount')
+        self.assert_json_equal('', '#calldetail/headers/@3/@2', 'C2EUR')
+        self.assert_json_equal('', '#calldetail/headers/@6/@0', 'price')
+        self.assert_json_equal('', '#calldetail/headers/@6/@2', 'C2EUR')
+
+        self.assert_json_equal('', 'calldetail/@0/type_call_ex', 'charge courante')
         self.assert_json_equal('', 'calldetail/@0/set', "[1] AAA")
         self.assert_json_equal('', 'calldetail/@0/designation', "set 1")
-        self.assert_json_equal('', 'calldetail/@0/total_amount', "250.00€")
+        self.assert_json_equal('', 'calldetail/@0/total_amount', 250.00)
         self.assert_json_equal('', 'calldetail/@0/set.total_part', "100")
         self.assert_json_equal('', 'calldetail/@0/owner_part', "35.00")
-        self.assert_json_equal('', 'calldetail/@0/price_txt', "87.50€")
-        self.assert_json_equal('', 'calldetail/@0/type_call_ex', 'charge courante')
+        self.assert_json_equal('', 'calldetail/@0/price', 87.50)
         self.assert_count_equal('payoff', 0)
         self.assert_count_equal('#payoff/actions', 3)
         self.assert_json_equal('LABELFORM', 'status', 1)
-        self.assert_json_equal('LABELFORM', 'total', '87.50€')
+        self.assert_json_equal('LABELFORM', 'total', 87.50)
 
         self.factory.xfer = CallFundsDel()
         self.calljson('/diacamma.condominium/callFundsDel', {'CONFIRME': 'YES', "callfunds": 3}, False)
@@ -279,11 +287,11 @@ class CallFundsTest(LucteriosTest):
         self.assert_observer('core.custom', 'diacamma.condominium', 'callFundsList')
         self.assert_count_equal('callfunds', 3)
         self.assert_json_equal('', 'callfunds/@0/owner', "Minimum")  # 250*45%+25*75%
-        self.assert_json_equal('', 'callfunds/@0/total', "131.25€")
+        self.assert_json_equal('', 'callfunds/@0/total', 131.25)
         self.assert_json_equal('', 'callfunds/@1/owner', "Dalton William")  # 250*35%+25*0%
-        self.assert_json_equal('', 'callfunds/@1/total', "87.50€")
+        self.assert_json_equal('', 'callfunds/@1/total', 87.50)
         self.assert_json_equal('', 'callfunds/@2/owner', "Dalton Joe")  # 250*20%+25*25%
-        self.assert_json_equal('', 'callfunds/@2/total', "56.25€")
+        self.assert_json_equal('', 'callfunds/@2/total', 56.25)
 
         self.factory.xfer = CallFundsPrint()
         self.calljson('/diacamma.condominium/callFundsPrint', {'callfunds': 3}, False)
@@ -390,11 +398,11 @@ class CallFundsTest(LucteriosTest):
         self.assert_observer('core.custom', 'diacamma.condominium', 'callFundsList')
         self.assert_count_equal('callfunds', 3)
         self.assert_json_equal('', 'callfunds/@0/owner', "Minimum")  # 250*45%
-        self.assert_json_equal('', 'callfunds/@0/total', "112.50€")
+        self.assert_json_equal('', 'callfunds/@0/total', 112.50)
         self.assert_json_equal('', 'callfunds/@1/owner', "Dalton William")  # 250*35%
-        self.assert_json_equal('', 'callfunds/@1/total', "87.50€")
+        self.assert_json_equal('', 'callfunds/@1/total', 87.50)
         self.assert_json_equal('', 'callfunds/@2/owner', "Dalton Joe")  # 250*20%
-        self.assert_json_equal('', 'callfunds/@2/total', "50.00€")
+        self.assert_json_equal('', 'callfunds/@2/total', 50.00)
 
         self.factory.xfer = EntryAccountList()
         self.calljson('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '-1', 'filter': '0'}, False)
@@ -468,11 +476,11 @@ class CallFundsTest(LucteriosTest):
         self.assert_observer('core.custom', 'diacamma.condominium', 'callFundsList')
         self.assert_count_equal('callfunds', 3)
         self.assert_json_equal('', 'callfunds/@0/owner', "Minimum")  # 100*45%
-        self.assert_json_equal('', 'callfunds/@0/total', "45.00€")
+        self.assert_json_equal('', 'callfunds/@0/total', 45.00)
         self.assert_json_equal('', 'callfunds/@1/owner', "Dalton William")  # 100*35%
-        self.assert_json_equal('', 'callfunds/@1/total', "35.00€")
+        self.assert_json_equal('', 'callfunds/@1/total', 35.00)
         self.assert_json_equal('', 'callfunds/@2/owner', "Dalton Joe")  # 100*20%
-        self.assert_json_equal('', 'callfunds/@2/total', "20.00€")
+        self.assert_json_equal('', 'callfunds/@2/total', 20.00)
 
         self.factory.xfer = EntryAccountList()
         self.calljson('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '-1', 'filter': '0'}, False)
@@ -546,11 +554,11 @@ class CallFundsTest(LucteriosTest):
         self.assert_observer('core.custom', 'diacamma.condominium', 'callFundsList')
         self.assert_count_equal('callfunds', 3)
         self.assert_json_equal('', 'callfunds/@0/owner', "Minimum")  # 100*45%
-        self.assert_json_equal('', 'callfunds/@0/total', "45.00€")
+        self.assert_json_equal('', 'callfunds/@0/total', 45.00)
         self.assert_json_equal('', 'callfunds/@1/owner', "Dalton William")  # 100*35%
-        self.assert_json_equal('', 'callfunds/@1/total', "35.00€")
+        self.assert_json_equal('', 'callfunds/@1/total', 35.00)
         self.assert_json_equal('', 'callfunds/@2/owner', "Dalton Joe")  # 100*20%
-        self.assert_json_equal('', 'callfunds/@2/total', "20.00€")
+        self.assert_json_equal('', 'callfunds/@2/total', 20.00)
         self.factory.xfer = EntryAccountList()
 
         self.calljson('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '-1', 'filter': '0'}, False)
@@ -624,43 +632,43 @@ class CallFundsTest(LucteriosTest):
         self.assert_count_equal('#calldetail/actions', 0)
         self.assert_json_equal('', 'calldetail/@0/set', "[1] AAA")
         self.assert_json_equal('', 'calldetail/@0/designation', "set 1")
-        self.assert_json_equal('', 'calldetail/@0/total_amount', "250.00€")
+        self.assert_json_equal('', 'calldetail/@0/total_amount', 250.00)
         self.assert_json_equal('', 'calldetail/@0/set.total_part', "100")
         self.assert_json_equal('', 'calldetail/@0/owner_part', "35.00")
-        self.assert_json_equal('', 'calldetail/@0/price_txt', "87.50€")
+        self.assert_json_equal('', 'calldetail/@0/price', 87.50)
         self.assert_json_equal('', 'calldetail/@0/type_call_ex', 'charge courante')
 
         self.assert_json_equal('', 'calldetail/@1/set', "[3] CCC")
         self.assert_json_equal('', 'calldetail/@1/designation', "set 3")
-        self.assert_json_equal('', 'calldetail/@1/total_amount', "100.00€")
+        self.assert_json_equal('', 'calldetail/@1/total_amount', 100.00)
         self.assert_json_equal('', 'calldetail/@1/set.total_part', "100")
         self.assert_json_equal('', 'calldetail/@1/owner_part', "35.00")
-        self.assert_json_equal('', 'calldetail/@1/price_txt', "35.00€")
+        self.assert_json_equal('', 'calldetail/@1/price', 35.00)
         self.assert_json_equal('', 'calldetail/@1/type_call_ex', 'charge exceptionnelle')
 
         self.assert_json_equal('', 'calldetail/@2/set', "[1] AAA")
         self.assert_json_equal('', 'calldetail/@2/designation', "font")
-        self.assert_json_equal('', 'calldetail/@2/total_amount', "150.00€")
+        self.assert_json_equal('', 'calldetail/@2/total_amount', 150.00)
         self.assert_json_equal('', 'calldetail/@2/set.total_part', "100")
         self.assert_json_equal('', 'calldetail/@2/owner_part', "35.00")
-        self.assert_json_equal('', 'calldetail/@2/price_txt', "52.50€")
+        self.assert_json_equal('', 'calldetail/@2/price', 52.50)
         self.assert_json_equal('', 'calldetail/@2/type_call_ex', 'fond travaux')
 
         self.assert_count_equal('payoff', 0)
         self.assert_count_equal('#payoff/actions', 3)
         self.assert_json_equal('LABELFORM', 'status', 1)
-        self.assert_json_equal('LABELFORM', 'total', '175.00€')
+        self.assert_json_equal('LABELFORM', 'total', 175.00)
 
         self.factory.xfer = CallFundsList()
         self.calljson('/diacamma.condominium/callFundsList', {'status_filter': 1}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'callFundsList')
         self.assert_count_equal('callfunds', 3)
         self.assert_json_equal('', 'callfunds/@0/owner', "Minimum")  # 250*45% + 100*45% + 150*45%
-        self.assert_json_equal('', 'callfunds/@0/total', "225.00€")
+        self.assert_json_equal('', 'callfunds/@0/total', 225.00)
         self.assert_json_equal('', 'callfunds/@1/owner', "Dalton William")  # 250*35% + 100*35%+ 150*35%
-        self.assert_json_equal('', 'callfunds/@1/total', "175.00€")
+        self.assert_json_equal('', 'callfunds/@1/total', 175.00)
         self.assert_json_equal('', 'callfunds/@2/owner', "Dalton Joe")  # 250*20% + 100*20% + 150*20%
-        self.assert_json_equal('', 'callfunds/@2/total', "100.00€")
+        self.assert_json_equal('', 'callfunds/@2/total', 100.00)
 
         self.factory.xfer = EntryAccountList()
         self.calljson('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '-1', 'filter': '0'}, False)
@@ -944,7 +952,7 @@ class CallFundsBelgiumTest(LucteriosTest):
         self.assert_observer('core.custom', 'diacamma.condominium', 'callFundsShow')
         self.assert_count_equal('', 8)
         self.assertEqual(len(self.json_actions), 2)
-        self.assert_grid_equal('calldetail', {"type_call_ex": "type d'appel", "set": "catégorie de charges", "designation": "désignation", "set.total_part": "somme des tantièmes", "price_txt": "montant", }, 0)
+        self.assert_grid_equal('calldetail', {"type_call_ex": "type d'appel", "set": "catégorie de charges", "designation": "désignation", "set.total_part": "somme des tantièmes", "price": "montant", }, 0)
         self.assert_count_equal('#calldetail/actions', 3)
 
         self.factory.xfer = CallDetailAddModify()
@@ -975,11 +983,11 @@ class CallFundsBelgiumTest(LucteriosTest):
         self.assertEqual(len(self.json_actions), 3)
         self.assert_json_equal('', 'calldetail/@0/type_call_ex', 'charge courante')
         self.assert_json_equal('', 'calldetail/@0/set', '[1] AAA')
-        self.assert_json_equal('', 'calldetail/@0/price_txt', '100.00€')
+        self.assert_json_equal('', 'calldetail/@0/price', 100.00)
         self.assert_json_equal('', 'calldetail/@1/type_call_ex', 'charge courante')
         self.assert_json_equal('', 'calldetail/@1/set', '[2] BBB')
-        self.assert_json_equal('', 'calldetail/@1/price_txt', '10.00€')
-        self.assert_json_equal('LABELFORM', 'total', '110.00€')
+        self.assert_json_equal('', 'calldetail/@1/price', 10.00)
+        self.assert_json_equal('LABELFORM', 'total', 110.00)
 
     def test_add_default_current(self):
         self.factory.xfer = CallFundsList()
@@ -997,7 +1005,7 @@ class CallFundsBelgiumTest(LucteriosTest):
         self.assert_observer('core.custom', 'diacamma.condominium', 'callFundsList')
         self.assert_count_equal('callfunds', 1)
         self.assert_json_equal('', 'callfunds/@0/date', "2015-01-01")
-        self.assert_json_equal('', 'callfunds/@0/total', "110.00€")
+        self.assert_json_equal('', 'callfunds/@0/total', 110.00)
         self.assertEqual(len(self.json_actions), 2)
 
         self.factory.xfer = CallFundsAddCurrent()
@@ -1009,9 +1017,9 @@ class CallFundsBelgiumTest(LucteriosTest):
         self.assert_observer('core.custom', 'diacamma.condominium', 'callFundsList')
         self.assert_count_equal('callfunds', 2)
         self.assert_json_equal('', 'callfunds/@0/date', "2015-01-01")
-        self.assert_json_equal('', 'callfunds/@0/total', "110.00€")
+        self.assert_json_equal('', 'callfunds/@0/total', 110.00)
         self.assert_json_equal('', 'callfunds/@1/date', "2015-02-01")
-        self.assert_json_equal('', 'callfunds/@1/total', "110.00€")
+        self.assert_json_equal('', 'callfunds/@1/total', 110.00)
         self.assertEqual(len(self.json_actions), 2)
 
         setitem = Set.objects.get(id=1)
@@ -1045,29 +1053,29 @@ class CallFundsBelgiumTest(LucteriosTest):
         self.assert_observer('core.custom', 'diacamma.condominium', 'callFundsList')
         self.assert_count_equal('callfunds', 12)
         self.assert_json_equal('', 'callfunds/@0/date', "2015-01-01")
-        self.assert_json_equal('', 'callfunds/@0/total', "110.00€")
+        self.assert_json_equal('', 'callfunds/@0/total', 110.00)
         self.assert_json_equal('', 'callfunds/@1/date', "2015-02-01")
-        self.assert_json_equal('', 'callfunds/@1/total', "110.00€")
+        self.assert_json_equal('', 'callfunds/@1/total', 110.00)
         self.assert_json_equal('', 'callfunds/@2/date', "2015-03-01")
-        self.assert_json_equal('', 'callfunds/@2/total', "230.00€")
+        self.assert_json_equal('', 'callfunds/@2/total', 230.00)
         self.assert_json_equal('', 'callfunds/@3/date', "2015-04-01")
-        self.assert_json_equal('', 'callfunds/@3/total', "230.00€")
+        self.assert_json_equal('', 'callfunds/@3/total', 230.00)
         self.assert_json_equal('', 'callfunds/@4/date', "2015-05-01")
-        self.assert_json_equal('', 'callfunds/@4/total', "230.00€")
+        self.assert_json_equal('', 'callfunds/@4/total', 230.00)
         self.assert_json_equal('', 'callfunds/@5/date', "2015-06-01")
-        self.assert_json_equal('', 'callfunds/@5/total', "230.00€")
+        self.assert_json_equal('', 'callfunds/@5/total', 230.00)
         self.assert_json_equal('', 'callfunds/@6/date', "2015-07-01")
-        self.assert_json_equal('', 'callfunds/@6/total', "230.00€")
+        self.assert_json_equal('', 'callfunds/@6/total', 230.00)
         self.assert_json_equal('', 'callfunds/@7/date', "2015-08-01")
-        self.assert_json_equal('', 'callfunds/@7/total', "230.00€")
+        self.assert_json_equal('', 'callfunds/@7/total', 230.00)
         self.assert_json_equal('', 'callfunds/@8/date', "2015-09-01")
-        self.assert_json_equal('', 'callfunds/@8/total', "230.00€")
+        self.assert_json_equal('', 'callfunds/@8/total', 230.00)
         self.assert_json_equal('', 'callfunds/@9/date', "2015-10-01")
-        self.assert_json_equal('', 'callfunds/@9/total', "230.00€")
+        self.assert_json_equal('', 'callfunds/@9/total', 230.00)
         self.assert_json_equal('', 'callfunds/@10/date', "2015-11-01")
-        self.assert_json_equal('', 'callfunds/@10/total', "230.00€")
+        self.assert_json_equal('', 'callfunds/@10/total', 230.0)
         self.assert_json_equal('', 'callfunds/@11/date', "2015-12-01")
-        self.assert_json_equal('', 'callfunds/@11/total', "230.00€")
+        self.assert_json_equal('', 'callfunds/@11/total', 230.0)
         self.assertEqual(len(self.json_actions), 1)
 
     def test_add_default_current_quartly(self):
@@ -1098,13 +1106,13 @@ class CallFundsBelgiumTest(LucteriosTest):
         self.assert_observer('core.custom', 'diacamma.condominium', 'callFundsList')
         self.assert_count_equal('callfunds', 4)
         self.assert_json_equal('', 'callfunds/@0/date', "2015-01-01")
-        self.assert_json_equal('', 'callfunds/@0/total', "330.00€")
+        self.assert_json_equal('', 'callfunds/@0/total', 330.00)
         self.assert_json_equal('', 'callfunds/@1/date', "2015-04-01")
-        self.assert_json_equal('', 'callfunds/@1/total', "330.00€")
+        self.assert_json_equal('', 'callfunds/@1/total', 330.00)
         self.assert_json_equal('', 'callfunds/@2/date', "2015-07-01")
-        self.assert_json_equal('', 'callfunds/@2/total', "330.00€")
+        self.assert_json_equal('', 'callfunds/@2/total', 330.00)
         self.assert_json_equal('', 'callfunds/@3/date', "2015-10-01")
-        self.assert_json_equal('', 'callfunds/@3/total', "330.00€")
+        self.assert_json_equal('', 'callfunds/@3/total', 330.00)
         self.assertEqual(len(self.json_actions), 1)
 
     def test_valid_current(self):
@@ -1139,18 +1147,18 @@ class CallFundsBelgiumTest(LucteriosTest):
         self.assert_count_equal('payoff', 0)
         self.assert_count_equal('#payoff/actions', 3)
         self.assert_json_equal('LABELFORM', 'status', 1)
-        self.assert_json_equal('LABELFORM', 'total', '87.50€')
+        self.assert_json_equal('LABELFORM', 'total', 87.50)
 
         self.factory.xfer = CallFundsList()
         self.calljson('/diacamma.condominium/callFundsList', {'status_filter': 1}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'callFundsList')
         self.assert_count_equal('callfunds', 3)
         self.assert_json_equal('', 'callfunds/@0/owner', "Minimum")  # 250*45%+25*75%
-        self.assert_json_equal('', 'callfunds/@0/total', "131.25€")
+        self.assert_json_equal('', 'callfunds/@0/total', 131.25)
         self.assert_json_equal('', 'callfunds/@1/owner', "Dalton William")  # 250*35%+25*0%
-        self.assert_json_equal('', 'callfunds/@1/total', "87.50€")
+        self.assert_json_equal('', 'callfunds/@1/total', 87.50)
         self.assert_json_equal('', 'callfunds/@2/owner', "Dalton Joe")  # 250*20%+25*25%
-        self.assert_json_equal('', 'callfunds/@2/total', "56.25€")
+        self.assert_json_equal('', 'callfunds/@2/total', 56.25)
 
         self.factory.xfer = CallFundsTransition()
         self.calljson('/diacamma.condominium/callFundsTransition', {'CONFIRME': 'YES', 'callfunds': 3, 'TRANSITION': 'close'}, False)
@@ -1231,11 +1239,11 @@ class CallFundsBelgiumTest(LucteriosTest):
         self.assert_observer('core.custom', 'diacamma.condominium', 'callFundsList')
         self.assert_count_equal('callfunds', 3)
         self.assert_json_equal('', 'callfunds/@0/owner', "Minimum")  # 250*45%
-        self.assert_json_equal('', 'callfunds/@0/total', "112.50€")
+        self.assert_json_equal('', 'callfunds/@0/total', 112.50)
         self.assert_json_equal('', 'callfunds/@1/owner', "Dalton William")  # 250*35%
-        self.assert_json_equal('', 'callfunds/@1/total', "87.50€")
+        self.assert_json_equal('', 'callfunds/@1/total', 87.50)
         self.assert_json_equal('', 'callfunds/@2/owner', "Dalton Joe")  # 250*20%
-        self.assert_json_equal('', 'callfunds/@2/total', "50.00€")
+        self.assert_json_equal('', 'callfunds/@2/total', 50.00)
 
         self.factory.xfer = EntryAccountList()
         self.calljson('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '-1', 'filter': '0'}, False)
@@ -1307,11 +1315,11 @@ class CallFundsBelgiumTest(LucteriosTest):
         self.assert_observer('core.custom', 'diacamma.condominium', 'callFundsList')
         self.assert_count_equal('callfunds', 3)
         self.assert_json_equal('', 'callfunds/@0/owner', "Minimum")  # 100*45%
-        self.assert_json_equal('', 'callfunds/@0/total', "45.00€")
+        self.assert_json_equal('', 'callfunds/@0/total', 45.00)
         self.assert_json_equal('', 'callfunds/@1/owner', "Dalton William")  # 100*35%
-        self.assert_json_equal('', 'callfunds/@1/total', "35.00€")
+        self.assert_json_equal('', 'callfunds/@1/total', 35.00)
         self.assert_json_equal('', 'callfunds/@2/owner', "Dalton Joe")  # 100*20%
-        self.assert_json_equal('', 'callfunds/@2/total', "20.00€")
+        self.assert_json_equal('', 'callfunds/@2/total', 20.00)
 
         self.factory.xfer = EntryAccountList()
         self.calljson('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '-1', 'filter': '0'}, False)
@@ -1383,11 +1391,11 @@ class CallFundsBelgiumTest(LucteriosTest):
         self.assert_observer('core.custom', 'diacamma.condominium', 'callFundsList')
         self.assert_count_equal('callfunds', 3)
         self.assert_json_equal('', 'callfunds/@0/owner', "Minimum")  # 100*45%
-        self.assert_json_equal('', 'callfunds/@0/total', "45.00€")
+        self.assert_json_equal('', 'callfunds/@0/total', 45.00)
         self.assert_json_equal('', 'callfunds/@1/owner', "Dalton William")  # 100*35%
-        self.assert_json_equal('', 'callfunds/@1/total', "35.00€")
+        self.assert_json_equal('', 'callfunds/@1/total', 35.00)
         self.assert_json_equal('', 'callfunds/@2/owner', "Dalton Joe")  # 100*20%
-        self.assert_json_equal('', 'callfunds/@2/total', "20.00€")
+        self.assert_json_equal('', 'callfunds/@2/total', 20.00)
         self.factory.xfer = EntryAccountList()
 
         self.calljson('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '-1', 'filter': '0'}, False)

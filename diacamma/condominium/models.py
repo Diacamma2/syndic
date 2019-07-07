@@ -50,8 +50,7 @@ from lucterios.CORE.parameters import Params
 from lucterios.contacts.models import AbstractContact
 
 from diacamma.accounting.models import CostAccounting, EntryAccount, ChartsAccount, EntryLineAccount, FiscalYear, Budget, AccountThird, Third
-from diacamma.accounting.tools import format_devise, currency_round, current_system_account, get_amount_sum, correct_accounting_code,\
-    format_with_devise, get_amount_from_format_devise
+from diacamma.accounting.tools import currency_round, current_system_account, get_amount_sum, correct_accounting_code, format_with_devise
 from diacamma.payoff.models import Supporting, Payoff
 from diacamma.condominium.system import current_system_condo
 from diacamma.accounting.tools_reports import get_spaces
@@ -338,7 +337,7 @@ class Set(LucteriosModel):
             result = currency_round(CallDetail.objects.filter(set=self).aggregate(sum=Sum('price'))['sum'])
             result -= cost.cost_accounting.get_total_expense()
             if abs(result) > 0.0001:
-                ret = format_devise(result, 5)
+                ret = result
         return ret
 
     def close_exceptional(self, with_ventil=False):
@@ -416,10 +415,13 @@ class LoadCount(LucteriosModel):
 
     id = models.IntegerField(verbose_name=_('id'), null=False, default=0, db_index=True)
     designation = models.TextField(_('designation'), null=False, default="")
-    total = models.TextField(_('total'), null=False, default="")
-    ratio = models.TextField(_('ratio'), null=False, default="")
-    ventilated = models.TextField(_('ventilated'), null=False, default="")
-    recoverable_load = models.TextField(_('recoverable load'), null=False, default="")
+    total = LucteriosDecimalField(_('total'), null=False, max_digits=10, decimal_places=3, default=0.0,
+                                  validators=[MinValueValidator(0.0), MaxValueValidator(9999999.999)], format_string=lambda: format_with_devise(5))
+    ratio = models.TextField(_('ratio'), null=True, default=None)
+    ventilated = LucteriosDecimalField(_('ventilated'), null=False, max_digits=10, decimal_places=3, default=0.0,
+                                       validators=[MinValueValidator(0.0), MaxValueValidator(9999999.999)], format_string=lambda: format_with_devise(5))
+    recoverable_load = LucteriosDecimalField(_('recoverable load'), null=False, max_digits=10, decimal_places=3, default=0.0,
+                                             validators=[MinValueValidator(0.0), MaxValueValidator(9999999.999)], format_string=lambda: format_with_devise(5))
 
     @classmethod
     def get_default_fields(cls, status=-1):
@@ -455,7 +457,7 @@ class LoadCountSet(QuerySet):
         self.partition_ventilated_total = 0
         self.partition_recoverable_load_total = 0
 
-    def fill_title(self, designation, total='', ratio='', ventilated='', recoverable_load=''):
+    def fill_title(self, designation, total='', ratio=None, ventilated='', recoverable_load=''):
         self._result_cache.append(LoadCount(id=self.pt_id, designation=designation, total=total,
                                             ratio=ratio, ventilated=ventilated, recoverable_load=recoverable_load))
         self.pt_id += 1
@@ -478,13 +480,13 @@ class LoadCountSet(QuerySet):
         code_ident = self.fill_title(designation)
         for entry_line in EntryLineAccount.objects.filter(self.line_query & Q(account=account) & Q(costaccounting__setcost__set__partition=partition_item)).distinct().order_by('entry__date_value'):
             designation = get_spaces(15) + "{[i]}%s{[/i]} - %s" % (get_date_formating(entry_line.entry.date_value), entry_line.entry.designation.replace('{[br/]}', ' - '))
-            self.fill_title(designation, total=format_devise(entry_line.amount, 5))
+            self.fill_title(designation, total=entry_line.amount)
             total += entry_line.amount
         self.change_value(code_ident,
-                          total="{[b]}%s{[/b]}" % format_devise(total, 5),
-                          ratio="{[b]}%d/%d{[/b]}" % (partition_item.value, partition_item.set.total_part),
-                          ventilated="{[b]}%s{[/b]}" % format_devise(total * ratio, 5),
-                          recoverable_load="{[b]}%s{[/b]}" % format_devise(total * ratio * load_ratio, 5))
+                          total={'format': "{[b]}{0}[/b]}", 'value': total},
+                          ratio={'format': "{[b]}{0}[/b]}", 'value': "%d/%d" % (partition_item.value, partition_item.set.total_part)},
+                          ventilated={'format': "{[b]}{0}[/b]}", 'value': total * ratio},
+                          recoverable_load={'format': "{[b]}{0}[/b]}", 'value': total * ratio * load_ratio})
         self.partition_general_total += total
         self.partition_ventilated_total += total * ratio
         self.partition_recoverable_load_total += total * ratio * load_ratio
@@ -503,7 +505,11 @@ class LoadCountSet(QuerySet):
                 partition_description = ''
             self.fill_account(partition_item, account, ratio)
         if partition_ident is not None:
-            self.change_value(partition_ident, total="{[i]}%s{[/i]}" % format_devise(self.partition_general_total, 5), ratio="{[i]}%d/%d{[/i]}" % (partition_item.value, partition_item.set.total_part), ventilated="{[i]}%s{[/i]}" % format_devise(self.partition_ventilated_total, 5), recoverable_load="{[i]}%s{[/i]}" % format_devise(self.partition_recoverable_load_total, 5))
+            self.change_value(partition_ident,
+                              total={'format': "{[i]}{0}[/i]}", 'value': self.partition_general_total},
+                              ratio={'format': "{[i]}{0}[/i]}", 'value': "%d/%d" % (partition_item.value, partition_item.set.total_part)},
+                              ventilated={'format': "{[i]}{0}[/i]}", 'value': self.partition_ventilated_total},
+                              recoverable_load={'format': "{[i]}{0}[/i]}", 'value': self.partition_recoverable_load_total})
         self.general_total += self.partition_general_total
         self.ventilated_total += self.partition_ventilated_total
         self.recoverable_load_total += self.partition_recoverable_load_total
@@ -517,13 +523,41 @@ class LoadCountSet(QuerySet):
             self.recoverable_load_total = 0
             for partition_item in Partition.objects.filter(self.partition_query).distinct():
                 self.fill_partition(partition_item)
-            self.fill_title('', total="{[u]}%s{[/u]}" % format_devise(self.general_total, 5),
-                            ventilated="{[u]}%s{[/u]}" % format_devise(self.ventilated_total, 5),
-                            recoverable_load="{[u]}%s{[/u]}" % format_devise(self.recoverable_load_total, 5))
+            self.fill_title('',
+                            total={'format': "{[u]}{0}[/u]}", 'value': self.general_total},
+                            ventilated={'format': "{[u]}{0}[/u]}", 'value': self.ventilated_total},
+                            recoverable_load={'format': "{[u]}{0}[/u]}", 'value': self.recoverable_load_total})
 
 
 class Owner(Supporting):
     information = models.CharField(_('information'), max_length=200, null=True, default='')
+
+    property_part = LucteriosVirtualField(verbose_name=_('property tantime'), compute_from='get_property_part', format_string="N1;{0}/{1}{[br/]}{2} %")
+    thirdinitial = LucteriosVirtualField(verbose_name=_('total owner initial'), compute_from='get_third_initial', format_string=lambda: format_with_devise(5))
+    total_all_call = LucteriosVirtualField(verbose_name=_('total call for funds'), compute_from=lambda item: item.get_total_call(-1), format_string=lambda: format_with_devise(5))
+    total_payoff = LucteriosVirtualField(verbose_name=_('total payoff'), compute_from='get_total_payoff_calculated', format_string=lambda: format_with_devise(5))
+    thirdtotal = LucteriosVirtualField(verbose_name=_('total owner'), compute_from='get_thirdtotal', format_string=lambda: format_with_devise(5))
+    sumtopay = LucteriosVirtualField(verbose_name=_('sum to pay'), compute_from='get_sumtopay', format_string=lambda: format_with_devise(5))
+
+    total_current_initial = LucteriosVirtualField(verbose_name=_('current initial state'), compute_from=lambda item: item.get_total_initial(1), format_string=lambda: format_with_devise(5))
+    total_current_call = LucteriosVirtualField(verbose_name=_('current total call for funds'), compute_from=lambda item: item.get_total_call(0), format_string=lambda: format_with_devise(5))
+    total_current_owner = LucteriosVirtualField(verbose_name=_('current total owner'), compute_from='get_total_current_owner', format_string=lambda: format_with_devise(5))
+
+    total_current_payoff = LucteriosVirtualField(verbose_name=_('current total payoff'), compute_from='get_total_current_payoff', format_string=lambda: format_with_devise(5))
+    total_current_ventilated = LucteriosVirtualField(verbose_name=_('current total ventilated'), compute_from='get_total_current_ventilated', format_string=lambda: format_with_devise(5))
+    total_current_regularization = LucteriosVirtualField(verbose_name=_('estimated regularization'), compute_from='get_total_current_regularization', format_string=lambda: format_with_devise(5))
+    total_recoverable_load = LucteriosVirtualField(verbose_name=_('total recoverable load'), compute_from='get_total_recoverable_load', format_string=lambda: format_with_devise(5))
+    total_extra = LucteriosVirtualField(verbose_name=_('extra revenus/expenses'), compute_from='get_total_extra', format_string=lambda: format_with_devise(5))
+
+    total_exceptional_initial = LucteriosVirtualField(verbose_name=_('exceptional initial state'), compute_from=lambda item: item.get_total_initial(2), format_string=lambda: format_with_devise(5))
+    total_exceptional_call = LucteriosVirtualField(verbose_name=_('exceptional total call for funds'), compute_from=lambda item: item.get_total_call(1), format_string=lambda: format_with_devise(5))
+    total_exceptional_payoff = LucteriosVirtualField(verbose_name=_('exceptional total payoff'), compute_from=lambda item: item.get_total_payoff(2), format_string=lambda: format_with_devise(5))
+    total_exceptional_owner = LucteriosVirtualField(verbose_name=_('exceptional total owner'), compute_from='get_total_exceptional_owner', format_string=lambda: format_with_devise(5))
+
+    total_cash_advance_call = LucteriosVirtualField(verbose_name=_('cash advance total call for funds'), compute_from=lambda item: item.get_total_call(2), format_string=lambda: format_with_devise(5))
+    total_cash_advance_payoff = LucteriosVirtualField(verbose_name=_('cash advance total payoff'), compute_from=lambda item: item.get_total_payoff(3), format_string=lambda: format_with_devise(5))
+    total_fund_works_call = LucteriosVirtualField(verbose_name=_('fund for works total call for funds'), compute_from=lambda item: item.get_total_call(4), format_string=lambda: format_with_devise(5))
+    total_fund_works_payoff = LucteriosVirtualField(verbose_name=_('fund for works total payoff'), compute_from=lambda item: item.get_total_payoff(5), format_string=lambda: format_with_devise(5))
 
     def __init__(self, *args, **kwargs):
         Supporting.__init__(self, *args, **kwargs)
@@ -601,13 +635,12 @@ class Owner(Supporting):
 
     @classmethod
     def get_default_fields(cls):
-        fields = ["third", (_('property tantime'), 'property_part'), (_('total owner initial'), 'thirdinitial'), (_('total call for funds'), 'total_all_call'),
-                  (_('total payoff'), 'total_payoff'), (_('total owner'), 'thirdtotal'), (_('sum to pay'), 'sumtopay')]
+        fields = ["third", 'property_part', 'thirdinitial', 'total_all_call', 'total_payoff', 'thirdtotal', 'sumtopay']
         return fields
 
     @classmethod
     def get_show_fields_in_third(cls):
-        return [((_('current initial state'), 'total_current_initial'),), ((_('current total call for funds'), 'total_current_call'),), ((_('current total owner'), 'total_current_owner'),)]
+        return ['total_current_initial', 'total_current_call', 'total_current_owner']
 
     @classmethod
     def get_edit_fields(cls):
@@ -635,20 +668,20 @@ class Owner(Supporting):
                   _("001@Information"): [],
                   _("002@Lots"): ['propertylot_set'],
                   _("003@Contacts"): ['ownercontact_set'],
-                  _("004@Accounting"): [((_('total owner initial'), 'thirdinitial'),), 'entryline_set', ((_('total owner'), 'thirdtotal'),), ((_('sum to pay'), 'sumtopay'),)],
+                  _("004@Accounting"): ['thirdinitial', 'entryline_set', 'thirdtotal', 'sumtopay'],
                   _("005@Situation"): [('partition_set',),
-                                       ((_('current initial state'), 'total_current_initial'), ),
-                                       ((_('current total call for funds'), 'total_current_call'), (_('current total payoff'), 'total_current_payoff')),
-                                       ((_('current total owner'), 'total_current_owner'), ),
-                                       ((_('current total ventilated'), 'total_current_ventilated'), (_('estimated regularization'), 'total_current_regularization')),
-                                       ((_('total recoverable load'), 'total_recoverable_load'), (_('extra revenus/expenses'), 'total_extra')),
+                                       'total_current_initial',
+                                       ('total_current_call', 'total_current_payoff'),
+                                       'total_current_owner',
+                                       ('total_current_ventilated', 'total_current_regularization'),
+                                       ('total_recoverable_load', 'total_extra'),
                                        ],
                   _("006@Exceptional"): ['exceptionnal_set',
-                                         ((_('exceptional initial state'), 'total_exceptional_initial'),),
-                                         ((_('exceptional total call for funds'), 'total_exceptional_call'), (_('exceptional total payoff'), 'total_exceptional_payoff')),
-                                         ((_('exceptional total owner'), 'total_exceptional_owner'), )],
-                  _("007@Funds"): [((_('cash advance total call for funds'), 'total_cash_advance_call'), (_('cash advance total payoff'), 'total_cash_advance_payoff')),
-                                   ((_('fund for works total call for funds'), 'total_fund_works_call'), (_('fund for works total payoff'), 'total_fund_works_payoff'))
+                                         'total_exceptional_initial',
+                                         ('total_exceptional_call', 'total_exceptional_payoff'),
+                                         'total_exceptional_owner'],
+                  _("007@Funds"): [('total_cash_advance_call', 'total_cash_advance_payoff'),
+                                   ('total_fund_works_call', 'total_fund_works_payoff')
                                    ],
                   _("008@callfunds"): ['callfunds_set', 'payoff_set'],
                   }
@@ -674,29 +707,29 @@ class Owner(Supporting):
     @classmethod
     def get_print_fields(cls):
         fields = ["third", "information"]
-        fields.extend([(_('total owner initial'), 'thirdinitial'), 'entryline_set', (_('total owner'), 'thirdtotal'), (_('sum to pay'), 'sumtopay')])
+        fields.extend(['thirdinitial', 'entryline_set', 'thirdtotal', 'sumtopay'])
         fields.extend(['ownercontact_set'])
         fields.extend(['propertylot_set.num', 'propertylot_set.value', 'propertylot_set.ratio', 'propertylot_set.description'])
         fields.extend(["callfunds_set.num", "callfunds_set.date",
-                       "callfunds_set.comment", (_('total'), 'callfunds_set.total')])
+                       "callfunds_set.comment", 'callfunds_set.total'])
         fields.extend(["partition_set.set.str", "partition_set.set.budget_txt", 'partition_set.set.sumexpense',
-                       "partition_set.value", (_("ratio"), 'partition_set.ratio'), (_('ventilated'), 'partition_set.ventilated_txt')])
+                       "partition_set.value", 'partition_set.ratio', 'partition_set.ventilated'])
         fields.extend(["exceptionnal_set.set.str", "exceptionnal_set.set.budget_txt", 'exceptionnal_set.set.sumexpense',
-                       (_('total call for funds'), 'exceptionnal_set.total_callfunds'),
-                       "exceptionnal_set.value", (_("ratio"), 'exceptionnal_set.ratio'), 'exceptionnal_set.ventilated'])
+                       'exceptionnal_set.total_callfunds',
+                       "exceptionnal_set.value", 'exceptionnal_set.ratio', 'exceptionnal_set.ventilated'])
         fields.extend(['payoff_set'])
-        fields.extend([(_('current total call for funds'), 'total_current_call'), (_('current total payoff'), 'total_current_payoff'),
-                       (_('current initial state'), 'total_current_initial'), (_('current total ventilated'), 'total_current_ventilated'),
-                       (_('estimated regularization'), 'total_current_regularization'), (_('extra revenus/expenses'), 'total_extra'),
-                       (_('current total owner'), 'total_current_owner')])
-        fields.extend([(_('exceptional initial state'), 'total_exceptional_initial'),
-                       (_('exceptional total call for funds'), 'total_exceptional_call'),
-                       (_('exceptional total payoff'), 'total_exceptional_payoff'),
-                       (_('exceptional total owner'), 'total_exceptional_owner')])
-        fields.extend([(_('cash advance total call for funds'), 'total_cash_advance_call'),
-                       (_('cash advance total payoff'), 'total_cash_advance_payoff'),
-                       (_('fund for works total call for funds'), 'total_fund_works_call'),
-                       (_('fund for works total payoff'), 'total_fund_works_payoff')])
+        fields.extend(['total_current_call', 'total_current_payoff',
+                       'total_current_initial', 'total_current_ventilated',
+                       'total_current_regularization', 'total_extra',
+                       'total_current_owner'])
+        fields.extend(['total_exceptional_initial',
+                       'total_exceptional_call',
+                       'total_exceptional_payoff',
+                       'total_exceptional_owner'])
+        fields.extend(['total_cash_advance_call',
+                       'total_cash_advance_payoff',
+                       'total_fund_works_call',
+                       'total_fund_works_payoff'])
 
         return fields
 
@@ -709,15 +742,13 @@ class Owner(Supporting):
                 Partition.objects.create(set=setitem, owner=self)
 
     def get_third_initial(self):
+        if self.id is None:
+            return None
         if self.date_begin is None:
             self.set_dates()
         third_total = get_amount_sum(EntryLineAccount.objects.filter(Q(third=self.third) & Q(entry__date_value__lt=self.date_begin)).aggregate(Sum('amount')))
         third_total -= get_amount_sum(EntryLineAccount.objects.filter(Q(third=self.third) & Q(entry__date_value=self.date_begin) & Q(entry__journal__id=1)).aggregate(Sum('amount')))
         return third_total
-
-    @property
-    def thirdinitial(self):
-        return format_devise(self.get_third_initial(), 5)
 
     def check_initial_operation(self):
         if FiscalYear.get_current().status != 2:
@@ -792,38 +823,30 @@ class Owner(Supporting):
             self.set_dates()
         return LoadCountSet(hints={'owner': self})
 
-    @property
-    def thirdtotal(self):
+    def get_thirdtotal(self):
+        if self.id is None:
+            return None
         if self.date_begin is None:
             self.set_dates()
-        return format_devise(self.third.get_total(self.date_end), 5)
+        return self.third.get_total(self.date_end)
 
-    @property
-    def sumtopay(self):
+    def get_sumtopay(self):
+        if self.id is None:
+            return None
         if self.date_begin is None:
             self.set_dates()
-        return format_devise(max(0, -1 * self.third.get_total(self.date_end)), 5)
+        return max(0, -1 * self.third.get_total(self.date_end))
 
-    @property
-    def total_all_call(self):
-        return format_devise(self.get_total_call(-1), 5)
-
-    @property
-    def total_current_estimated_total(self):
-        estimated_total = self.get_third_initial()
-        estimated_total += self.get_total_payoff(1)
-        estimated_total -= self.get_total_current_ventilated()
-        return format_devise(estimated_total, 5)
-
-    @property
-    def total_payoff(self):
+    def get_total_payoff_calculated(self):
+        if self.id is None:
+            return None
         if self.date_begin is None:
             self.set_dates()
         entry_query = Q(third=self.third) & Q(entry__date_value__gte=self.date_begin)
         entry_query &= Q(entry__date_value__lte=self.date_end) & Q(amount__lt=0)
         third_total = -1 * get_amount_sum(EntryLineAccount.objects.filter(entry_query).aggregate(Sum('amount')))
         third_total += get_amount_sum(EntryLineAccount.objects.filter(Q(third=self.third) & Q(entry__date_value=self.date_begin) & Q(entry__journal__id=1) & Q(amount__lt=0)).aggregate(Sum('amount')))
-        return format_devise(third_total, 5)
+        return third_total
 
     @property
     def exceptionnal_set(self):
@@ -846,6 +869,8 @@ class Owner(Supporting):
         return Q(date__gte=self.date_begin) & Q(date__lte=self.date_end)
 
     def get_property_part(self):
+        if self.id is None:
+            return None
         total_part = PropertyLot.get_total_part()
         if total_part > 0:
             total = self.propertylot_set.aggregate(sum=Sum('value'))
@@ -853,22 +878,16 @@ class Owner(Supporting):
                 value = total['sum']
             else:
                 value = 0
-            return (value, total_part)
+            return (value, total_part, 100.0 * float(value) / float(total_part))
         else:
-            return (None, None)
-
-    @property
-    def property_part(self):
-        value, total_part = self.get_property_part()
-        if value is not None:
-            return "%d/%d{[br/]}%.1f %%" % (value, total_part, 100.0 * float(value) / float(total_part))
-        else:
-            return "---"
+            return (None, None, None)
 
     def get_current_date(self):
         return date(2100, 12, 31)
 
     def get_total_call(self, type_call=0):
+        if self.id is None:
+            return None
         val = 0
         if type_call < 0:
             totalfilter = Q()
@@ -900,6 +919,8 @@ class Owner(Supporting):
         return val
 
     def get_total_initial(self, owner_type=1):
+        if self.id is None:
+            return None
         if self.date_begin is None:
             self.set_dates()
         entry_query = Q(third=self.third) & Q(entry__date_value__lt=self.date_begin)
@@ -912,6 +933,8 @@ class Owner(Supporting):
         return third_total
 
     def get_total_payoff(self, owner_type=1):
+        if self.id is None:
+            return None
         if self.date_begin is None:
             self.set_dates()
         entry_query = Q(third=self.third) & Q(entry__date_value__gte=self.date_begin)
@@ -921,9 +944,13 @@ class Owner(Supporting):
         return third_total
 
     def get_total(self):
+        if self.id is None:
+            return None
         return self.get_total_call() - self.get_total_initial()
 
     def get_total_current_ventilated(self):
+        if self.id is None:
+            return None
         value = 0.0
         for part in self.partition_set.filter(self.partition_query):
             part.set.set_dates(self.date_begin, self.date_end)
@@ -931,6 +958,8 @@ class Owner(Supporting):
         return value
 
     def get_total_recoverable_load(self):
+        if self.id is None:
+            return None
         value = 0.0
         for part in self.partition_set.filter(self.partition_query):
             part.set.set_dates(self.date_begin, self.date_end)
@@ -938,7 +967,9 @@ class Owner(Supporting):
         return value
 
     def get_total_extra(self):
-        value, total_part = self.get_property_part()
+        if self.id is None:
+            return None
+        value, total_part, _ratio = self.get_property_part()
         if value is not None:
             try:
                 year = FiscalYear.objects.get(begin__lte=self.date_end, end__gte=self.date_end)
@@ -951,86 +982,34 @@ class Owner(Supporting):
         else:
             return None
 
-    @property
-    def total_extra(self):
-        extra = self.get_total_extra()
-        if extra is None:
-            return extra
-        else:
-            return format_devise(self.get_total_extra(), 5)
-
-    @property
-    def total_current_call(self):
-        return format_devise(self.get_total_call(0), 5)
-
-    @property
-    def total_current_payoff(self):
+    def get_total_current_payoff(self):
         if Params.getvalue("condominium-old-accounting"):
-            return format_devise(self.get_total_payed(), 5)
+            return self.get_total_payed()
         else:
-            return format_devise(self.get_total_payoff(1), 5)
+            return self.get_total_payoff(1)
 
-    @property
-    def total_current_initial(self):
-        return format_devise(self.get_total_initial(1), 5)
-
-    @property
-    def total_current_owner(self):
+    def get_total_current_owner(self):
         if self.date_begin is None:
             self.set_dates()
         entry_query = Q(third=self.third) & Q(entry__date_value__lte=self.date_end)
         entry_query &= Q(account__code__regex=self.get_third_mask(1))
         third_total = get_amount_sum(EntryLineAccount.objects.filter(entry_query).aggregate(Sum('amount')))
-        return format_devise(-1 * third_total, 5)
+        return -1 * third_total
 
-    @property
-    def total_current_ventilated(self):
-        return format_devise(self.get_total_current_ventilated(), 5)
+    def get_total_current_regularization(self):
+        if self.id is None:
+            return None
+        return self.get_total_call() - self.get_total_current_ventilated()
 
-    @property
-    def total_recoverable_load(self):
-        return format_devise(self.get_total_recoverable_load(), 5)
-
-    @property
-    def total_current_regularization(self):
-        return format_devise(self.get_total_call() - self.get_total_current_ventilated(), 5)
-
-    @property
-    def total_exceptional_call(self):
-        return format_devise(self.get_total_call(1), 5)
-
-    @property
-    def total_exceptional_payoff(self):
-        return format_devise(self.get_total_payoff(2), 5)
-
-    @property
-    def total_exceptional_initial(self):
-        return format_devise(self.get_total_initial(2), 5)
-
-    @property
-    def total_cash_advance_call(self):
-        return format_devise(self.get_total_call(2), 5)
-
-    @property
-    def total_cash_advance_payoff(self):
-        return format_devise(self.get_total_payoff(3), 5)
-
-    @property
-    def total_fund_works_call(self):
-        return format_devise(self.get_total_call(4), 5)
-
-    @property
-    def total_fund_works_payoff(self):
-        return format_devise(self.get_total_payoff(5), 5)
-
-    @property
-    def total_exceptional_owner(self):
+    def get_total_exceptional_owner(self):
+        if self.id is None:
+            return None
         if self.date_begin is None:
             self.set_dates()
         entry_query = Q(third=self.third) & Q(entry__date_value__lte=self.date_end)
         entry_query &= Q(account__code__regex=self.get_third_mask(2))
         third_total = get_amount_sum(EntryLineAccount.objects.filter(entry_query).aggregate(Sum('amount')))
-        return format_devise(-1 * third_total, 5)
+        return -1 * third_total
 
     def get_max_payoff(self, ignore_payoff=-1):
         return 1000000
@@ -1059,7 +1038,7 @@ class Owner(Supporting):
 
     @classmethod
     def get_payment_fields(cls):
-        return ["third", "information", 'callfunds_set', ((_('total owner'), 'total_current_owner'),)]
+        return ["third", "information", 'callfunds_set', 'total_current_owner']
 
     def get_payment_name(self):
         return _('codominium of %s') % six.text_type(self.third)
@@ -1270,8 +1249,7 @@ class PropertyLot(LucteriosModel):
     num = models.IntegerField(verbose_name=_('numeros'), null=False, default=1)
     value = models.IntegerField(_('tantime'), default=0, validators=[MinValueValidator(0), MaxValueValidator(1000000)])
     description = models.TextField(_('description'), null=True, default="")
-    owner = models.ForeignKey(
-        Owner, verbose_name=_('owner'), null=False, db_index=True, on_delete=models.CASCADE)
+    owner = models.ForeignKey(Owner, verbose_name=_('owner'), null=False, db_index=True, on_delete=models.CASCADE)
 
     ratio = LucteriosVirtualField(verbose_name=_("ratio"), compute_from='get_ratio', format_string='N1;{0} %')
 
@@ -1360,7 +1338,7 @@ class CallFundsSupporting(Supporting):
 
     @classmethod
     def get_payment_fields(cls):
-        return ["callfunds.num", "callfunds.date", "callfunds.comment", "third", ((_('total'), 'callfunds.total'),)]
+        return ["callfunds.num", "callfunds.date", "callfunds.comment", "third", 'callfunds.total']
 
     def support_validated(self, validate_date):
         return self
@@ -1403,6 +1381,8 @@ class CallFunds(LucteriosModel):
     status = FSMIntegerField(verbose_name=_('status'),
                              choices=((0, _('building')), (1, _('valid')), (2, _('ended'))), null=False, default=0, db_index=True)
 
+    total = LucteriosVirtualField(verbose_name=_('total'), compute_from='get_total', format_string=lambda: format_with_devise(5))
+
     def __str__(self):
         if self.num is not None:
             return _('call of funds #%(num)d - %(date)s') % {'num': self.num, 'date': get_date_formating(self.date)}
@@ -1418,7 +1398,7 @@ class CallFunds(LucteriosModel):
 
     @classmethod
     def get_default_fields(cls):
-        return ["num", "date", "owner", "comment", (_('total'), 'total'), 'supporting.total_rest_topay']
+        return ["num", "date", "owner", "comment", 'total', 'supporting.total_rest_topay']
 
     @classmethod
     def get_edit_fields(cls):
@@ -1426,7 +1406,7 @@ class CallFunds(LucteriosModel):
 
     @classmethod
     def get_show_fields(cls):
-        return [("num", "date"), "owner", "calldetail_set", "comment", ("status", (_('total'), 'total'))]
+        return [("num", "date"), "owner", "calldetail_set", "comment", ("status", 'total')]
 
     @classmethod
     def get_search_fields(cls):
@@ -1446,10 +1426,6 @@ class CallFunds(LucteriosModel):
         for calldetail in self.calldetail_set.all():
             val += currency_round(calldetail.price)
         return val
-
-    @property
-    def total(self):
-        return format_devise(self.get_total(), 5)
 
     def can_delete(self):
         if self.status != 0:
@@ -1544,25 +1520,31 @@ class CallDetail(LucteriosModel):
     callfunds = models.ForeignKey(CallFunds, verbose_name=_('call of funds'), null=True, default=None, db_index=True, on_delete=models.CASCADE)
     set = models.ForeignKey(Set, verbose_name=_('set'), null=True, db_index=True, on_delete=models.PROTECT)
     designation = models.TextField(verbose_name=_('designation'))
-    price = models.DecimalField(verbose_name=_('amount'), max_digits=10, decimal_places=3, default=0.0, validators=[
-        MinValueValidator(0.0), MaxValueValidator(9999999.999)])
+    price = LucteriosDecimalField(verbose_name=_('amount'), max_digits=10, decimal_places=3, default=0.0,
+                                  validators=[MinValueValidator(0.0), MaxValueValidator(9999999.999)], format_string=lambda: format_with_devise(5))
     entry = models.ForeignKey(EntryAccount, verbose_name=_('entry'), null=True, on_delete=models.PROTECT)
     type_call = models.IntegerField(verbose_name=_('type of call'),
                                     choices=((0, _('current')), (1, _('exceptional')), (2, _('cash advance')), (3, _('borrowing')), (4, _('fund for works'))), null=False, default=0, db_index=True)
+
+    type_call_ex = LucteriosVirtualField(verbose_name=_('type of call'), compute_from='get_type_call_ex')
+    total_amount = LucteriosVirtualField(verbose_name=_('total'), compute_from='get_total_amount', format_string=lambda: format_with_devise(5))
+    owner_part = LucteriosVirtualField(verbose_name=_('tantime'), compute_from='get_owner_part', format_string='N2')
+    price_txt = LucteriosVirtualField(verbose_name=_('amount'), compute_from='price', format_string=lambda: format_with_devise(5))
 
     def __str__(self):
         return "%s - %s" % (self.callfunds, self.designation)
 
     @classmethod
     def get_default_fields(cls):
-        return [(_('type of call'), 'type_call_ex'), "set", "designation", (_('total'), 'total_amount'), 'set.total_part', (_('tantime'), 'owner_part'), (_('amount'), 'price_txt')]
+        return ['type_call_ex', "set", "designation", 'total_amount', 'set.total_part', 'owner_part', 'price']
 
     @classmethod
     def get_edit_fields(cls):
         return ['type_call', "set", "designation", "price"]
 
-    @property
-    def type_call_ex(self):
+    def get_type_call_ex(self):
+        if self.id is None:
+            return None
         result = "#%d" % self.type_call
         for callfunds_id, callfunds_title in current_system_condo().get_callfunds_list():
             if callfunds_id == self.type_call:
@@ -1570,12 +1552,9 @@ class CallDetail(LucteriosModel):
                 break
         return result
 
-    @property
-    def price_txt(self):
-        return format_devise(self.price, 5)
-
-    @property
-    def total_amount(self):
+    def get_total_amount(self):
+        if self.id is None:
+            return None
         totamount = 0
         num = -1
         index = 0
@@ -1583,15 +1562,17 @@ class CallDetail(LucteriosModel):
             if det.id == self.id:
                 num = index
             index += 1
-        for fund in CallFunds.objects.filter(date=self.callfunds.date, num=self.callfunds.num):
-            details = fund.calldetail_set.filter(set=self.set)
-            if len(details) > num:
-                det = details[num]
-                totamount += det.price
-        return format_devise(totamount, 5)
+        if num >= 0:
+            for fund in CallFunds.objects.filter(date=self.callfunds.date, num=self.callfunds.num):
+                details = fund.calldetail_set.filter(set=self.set)
+                if len(details) > num:
+                    det = details[num]
+                    totamount += float(det.price)
+        return totamount
 
-    @property
-    def owner_part(self):
+    def get_owner_part(self):
+        if self.id is None:
+            return None
         value = 0
         for part in Partition.objects.filter(set=self.set, owner=self.callfunds.owner):
             value = part.value
@@ -1754,8 +1735,8 @@ class ExpenseDetail(LucteriosModel):
     set = models.ForeignKey(Set, verbose_name=_('set'), null=False, db_index=True, on_delete=models.PROTECT)
     designation = models.TextField(verbose_name=_('designation'))
     expense_account = models.CharField(verbose_name=_('account'), max_length=50)
-    price = LucteriosDecimalField(verbose_name=_('price'), max_digits=10, decimal_places=3, default=0.0, validators=[
-        MinValueValidator(0.0), MaxValueValidator(9999999.999)], format_string=lambda: format_with_devise(5))
+    price = LucteriosDecimalField(verbose_name=_('price'), max_digits=10, decimal_places=3, default=0.0,
+                                  validators=[MinValueValidator(0.0), MaxValueValidator(9999999.999)], format_string=lambda: format_with_devise(5))
     entry = models.ForeignKey(EntryAccount, verbose_name=_('entry'), null=True, on_delete=models.PROTECT)
 
     ratio_txt = LucteriosVirtualField(verbose_name=_('ratio'), compute_from='get_ratio', format_string="N1;{0} %")
@@ -1810,19 +1791,17 @@ class ExpenseDetail(LucteriosModel):
 
 
 class ExpenseRatio(LucteriosModel):
-    expensedetail = models.ForeignKey(
-        ExpenseDetail, verbose_name=_('detail of expense'), null=False, db_index=True, on_delete=models.CASCADE)
-    owner = models.ForeignKey(
-        Owner, verbose_name=_('owner'), null=False, db_index=True, on_delete=models.CASCADE)
-    value = models.DecimalField(_('value'), max_digits=7, decimal_places=2, default=0.0, validators=[
-        MinValueValidator(0.0), MaxValueValidator(1000.00)])
+    expensedetail = models.ForeignKey(ExpenseDetail, verbose_name=_('detail of expense'), null=False, db_index=True, on_delete=models.CASCADE)
+    owner = models.ForeignKey(Owner, verbose_name=_('owner'), null=False, db_index=True, on_delete=models.CASCADE)
+    value = LucteriosDecimalField(_('value'), max_digits=7, decimal_places=2, default=0.0,
+                                  validators=[MinValueValidator(0.0), MaxValueValidator(1000.00)], format_string="N2")
 
     @property
     def ratio(self):
         return 100.0 * float(abs(self.value)) / float(self.expensedetail.price)
 
     def __str__(self):
-        return "%s : %.1f %%" % (six.text_type(self.owner.third), self.ratio)
+        return "%s : %s" % (six.text_type(self.owner.third), format_to_string(self.ratio, "N2", "{0} %"))
 
     class Meta(object):
         verbose_name = _('detail of expense')

@@ -5,6 +5,7 @@ from __future__ import unicode_literals
 import django.core.validators
 from django.db import migrations, models
 import django.db.models.deletion
+from lucterios.framework.models import LucteriosDecimalField
 
 
 def convert_expense_ratio(*args):
@@ -36,7 +37,7 @@ class Migration(migrations.Migration):
             name='ExpenseRatio',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('value', models.DecimalField(decimal_places=2, default=0.0, max_digits=7, validators=[
+                ('value', LucteriosDecimalField(decimal_places=2, default=0.0, max_digits=7, validators=[
                  django.core.validators.MinValueValidator(0.0), django.core.validators.MaxValueValidator(1000.0)], verbose_name='value')),
                 ('expensedetail', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE,
                                                     to='condominium.ExpenseDetail', verbose_name='detail of expense')),

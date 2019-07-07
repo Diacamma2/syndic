@@ -44,7 +44,8 @@ from lucterios.CORE.parameters import Params
 from lucterios.CORE.views import ParamEdit
 from lucterios.CORE.xferprint import XferPrintAction
 
-from diacamma.accounting.tools import correct_accounting_code
+from diacamma.accounting.tools import correct_accounting_code,\
+    get_amount_from_format_devise
 from diacamma.accounting.models import CostAccounting, FiscalYear
 from diacamma.accounting.views_budget import BudgetList
 from diacamma.accounting.views_reports import CostAccountingIncomeStatement
@@ -244,7 +245,7 @@ class SetClose(XferContainerAcknowledge):
                 lbl.set_location(1, 0, 2)
                 dlg.add_component(lbl)
                 lbl = XferCompLabelForm('info')
-                lbl.set_value(_('This class load has a difference of %s between those call of funds and those expenses.') % msg)
+                lbl.set_value(_('This class load has a difference of %s between those call of funds and those expenses.') % get_amount_from_format_devise(msg, 5))
                 lbl.set_location(1, 1)
                 dlg.add_component(lbl)
                 lbl = XferCompCheck('ventilate')
