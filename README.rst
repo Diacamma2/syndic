@@ -1,3 +1,15 @@
+.. image:: https://img.shields.io/pypi/djversions/diacamma-syndic
+    :target: https://pypi.org/project/diacamma-syndic/
+    :alt: Django version
+
+.. image:: https://img.shields.io/pypi/v/diacamma-syndic
+    :target: https://pypi.org/project/diacamma-financial/
+    :alt: Latest Version
+
+.. image:: https://img.shields.io/pypi/pyversions/diacamma-syndic
+    :target: https://pypi.org/project/diacamma-syndic/
+    :alt: Supported Python versions
+
 Diacamma Syndic appli of Lucterios framework
 ============================================
 
