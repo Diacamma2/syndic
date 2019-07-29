@@ -54,6 +54,7 @@ from diacamma.accounting.tools import currency_round, current_system_account, ge
 from diacamma.payoff.models import Supporting, Payoff
 from diacamma.condominium.system import current_system_condo
 from diacamma.accounting.tools_reports import get_spaces
+from lucterios.framework.auditlog import auditlog
 
 
 class Set(LucteriosModel):
@@ -1534,6 +1535,9 @@ class CallDetail(LucteriosModel):
     def __str__(self):
         return "%s - %s" % (self.callfunds, self.designation)
 
+    def get_auditlog_object(self):
+        return self.callfunds
+
     @classmethod
     def get_default_fields(cls):
         return ['type_call_ex', "set", "designation", 'total_amount', 'set.total_part', 'owner_part', 'price']
@@ -1747,6 +1751,9 @@ class ExpenseDetail(LucteriosModel):
     def __str__(self):
         return "%s: %s" % (self.expense, self.designation)
 
+    def get_auditlog_object(self):
+        return self.expense
+
     @classmethod
     def get_default_fields(cls):
         return ["set", "designation", "expense_account", 'price', 'ratio_txt']
@@ -1934,3 +1941,18 @@ def condominium_checkparam():
             current_set.convert_cost()
     migrate_budget()
     Set.correct_costaccounting()
+
+
+@Signal.decorate('auditlog_register')
+def condominium_auditlog_register():
+    auditlog.register(OwnerLink)
+    auditlog.register(OwnerContact)
+    auditlog.register(RecoverableLoadRatio, include_fields=['ratio', 'code_txt'])
+    auditlog.register(Set, include_fields=["name", "type_load", 'is_link_to_lots'])
+    auditlog.register(Owner, include_fields=["third", "information"])
+    auditlog.register(Partition, include_fields=["set", "owner", "value"])
+    auditlog.register(PropertyLot, include_fields=["num", "value", "description", "owner"])
+    auditlog.register(CallFunds, include_fields=["num", "date", "owner", "comment", "status"])
+    auditlog.register(CallDetail, include_fields=['type_call_ex', "set", "designation", 'price'])
+    auditlog.register(Expense, include_fields=["third", "num", "date", "expensetype", "comment", "status"])
+    auditlog.register(ExpenseDetail, include_fields=["set", "designation", "expense_account", "price"])
