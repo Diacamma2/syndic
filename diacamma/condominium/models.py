@@ -1536,6 +1536,8 @@ class CallDetail(LucteriosModel):
         return "%s - %s" % (self.callfunds, self.designation)
 
     def get_auditlog_object(self):
+        if self.callfunds is None:
+            raise CallFunds.DoesNotExist("")
         return self.callfunds
 
     @classmethod
