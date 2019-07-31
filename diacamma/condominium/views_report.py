@@ -287,7 +287,10 @@ class CurrentManageAccounting(ManageAccounting):
         initial_filter = self.filter
         initial_lastfilter = self.lastfilter
         for classloaditem in Set.objects.filter(type_load=0, is_active=True):
-            current_costaccounting = classloaditem.setcost_set.filter(year=self.item).first().cost_accounting
+            first_setcost = classloaditem.setcost_set.filter(year=self.item).first()
+            if first_setcost is None:
+                continue
+            current_costaccounting = first_setcost.cost_accounting
             current_request = Q(account__code__regex=current_system_account().get_expence_mask())
             current_request |= Q(account__code__regex=current_system_account().get_revenue_mask()) & ~Q(account__code=revenue_account)
             if initial_filter is not None:
