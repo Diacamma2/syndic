@@ -35,7 +35,7 @@ from lucterios.mailing.models import Message
 from lucterios.mailing.test_tools import decode_b64
 
 from diacamma.accounting.models import EntryAccount, FiscalYear
-from diacamma.accounting.views import ThirdShow
+from diacamma.accounting.views import ThirdShow, ThirdList
 from diacamma.accounting.views_entries import EntryAccountList
 from diacamma.accounting.views_accounts import FiscalYearClose, FiscalYearBegin, FiscalYearReportLastYear
 from diacamma.accounting.views_other import CostAccountingList
@@ -52,6 +52,8 @@ from diacamma.condominium.views import OwnerAndPropertyLotList, OwnerAdd, OwnerD
     OwnerLoadCount, OwnerMultiPay, OwnerPayableEmail
 from diacamma.condominium.views_report import FinancialStatus, GeneralManageAccounting, CurrentManageAccounting, ExceptionalManageAccounting
 from diacamma.condominium.test_tools import default_setowner_fr, add_test_callfunds, old_accounting, add_test_expenses_fr, init_compta, add_years, default_setowner_be, add_test_expenses_be
+from lucterios.contacts.views_contacts import IndividualList
+from lucterios.CORE.views import ObjectMerge
 
 
 class SetOwnerTest(LucteriosTest):
@@ -548,6 +550,63 @@ class SetOwnerTest(LucteriosTest):
         self.assert_observer('core.custom', 'diacamma.condominium', 'setList')
         self.assert_count_equal('set', 1)
         self.assert_json_equal('', 'set/@0/partitionfill_set', ["Minimum : 16,7 %", "Dalton William : 33,3 %", "Dalton Joe : 50,0 %"])
+
+    def test_merge_contacts(self):
+        default_setowner_fr(with_lots=False)
+        self.factory.xfer = OwnerAndPropertyLotList()
+        self.calljson('/diacamma.condominium/ownerAndPropertyLotList', {}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'ownerAndPropertyLotList')
+        self.assert_count_equal('owner', 3)
+
+        self.factory.xfer = SetShow()
+        self.calljson('/diacamma.condominium/setShow', {'set': 1}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'setShow')
+        self.assert_count_equal('partition', 3)
+        self.assert_json_equal('', 'partition/@0/value', '45.00')
+        self.assert_json_equal('', 'partition/@0/owner', 'Minimum')
+        self.assert_json_equal('', 'partition/@1/value', '35.00')
+        self.assert_json_equal('', 'partition/@1/owner', 'Dalton William')
+        self.assert_json_equal('', 'partition/@2/value', '20.00')
+        self.assert_json_equal('', 'partition/@2/owner', 'Dalton Joe')
+
+        self.factory.xfer = ThirdList()
+        self.calljson('/diacamma.accounting/thirdList', {}, False)
+        self.assert_observer('core.custom', 'diacamma.accounting', 'thirdList')
+        self.assert_count_equal('third', 7)
+
+        self.factory.xfer = IndividualList()
+        self.calljson('/lucterios.contacts/individualList', {}, False)
+        self.assert_observer('core.custom', 'lucterios.contacts', 'individualList')
+        self.assert_count_equal('individual', 5)
+
+        self.factory.xfer = ObjectMerge()
+        self.calljson('/CORE/objectMerge', {'modelname': 'contacts.Individual', 'field_id': 'individual',
+                                            'individual': '2;3;4;5', 'CONFIRME': 'YES', 'mrg_object': '3'}, False)
+        self.assert_observer('core.acknowledge', 'CORE', 'objectMerge')
+
+        self.factory.xfer = IndividualList()
+        self.calljson('/lucterios.contacts/individualList', {}, False)
+        self.assert_observer('core.custom', 'lucterios.contacts', 'individualList')
+        self.assert_count_equal('individual', 2)
+
+        self.factory.xfer = ThirdList()
+        self.calljson('/diacamma.accounting/thirdList', {}, False)
+        self.assert_observer('core.custom', 'diacamma.accounting', 'thirdList')
+        self.assert_count_equal('third', 4)
+
+        self.factory.xfer = OwnerAndPropertyLotList()
+        self.calljson('/diacamma.condominium/ownerAndPropertyLotList', {}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'ownerAndPropertyLotList')
+        self.assert_count_equal('owner', 2)
+
+        self.factory.xfer = SetShow()
+        self.calljson('/diacamma.condominium/setShow', {'set': 1}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'setShow')
+        self.assert_count_equal('partition', 2)
+        self.assert_json_equal('', 'partition/@0/value', '55.00')
+        self.assert_json_equal('', 'partition/@0/owner', 'Dalton William')
+        self.assert_json_equal('', 'partition/@1/value', '45.00')
+        self.assert_json_equal('', 'partition/@1/owner', 'Minimum')
 
 
 class ReportTest(PaymentTest):

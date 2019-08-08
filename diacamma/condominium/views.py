@@ -27,7 +27,7 @@ from lucterios.CORE.models import Parameter
 from lucterios.contacts.models import Individual, LegalEntity, AbstractContact
 from lucterios.contacts.tools import ContactSelection
 
-from diacamma.accounting.models import AccountThird, FiscalYear
+from diacamma.accounting.models import AccountThird, FiscalYear, Third
 from diacamma.accounting.tools import correct_accounting_code, get_amount_from_format_devise
 from diacamma.payoff.views import PayoffAddModify, can_send_email
 
@@ -563,6 +563,27 @@ def summary_condo(xfer):
             return True
         else:
             return False
+
+
+@signal_and_lock.Signal.decorate('post_merge')
+def post_merge_condo(item):
+    from django.db.models import Count
+    if isinstance(item, Third):
+        owner_list = Owner.objects.filter(third=item).order_by('id')
+        main_owner = owner_list.first()
+        if main_owner is not None:
+            main_owner.merge_objects(list(owner_list)[1:])
+            part_set_list = []
+            for ident in main_owner.partition_set.values('set').annotate(Count('id')).values('set').order_by().filter(id__count__gt=1):
+                part_set_list.append(ident['set'])
+            for set_id in part_set_list:
+                part_list = main_owner.partition_set.filter(set_id=set_id).order_by('id')
+                main_part = part_list.first()
+                if main_part is not None:
+                    for part_item in list(part_list)[1:]:
+                        main_part.value += part_item.value
+                        part_item.delete()
+                    main_part.save()
 
 
 @signal_and_lock.Signal.decorate('third_addon')
