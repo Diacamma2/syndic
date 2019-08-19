@@ -35,7 +35,7 @@ from lucterios.mailing.models import Message
 from lucterios.mailing.test_tools import decode_b64
 
 from diacamma.accounting.models import EntryAccount, FiscalYear
-from diacamma.accounting.views import ThirdShow, ThirdList
+from diacamma.accounting.views import ThirdShow, ThirdList, AccountThirdAddModify
 from diacamma.accounting.views_entries import EntryAccountList
 from diacamma.accounting.views_accounts import FiscalYearClose, FiscalYearBegin, FiscalYearReportLastYear
 from diacamma.accounting.views_other import CostAccountingList
@@ -259,7 +259,7 @@ class SetOwnerTest(LucteriosTest):
         self.calljson('/diacamma.condominium/ownerAdd', {}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'ownerAdd')
         self.assert_count_equal('', 4)
-        self.assert_select_equal('third', 7)  # nb=7
+        self.assert_select_equal('third', 0)
 
         self.factory.xfer = ThirdShow()
         self.calljson('/diacamma.accounting/thirdShow', {"third": 4}, False)
@@ -268,6 +268,20 @@ class SetOwnerTest(LucteriosTest):
         self.assert_count_equal('accountthird', 2)
         self.assert_json_equal('', 'accountthird/@0/code', '411')
         self.assert_json_equal('', 'accountthird/@1/code', '401')
+
+        self.factory.xfer = AccountThirdAddModify()
+        self.calljson('/diacamma.accounting/accountThirdAddModify', {'SAVE': 'YES', "third": 4, 'code': '4501'}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.accounting', 'accountThirdAddModify')
+
+        self.factory.xfer = ThirdShow()
+        self.calljson('/diacamma.accounting/thirdShow', {"third": 4}, False)
+        self.assert_observer('core.custom', 'diacamma.accounting', 'thirdShow')
+        self.assert_count_equal('accountthird', 3)
+
+        self.factory.xfer = OwnerAdd()
+        self.calljson('/diacamma.condominium/ownerAdd', {}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'ownerAdd')
+        self.assert_select_equal('third', 1)
 
         self.factory.xfer = OwnerAdd()
         self.calljson('/diacamma.condominium/ownerAdd',
@@ -300,7 +314,7 @@ class SetOwnerTest(LucteriosTest):
         self.calljson('/diacamma.condominium/ownerAdd', {}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'ownerAdd')
         self.assert_count_equal('', 4)
-        self.assert_select_equal('third', 6)  # nb=6
+        self.assert_select_equal('third', 0)
 
         self.factory.xfer = OwnerDel()
         self.calljson('/diacamma.condominium/ownerDel',

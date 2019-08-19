@@ -88,6 +88,12 @@ class OwnerEditor(SupportingEditor):
 
     def edit(self, xfer):
         if xfer.item.id is None:
+            new_account = []
+            if Params.getvalue("condominium-old-accounting"):
+                new_account.append(Params.getvalue("condominium-default-owner-account"))
+            else:
+                for num_account in range(1, 6):
+                    new_account.append(Params.getvalue("condominium-default-owner-account%d" % num_account))
             sel = XferCompSelect('third')
             sel.needed = True
             sel.description = _('third')
@@ -95,7 +101,7 @@ class OwnerEditor(SupportingEditor):
             owner_third_ids = []
             for owner in Owner.objects.all():
                 owner_third_ids.append(owner.third_id)
-            items = Third.objects.all().exclude(id__in=owner_third_ids).distinct()
+            items = Third.objects.filter(accountthird__code__regex=current_system_account().get_societary_mask()).exclude(id__in=owner_third_ids).distinct()
             items = sorted(items, key=lambda t: six.text_type(t))
             sel.set_select_query(items)
             xfer.add_component(sel)
@@ -103,7 +109,7 @@ class OwnerEditor(SupportingEditor):
             btn.set_location(3, 0)
             btn.set_is_mini(True)
             btn.set_action(xfer.request, ActionsManage.get_action_url('accounting.Third', 'Add', xfer), close=CLOSE_NO,
-                           modal=FORMTYPE_MODAL, params={'new_account': Params.getvalue('condominium-default-owner-account')})
+                           modal=FORMTYPE_MODAL, params={'new_account': ';'.join(new_account)})
             xfer.add_component(btn)
             xfer.filltab_from_model(1, xfer.get_max_row() + 1, False, ["information"])
         else:
