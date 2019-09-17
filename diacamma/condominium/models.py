@@ -40,7 +40,7 @@ from django.conf import settings
 from django_fsm import FSMIntegerField, transition
 
 from lucterios.framework.models import LucteriosModel, get_subfield_show,\
-    LucteriosVirtualField, LucteriosDecimalField
+    LucteriosVirtualField, LucteriosDecimalField, correct_db_field
 from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.framework.tools import convert_date, get_date_formating,\
     format_to_string
@@ -1943,6 +1943,13 @@ def condominium_checkparam():
             current_set.convert_cost()
     migrate_budget()
     Set.correct_costaccounting()
+    correct_db_field({
+        'condominium_recoverableloadratio': 'ratio',
+        'condominium_partition': 'value',
+        'condominium_calldetail': 'price',
+        'condominium_expensedetail': 'price',
+        'condominium_expenseratio': 'value',
+    })
 
 
 @Signal.decorate('auditlog_register')
