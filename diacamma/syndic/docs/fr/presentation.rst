@@ -32,3 +32,11 @@ Cette organisation est particulièrement intéressante pour permette à plusieur
 Quel responsable ne s'est pas arraché les cheveux suite à un échanges de documents via une clef USB où certaines modifications importantes se perdent?
 
 Pour plus d'information, visiter notre site http://www.diacamma.org
+
+Aides et support
+----------------
+
+Sur le site officiel du logiciel, http://www.diacamma.org, où vous trouverez des tutoriels et un forum pour échanger des astuces entre utilisateurs.
+
+Si vous souhaitez un service et un support plus personnalisé, vous pouvez faire confiance à notre partenaire officiel SLETO.
+Pour en savoir plus sur des solutions d'hébergement et de support, rendez vous sur https://www.sleto.net
