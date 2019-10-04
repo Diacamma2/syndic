@@ -29,12 +29,12 @@ from lucterios.contacts.tools import ContactSelection
 
 from diacamma.accounting.models import AccountThird, FiscalYear, Third
 from diacamma.accounting.tools import correct_accounting_code, get_amount_from_format_devise
+from diacamma.payoff.models import PaymentMethod
 from diacamma.payoff.views import PayoffAddModify, can_send_email
 
-from diacamma.condominium.models import PropertyLot, Owner, Set, SetCost, convert_accounting, OwnerContact
+from diacamma.condominium.models import PropertyLot, Owner, Set, SetCost, convert_accounting, OwnerContact, generate_pdfreport
 from diacamma.condominium.views_classload import fill_params
 from diacamma.condominium.system import current_system_condo
-from diacamma.payoff.models import PaymentMethod
 
 
 @MenuManage.describ('condominium.change_set', FORMTYPE_NOMODAL, 'condominium.manage', _('Manage of owners and property lots'))
@@ -648,3 +648,11 @@ def finalizeyear_condo(xfer):
                     current_system_condo().ventilate_costaccounting(set_cost.set, set_cost.cost_accounting, 1, Params.getvalue("condominium-current-revenue-account"))
                 set_cost.cost_accounting.close()
             current_system_condo().ventilate_result(year, ventilate)
+
+
+@signal_and_lock.Signal.decorate('finalize_year_after')
+def finalize_year_after_condo(xfer):
+    year = FiscalYear.get_current(xfer.getparam('year'))
+    if year is not None:
+        year.set_context(xfer)
+        generate_pdfreport(year)

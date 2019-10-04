@@ -49,7 +49,8 @@ from lucterios.CORE.models import Parameter
 from lucterios.CORE.parameters import Params
 from lucterios.contacts.models import AbstractContact
 
-from diacamma.accounting.models import CostAccounting, EntryAccount, ChartsAccount, EntryLineAccount, FiscalYear, Budget, AccountThird, Third
+from diacamma.accounting.models import CostAccounting, EntryAccount, ChartsAccount, EntryLineAccount, FiscalYear, Budget, AccountThird, Third,\
+    check_fiscalyear
 from diacamma.accounting.tools import currency_round, current_system_account, get_amount_sum, correct_accounting_code, format_with_devise
 from diacamma.payoff.models import Supporting, Payoff
 from diacamma.condominium.system import current_system_condo
@@ -1054,6 +1055,12 @@ class Owner(Supporting):
             for num_account in range(1, 6):
                 AccountThird.objects.get_or_create(third=self.third, code=correct_accounting_code(Params.getvalue("condominium-default-owner-account%d" % num_account)))
 
+    def get_saved_pdfreport(self):
+        return None
+
+    def generate_pdfreport(self):
+        return None
+
     @classmethod
     def check_all_account(cls):
         for owner in cls.objects.all():
@@ -1362,6 +1369,15 @@ class CallFundsSupporting(Supporting):
         except Exception:
             return False
 
+    @property
+    def fiscal_year(self):
+        return FiscalYear.objects.filter(begin__lte=self.callfunds.date, end__gte=self.callfunds.date).first()
+
+    def generate_pdfreport(self):
+        if self.callfunds.status != 0:
+            return Supporting.generate_pdfreport(self)
+        return None
+
     def get_send_email_objects(self):
         try:
             return [self.callfunds]
@@ -1386,9 +1402,9 @@ class CallFunds(LucteriosModel):
 
     def __str__(self):
         if self.num is not None:
-            return _('call of funds #%(num)d - %(date)s') % {'num': self.num, 'date': get_date_formating(self.date)}
+            return _('call of funds #%(num)d %(owner)s') % {'num': self.num, 'owner': self.owner if self.owner is not None else ''}
         else:
-            return _('call of funds "last year report" - %(date)s') % {'date': get_date_formating(self.date)}
+            return _('call of funds "last year report" %(owner)s') % {'owner': self.owner if self.owner is not None else ''}
 
     @property
     def reference(self):
@@ -1433,6 +1449,10 @@ class CallFunds(LucteriosModel):
             return _('"%s" cannot be deleted!') % six.text_type(self)
         return ''
 
+    def set_context(self, xfer):
+        if self.supporting is not None:
+            self.supporting.set_context(xfer)
+
     transitionname__valid = _("Valid")
 
     @transition(field=status, source=0, target=1, conditions=[lambda item:(len(Owner.objects.all()) > 0) and (len(item.calldetail_set.all()) > 0)])
@@ -1444,10 +1464,12 @@ class CallFunds(LucteriosModel):
         else:
             new_num = val['num__max'] + 1
         last_call = None
+        last_user = getattr(self, 'last_user', None)
         calls_by_owner = {}
         for owner in Owner.objects.all():
             calls_by_owner[owner.id] = CallFunds.objects.create(num=new_num, date=self.date, owner=owner, comment=self.comment,
                                                                 status=1, supporting=CallFundsSupporting.objects.create(third=owner.third))
+            setattr(calls_by_owner[owner.id].supporting, 'last_user', last_user)
             last_call = calls_by_owner[owner.id]
         for calldetail in self.calldetail_set.all():
             amount = float(calldetail.price)
@@ -1470,6 +1492,7 @@ class CallFunds(LucteriosModel):
                 new_call.delete()
             else:
                 new_call.generate_accounting()
+                new_call.generate_pdfreport()
         self.delete()
         if last_call is not None:
             self.__dict__ = last_call.__dict__
@@ -1730,6 +1753,12 @@ class Expense(Supporting):
         info.extend(self.check_date(self.date.isoformat()))
         return info
 
+    def get_saved_pdfreport(self):
+        return None
+
+    def generate_pdfreport(self):
+        return None
+
     class Meta(object):
         verbose_name = _('expense')
         verbose_name_plural = _('expenses')
@@ -1877,6 +1906,22 @@ def migrate_budget():
         budget_item.save()
 
 
+def generate_pdfreport(year):
+    from diacamma.condominium.views_report import FinancialStatus, GeneralManageAccounting, CurrentManageAccounting, ExceptionalManageAccounting
+    year.get_reports(FinancialStatus)
+    year.get_reports(GeneralManageAccounting)
+    year.get_reports(CurrentManageAccounting)
+    year.get_reports(ExceptionalManageAccounting)
+
+
+def check_callfundreport():
+    check_fiscalyear()
+    for year in FiscalYear.objects.filter(status=2).order_by('end'):
+        generate_pdfreport(year)
+    for callfund in CallFunds.objects.filter(status__in=(1, 2)):
+        callfund.get_saved_pdfreport()
+
+
 @Signal.decorate('checkparam')
 def condominium_checkparam():
     Parameter.check_and_create(
@@ -1950,6 +1995,7 @@ def condominium_checkparam():
         'condominium_expensedetail': 'price',
         'condominium_expenseratio': 'value',
     })
+    check_callfundreport()
 
 
 @Signal.decorate('auditlog_register')

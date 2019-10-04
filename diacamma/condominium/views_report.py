@@ -51,6 +51,7 @@ class CondominiumReport(XferContainerCustom):
     model = FiscalYear
     field_id = 'year'
     icon = "report.png"
+    saving_pdfreport = True
 
     def __init__(self, **kwargs):
         XferContainerCustom.__init__(self, **kwargs)

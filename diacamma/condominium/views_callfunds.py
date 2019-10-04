@@ -3,24 +3,22 @@ from __future__ import unicode_literals
 
 from django.utils.translation import ugettext_lazy as _
 from django.db.models import Q
+from django.utils import six
 
 from lucterios.framework.xferadvance import XferListEditor, TITLE_ADD, TITLE_MODIFY, TITLE_EDIT, TITLE_DELETE, TITLE_PRINT, XferTransition,\
     TITLE_CREATE
 from lucterios.framework.xferadvance import XferAddEditor
 from lucterios.framework.xferadvance import XferShowEditor
 from lucterios.framework.xferadvance import XferDelete
-from lucterios.framework.tools import FORMTYPE_NOMODAL, ActionsManage, MenuManage, FORMTYPE_REFRESH, CLOSE_NO, SELECT_SINGLE, CLOSE_YES, SELECT_MULTI
-from lucterios.framework.xfercomponents import XferCompSelect
-from lucterios.framework.error import LucteriosException, IMPORTANT
-
-from lucterios.CORE.xferprint import XferPrintReporting
-
-from diacamma.condominium.models import CallFunds, CallDetail
 from lucterios.framework.xfergraphic import XferContainerAcknowledge
-from diacamma.condominium.system import current_system_condo
-from diacamma.payoff.views import can_send_email
+from lucterios.framework.xfercomponents import XferCompSelect
+from lucterios.framework.tools import FORMTYPE_NOMODAL, ActionsManage, MenuManage, FORMTYPE_REFRESH, CLOSE_NO, SELECT_SINGLE, CLOSE_YES, SELECT_MULTI
+from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.framework.xfersearch import get_criteria_list
-from django.utils import six
+
+from diacamma.payoff.views import can_send_email, SupportingPrint
+from diacamma.condominium.models import CallFunds, CallDetail
+from diacamma.condominium.system import current_system_condo
 
 
 @MenuManage.describ('condominium.change_callfunds', FORMTYPE_NOMODAL, 'condominium.manage', _('Manage of calls of funds'))
@@ -123,11 +121,18 @@ class CallFundsPayableEmail(XferContainerAcknowledge):
 @ActionsManage.affect_grid(TITLE_PRINT, "images/print.png", unique=SELECT_MULTI, condition=can_printing)
 @ActionsManage.affect_show(TITLE_PRINT, "images/print.png", close=CLOSE_NO, condition=lambda xfer: xfer.item.status in (1, 2))
 @MenuManage.describ('condominium.change_callfunds')
-class CallFundsPrint(XferPrintReporting):
+class CallFundsPrint(SupportingPrint):
     icon = "callfunds.png"
     model = CallFunds
     field_id = 'callfunds'
     caption = _("Print call of funds")
+
+    def get_print_name(self):
+        if len(self.items) == 1:
+            current_callfund = self.items[0]
+            return current_callfund.get_document_filename()
+        else:
+            return six.text_type(self.caption)
 
     def items_callback(self):
         has_item = False

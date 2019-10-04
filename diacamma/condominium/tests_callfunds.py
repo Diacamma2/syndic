@@ -827,7 +827,7 @@ class CallFundsTest(LucteriosTest):
             self.assertEqual('base64', msg.get('Content-Transfer-Encoding', ''))
             self.assertEqual('<html>this is a call of funds.</html>', decode_b64(msg.get_payload()))
 
-            self.assertIn('appel_de_fonds_N%C2%B01__10_juin_2015.pdf', msg_file.get('Content-Type', ''))
+            self.assertIn('appel_de_fonds_N%C2%B01_Minimum.pdf', msg_file.get('Content-Type', ''))
             self.save_pdf(base64_content=msg_file.get_payload())
         finally:
             server.stop()

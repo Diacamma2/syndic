@@ -1255,7 +1255,7 @@ class OwnerTest(PaymentTest):
         self.assert_observer('core.custom', 'diacamma.payoff', 'payoffAddModify')
         self.assert_json_equal('FLOAT', 'amount', "17.07")
         self.assert_json_equal('EDIT', 'payer', "Minimum")
-        self.assert_json_equal('LABELFORM', 'supportings', "Minimum{[br/]}appel de fonds N°2 - 14 juillet 2015")
+        self.assert_json_equal('LABELFORM', 'supportings', "Minimum{[br/]}appel de fonds N°2 Minimum")
 
     def test_ventilation_debit(self):
         add_test_callfunds(False, True)
