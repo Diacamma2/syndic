@@ -25,16 +25,13 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import unicode_literals
 from shutil import rmtree
 
-from django.utils import six
-
 from lucterios.framework.test import LucteriosTest, add_user
 from lucterios.framework.filetools import get_user_dir
-from lucterios.framework.xfergraphic import XferContainerAcknowledge
 from lucterios.contacts.models import Individual
 from lucterios.CORE.views import get_wizard_step_list
 from lucterios.documents.views import DocumentShow
 
-from diacamma.accounting.test_tools import initial_thirds_fr, default_compta_fr, default_costaccounting
+from diacamma.accounting.test_tools import initial_thirds_fr, default_compta_fr
 from diacamma.payoff.test_tools import default_bankaccount_fr
 from diacamma.condominium.test_tools import default_setowner_fr, add_test_callfunds, add_test_expenses_fr, init_compta, add_years
 
@@ -112,7 +109,7 @@ class SyndicTest(LucteriosTest):
 
         self.calljson('/CORE/configurationWizard', {'steplist': steplist, 'step': 9})
         self.assert_observer('core.custom', 'CORE', 'configurationWizard')
-        self.assert_count_equal('', 18)
+        self.assert_count_equal('', 19)
 
         self.calljson('/CORE/configurationWizard', {'steplist': steplist, 'step': 10})
         self.assert_observer('core.custom', 'CORE', 'configurationWizard')
