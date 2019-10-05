@@ -30,16 +30,19 @@ from django.utils import six
 from lucterios.framework.test import LucteriosTest
 from lucterios.framework.filetools import get_user_dir
 from lucterios.framework.models import LucteriosScheduler
+from lucterios.CORE.views import ObjectMerge
 
 from lucterios.mailing.models import Message
 from lucterios.mailing.test_tools import decode_b64
+from lucterios.contacts.views_contacts import IndividualList
 
 from diacamma.accounting.models import EntryAccount, FiscalYear
 from diacamma.accounting.views import ThirdShow, ThirdList, AccountThirdAddModify
 from diacamma.accounting.views_entries import EntryAccountList
 from diacamma.accounting.views_accounts import FiscalYearClose, FiscalYearBegin, FiscalYearReportLastYear
 from diacamma.accounting.views_other import CostAccountingList
-from diacamma.accounting.test_tools import initial_thirds_fr, default_compta_fr, default_costaccounting, default_compta_be, initial_thirds_be
+from diacamma.accounting.test_tools import initial_thirds_fr, default_compta_fr, default_costaccounting, default_compta_be, initial_thirds_be,\
+    check_pdfreport
 
 from diacamma.payoff.models import Payoff
 from diacamma.payoff.views import PayableShow, PayableEmail, PayoffAddModify
@@ -52,8 +55,6 @@ from diacamma.condominium.views import OwnerAndPropertyLotList, OwnerAdd, OwnerD
     OwnerLoadCount, OwnerMultiPay, OwnerPayableEmail
 from diacamma.condominium.views_report import FinancialStatus, GeneralManageAccounting, CurrentManageAccounting, ExceptionalManageAccounting
 from diacamma.condominium.test_tools import default_setowner_fr, add_test_callfunds, old_accounting, add_test_expenses_fr, init_compta, add_years, default_setowner_be, add_test_expenses_be
-from lucterios.contacts.views_contacts import IndividualList
-from lucterios.CORE.views import ObjectMerge
 
 
 class SetOwnerTest(LucteriosTest):
@@ -889,7 +890,7 @@ class OwnerTest(PaymentTest):
             self.calljson('/diacamma.payoff/payableEmail',
                           {'item_name': 'owner', 'owner': '1;2;3'}, False)
             self.assert_observer('core.custom', 'diacamma.payoff', 'payableEmail')
-            self.assert_count_equal('', 5)
+            self.assert_count_equal('', 6)
             self.assert_json_equal('LABELFORM', "nb_item", '3')
 
             self.factory.xfer = PayableEmail()
@@ -1094,6 +1095,11 @@ class OwnerTest(PaymentTest):
         self.check_account(year_id=1, code='627', value=12.34)
         self.check_account(year_id=1, code='702', value=75.0)
         self.check_account(year_id=1, code='701', value=112.34)
+
+        check_pdfreport(self, '1', 'Etat financier.pdf', "FinancialStatus", "diacamma.condominium.views_report")
+        check_pdfreport(self, '1', 'Compte de gestion generale.pdf', "GeneralManageAccounting", "diacamma.condominium.views_report")
+        check_pdfreport(self, '1', 'Compte de gestion pour operations courantes.pdf', "CurrentManageAccounting", "diacamma.condominium.views_report")
+        check_pdfreport(self, '1', 'Compte de gestion pour operations exceptionnelles.pdf', "ExceptionalManageAccounting", "diacamma.condominium.views_report")
 
         self.factory.xfer = FiscalYearReportLastYear()
         self.calljson('/diacamma.accounting/fiscalYearReportLastYear',

@@ -38,7 +38,8 @@ from diacamma.accounting.models import ChartsAccount, FiscalYear, Budget
 from diacamma.accounting.views_entries import EntryAccountList
 from diacamma.accounting.test_tools import initial_thirds_fr, default_compta_fr, default_costaccounting, initial_thirds_be, default_compta_be
 from diacamma.payoff.views import PayoffAddModify, PayableEmail
-from diacamma.payoff.test_tools import default_bankaccount_fr, default_bankaccount_be
+from diacamma.payoff.test_tools import default_bankaccount_fr, default_bankaccount_be,\
+    check_pdfreport
 from diacamma.condominium.views_callfunds import CallFundsList, CallFundsAddModify, CallFundsDel, \
     CallFundsShow, CallDetailAddModify, CallFundsTransition, CallFundsPrint, CallFundsAddCurrent,\
     CallFundsPayableEmail
@@ -301,6 +302,14 @@ class CallFundsTest(LucteriosTest):
         self.factory.xfer = CallFundsPrint()
         self.calljson('/diacamma.condominium/callFundsPrint', {'callfunds': 3, 'PRINT_MODE': 0, 'MODEL': 8}, False)
         self.assert_observer('core.print', 'diacamma.condominium', 'callFundsPrint')
+        self.save_pdf()
+        check_pdfreport(self, 'CallFundsSupporting', 3, False)
+
+        self.factory.xfer = CallFundsPrint()
+        self.calljson('/diacamma.condominium/callFundsPrint', {'callfunds': 3, 'PRINT_PERSITENT': True, 'PRINT_MODE': 0, 'MODEL': 8}, False)
+        self.assert_observer('core.print', 'diacamma.condominium', 'callFundsPrint')
+        self.save_pdf()
+        check_pdfreport(self, 'CallFundsSupporting', 3, True)
 
         self.factory.xfer = CallFundsTransition()
         self.calljson('/diacamma.condominium/callFundsTransition', {'CONFIRME': 'YES', 'callfunds': 3, 'TRANSITION': 'close'}, False)
@@ -812,7 +821,7 @@ class CallFundsTest(LucteriosTest):
             self.calljson('/diacamma.payoff/payableEmail',
                           {'item_name': 'callfunds', 'callfunds': 2, 'modelname': 'condominium.CallFunds'}, False)
             self.assert_observer('core.custom', 'diacamma.payoff', 'payableEmail')
-            self.assert_count_equal('', 4)
+            self.assert_count_equal('', 6)
 
             self.factory.xfer = PayableEmail()
             self.calljson('/diacamma.payoff/payableEmail',
@@ -832,7 +841,7 @@ class CallFundsTest(LucteriosTest):
         finally:
             server.stop()
 
-    def test_multi_send(self):
+    def _test_multi_send(self):
         from lucterios.mailing.tests import configSMTP, TestReceiver
         add_test_callfunds()
         configSMTP('localhost', 2025)
@@ -861,7 +870,7 @@ class CallFundsTest(LucteriosTest):
             self.calljson('/diacamma.payoff/payableEmail',
                           {'item_name': 'callfunds', 'callfunds': '2;3;4', 'modelname': 'condominium.CallFunds'}, False)
             self.assert_observer('core.custom', 'diacamma.payoff', 'payableEmail')
-            self.assert_count_equal('', 5)
+            self.assert_count_equal('', 7)
             self.assert_json_equal('LABELFORM', "nb_item", '3')
 
             self.factory.xfer = PayableEmail()
