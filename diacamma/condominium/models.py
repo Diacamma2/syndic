@@ -49,8 +49,7 @@ from lucterios.CORE.models import Parameter
 from lucterios.CORE.parameters import Params
 from lucterios.contacts.models import AbstractContact
 
-from diacamma.accounting.models import CostAccounting, EntryAccount, ChartsAccount, EntryLineAccount, FiscalYear, Budget, AccountThird, Third,\
-    check_fiscalyear
+from diacamma.accounting.models import CostAccounting, EntryAccount, ChartsAccount, EntryLineAccount, FiscalYear, Budget, AccountThird, Third
 from diacamma.accounting.tools import currency_round, current_system_account, get_amount_sum, correct_accounting_code, format_with_devise
 from diacamma.payoff.models import Supporting, Payoff
 from diacamma.condominium.system import current_system_condo
@@ -1914,12 +1913,12 @@ def generate_pdfreport(year):
     year.get_reports(ExceptionalManageAccounting)
 
 
-def check_callfundreport():
-    check_fiscalyear()
-    for year in FiscalYear.objects.filter(status=2).order_by('end'):
-        generate_pdfreport(year)
-    for callfund in CallFunds.objects.filter(status__in=(1, 2)):
-        callfund.get_saved_pdfreport()
+@Signal.decorate('check_report')
+def check_report_condomium(year):
+    generate_pdfreport(year)
+    for callfund in CallFunds.objects.filter(date__gte=year.begin, date__lte=year.end, status__in=(1, 2)):
+        if callfund.supporting_id is not None:
+            callfund.supporting.get_saved_pdfreport()
 
 
 @Signal.decorate('checkparam')
@@ -1995,7 +1994,6 @@ def condominium_checkparam():
         'condominium_expensedetail': 'price',
         'condominium_expenseratio': 'value',
     })
-    check_callfundreport()
 
 
 @Signal.decorate('auditlog_register')
