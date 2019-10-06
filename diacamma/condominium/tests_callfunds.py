@@ -303,13 +303,13 @@ class CallFundsTest(LucteriosTest):
         self.calljson('/diacamma.condominium/callFundsPrint', {'callfunds': 3, 'PRINT_MODE': 0, 'MODEL': 8}, False)
         self.assert_observer('core.print', 'diacamma.condominium', 'callFundsPrint')
         self.save_pdf()
-        check_pdfreport(self, 'CallFundsSupporting', 3, False)
+        check_pdfreport(self, 'CallFundsSupporting', 5, False)  # CallFunds #3 => CallFundsSupporting #5
 
         self.factory.xfer = CallFundsPrint()
         self.calljson('/diacamma.condominium/callFundsPrint', {'callfunds': 3, 'PRINT_PERSITENT': True, 'PRINT_MODE': 0, 'MODEL': 8}, False)
         self.assert_observer('core.print', 'diacamma.condominium', 'callFundsPrint')
         self.save_pdf()
-        check_pdfreport(self, 'CallFundsSupporting', 3, True)
+        check_pdfreport(self, 'CallFundsSupporting', 5, True)  # CallFunds #3 => CallFundsSupporting #5
 
         self.factory.xfer = CallFundsTransition()
         self.calljson('/diacamma.condominium/callFundsTransition', {'CONFIRME': 'YES', 'callfunds': 3, 'TRANSITION': 'close'}, False)
@@ -754,18 +754,14 @@ class CallFundsTest(LucteriosTest):
         self.assert_json_equal('', 'entryline/@21/debit', -100.00)
 
     def test_payoff(self):
-        self.assertEqual(0.00,
-                         ChartsAccount.objects.get(id=17).current_total, '4501')
-        self.assertEqual(0.00,
-                         ChartsAccount.objects.get(id=2).current_total, '512')
-        self.assertEqual(0.00,
-                         ChartsAccount.objects.get(id=3).current_total, '531')
+        self.assertEqual(0.00, ChartsAccount.objects.get(id=17).current_total, '4501')
+        self.assertEqual(0.00, ChartsAccount.objects.get(id=2).current_total, '512')
+        self.assertEqual(0.00, ChartsAccount.objects.get(id=3).current_total, '531')
         self.factory.xfer = EntryAccountList()
         self.calljson('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '-1', 'filter': '0'}, False)
         self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
         self.assert_count_equal('entryline', 0)
-        self.assert_json_equal('LABELFORM', 'result',
-                               [0.00, 0.00, 0.00, 0.00, 0.00])
+        self.assert_json_equal('LABELFORM', 'result', [0.00, 0.00, 0.00, 0.00, 0.00])
 
         self.factory.xfer = CallFundsAddModify()
         self.calljson('/diacamma.condominium/callFundsAddModify', {'SAVE': 'YES', "date": '2015-06-10', "comment": 'abc 123'}, False)
@@ -844,7 +840,7 @@ class CallFundsTest(LucteriosTest):
     def _test_multi_send(self):
         from lucterios.mailing.tests import configSMTP, TestReceiver
         add_test_callfunds()
-        configSMTP('localhost', 2025)
+        configSMTP('localhost', 3025)
 
         self.factory.xfer = CallFundsList()
         self.calljson('/diacamma.condominium/callFundsList', {'status_filter': 1}, False)
@@ -863,7 +859,7 @@ class CallFundsTest(LucteriosTest):
         self.assertEqual(self.response_json['action']['params'], {'item_name': 'callfunds', 'modelname': 'condominium.CallFunds'})
 
         server = TestReceiver()
-        server.start(2025)
+        server.start(3025)
         try:
             self.assertEqual(0, server.count())
             self.factory.xfer = PayableEmail()
@@ -888,7 +884,6 @@ class CallFundsTest(LucteriosTest):
             self.assertEqual(1, len(LucteriosScheduler.get_list()))
             LucteriosScheduler.stop_scheduler()
             email_msg.sendemail(10, "http://testserver")
-            self.assertEqual(3, server.count())
             self.assertEqual(3, server.count())
 
             self.assertEqual(['Minimum@worldcompany.com', 'mr-sylvestre@worldcompany.com'], server.get(0)[2])
