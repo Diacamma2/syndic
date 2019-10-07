@@ -1985,6 +1985,10 @@ def condominium_checkparam():
         Parameter.change_value('condominium-old-accounting', len(Owner.objects.all()) != 0)
         for current_set in Set.objects.all():
             current_set.convert_cost()
+
+
+@Signal.decorate('convertdata')
+def condominium_convertdata():
     migrate_budget()
     Set.correct_costaccounting()
     correct_db_field({
