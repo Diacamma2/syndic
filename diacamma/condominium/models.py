@@ -1633,7 +1633,7 @@ class Expense(Supporting):
 
     @classmethod
     def get_default_fields(cls, status=-1):
-        fields = ["num", "date", "third", "comment", (_('total'), 'total')]
+        fields = ["num", "date", "third", "comment", 'total']
         if status == 1:
             fields.append(Supporting.get_payoff_fields()[-1])
         return fields
