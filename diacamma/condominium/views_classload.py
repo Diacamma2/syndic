@@ -292,7 +292,7 @@ class SetAssociate(XferAddEditor):
         img.set_location(0, 0, 1, 6)
         self.add_component(img)
         self.fill_from_model(1, 0, True, ['name', 'type_load'])
-        self.fill_from_model(1, 0, False, ['set_of_lots'])
+        self.fill_from_model(1, 2, False, ['set_of_lots'])
         self.add_action(self.get_action(TITLE_OK, 'images/ok.png'), params={"SAVE": "YES"})
         self.add_action(WrapAction(TITLE_CANCEL, 'images/cancel.png'))
 
