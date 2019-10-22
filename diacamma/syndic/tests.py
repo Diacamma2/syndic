@@ -28,7 +28,7 @@ from shutil import rmtree
 from lucterios.framework.test import LucteriosTest, add_user
 from lucterios.framework.filetools import get_user_dir
 from lucterios.contacts.models import Individual
-from lucterios.CORE.views import get_wizard_step_list
+from lucterios.CORE.views import get_wizard_step_list, Configuration
 from lucterios.documents.views import DocumentShow
 
 from diacamma.accounting.test_tools import initial_thirds_fr, default_compta_fr
@@ -147,3 +147,11 @@ class SyndicTest(LucteriosTest):
         self.calljson('/CORE/situationMenu', {})
         self.assert_observer('core.custom', 'CORE', 'situationMenu')
         self.assert_count_equal('', 8)
+
+    def test_config(self):
+        self.factory.xfer = Configuration()
+        self.calljson('/CORE/configuration', {}, False)
+        self.assert_observer('core.custom', 'CORE', 'configuration')
+        self.assert_count_equal('', 7 + 6)
+        self.assert_action_equal(self.json_comp["05@Adresses et Contacts_btn"]['action'],
+                                 ("Modifier", 'images/edit.png', 'CORE', 'paramEdit', 0, 1, 1, {'params': ['contacts-mailtoconfig', 'contacts-createaccount', 'contacts-defaultgroup', 'contacts-size-page']}))
