@@ -152,6 +152,8 @@ class SyndicTest(LucteriosTest):
         self.factory.xfer = Configuration()
         self.calljson('/CORE/configuration', {}, False)
         self.assert_observer('core.custom', 'CORE', 'configuration')
-        self.assert_count_equal('', 7 + 6)
+        self.assert_count_equal('', 7 + 6 + 3)
         self.assert_action_equal(self.json_comp["05@Adresses et Contacts_btn"]['action'],
                                  ("Modifier", 'images/edit.png', 'CORE', 'paramEdit', 0, 1, 1, {'params': ['contacts-mailtoconfig', 'contacts-createaccount', 'contacts-defaultgroup', 'contacts-size-page']}))
+        self.assert_action_equal(self.json_comp["60@Gestion documentaire_btn"]['action'],
+                                 ("Modifier", 'images/edit.png', 'CORE', 'paramEdit', 0, 1, 1, {'params': ["documents-signature"]}))
