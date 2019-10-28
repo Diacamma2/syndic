@@ -29,7 +29,7 @@ Création de votre premier exercice comptable
 
 	Menu *Administration/Modules (conf.)/Configuration comptables*
 
-	Menu *Finance/Comptabilité/plan comptable*
+	Menu *Comptabilité/Gestion comptable/plan comptable*
 
 Ouvrer votre premier exercice comptable et rendez le actifs.
 Vous devrez aussi créer le plan comptable de cette exercice pour avoir une comptabilité pleinement opérationnel.
@@ -54,9 +54,9 @@ Ajoutez vos catégories de charges et définisez pour chacunes les cotes parts o
 Mise à jours comptable
 ----------------------
 
-	Menu *Finance/Comptabilité/écritures comptable*
+	Menu *Comptabilité/Gestion comptable/écritures comptable*
 
-	Menu *Finance/Comptabilité/Modèle d'écriture*
+	Menu *Comptabilité/Gestion comptable/Modèle d'écriture*
 
 Si vous mettez en place *Diacamma Syndic* au cours de votre exercice, vous devrez également saisir votre report à nouveau de l'exercice précédent ainsi que ressaisir les écritures du début d'année.
 Attention: n'oubliez pas que l'ajout d'une cotisation d'adhérent génère une facture ainsi que des écritures comptables associées. Prenez en compte dans la reprise de votre comptabilité.

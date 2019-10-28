@@ -4,6 +4,10 @@ Les rapports
 Vous retrouvez ici les rapports correspondant au 4 premières annexes de la réglementation française.
 L'annexe 5 n'est pas proposé actuellement dans Diacamma: correspondant à un suivi de travaux et pas seulement un rapport financier, il nécessite une gestion de taches afin d'établir un tel rapport.
 
+Ces rapports sont sauvegarder automatiquement dans le gestionnaire de documents au moment de la clôture de l'exercice.
+Lorsque vous voulez imprimer les re-éditer, on vous propose alors par défaut de télécharger ce document sauvegarder.
+Vous pouvez re-générer un nouveau PDF, par contre celui-ci comportera la notion "duplicata" en filigrame.
+
 État financier
 --------------
 
