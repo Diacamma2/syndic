@@ -1425,6 +1425,38 @@ class CallFunds(LucteriosModel):
         return [("num", "date"), "owner", "calldetail_set", "comment", ("status", 'total')]
 
     @classmethod
+    def get_print_fields(cls):
+        fields = ["num", "date", "calldetail_set", "comment", "status", 'total']
+        fields.extend(["owner.information", 'owner.thirdinitial', 'owner.thirdtotal', 'owner.sumtopay'])
+        for sub_field in AbstractContact.get_print_fields():
+            if isinstance(sub_field, tuple):
+                fields.append('owner.third.contact.' + sub_field[1])
+            else:
+                fields.append('owner.third.contact.' + sub_field)
+        fields.extend(['owner.ownercontact_set.contact.str', "owner.ownercontact_set.link.str"])
+        fields.extend(['owner.propertylot_set.num', 'owner.propertylot_set.value', 'owner.propertylot_set.ratio', 'owner.propertylot_set.description'])
+        fields.extend(["owner.partition_set.set.str", "owner.partition_set.set.budget_txt", 'owner.partition_set.set.sumexpense',
+                       "owner.partition_set.value", 'owner.partition_set.ratio', 'owner.partition_set.ventilated'])
+        fields.extend(["owner.exceptionnal_set.set.str", "owner.exceptionnal_set.set.budget_txt", 'owner.exceptionnal_set.set.sumexpense',
+                       'owner.exceptionnal_set.total_callfunds',
+                       "owner.exceptionnal_set.value", 'owner.exceptionnal_set.ratio', 'owner.exceptionnal_set.ventilated'])
+
+        fields.extend(['owner.total_current_call', 'owner.total_current_payoff',
+                       'owner.total_current_initial', 'owner.total_current_ventilated',
+                       'owner.total_current_regularization', 'owner.total_extra',
+                       'owner.total_current_owner'])
+        fields.extend(['owner.total_exceptional_initial',
+                       'owner.total_exceptional_call',
+                       'owner.total_exceptional_payoff',
+                       'owner.total_exceptional_owner'])
+        fields.extend(['owner.total_cash_advance_call',
+                       'owner.total_cash_advance_payoff',
+                       'owner.total_fund_works_call',
+                       'owner.total_fund_works_payoff'])
+        fields.extend(['OUR_DETAIL', 'DEFAULT_DOCUMENTS'])
+        return fields
+
+    @classmethod
     def get_search_fields(cls):
         return []
 
