@@ -324,7 +324,7 @@ class OwnerReport(XferPrintReporting):
 
 @ActionsManage.affect_show(_("Payment"), "diacamma.payoff/images/payments.png", close=CLOSE_NO, condition=lambda xfer: xfer.item.payoff_have_payment() and (len(PaymentMethod.objects.all()) > 0))
 @MenuManage.describ('condominium.change_owner')
-class OwnerPayableShow(XferContainerAcknowledge):
+class OwnerShowPayable(XferContainerAcknowledge):
     caption = _("Payment")
     icon = "owner.png"
     model = Owner

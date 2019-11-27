@@ -52,7 +52,7 @@ from diacamma.condominium.views_classload import SetList, SetAddModify, SetDel, 
     OwnerLinkAddModify, OwnerLinkDel, RecoverableLoadRatioAddModify,\
     RecoverableLoadRatioDel
 from diacamma.condominium.views import OwnerAndPropertyLotList, OwnerAdd, OwnerDel, OwnerShow, PropertyLotAddModify, CondominiumConvert, OwnerVentilatePay,\
-    OwnerLoadCount, OwnerMultiPay, OwnerPayableEmail
+    OwnerLoadCount, OwnerMultiPay, OwnerPayableEmail, OwnerModify
 from diacamma.condominium.views_report import FinancialStatus, GeneralManageAccounting, CurrentManageAccounting, ExceptionalManageAccounting
 from diacamma.condominium.test_tools import default_setowner_fr, add_test_callfunds, old_accounting, add_test_expenses_fr, init_compta, add_years, default_setowner_be, add_test_expenses_be
 
@@ -293,6 +293,7 @@ class SetOwnerTest(LucteriosTest):
         self.calljson('/diacamma.condominium/ownerAndPropertyLotList', {}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'ownerAndPropertyLotList')
         self.assert_count_equal('owner', 1)
+        self.assert_json_equal('', 'owner/@0/id', '1')
         self.assert_json_equal('', 'owner/@0/third', 'Minimum')
         self.assert_json_equal('', 'owner/@0/thirdinitial', 0.00)
         self.assert_json_equal('', 'owner/@0/total_all_call', 0.00)
@@ -494,6 +495,19 @@ class SetOwnerTest(LucteriosTest):
         self.calljson('/diacamma.condominium/ownerAndPropertyLotList', {}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'ownerAndPropertyLotList')
         self.assert_count_equal('owner', 2)
+
+    def test_modify_owner(self):
+        self.factory.xfer = OwnerAdd()
+        self.calljson('/diacamma.condominium/ownerAdd', {'SAVE': 'YES', "third": 4}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'ownerAdd')
+
+        self.factory.xfer = OwnerShow()
+        self.calljson('/diacamma.condominium/ownerShow', {'owner': '1'}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'ownerShow')
+
+        self.factory.xfer = OwnerModify()
+        self.calljson('/diacamma.condominium/ownerModify', {'owner': '1'}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'ownerModify')
 
     def test_modify_partition(self):
         self.factory.xfer = SetAddModify()
@@ -791,7 +805,7 @@ class OwnerTest(PaymentTest):
         self.assert_json_equal('LABELFORM', 'total_current_payoff', 0.00)
         self.assert_json_equal('LABELFORM', 'total_current_owner', -131.25)
         self.assertEqual(len(self.json_actions), 4)
-        self.assert_action_equal(self.json_actions[2], (six.text_type('Règlement'), 'diacamma.payoff/images/payments.png', 'diacamma.condominium', 'ownerPayableShow', 0, 1, 1))
+        self.assert_action_equal(self.json_actions[2], (six.text_type('Règlement'), 'diacamma.payoff/images/payments.png', 'diacamma.condominium', 'ownerShowPayable', 0, 1, 1))
 
         self.factory.xfer = PayableShow()
         self.calljson('/diacamma.payoff/payableShow',
