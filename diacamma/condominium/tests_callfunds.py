@@ -45,6 +45,7 @@ from diacamma.condominium.views_callfunds import CallFundsList, CallFundsAddModi
     CallFundsPayableEmail
 from diacamma.condominium.test_tools import default_setowner_fr, old_accounting, default_setowner_be, add_test_callfunds
 from diacamma.condominium.models import Set
+from diacamma.condominium.views import OwnerVentilatePay
 
 
 class CallFundsTest(LucteriosTest):
@@ -796,9 +797,9 @@ class CallFundsTest(LucteriosTest):
         self.assert_json_equal('', 'entryline/@21/debit', -100.00)
 
     def test_payoff(self):
-        self.assertEqual(0.00, ChartsAccount.objects.get(id=17).current_total, '4501')
-        self.assertEqual(0.00, ChartsAccount.objects.get(id=2).current_total, '512')
-        self.assertEqual(0.00, ChartsAccount.objects.get(id=3).current_total, '531')
+        self.assertEqual(0.00, ChartsAccount.get_current_total_from_code('4501'), '4501')
+        self.assertEqual(0.00, ChartsAccount.get_current_total_from_code('512'), '512')
+        self.assertEqual(0.00, ChartsAccount.get_current_total_from_code('531'), '531')
         self.factory.xfer = EntryAccountList()
         self.calljson('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '0', 'filter': '0'}, False)
         self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
@@ -819,18 +820,69 @@ class CallFundsTest(LucteriosTest):
         self.calljson('/diacamma.condominium/callFundsTransition', {'CONFIRME': 'YES', 'callfunds': 1, 'TRANSITION': 'valid'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'callFundsTransition')
 
-        self.assertEqual(-275.00, ChartsAccount.objects.get(id=17).current_total, '4501')
-        self.assertEqual(0.00, ChartsAccount.objects.get(id=2).current_total, '512')
-        self.assertEqual(0.00, ChartsAccount.objects.get(id=3).current_total, '531')
+        self.assertEqual(-275.00, ChartsAccount.get_current_total_from_code('4501'), '4501')
+        self.assertEqual(0.00, ChartsAccount.get_current_total_from_code('512'), '512')
+        self.assertEqual(0.00, ChartsAccount.get_current_total_from_code('531'), '531')
 
         self.factory.xfer = PayoffAddModify()
         self.calljson('/diacamma.payoff/payoffAddModify', {'SAVE': 'YES', 'supporting': 4, 'amount': '100.0',
                                                            'payer': "Nous", 'date': '2015-04-03', 'mode': 0, 'reference': 'abc', 'bank_account': 0}, False)
         self.assert_observer('core.acknowledge', 'diacamma.payoff', 'payoffAddModify')
 
-        self.assertEqual(-175.00, ChartsAccount.objects.get(id=17).current_total, '4501')
-        self.assertEqual(0.00, ChartsAccount.objects.get(id=2).current_total, '512')
-        self.assertEqual(-100.00, ChartsAccount.objects.get(id=3).current_total, '531')
+        self.assertEqual(-175.00, ChartsAccount.get_current_total_from_code('4501'), '4501')
+        self.assertEqual(0.00, ChartsAccount.get_current_total_from_code('512'), '512')
+        self.assertEqual(-100.00, ChartsAccount.get_current_total_from_code('531'), '531')
+
+    def test_payoff_multiple(self):
+        self.assertEqual(0.00, ChartsAccount.get_current_total_from_code('4501'), '4501')
+        self.assertEqual(0.00, ChartsAccount.get_current_total_from_code('4502'), '4502')
+        self.assertEqual(0.00, ChartsAccount.get_current_total_from_code('4505'), '4505')
+        self.assertEqual(0.00, ChartsAccount.get_current_total_from_code('512'), '512')
+        self.assertEqual(0.00, ChartsAccount.get_current_total_from_code('531'), '531')
+
+        self.factory.xfer = CallFundsAddModify()
+        self.calljson('/diacamma.condominium/callFundsAddModify', {'SAVE': 'YES', "date": '2015-06-10', "comment": 'abc 123'}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'callFundsAddModify')
+        self.factory.xfer = CallDetailAddModify()
+        self.calljson('/diacamma.condominium/callDetailAddModify', {'SAVE': 'YES', 'callfunds': 1, "type_call": 0, 'set': 1, 'price': '300.00', 'comment': 'set 1'}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'callDetailAddModify')
+        self.factory.xfer = CallDetailAddModify()
+        self.calljson('/diacamma.condominium/callDetailAddModify', {'SAVE': 'YES', 'callfunds': 1, "type_call": 1, 'set': 3, 'price': '200.00', 'comment': 'set 3'}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'callDetailAddModify')
+        self.factory.xfer = CallDetailAddModify()
+        self.calljson('/diacamma.condominium/callDetailAddModify', {'SAVE': 'YES', 'callfunds': 1, "type_call": 4, 'set': 1, 'price': '100.00', 'designation': 'font'}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'callDetailAddModify')
+
+        self.factory.xfer = CallFundsTransition()
+        self.calljson('/diacamma.condominium/callFundsTransition', {'CONFIRME': 'YES', 'callfunds': 1, 'TRANSITION': 'valid'}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'callFundsTransition')
+
+        self.assertEqual(-300.00, ChartsAccount.get_current_total_from_code('4501'), '4501')
+        self.assertEqual(-200.00, ChartsAccount.get_current_total_from_code('4502'), '4502')
+        self.assertEqual(-100.00, ChartsAccount.get_current_total_from_code('4505'), '4505')
+        self.assertEqual(0.00, ChartsAccount.get_current_total_from_code('512'), '512')
+        self.assertEqual(0.00, ChartsAccount.get_current_total_from_code('531'), '531')
+
+        self.factory.xfer = PayoffAddModify()
+        self.calljson('/diacamma.payoff/payoffAddModify', {'SAVE': 'YES', 'supporting': 1, 'amount': '60.0',
+                                                           'payer': "Nous", 'date': '2015-04-03', 'mode': 0, 'reference': 'abc', 'bank_account': 0}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.payoff', 'payoffAddModify')
+
+        self.assertEqual(-240.00, ChartsAccount.get_current_total_from_code('4501'), '4501')
+        self.assertEqual(-200.00, ChartsAccount.get_current_total_from_code('4502'), '4502')
+        self.assertEqual(-100.00, ChartsAccount.get_current_total_from_code('4505'), '4505')
+        self.assertEqual(0.00, ChartsAccount.get_current_total_from_code('512'), '512')
+        self.assertEqual(-60.00, ChartsAccount.get_current_total_from_code('531'), '531')
+
+        self.factory.xfer = OwnerVentilatePay()
+        self.calljson('/diacamma.condominium/ownerVentilatePay', {'CONFIRME': 'YES', 'owner': 1}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'ownerVentilatePay')
+
+        self.assertEqual(-270.00, ChartsAccount.get_current_total_from_code('4501'), '4501')
+        self.assertEqual(-180.00, ChartsAccount.get_current_total_from_code('4502'), '4502')
+        self.assertEqual(-90.00, ChartsAccount.get_current_total_from_code('4505'), '4505')
+        self.assertEqual(0.00, ChartsAccount.get_current_total_from_code('512'), '512')
+        self.assertEqual(-60.00, ChartsAccount.get_current_total_from_code('531'), '531')
 
     def test_send(self):
         from lucterios.mailing.tests import configSMTP, TestReceiver
