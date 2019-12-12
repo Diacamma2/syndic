@@ -52,7 +52,7 @@ class Migration(migrations.Migration):
     dependencies = [
         ('CORE', '0001_initial'),
         ('contacts', '0001_initial'),
-        ('accounting', '0001_initial'),
+        ('accounting', '0014_journal_is_default'),
     ]
 
     operations = [
