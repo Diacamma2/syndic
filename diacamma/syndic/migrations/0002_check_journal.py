@@ -5,7 +5,7 @@ Initial django functions
 @author: Laurent GAY
 @organization: sd-libre.fr
 @contact: info@sd-libre.fr
-@copyright: 2015 sd-libre.fr
+@copyright: 2019 sd-libre.fr
 @license: This file is part of Lucterios.
 
 Lucterios is free software: you can redistribute it and/or modify
@@ -27,35 +27,25 @@ from __future__ import unicode_literals
 from django.db import migrations
 from django.utils.translation import ugettext_lazy as _
 
-from lucterios.contacts.models import Function, StructureType
 from diacamma.accounting.models import Journal
 
 
-def initial_values(*args):
-    Function.objects.create(name=_('president of council'))
-    Function.objects.create(name=_('auditor'))
-    Function.objects.create(name=_('secretary of council'))
-    Function.objects.create(name=_('member of council'))
-    StructureType.objects.create(name=_('enterprise'))
-    StructureType.objects.create(name=_('association'))
-
-    if Journal.objects.all().count() != 0:
-        jnl2 = Journal.objects.get(id=2)
-        jnl2.name = _('spending')
-        jnl2.save()
-        jnl3 = Journal.objects.get(id=3)
-        jnl3.name = _('revenue')
-        jnl3.save()
+def check_values(*args):
+    jnl2 = Journal.objects.get(id=2)
+    jnl2.name = _('spending')
+    jnl2.save()
+    jnl3 = Journal.objects.get(id=3)
+    jnl3.name = _('revenue')
+    jnl3.save()
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('CORE', '0001_initial'),
-        ('contacts', '0001_initial'),
-        ('accounting', '0001_initial'),
+        ('syndic', '0001_initial'),
+        ('accounting', '0014_journal_is_default'),
     ]
 
     operations = [
-        migrations.RunPython(initial_values),
+        migrations.RunPython(check_values),
     ]
