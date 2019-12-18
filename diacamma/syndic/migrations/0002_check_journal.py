@@ -25,12 +25,15 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import unicode_literals
 
 from django.db import migrations
+from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
+from lucterios.framework.tools import set_locale_lang
 from diacamma.accounting.models import Journal
 
 
 def check_values(*args):
+    set_locale_lang(settings.LANGUAGE_CODE)
     jnl2 = Journal.objects.get(id=2)
     jnl2.name = _('spending')
     jnl2.save()

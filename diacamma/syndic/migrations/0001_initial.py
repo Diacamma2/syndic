@@ -25,13 +25,16 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import unicode_literals
 
 from django.db import migrations
+from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
 from lucterios.contacts.models import Function, StructureType
+from lucterios.framework.tools import set_locale_lang
 from diacamma.accounting.models import Journal
 
 
 def initial_values(*args):
+    set_locale_lang(settings.LANGUAGE_CODE)
     Function.objects.create(name=_('president of council'))
     Function.objects.create(name=_('auditor'))
     Function.objects.create(name=_('secretary of council'))
