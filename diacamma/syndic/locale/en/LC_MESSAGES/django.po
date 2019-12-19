@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-07-01 14:48+0000\n"
+"POT-Creation-Date: 2019-12-19 12:20+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -33,34 +33,34 @@ msgstr "Meet the {[i]}Diacamma{[/i]} community on our forum and blog"
 msgid "(c) GPL Licence"
 msgstr "(c) GPL Licence"
 
-#: migrations/0001_initial.py:35
+#: migrations/0001_initial.py:38
 msgid "president of council"
 msgstr "president of council"
 
-#: migrations/0001_initial.py:36
+#: migrations/0001_initial.py:39
 msgid "auditor"
 msgstr "auditor"
 
-#: migrations/0001_initial.py:37
+#: migrations/0001_initial.py:40
 msgid "secretary of council"
 msgstr "secretary of council"
 
-#: migrations/0001_initial.py:38
+#: migrations/0001_initial.py:41
 msgid "member of council"
 msgstr "member of council"
 
-#: migrations/0001_initial.py:39
+#: migrations/0001_initial.py:42
 msgid "enterprise"
 msgstr "enterprise"
 
-#: migrations/0001_initial.py:40
+#: migrations/0001_initial.py:43
 msgid "association"
 msgstr "association"
 
-#: migrations/0001_initial.py:43
+#: migrations/0001_initial.py:47 migrations/0002_check_journal.py:38
 msgid "spending"
 msgstr "spending"
 
-#: migrations/0001_initial.py:46
+#: migrations/0001_initial.py:50 migrations/0002_check_journal.py:41
 msgid "revenue"
 msgstr "revenue"

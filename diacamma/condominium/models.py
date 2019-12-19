@@ -771,25 +771,31 @@ class Owner(Supporting):
                     init_detail.entry = entries_init[0]
                     init_detail.save()
 
-    def check_ventilate_payoff(self):
-        # move payoff in owner general list
-        support_query = Q(third=self.third) & Q(callfundssupporting__callfunds__date__gte=self.date_begin)
-        support_query &= Q(callfundssupporting__callfunds__date__lte=self.date_end) & Q(payoff__entry__close=False)
+    def _deventilate_payoff(self, support_query):
         callfunds_supportings = Supporting.objects.filter(support_query).distinct()
         export_payoff_filter = Q(supporting__in=callfunds_supportings) & Q(entry__close=False)
-        export_payoff_list = Payoff.objects.filter(export_payoff_filter).values('entry_id', 'mode',
-                                                                                'payer', 'reference',
-                                                                                'bank_account_id', 'date').annotate(amount=Sum('amount'), bank_fee=Sum('bank_fee'))
-        supportings = [six.text_type(self.id)]
+        export_payoff_list = Payoff.objects.filter(export_payoff_filter).values('entry_id', 'mode', 'payer', 'reference', 'bank_account_id', 'date').annotate(amount=Sum('amount'), bank_fee=Sum('bank_fee'))
         for export_payoff in export_payoff_list:
             entry = EntryAccount.objects.get(id=export_payoff['entry_id'])
             amount = get_amount_sum(entry.entrylineaccount_set.filter(account__code__regex=current_system_account().get_cash_mask()).aggregate(Sum('amount')))
-            Payoff.multi_save(supportings=supportings, amount=abs(amount),
-                              mode=export_payoff['mode'], payer=export_payoff['payer'],
-                              reference=export_payoff['reference'],
-                              bank_account=export_payoff['bank_account_id'] if export_payoff['bank_account_id'] is not None else 0,
+            Payoff.multi_save(supportings=[six.text_type(self.id)], amount=abs(amount), mode=export_payoff['mode'], 
+                              payer=export_payoff['payer'], reference=export_payoff['reference'], 
+                              bank_account=export_payoff['bank_account_id'] if export_payoff['bank_account_id'] is not None else 0, 
                               date=export_payoff['date'], bank_fee=export_payoff['bank_fee'], repartition=1)
             entry.delete()
+
+    def deventilate_calloffunds(self, min_num):
+        # move payoff of call of fund in owner general list
+        support_query = Q(third=self.third) & Q(callfundssupporting__callfunds__num__gte=min_num) & Q(payoff__entry__close=False)
+        self._deventilate_payoff(support_query)
+
+    def check_ventilate_payoff(self):
+        # move all payoff in owner general list
+        support_query = Q(third=self.third) & Q(callfundssupporting__callfunds__date__gte=self.date_begin)
+        support_query &= Q(callfundssupporting__callfunds__date__lte=self.date_end) & Q(payoff__entry__close=False)
+        self._deventilate_payoff(support_query)
+        supportings = [six.text_type(self.id)]
+
         # move payoff from general to call of funds
         for call_fund in self.callfunds_set.filter(date__gte=self.date_begin, date__lte=self.date_end):
             if call_fund.supporting.get_total_rest_topay() > 0.0001:
@@ -1533,6 +1539,34 @@ class CallFunds(LucteriosModel):
     @transition(field=status, source=1, target=2)
     def close(self):
         pass
+
+    @classmethod
+    def devalid(cls, min_num):
+        for owner in Owner.objects.all():
+            owner.deventilate_calloffunds(min_num)
+        for num_item in cls.objects.filter(num__gte=min_num).values_list('num', flat=True).distinct():
+            call_details = {}
+            date = None
+            comment = None
+            entries = []
+            for call_item in cls.objects.filter(num=num_item):
+                date = call_item.date
+                comment = call_item.comment
+                for detail in call_item.calldetail_set.all():
+                    itend = (detail.type_call, detail.set_id, detail.designation)
+                    if itend not in call_details:
+                        call_details[itend] = 0.0
+                    call_details[itend] += float(detail.price)
+                    if detail.entry is not None:
+                        if detail.entry.close:
+                            raise LucteriosException(IMPORTANT, _("An entry account of a call of funds is validated !"))
+                        entries.append(detail.entry)
+                call_item.delete()
+            for entry in entries:
+                entry.delete()
+            new_call = CallFunds.objects.create(date=date, comment=comment)
+            for ident, price in call_details.items():
+                CallDetail.objects.create(callfunds=new_call, type_call=ident[0], set_id=ident[1], designation=ident[2], price=price)
 
     def generate_accounting(self, fiscal_year=None):
         if (self.owner is not None) and (self.status == 1) and not Params.getvalue("condominium-old-accounting"):

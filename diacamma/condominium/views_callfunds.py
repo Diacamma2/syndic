@@ -152,6 +152,21 @@ class CallFundsDel(XferDelete):
     field_id = 'callfunds'
     caption = _("Delete call of funds")
 
+    def fillresponse(self):
+        num_list = []
+        for item in self.items:
+            if item.status == 1:
+                num_list.append(str(item.num))
+            else:
+                num_list = None
+                break
+        if num_list is None:
+            XferDelete.fillresponse(self)
+        else:
+            num_list = list(set(num_list))
+            if self.confirme(_("Do you want delete calls of fonds #%s and the following ones?") % ",".join(num_list)):
+                CallFunds.devalid(min(num_list))
+
 
 @ActionsManage.affect_transition("status", close=CLOSE_YES, multi_list=('close',))
 @MenuManage.describ('condominium.add_callfunds')

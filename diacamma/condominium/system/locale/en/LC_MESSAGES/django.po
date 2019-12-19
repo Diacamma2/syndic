@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-07-01 14:48+0000\n"
+"POT-Creation-Date: 2019-12-19 12:20+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -65,8 +65,8 @@ msgstr "rolling reserved account"
 msgid "reserved account"
 msgstr "reserved account"
 
-#: system/belgium.py:87 system/belgium.py:103 system/french.py:72
-#: system/french.py:86
+#: system/belgium.py:87 system/belgium.py:103 system/french.py:71
+#: system/french.py:85
 msgid "current"
 msgstr "current"
 
@@ -82,28 +82,28 @@ msgstr "rolling"
 msgid "reserved"
 msgstr "reserved"
 
-#: system/belgium.py:101 system/french.py:84
+#: system/belgium.py:101 system/french.py:83
 #, python-format
 msgid "Call of funds #%(num)d of year from %(begin)s to %(end)s"
 msgstr "Call of funds #%(num)d of year from %(begin)s to %(end)s"
 
-#: system/belgium.py:103 system/french.py:86
+#: system/belgium.py:103 system/french.py:85
 #, python-format
 msgid "%(type)s - #%(num)d"
 msgstr "%(type)s - #%(num)d"
 
-#: system/belgium.py:119 system/french.py:104
+#: system/belgium.py:119 system/french.py:103
 msgid "incorrect account for call of found"
 msgstr "incorrect account for call of found"
 
-#: system/belgium.py:139 system/french.py:119 system/french.py:143
-#: system/french.py:147 system/french.py:172
+#: system/belgium.py:139 system/french.py:118 system/french.py:142
+#: system/french.py:146 system/french.py:171
 #, python-format
 msgid "code account %s unknown!"
 msgstr "code account %s unknown!"
 
-#: system/belgium.py:146 system/french.py:128 system/french.py:161
-#: system/french.py:179
+#: system/belgium.py:146 system/french.py:127 system/french.py:160
+#: system/french.py:178
 msgid "Error in accounting generator!"
 msgstr "Error in accounting generator!"
 
@@ -126,14 +126,14 @@ msgstr "Ventilation for %s"
 msgid "The class load %s has no owner"
 msgstr "The class load %s has no owner"
 
-#: system/french.py:72
+#: system/french.py:71
 msgid "exceptional"
 msgstr "exceptional"
 
-#: system/french.py:72
+#: system/french.py:71
 msgid "cash advance"
 msgstr "cash advance"
 
-#: system/french.py:72
+#: system/french.py:71
 msgid "fund for works"
 msgstr "fund for works"

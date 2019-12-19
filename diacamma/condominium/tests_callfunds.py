@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 '''
 diacamma.condominium tests package
 
@@ -38,14 +37,12 @@ from diacamma.accounting.models import ChartsAccount, FiscalYear, Budget
 from diacamma.accounting.views_entries import EntryAccountList
 from diacamma.accounting.test_tools import initial_thirds_fr, default_compta_fr, default_costaccounting, initial_thirds_be, default_compta_be
 from diacamma.payoff.views import PayoffAddModify, PayableEmail
-from diacamma.payoff.test_tools import default_bankaccount_fr, default_bankaccount_be,\
-    check_pdfreport
+from diacamma.payoff.test_tools import default_bankaccount_fr, default_bankaccount_be, check_pdfreport
 from diacamma.condominium.views_callfunds import CallFundsList, CallFundsAddModify, CallFundsDel, \
-    CallFundsShow, CallDetailAddModify, CallFundsTransition, CallFundsPrint, CallFundsAddCurrent,\
-    CallFundsPayableEmail
+    CallFundsShow, CallDetailAddModify, CallFundsTransition, CallFundsPrint, CallFundsAddCurrent, CallFundsPayableEmail
 from diacamma.condominium.test_tools import default_setowner_fr, old_accounting, default_setowner_be, add_test_callfunds
-from diacamma.condominium.models import Set
-from diacamma.condominium.views import OwnerVentilatePay
+from diacamma.condominium.models import Set, CallFunds
+from diacamma.condominium.views import OwnerVentilatePay, OwnerShow
 
 
 class CallFundsTest(LucteriosTest):
@@ -212,6 +209,20 @@ class CallFundsTest(LucteriosTest):
         self.assert_json_equal('', 'callfunds/@3/total', 275.00)
         self.assertEqual(len(self.json_actions), 1)
 
+        self.factory.xfer = CallFundsDel()
+        self.calljson('/diacamma.condominium/callFundsDel', {'callfunds': '2;4'}, False)
+        self.assert_observer('core.dialogbox', 'diacamma.condominium', 'callFundsDel')
+        self.assert_json_equal('', 'text', "Voulez-vous supprimer ces 2 appels de fonds?")
+
+        self.factory.xfer = CallFundsDel()
+        self.calljson('/diacamma.condominium/callFundsDel', {'callfunds': '2;4', 'CONFIRME': 'YES'}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'callFundsDel')
+
+        self.factory.xfer = CallFundsList()
+        self.calljson('/diacamma.condominium/callFundsList', {'status_filter': 0}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'callFundsList')
+        self.assert_count_equal('callfunds', 2)
+
     def test_add_default_current_monthly(self):
         Parameter.change_value('condominium-mode-current-callfunds', 1)
         Params.clear()
@@ -290,6 +301,11 @@ class CallFundsTest(LucteriosTest):
         self.calljson('/diacamma.condominium/callFundsTransition', {'CONFIRME': 'YES', 'callfunds': 1, 'TRANSITION': 'valid'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'callFundsTransition')
 
+        CallFunds.objects.get(id=2).calldetail_set.first().entry.closed()
+        self.factory.xfer = CallFundsDel()
+        self.calljson('/diacamma.condominium/callFundsDel', {'CONFIRME': 'YES', "callfunds": 2}, False)
+        self.assert_observer('core.exception', 'diacamma.condominium', 'callFundsDel')
+
         self.factory.xfer = CallFundsShow()
         self.calljson('/diacamma.condominium/callFundsShow', {'callfunds': 3}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'callFundsShow')
@@ -313,10 +329,6 @@ class CallFundsTest(LucteriosTest):
         self.assert_count_equal('#payoff/actions', 3)
         self.assert_json_equal('LABELFORM', 'status', 1)
         self.assert_json_equal('LABELFORM', 'total', 87.50)
-
-        self.factory.xfer = CallFundsDel()
-        self.calljson('/diacamma.condominium/callFundsDel', {'CONFIRME': 'YES', "callfunds": 3}, False)
-        self.assert_observer('core.exception', 'diacamma.condominium', 'callFundsDel')
 
         self.factory.xfer = CallFundsList()
         self.calljson('/diacamma.condominium/callFundsList', {'status_filter': 0}, False)
@@ -994,6 +1006,126 @@ class CallFundsTest(LucteriosTest):
 
         finally:
             server.stop()
+
+    def test_delete(self):
+        # check initial empty
+        self.assertEqual(0.00, ChartsAccount.get_current_total_from_code('4501'), '4501')
+        self.assertEqual(0.00, ChartsAccount.get_current_total_from_code('4502'), '4502')
+        self.assertEqual(0.00, ChartsAccount.get_current_total_from_code('531'), '531')
+        self.factory.xfer = OwnerShow()
+        self.calljson('/diacamma.condominium/ownerShow', {'owner': 1}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'ownerShow')
+        self.assert_json_equal('LABELFORM', 'third', 'Minimum')
+        self.assert_count_equal('payoff', 0)
+        self.factory.xfer = OwnerShow()
+        self.calljson('/diacamma.condominium/ownerShow', {'owner': 3}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'ownerShow')
+        self.assert_json_equal('LABELFORM', 'third', 'Dalton Joe')
+        self.assert_count_equal('payoff', 0)
+
+        # add calls of funds and payoff
+        add_test_callfunds(False, True)
+        self.factory.xfer = PayoffAddModify()
+        self.calljson('/diacamma.payoff/payoffAddModify', {'SAVE': 'YES', 'supportings': "3;6;9", 'repartition': 1, 'NO_REPARTITION': 'yes', 'amount': '70.0',
+                                                           'payer': "Nous", 'date': '2015-04-03', 'mode': 0, 'reference': 'abc', 'bank_account': 0}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.payoff', 'payoffAddModify')
+
+        # check values
+        self.factory.xfer = CallFundsList()
+        self.calljson('/diacamma.condominium/callFundsList', {'status_filter': 0}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'callFundsList')
+        self.assert_count_equal('callfunds', 0)
+
+        self.factory.xfer = CallFundsList()
+        self.calljson('/diacamma.condominium/callFundsList', {'status_filter': 1}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'callFundsList')
+        self.assert_count_equal('callfunds', 6)
+        self.assert_json_equal('', 'callfunds/@0/id', 2)
+        self.assert_json_equal('', 'callfunds/@0/num', 1)
+        self.assert_json_equal('', 'callfunds/@0/owner', "Minimum")
+        self.assert_json_equal('', 'callfunds/@0/total', 131.25)
+        self.assert_json_equal('', 'callfunds/@0/supporting.total_rest_topay', 31.25)
+        self.assert_json_equal('', 'callfunds/@1/id', 3)
+        self.assert_json_equal('', 'callfunds/@1/num', 1)
+        self.assert_json_equal('', 'callfunds/@1/owner', "Dalton William")
+        self.assert_json_equal('', 'callfunds/@1/total', 87.5)
+        self.assert_json_equal('', 'callfunds/@1/supporting.total_rest_topay', 87.5)
+        self.assert_json_equal('', 'callfunds/@2/id', 4)
+        self.assert_json_equal('', 'callfunds/@2/num', 1)
+        self.assert_json_equal('', 'callfunds/@2/owner', "Dalton Joe")
+        self.assert_json_equal('', 'callfunds/@2/total', 56.25)
+        self.assert_json_equal('', 'callfunds/@2/supporting.total_rest_topay', 0.0)
+        self.assert_json_equal('', 'callfunds/@3/id', 6)
+        self.assert_json_equal('', 'callfunds/@3/num', 2)
+        self.assert_json_equal('', 'callfunds/@3/owner', "Minimum")
+        self.assert_json_equal('', 'callfunds/@3/total', 45.0)
+        self.assert_json_equal('', 'callfunds/@3/supporting.total_rest_topay', 15.0)
+        self.assert_json_equal('', 'callfunds/@4/id', 7)
+        self.assert_json_equal('', 'callfunds/@4/num', 2)
+        self.assert_json_equal('', 'callfunds/@4/owner', "Dalton William")
+        self.assert_json_equal('', 'callfunds/@4/total', 35.0)
+        self.assert_json_equal('', 'callfunds/@4/supporting.total_rest_topay', 35.0)
+        self.assert_json_equal('', 'callfunds/@5/id', 8)
+        self.assert_json_equal('', 'callfunds/@5/num', 2)
+        self.assert_json_equal('', 'callfunds/@5/owner', "Dalton Joe")
+        self.assert_json_equal('', 'callfunds/@5/total', 20.0)
+        self.assert_json_equal('', 'callfunds/@5/supporting.total_rest_topay', 6.25)
+        self.assertEqual(-275.00 + 100 + 56.25, ChartsAccount.get_current_total_from_code('4501'), '4501')
+        self.assertEqual(-100.00 + 30 + 13.75, ChartsAccount.get_current_total_from_code('4502'), '4502')
+        self.assertEqual(-200.00, ChartsAccount.get_current_total_from_code('531'), '531')
+
+        self.factory.xfer = OwnerShow()
+        self.calljson('/diacamma.condominium/ownerShow', {'owner': 1}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'ownerShow')
+        self.assert_json_equal('LABELFORM', 'third', 'Minimum')
+        self.assert_count_equal('payoff', 0)
+
+        self.factory.xfer = OwnerShow()
+        self.calljson('/diacamma.condominium/ownerShow', {'owner': 3}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'ownerShow')
+        self.assert_json_equal('LABELFORM', 'third', 'Dalton Joe')
+        self.assert_count_equal('payoff', 0)
+
+        # testing deleting
+        self.factory.xfer = CallFundsDel()
+        self.calljson('/diacamma.condominium/callFundsDel', {'callfunds': '2;4'}, False)
+        self.assert_observer('core.dialogbox', 'diacamma.condominium', 'callFundsDel')
+        self.assert_json_equal('', 'text', "Voulez vous supprimer les appels de fonds N°1 et les suivants ?")
+
+        self.factory.xfer = CallFundsDel()
+        self.calljson('/diacamma.condominium/callFundsDel', {'callfunds': '2;4', 'CONFIRME': 'YES'}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'callFundsDel')
+
+        self.factory.xfer = CallFundsList()
+        self.calljson('/diacamma.condominium/callFundsList', {'status_filter': 1}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'callFundsList')
+        self.assert_count_equal('callfunds', 0)
+
+        self.factory.xfer = CallFundsList()
+        self.calljson('/diacamma.condominium/callFundsList', {'status_filter': 0}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'callFundsList')
+        self.assert_count_equal('callfunds', 2)
+        self.assert_json_equal('', 'callfunds/@0/total', 275.0)
+        self.assert_json_equal('', 'callfunds/@1/total', 100.0)
+
+        self.assertEqual(200.00, ChartsAccount.get_current_total_from_code('4501'), '4501')
+        self.assertEqual(0.00, ChartsAccount.get_current_total_from_code('4502'), '4502')
+        self.assertEqual(-200.00, ChartsAccount.get_current_total_from_code('531'), '531')
+
+        self.factory.xfer = OwnerShow()
+        self.calljson('/diacamma.condominium/ownerShow', {'owner': 1}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'ownerShow')
+        self.assert_json_equal('LABELFORM', 'third', 'Minimum')
+        self.assert_count_equal('payoff', 2)
+        self.assert_json_equal('', 'payoff/@0/amount', 100.0)
+        self.assert_json_equal('', 'payoff/@1/amount', 30.0)
+
+        self.factory.xfer = OwnerShow()
+        self.calljson('/diacamma.condominium/ownerShow', {'owner': 3}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'ownerShow')
+        self.assert_json_equal('LABELFORM', 'third', 'Dalton Joe')
+        self.assert_count_equal('payoff', 1)
+        self.assert_json_equal('', 'payoff/@0/amount', 70.0)
 
 
 class CallFundsBelgiumTest(LucteriosTest):
