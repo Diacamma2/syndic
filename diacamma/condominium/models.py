@@ -778,9 +778,9 @@ class Owner(Supporting):
         for export_payoff in export_payoff_list:
             entry = EntryAccount.objects.get(id=export_payoff['entry_id'])
             amount = get_amount_sum(entry.entrylineaccount_set.filter(account__code__regex=current_system_account().get_cash_mask()).aggregate(Sum('amount')))
-            Payoff.multi_save(supportings=[six.text_type(self.id)], amount=abs(amount), mode=export_payoff['mode'], 
-                              payer=export_payoff['payer'], reference=export_payoff['reference'], 
-                              bank_account=export_payoff['bank_account_id'] if export_payoff['bank_account_id'] is not None else 0, 
+            Payoff.multi_save(supportings=[six.text_type(self.id)], amount=abs(amount), mode=export_payoff['mode'],
+                              payer=export_payoff['payer'], reference=export_payoff['reference'],
+                              bank_account=export_payoff['bank_account_id'] if export_payoff['bank_account_id'] is not None else 0,
                               date=export_payoff['date'], bank_fee=export_payoff['bank_fee'], repartition=1)
             entry.delete()
 

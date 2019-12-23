@@ -144,7 +144,7 @@ class CallFundsPrint(SupportingPrint):
             raise LucteriosException(IMPORTANT, _("No call of funds to print!"))
 
 
-@ActionsManage.affect_grid(TITLE_DELETE, "images/delete.png", unique=SELECT_MULTI, condition=lambda xfer, gridname='': xfer.getparam('status_filter', 1) == 0)
+@ActionsManage.affect_grid(TITLE_DELETE, "images/delete.png", unique=SELECT_MULTI, condition=lambda xfer, gridname='': xfer.getparam('status_filter', -1) in (0, 1))
 @MenuManage.describ('condominium.delete_callfunds')
 class CallFundsDel(XferDelete):
     icon = "callfunds.png"
