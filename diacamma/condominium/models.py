@@ -1701,7 +1701,7 @@ class Expense(Supporting):
     def get_default_fields(cls, status=-1):
         fields = ["num", "date", "third", "comment", 'total']
         if status == 1:
-            fields.append(Supporting.get_payoff_fields()[-1])
+            fields.append('total_payed')
         return fields
 
     def get_third_mask(self):

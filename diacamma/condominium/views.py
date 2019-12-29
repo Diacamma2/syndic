@@ -627,7 +627,7 @@ def finalizeyear_condo(xfer):
             if abs(result) > 0.001:
                 row = xfer.get_max_row() + 1
                 lbl = XferCompLabelForm('title_condo')
-                lbl.set_value(_('This fiscal year has a result no null equals to %s.') % get_amount_from_format_devise(result, 5))
+                lbl.set_value(_('This fiscal year has a result no null equals to %s.') % get_amount_from_format_devise(result, 7))
                 lbl.set_location(0, row, 2)
                 xfer.add_component(lbl)
                 lbl = XferCompLabelForm('question_condo')

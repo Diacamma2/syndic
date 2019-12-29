@@ -245,7 +245,7 @@ class SetClose(XferContainerAcknowledge):
                 lbl.set_location(1, 0, 2)
                 dlg.add_component(lbl)
                 lbl = XferCompLabelForm('info')
-                lbl.set_value(_('This class load has a difference of %s between those call of funds and those expenses.') % get_amount_from_format_devise(msg, 5))
+                lbl.set_value(_('This class load has a difference of %s between those call of funds and those expenses.') % get_amount_from_format_devise(msg, 7))
                 lbl.set_location(1, 1)
                 dlg.add_component(lbl)
                 lbl = XferCompCheck('ventilate')

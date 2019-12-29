@@ -57,6 +57,9 @@ class CondominiumReport(XferContainerCustom):
         XferContainerCustom.__init__(self, **kwargs)
         self.filter = None
         self.lastfilter = None
+        hfield = format_with_devise(5).split(';')
+        self.format_str = ";".join(hfield[1:])
+        self.hfield = hfield[0]
 
     def current_image(self, icon_path=None):
         img_path = get_user_path("contacts", "Image_1.jpg")
@@ -122,13 +125,13 @@ class FinancialStatus(CondominiumReport):
         self.grid = XferCompGrid('report_%d' % self.item.id)
         self.grid.add_header('left', _('Designation'))
         if self.item.last_fiscalyear is not None:
-            self.grid.add_header('left_n_1', _('year N-1'), format_with_devise(7))
-        self.grid.add_header('left_n', _('year N'), format_with_devise(7))
+            self.grid.add_header('left_n_1', _('year N-1'), self.hfield, 0, self.format_str)
+        self.grid.add_header('left_n', _('year N'), self.hfield, 0, self.format_str)
         self.grid.add_header('space', '')
         self.grid.add_header('right', _('Designation'))
         if self.item.last_fiscalyear is not None:
-            self.grid.add_header('right_n_1', _('year N-1'), format_with_devise(7))
-        self.grid.add_header('right_n', _('year N'), format_with_devise(7))
+            self.grid.add_header('right_n_1', _('year N-1'), self.hfield, 0, self.format_str)
+        self.grid.add_header('right_n', _('year N'), self.hfield, 0, self.format_str)
         self.grid.set_location(0, 10, 6)
         self.grid.no_pager = True
         self.add_component(self.grid)
@@ -199,13 +202,13 @@ class ManageAccounting(CondominiumReport):
         self.grid = XferCompGrid('report_%d' % self.item.id)
         self.grid.add_header('design', _('Designation'))
         if self.item.last_fiscalyear is not None:
-            self.grid.add_header('year_n_1', _('year N-1'), format_with_devise(7))
-        self.grid.add_header('budget_n', _('budget N'), format_with_devise(7))
-        self.grid.add_header('year_n', _('year N'), format_with_devise(7))
+            self.grid.add_header('year_n_1', _('year N-1'), self.hfield, 0, self.format_str)
+        self.grid.add_header('budget_n', _('budget N'), self.hfield, 0, self.format_str)
+        self.grid.add_header('year_n', _('year N'), self.hfield, 0, self.format_str)
         if self.next_year is not None:
-            self.grid.add_header('budget_n1', _('budget N+1'), format_with_devise(7))
+            self.grid.add_header('budget_n1', _('budget N+1'), self.hfield, 0, self.format_str)
         if self.next_year_again is not None:
-            self.grid.add_header('budget_n2', _('budget N+2'), format_with_devise(7))
+            self.grid.add_header('budget_n2', _('budget N+2'), self.hfield, 0, self.format_str)
         self.grid.set_location(0, 10, 6)
         self.grid.no_pager = True
         self.add_component(self.grid)
@@ -343,8 +346,8 @@ class ExceptionalManageAccounting(ManageAccounting):
 
     def define_gridheader(self):
         ManageAccounting.define_gridheader(self)
-        self.grid.add_header('calloffund', _('call of funds'), format_with_devise(7))
-        self.grid.add_header('result', _('result general'), format_with_devise(7))
+        self.grid.add_header('calloffund', _('call of funds'), self.hfield, 0, self.format_str)
+        self.grid.add_header('result', _('result general'), self.hfield, 0, self.format_str)
 
     def fill_body(self):
         line_idx = 0
