@@ -29,10 +29,10 @@ Création de votre premier exercice comptable
 
 	Menu *Administration/Modules (conf.)/Configuration comptables*
 
-	Menu *Comptabilité/Gestion comptable/plan comptable*
+	Menu *Comptabilité/Gestion comptable/Plan comptable*
 
 Ouvrer votre premier exercice comptable et rendez le actifs.
-Vous devrez aussi créer le plan comptable de cette exercice pour avoir une comptabilité pleinement opérationnel.
+Vous devrez aussi créer le plan comptable de cet exercice pour avoir une comptabilité pleinement opérationnelle.
 
 Réglage de votre copropriété
 ----------------------------
@@ -51,8 +51,8 @@ Définition des catégories de charges, des lots et des tantièmes
 Déclarez vos copropriétaires ainsi que les lots de votre copropriétés.
 Ajoutez vos catégories de charges et définisez pour chacunes les cotes parts ou les lots associés.
 
-Mise à jours comptable
-----------------------
+Mise à jour comptable
+---------------------
 
 	Menu *Comptabilité/Gestion comptable/écritures comptable*
 

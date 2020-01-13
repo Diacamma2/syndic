@@ -4,10 +4,10 @@ Présentation
 Description
 -----------
 
-*Diacamma Syndic* est un logiciel de gestion spécialement conçu pour les copropriétés et les syndic bénévoles.
-Avec *Diacamma*, donnez à votre structure le logiciel qu'elle mérite. Pas besoin d'être informaticien pour avoir les outils adaptés à votre cas.
+*Diacamma Syndic* est un logiciel de gestion spécialement conçu pour les copropriétés et les syndics bénévoles.
+Avec *Diacamma*, donnez à votre structure le logiciel qu'elle mérite ! Pas besoin d'être informaticien pour avoir les outils adaptés à votre cas.
 
-L'application de base est entièrement gratuite et vous permet de gérer les accès à vos données et au carnet d'adresses nécessaires à votre copropriété.
+L'application de base est entièrement gratuite et vous permet de gérer les accès à vos données et au carnet d'adresses nécessaire à votre copropriété.
 
 Les différents modules disponibles vous permettront, par exemple, de:
 
