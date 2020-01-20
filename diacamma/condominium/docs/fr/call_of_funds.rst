@@ -12,8 +12,8 @@ Sur chaqu'un vous préciser l'ensemble de lots associé à cet élement d'appel 
 
 Enfin, pour finaliser l'appel de fonds, cliquez sur "Valider"
 L'ensemble des copropriétaires se voient alors associés à une nouvelle fiche d'appel de fonds.
-Les montants de chaque élément précédemment saisi sont modifiés en fonction du ratio de l'ensemble que possède chaque copropriétaire. 
+Les montants de chaque élément précédemment saisi sont ventilés pour chaque nouvelle fiche d'appel de fonds en fonction du ratio de chaque copropriétaire. 
 
 Pour ces appels de fonds, une sauvegarde officielle (d'après le modèle d'impression par défaut) est automatiquement sauvegardée dans le gestionnaire de documents au moment de la validation.
 Lorsque vous voulez imprimer le justificatif, on vous propose alors par défaut de télécharger ce document sauvegardé.
-Vous pouvez re-générer un nouveau PDF, par exemple avec un autre modèle d'impression, par contre celui-ci comportera la notion "duplicata" en filigrame.
+Vous pouvez régénérer un nouveau PDF, par exemple avec un autre modèle d'impression, par contre celui-ci comportera la mention "duplicata" en filigrane.

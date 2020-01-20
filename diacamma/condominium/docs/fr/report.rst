@@ -6,8 +6,7 @@ L'annexe 5 n'est pas proposée actuellement dans Diacamma : correspondant à un 
 
 Ces rapports sont sauvegardés automatiquement dans le gestionnaire de documents au moment de la clôture de l'exercice.
 Lorsque vous voulez imprimer les rééditer, on vous propose alors par défaut de télécharger ce document sauvegardé.
-Vous pouvez régénérer un nouveau PDF, par contre celui-ci comportera la notion "duplicata" en filigrane.
-
+Vous pouvez régénérer un nouveau PDF, par contre celui-ci comportera la mention "duplicata" en filigrane.
 
 État financier
 --------------
