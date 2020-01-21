@@ -16,9 +16,9 @@ La répartition
 --------------
 
 Deux modes de répartition peuvent être utilisé pour chaque catégorie de charges.
-* Liée au lots
+ * Liée au lots
 Dans ce cas, assignez un ensemble de lot sur cette catégorie: les tantièmes correspondants seront automatiquement associés au différents propriétaires afin de définir leurs répartitions.
-* Non liée au lots
+ * Non liée au lots
 Vous pouvez, dans ce cas, définir au cas par cas, pour chaque propriétaire les tantièmes et la répartition pour cette catégorie.
 Ce mode de répartition est utilisé dans le cas de gestion sur des consomations fixes (surface, étage, ...) ou variables (consomation).
 

@@ -12,10 +12,10 @@ Vous pouvez régénérer un nouveau PDF, par contre celui-ci comportera la menti
 --------------
 
 Ce rapport présente la situation financière de la copropriété:
-* La trésorerie
-* Les fonds d'attente
-* Les dettes fournisseurs
-* La situation des copropriétés
+ * La trésorerie
+ * Les fonds d'attente
+ * Les dettes fournisseurs
+ * La situation des copropriétés
 
 Compte de gestion générale
 --------------------------
