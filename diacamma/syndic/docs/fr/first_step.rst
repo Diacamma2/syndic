@@ -1,19 +1,19 @@
 Prise en main
 =============
 
-Le logiciel *Diacamma Syndic* comprends un grand nombre de paramétrages et peu paraître difficile à configurer au besoin de votre structure.
+Le logiciel *Diacamma Syndic* comprends un grand nombre de paramétrages et peut paraître difficile à configurer pour couvrir les besoins de votre structure.
 
-Nous vous proposons cette explication pour vous aider à franchir cette première étape dans l'utilisation de cet outil.
+Nous vous proposons ce guide pour vous aider à franchir cette première étape dans l'utilisation de cet outil.
 
-Suivez pas à pas les différents phases de réglages. Dans chaque étape, nous ne ré-détaillons pas les fonctionnalités. Nous vous invitons également à vous référer au reste du manuel utilisateur pour cela.
+Suivez pas à pas les différents phases de réglage. Dans chaque étape, nous ne détaillons pas les fonctionnalités. Nous vous invitons également à vous référer au reste du manuel utilisateur pour cela.
 
 Il peut être intéressant de réaliser des sauvegardes au cours de cette procédure.
 Cela vous permettra, si vous faite une erreur, de revenir à une étape précédente sans tout recommencer (installation comprise).
 
-Vérifiez la mise à jours de votre logiciel
+Vérifiez la mise à jour de votre logiciel
 ------------------------------------------
 
-Commencez par vérifiez que votre logiciel est à jours.
+Commencez par vérifier que votre logiciel est à jour.
 En effet, nous diffusons régulièrement des correctifs qui ne sont pas toujours inclus dans les installateurs.
 
 Présentation de votre copropriété
@@ -27,11 +27,11 @@ De nombreuses fonctionnalités utilisent ces informations en particulier pour le
 Création de votre premier exercice comptable
 --------------------------------------------
 
-	Menu *Administration/Modules (conf.)/Configuration comptables*
+	Menu *Administration/Modules (conf.)/Configuration comptable*
 
-	Menu *Comptabilité/Gestion comptable/Plan comptable*
+	Menu *Comptabilité/Gestion comptable/Plan comptable* - onglet "Configuration comptable"
 
-Ouvrer votre premier exercice comptable et rendez le actifs.
+Ouvrez votre premier exercice comptable et rendez-le actif.
 Vous devrez aussi créer le plan comptable de cet exercice pour avoir une comptabilité pleinement opérationnelle.
 
 Réglage de votre copropriété
@@ -48,19 +48,19 @@ Définition des catégories de charges, des lots et des tantièmes
 
 	Menu *Copropriété/Les catégories de charges*
 
-Déclarez vos copropriétaires ainsi que les lots de votre copropriétés.
-Ajoutez vos catégories de charges et définisez pour chacunes les cotes parts ou les lots associés.
+Déclarez vos copropriétaires ainsi que les lots de votre copropriété.
+Ajoutez vos catégories de charges et définisez pour chacune les quote-parts parts ou les lots associés.
 
 Mise à jour comptable
 ---------------------
 
-	Menu *Comptabilité/Gestion comptable/écritures comptable*
+	Menu *Comptabilité/Gestion comptable/écritures comptables
 
-	Menu *Comptabilité/Gestion comptable/Modèle d'écriture*
+	Menu *Comptabilité/Gestion comptable/Modèles d'écriture*
 
-Si vous mettez en place *Diacamma Syndic* au cours de votre exercice, vous devrez également saisir votre report à nouveau de l'exercice précédent ainsi que ressaisir les écritures du début d'année.
-Attention: n'oubliez pas que l'ajout d'une cotisation d'adhérent génère une facture ainsi que des écritures comptables associées. Prenez en compte dans la reprise de votre comptabilité.
-Pour vous aidez dans la saisie de votre comptabilité, nous vous conseillons d'utiliser les modèles d'écritures. Enregistrez entant que modèle les écritures récurrentes que vous avez au cours d'une année. Ainsi vous pouvez rapidement compléter votre comptabilité en quelques cliques.
+Si vous mettez en place *Diacamma Syndic* en cours d'exercice comptable, vous devrez dans un premier temps saisir le report à nouveau de l'exercice précédent ainsi que saisir les écritures du début d'année.
+
+Pour vous aidez dans la saisie de votre comptabilité, nous vous conseillons d'utiliser les modèles d'écriture. Enregistrez en tant que modèles les écritures récurrentes que vous passez plusieurs fois au cours d'une année. Ainsi vous pouvez rapidement compléter votre comptabilité en quelques clics.
 
 Le courriel
 -----------
@@ -68,24 +68,27 @@ Le courriel
 	Menu *Administration/Modules (conf.)/Paramètrages de courriel*
 
 Définissez vos réglages pour votre courriel.
-Le serveur smpt permettra à *Diacamma Syndic* d'envoyé un certain nombre de message: facture en PDF, mot de passe de connexion, ...
-Vous pouvez préciser comment réagis les liens 'écrire à tous' réagis avec votre logiciel de messagerie.
+Le serveur smpt permettra à *Diacamma Syndic* d'envoyé un certain nombre de messages : documents en PDF, mot de passe de connexion, ...
+Vous pouvez préciser comment réagissent les liens 'écrire à tous' réagis avec votre logiciel de messagerie.
 
 Les responsables
 ----------------
 
-	Menu *Général/Nos coordonnées*
-
 	Menu *Administration/Modules (conf.)/Configuration des contacts*
 
-	Menu *Association/Adhérents/Adhérents cotisants*
+	Menu *Bureautique/Adresses et contacts/Personnes...*
 
-Dans la fenêtre de vos coordonnées, vous pouvez associé des personnes comme résponsable de votre structure comme les copropriétaire membre du conseil d'administration.
-Utilisez l'outil de recherche et assignez leur une fonction.
+	Menu *Général/Nos coordonnées*
+
+Dans la fenêtre de vos coordonnées, vous pouvez associer les personnes résponsables de votre syndic et de votre syndicat de copropriétaires.
+Utilisez l'outil de recherche et assignez-leur une fonction.
 Vous pouvez également rajouter des fonctions propres à votre structure.
 
-Depuis la fiche de chacun de vos copropriétaire, vous pouvez donner à des personnes actives un droit de connexion à Diacamma Syndic.
-Privilégié une utilisation du logiciel avec un alias et un mot de passe propre à chaque utilisateur. Associez leur également des droits correspondants à leurs fonctions au sein de votre structure.
+	Menu *Administration/Modules (conf.)/Les groupes*
+	
+	Menu *Administration/Modules (conf.)/Utilisateurs du logiciel*/Nos coordonnées*
+
+Privilégiez une utilisation du logiciel avec un alias et un mot de passe propres à chaque utilisateur. Associez-leur également les droits correspondant à leurs fonctions au sein de votre structure.
 Enfin, évitez autant que possible l'utilisation de l'alias 'admin' qui doit être réservé pour des actions de configuration et de maintenance.
 
 La gestions documentaire
@@ -93,9 +96,9 @@ La gestions documentaire
 
 	Menu *Administration/Modules (conf.)/Dossier*
 
-	Menu *Bureautique/Documents/Documents*
+	Menu *Bureautique/Gestion de fichiers et de documents/Documents*
 
-Définissez vos différents dossier vous permettant d'importer vos documents à classer et à partager.
+Définissez vos différents dossiers dans lesquels seront enregistrés vos documents à classer et/ou à partager et/ou à imprimer.
 
-Une fois avoir parcouru ces points, votre logiciel *Diacamma Syndic* est pleinement opérationnel.
-N'hésistez pas à consulter le forum: de nombreuses astuces peux vous aider pour utiliser au mieux votre logiciel.
+Après avoir parcouru ces points, votre logiciel *Diacamma Syndic* est pleinement opérationnel.
+N'hésistez pas à consulter le forum: de nombreuses astuces peuvent vous aider à utiliser au mieux votre logiciel.
