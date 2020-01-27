@@ -1,19 +1,17 @@
 Les appels de fonds
 ===================
 
-Pour créer un appel de fonds, cliquez sur le menu *copropriete/Gestion/Les appels de fonds*.
-Depuis cette liste des appels de fond, vous pouvez en créer un nouveau via le bouton "Ajouter".
+Pour créer un appel de fonds, cliquez sur le menu *copropriété/Gestion/Les appels de fonds*.
+Depuis cette liste des appels de fonds, vous pouvez en créer un nouveau via le bouton "+Créer".
 
-Une fois avoir précisé la date et le descriptif de cette appel, une nouvelle fiche d'appel est créé.
-Ajoutez dans cette fiche différentes élements d'appel. 
-Sur chaqu'un vous préciser l'ensemble de lots associé à cet élement d'appel ainsi que le montant.
+Une fois précisés la date et le descriptif de cet appel, une nouvelle fiche d'appel est créée dans laquelle les différents détails de l'appel sont saisis à l'aide du bouton "+ Ajouter". Pour chacun, sélectionnez la catégorie de charges concernée et le montant appelé.
 
     .. image:: call_of_funds.png
 
-Enfin, pour finaliser l'appel de fonds, cliquez sur "Valider"
+Enfin, pour finaliser l'appel de fonds, cliquez sur "Valider".
 L'ensemble des copropriétaires se voient alors associés à une nouvelle fiche d'appel de fonds.
-Les montants de chaque élément précédemment saisi sont ventilés pour chaque nouvelle fiche d'appel de fonds en fonction du ratio de chaque copropriétaire. 
+Le montant de chaque détail d'appel précédemment saisi est ventilé dans les fiches d'appel de fonds individuelles, en tenant compte du ratio de chaque copropriétaire. 
 
-Pour ces appels de fonds, une sauvegarde officielle (d'après le modèle d'impression par défaut) est automatiquement sauvegardée dans le gestionnaire de documents au moment de la validation.
-Lorsque vous voulez imprimer le justificatif, on vous propose alors par défaut de télécharger ce document sauvegardé.
-Vous pouvez régénérer un nouveau PDF, par exemple avec un autre modèle d'impression, par contre celui-ci comportera la mention "duplicata" en filigrane.
+Ces appels de fonds individuels, générés d'après le modèle d'impression par défaut, sont automatiquement sauvegardés (sauvegarde officielle) dans le gestionnaire de documents au moment de la validation.
+Lorsque vous voulez imprimer un appel, on vous propose alors par défaut de télécharger le document sauvegardé.
+Vous pouvez aussi régénérer un nouveau PDF, avec un autre modèle d'impression. Par contre celui-ci comportera la mention "duplicata" en filigrane.
