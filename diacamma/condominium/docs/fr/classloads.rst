@@ -18,7 +18,7 @@ Deux modes de répartition peuvent être utilisés pour chaque catégorie de cha
  * Liée au lots
 Dans ce cas, assignez un ensemble de lots sur cette catégorie: les tantièmes correspondants seront automatiquement associés au différents propriétaires afin de définir la répartition des charges de la catégorie.
  * Non liée au lots
-Vous pouvez, dans ce cas, définir pour les propriétaires concernés,  les tantièmes grâce auxquels les charges de la catégorie seront réparties.
+Vous pouvez, dans ce cas, définir pour les propriétaires concernés, les tantièmes grâce auxquels les charges de la catégorie seront réparties.
 Ce mode de répartition est utilisé dans le cas de consommations fixes (surface, étage, ...) ou individuelles (consommation d'eau).
 
 Les budgets prévisionnels
