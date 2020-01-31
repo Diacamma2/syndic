@@ -45,11 +45,11 @@ msgstr "commissaire aux comptes"
 
 #: migrations/0001_initial.py:40
 msgid "secretary of council"
-msgstr "secrétaire du conseil"
+msgstr "secrétaire du conseil syndical"
 
 #: migrations/0001_initial.py:41
 msgid "member of council"
-msgstr "member du conseil"
+msgstr "membre du conseil syndical"
 
 #: migrations/0001_initial.py:42
 msgid "enterprise"
@@ -65,4 +65,4 @@ msgstr "dépenses"
 
 #: migrations/0001_initial.py:50 migrations/0002_check_journal.py:41
 msgid "revenue"
-msgstr "revenu"
+msgstr "revenus"
