@@ -1,10 +1,10 @@
 Les dépenses
 ============
 
-Pour gérer une dépense de copropriété, cliquez sur le menu *Copropriete/Gestion/Les dépenses*.
+Pour gérer une dépense de copropriété, cliquez sur le menu *Copropriéte/Gestion/Les dépenses*.
 Depuis cette liste des dépenses, vous pouvez en créer une nouvelle via le bouton "Ajouter".
 
-Une fois précisés la date et le descriptif de cette dépense, cliquez sur "Ok" afin qu'une une nouvelle fiche de dépense soit créée.
+Une fois précisés la date et le descriptif de cette dépense, cliquez sur "Ok" afin qu'une nouvelle fiche de dépense soit créée
 Dans la nouvelle fenêtre, indiquez le fournisseur concerné par la nouvelle dépense. Celui-ci doit être un tiers référencé pour ce qui est des dépenses. S'il ne figure pas dans la liste des contacts, ajoutez-le avec le bouton "+ Créer".
 Ajoutez dans cette fiche les détails de dépense en spécifiant pour chacun : la catégorie de dépense concernée, la désignation du détail, le compte de charges à mouvementer et le montant du détail.
 

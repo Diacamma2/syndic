@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-12-19 12:20+0000\n"
+"POT-Creation-Date: 2020-01-25 16:36+0000\n"
 "PO-Revision-Date: 2019-12-19 13:20+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -140,9 +140,9 @@ msgstr "désignation"
 #: models.py:419 models.py:1406 models.py:1619 models.py:1691
 #: printmodel/CallFunds_0001.py:162 printmodel/CallFunds_0001.py:179
 #: printmodel/Owner_0001.py:369 printmodel/Owner_0003.py:179
-#: views_report.py:149 views_report.py:150 views_report.py:169
-#: views_report.py:170 views_report.py:173 views_report.py:174
-#: views_report.py:230 views_report.py:321 views_report.py:368
+#: views_report.py:152 views_report.py:153 views_report.py:172
+#: views_report.py:173 views_report.py:176 views_report.py:177
+#: views_report.py:233 views_report.py:324 views_report.py:371
 msgid "total"
 msgstr "total"
 
@@ -452,7 +452,7 @@ msgstr "appel de fonds N°%(num)d"
 
 #: models.py:1419 models.py:1603 models.py:1609 printmodel/CallFunds_0001.py:31
 #: printmodel/CallFunds_0001.py:159 printmodel/Owner_0001.py:369
-#: views_report.py:346
+#: views_report.py:349
 msgid "call of funds"
 msgstr "appel de fonds"
 
@@ -609,6 +609,18 @@ msgstr "mensuelle"
 #: models.py:2050
 msgid "condominium-old-accounting"
 msgstr "vieille comptabilité ?"
+
+#: models.py:2055
+msgid "# condominium (administrator)"
+msgstr "# copropriété (administrateur)"
+
+#: models.py:2059
+msgid "# condominium (editor)"
+msgstr "# copropriété (éditeur)"
+
+#: models.py:2062
+msgid "# condominium (shower)"
+msgstr "# copropriété (observateur)"
 
 #: printmodel/CallFunds_0001.py:166
 msgid "situation at #owner.date_current"
@@ -1233,105 +1245,105 @@ msgstr ""
 "Permet d'avoir des rapports officiels à présenter à l'assemblée générale des "
 "copropriétaires."
 
-#: views_report.py:91 views_report.py:125 views_report.py:130
-#: views_report.py:202
+#: views_report.py:94 views_report.py:128 views_report.py:133
+#: views_report.py:205
 msgid "year N-1"
 msgstr "exercice N-1"
 
-#: views_report.py:97 views_report.py:126 views_report.py:131
-#: views_report.py:204
+#: views_report.py:100 views_report.py:129 views_report.py:134
+#: views_report.py:207
 msgid "year N"
 msgstr "exercice N"
 
-#: views_report.py:117
+#: views_report.py:120
 msgid "Show financial status report"
 msgstr "Consulter le rapport d'état financier"
 
-#: views_report.py:119
+#: views_report.py:122
 msgid "Financial status"
 msgstr "État financier"
 
-#: views_report.py:123 views_report.py:128 views_report.py:200
+#: views_report.py:126 views_report.py:131 views_report.py:203
 msgid "Designation"
 msgstr "Désignation"
 
-#: views_report.py:146
+#: views_report.py:149
 msgid "Tresory"
 msgstr "Trésorerie"
 
-#: views_report.py:147
+#: views_report.py:150
 msgid "Provision and advance"
 msgstr "Provision et avance"
 
-#: views_report.py:166
+#: views_report.py:169
 msgid "Créance"
 msgstr "Créance"
 
-#: views_report.py:167
+#: views_report.py:170
 msgid "Dettes"
 msgstr "Dettes"
 
-#: views_report.py:186
+#: views_report.py:189
 msgid "year N+1"
 msgstr "excercice N+1"
 
-#: views_report.py:192
+#: views_report.py:195
 msgid "year N+2"
 msgstr "exercice N+2"
 
-#: views_report.py:203
+#: views_report.py:206
 msgid "budget N"
 msgstr "budget N"
 
-#: views_report.py:206
+#: views_report.py:209
 msgid "budget N+1"
 msgstr "budget N+1"
 
-#: views_report.py:208
+#: views_report.py:211
 msgid "budget N+2"
 msgstr "budget N+2"
 
-#: views_report.py:244
+#: views_report.py:247
 msgid "Show General manage accounting report"
 msgstr "Consulter le rapport de compte de gestion générale"
 
-#: views_report.py:246
+#: views_report.py:249
 msgid "General manage accounting"
 msgstr "Compte de gestion générale"
 
-#: views_report.py:256
+#: views_report.py:259
 msgid "Current depency"
 msgstr "Dépenses courantes"
 
-#: views_report.py:264
+#: views_report.py:267
 msgid "Current revenue"
 msgstr "Revenus courants"
 
-#: views_report.py:271
+#: views_report.py:274
 msgid "Exceptional depency"
 msgstr "Dépenses exceptionnelles"
 
-#: views_report.py:275
+#: views_report.py:278
 msgid "Exceptional revenue"
 msgstr "Revenus exceptionnels"
 
-#: views_report.py:278
+#: views_report.py:281
 msgid "Show Current manage accounting report"
 msgstr "Consulter le rapport de compte de gestion pour opérations courantes"
 
-#: views_report.py:280
+#: views_report.py:283
 msgid "Current manage accounting"
 msgstr "Compte de gestion pour opérations courantes"
 
-#: views_report.py:332
+#: views_report.py:335
 msgid "Show Exeptional manage accounting report"
 msgstr ""
 "Consulter le rapport de compte de gestion pour opérations exceptionnelles"
 
-#: views_report.py:334
+#: views_report.py:337
 msgid "Exceptional manage accounting"
 msgstr "Compte de gestion pour opérations exceptionnelles"
 
-#: views_report.py:347
+#: views_report.py:350
 msgid "result general"
 msgstr "solde"

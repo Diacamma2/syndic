@@ -45,16 +45,16 @@ from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.framework.tools import convert_date, get_date_formating,\
     format_to_string
 from lucterios.framework.signal_and_lock import Signal
-from lucterios.CORE.models import Parameter
+from lucterios.framework.auditlog import auditlog
+from lucterios.CORE.models import Parameter, LucteriosGroup
 from lucterios.CORE.parameters import Params
 from lucterios.contacts.models import AbstractContact
 
 from diacamma.accounting.models import CostAccounting, EntryAccount, ChartsAccount, EntryLineAccount, FiscalYear, Budget, AccountThird, Third
 from diacamma.accounting.tools import currency_round, current_system_account, get_amount_sum, correct_accounting_code, format_with_devise
-from diacamma.payoff.models import Supporting, Payoff
+from diacamma.payoff.models import Supporting, Payoff, BankTransaction, DepositSlip
 from diacamma.condominium.system import current_system_condo
 from diacamma.accounting.tools_reports import get_spaces
-from lucterios.framework.auditlog import auditlog
 
 
 class Set(LucteriosModel):
@@ -2051,6 +2051,17 @@ def condominium_checkparam():
         Parameter.change_value('condominium-old-accounting', len(Owner.objects.all()) != 0)
         for current_set in Set.objects.all():
             current_set.convert_cost()
+
+    LucteriosGroup.redefine_generic(_("# condominium (administrator)"), Set.get_permission(True, True, True), Owner.get_permission(True, True, True),
+                                    BankTransaction.get_permission(True, True, True),
+                                    CallFunds.get_permission(True, True, True), Expense.get_permission(True, True, True),
+                                    Payoff.get_permission(True, True, True), DepositSlip.get_permission(True, True, True))
+    LucteriosGroup.redefine_generic(_("# condominium (editor)"), Set.get_permission(True, True, False), Owner.get_permission(True, True, False),
+                                    CallFunds.get_permission(True, True, False), Expense.get_permission(True, True, False),
+                                    Payoff.get_permission(True, True, False), DepositSlip.get_permission(True, True, False))
+    LucteriosGroup.redefine_generic(_("# condominium (shower)"), Set.get_permission(True, False, False), Owner.get_permission(True, False, False),
+                                    CallFunds.get_permission(True, False, False), Expense.get_permission(True, False, False),
+                                    Payoff.get_permission(True, False, False), DepositSlip.get_permission(True, False, False))
 
 
 @Signal.decorate('convertdata')
