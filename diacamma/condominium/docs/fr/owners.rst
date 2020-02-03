@@ -18,7 +18,7 @@ Vous pouvez aussi voir ici un résumé de la situation financière de chacun des
 Les lots
 --------
 
-    Menu *Copropriété/Gestion/Les propriétaires et les lots* * onglet "Les lots"
+    Menu *Copropriété/Gestion/Les propriétaires et les lots* - onglet "Les lots"
     
 Un lot peut être détenu par un ou plusieurs propriétaires et un propriétaire peut être propriétaire d'un ou plusieurs lots. 
 

@@ -54,7 +54,7 @@ Ajoutez vos catégories de charges et définissez pour chacune les quote-parts o
 Mise à jour comptable
 ---------------------
 
-	Menu *Comptabilité/Gestion comptable/Ecritures comptables
+	Menu *Comptabilité/Gestion comptable/Écritures comptables*
 
 	Menu *Comptabilité/Gestion comptable/Modèles d'écriture*
 
@@ -69,6 +69,7 @@ Le courriel
 
 Définissez vos réglages pour votre courriel.
 Le serveur smpt permettra à *Diacamma Syndic* d'envoyer un certain nombre de messages : documents en PDF, mot de passe de connexion, ...
+
 Vous pouvez préciser comment réagissent les liens 'écrire à tous' avec votre logiciel de messagerie.
 
 Les responsables
