@@ -113,7 +113,7 @@ class CallFundsTest(LucteriosTest):
         self.assert_count_equal('', 5)
         self.assert_json_equal('SELECT', 'set', '1')
         self.assert_json_equal('FLOAT', 'price', '250.00')
-        self.assert_select_equal('type_call', {0: 'charge courante', 1: 'charge exceptionnelle', 2: 'avance de fond', 4: 'fond travaux'})
+        self.assert_select_equal('type_call', {0: 'charge courante', 1: 'charge exceptionnelle', 2: 'avance de fonds', 4: 'fonds travaux'})
 
         self.factory.xfer = CallDetailAddModify()
         self.calljson('/diacamma.condominium/callDetailAddModify', {'callfunds': 1, 'type_call': 0, 'set': 2}, False)
@@ -524,7 +524,7 @@ class CallFundsTest(LucteriosTest):
         self.factory.xfer = CallFundsShow()
         self.calljson('/diacamma.condominium/callFundsShow', {'callfunds': 1}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'callFundsShow')
-        self.assert_json_equal('', 'calldetail/@0/type_call_ex', 'avance de fond')
+        self.assert_json_equal('', 'calldetail/@0/type_call_ex', 'avance de fonds')
 
         self.factory.xfer = CallFundsList()
         self.calljson('/diacamma.condominium/callFundsList', {'status_filter': 0}, False)
@@ -602,7 +602,7 @@ class CallFundsTest(LucteriosTest):
         self.factory.xfer = CallFundsShow()
         self.calljson('/diacamma.condominium/callFundsShow', {'callfunds': 1}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'callFundsShow')
-        self.assert_json_equal('', 'calldetail/@0/type_call_ex', 'fond travaux')
+        self.assert_json_equal('', 'calldetail/@0/type_call_ex', 'fonds travaux')
 
         self.factory.xfer = CallFundsList()
         self.calljson('/diacamma.condominium/callFundsList', {'status_filter': 0}, False)
@@ -716,7 +716,7 @@ class CallFundsTest(LucteriosTest):
         self.assert_json_equal('', 'calldetail/@2/set.total_part', "100")
         self.assert_json_equal('', 'calldetail/@2/owner_part', "35.00")
         self.assert_json_equal('', 'calldetail/@2/price', 52.50)
-        self.assert_json_equal('', 'calldetail/@2/type_call_ex', 'fond travaux')
+        self.assert_json_equal('', 'calldetail/@2/type_call_ex', 'fonds travaux')
 
         self.assert_count_equal('payoff', 0)
         self.assert_count_equal('#payoff/actions', 3)

@@ -805,7 +805,7 @@ class OwnerTest(PaymentTest):
         self.assert_json_equal('LABELFORM', 'total_current_payoff', 0.00)
         self.assert_json_equal('LABELFORM', 'total_current_owner', -131.25)
         self.assertEqual(len(self.json_actions), 4)
-        self.assert_action_equal(self.json_actions[2], (six.text_type('Règlement'), 'diacamma.payoff/images/payments.png', 'diacamma.condominium', 'ownerShowPayable', 0, 1, 1))
+        self.assert_action_equal(self.json_actions[2], ('Règlements', 'diacamma.payoff/images/payments.png', 'diacamma.condominium', 'ownerShowPayable', 0, 1, 1))
 
         self.factory.xfer = PayableShow()
         self.calljson('/diacamma.payoff/payableShow',
@@ -1088,7 +1088,7 @@ class OwnerTest(PaymentTest):
         self.calljson('/diacamma.accounting/fiscalYearClose',
                       {'year': '1', 'type_of_account': '-1'}, False)
         self.assert_observer('core.custom', 'diacamma.accounting', 'fiscalYearClose')
-        self.assert_json_equal('LABELFORM', 'title_condo', 'Cet exercice a un résultat non nul égal à 162,66 €')
+        self.assert_json_equal('LABELFORM', 'title_condo', 'Cet exercice a un résultat non nul égal à 162,66 €.')
         self.assert_select_equal('ventilate', 7)  # nb=7
 
         self.factory.xfer = FiscalYearClose()
@@ -1153,7 +1153,7 @@ class OwnerTest(PaymentTest):
         self.calljson('/diacamma.accounting/fiscalYearClose',
                       {'year': '1', 'type_of_account': '-1'}, False)
         self.assert_observer('core.custom', 'diacamma.accounting', 'fiscalYearClose')
-        self.assert_json_equal('LABELFORM', 'title_condo', 'Cet exercice a un résultat non nul égal à 162,66 €')
+        self.assert_json_equal('LABELFORM', 'title_condo', 'Cet exercice a un résultat non nul égal à 162,66 €.')
         self.assert_select_equal('ventilate', 7)  # nb=7
 
         self.factory.xfer = FiscalYearClose()
