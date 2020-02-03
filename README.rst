@@ -15,7 +15,7 @@ Diacamma Syndic appli of Lucterios framework
 
 This Diacamma syndic module allow to customize an software create with Lucterios to condominium application
 
-On our site http://www.diacamma.org, you can find lot of information about Diacamma suite.
+On our site https://www.diacamma.org, you can find lot of information about Diacamma suite.
 
 If you find any problems or have a new idea to improve this tool, thanks to fill out a ticket here: https://github.com/Diacamma2/syndic/issues
 
