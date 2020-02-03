@@ -84,7 +84,7 @@ class OwnerAndPropertyLotList(XferListEditor):
                 grid.delete_action("diacamma.condominium/ownerAdd")
                 lbl = XferCompLabelForm("limit_activity")
                 lbl.set_color('red')
-                lbl.set_value_as_headername(_('You have the maximum of owners!'))
+                lbl.set_value_as_headername(_("You can't have more than %s owners!") % settings.DIACAMMA_MAXOWNER)
                 lbl.set_location(grid.col, self.get_max_row() + 1)
                 self.add_component(lbl)
         self.new_tab(_("Property lots"))
@@ -119,7 +119,7 @@ class OwnerAdd(XferAddEditor):
         if (self.item.id is None) and hasattr(settings, "DIACAMMA_MAXOWNER"):
             nb_owner = len(Owner.objects.all())
             if getattr(settings, "DIACAMMA_MAXOWNER") <= nb_owner:
-                raise LucteriosException(IMPORTANT, _('You have the maximum of owners!'))
+                raise LucteriosException(IMPORTANT, _("You can't have more than %s owners!") % settings.DIACAMMA_MAXOWNER)
         XferAddEditor.fillresponse(self)
 
 

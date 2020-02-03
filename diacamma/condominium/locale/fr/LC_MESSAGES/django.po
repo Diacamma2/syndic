@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-01-25 16:36+0000\n"
-"PO-Revision-Date: 2019-12-19 13:20+0100\n"
+"POT-Creation-Date: 2020-02-03 11:58+0000\n"
+"PO-Revision-Date: 2020-02-03 12:57+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr\n"
@@ -276,8 +276,8 @@ msgid "You have too many owners declared!"
 msgstr "Vous avez trop de propriétaires déclarés !"
 
 #: models.py:669 models.py:702 models.py:703 models.py:704 models.py:705
-msgid "001@Propriétaire"
-msgstr "001@Information"
+msgid "001@Information"
+msgstr "001@Propriétaire"
 
 #: models.py:670
 msgid "002@Lots"
@@ -608,7 +608,7 @@ msgstr "mensuelle"
 
 #: models.py:2050
 msgid "condominium-old-accounting"
-msgstr "vieille comptabilité ?"
+msgstr "vieille comptabilité"
 
 #: models.py:2055
 msgid "# condominium (administrator)"
@@ -715,7 +715,7 @@ msgid "warning about recoverable load"
 msgstr ""
 "{[u]}Attention{[/u]} Les informations de charges récupérables sont données à "
 "titre purement informatif. Le propriétaire reste le seul responsable de la "
-"répartition des charges sur ses locataires. "
+"répartition des charges sur ses locataires"
 
 #: printmodel/Owner_0003.py:187
 msgid "estimated total"
@@ -738,8 +738,9 @@ msgid "Filtrer by owner"
 msgstr "Filtre sur le copropriétaire"
 
 #: views.py:87 views.py:122
-msgid "You have the maximum of owners!"
-msgstr "Vous ne pouvez pas avoir plus de xxx propriétaires !"
+#, python-format
+msgid "You can't have more than %s owners!"
+msgstr "Vous ne pouvez pas avoir plus de %s propriétaires !"
 
 #: views.py:90 views_classload.py:495
 msgid "Property lots"
@@ -796,7 +797,7 @@ msgstr "Supprimer un contact du propriétaire"
 
 #: views.py:238
 msgid "Load count of owner"
-msgstr "décompte de charges individuel"
+msgstr "Décompte de charges individuel"
 
 #: views.py:269
 msgid "Close"
@@ -845,7 +846,7 @@ msgstr "Supprimer un lot"
 
 #: views.py:389
 msgid "View situation of your condominium."
-msgstr "Voir la situation de votre copropriété"
+msgstr "Voir la situation de votre copropriété."
 
 #: views.py:391
 msgid "Your condominium"
@@ -938,7 +939,7 @@ msgstr "Cet exercice a des écritures non validées !"
 #: views.py:630
 #, python-format
 msgid "This fiscal year has a result no null equals to %s."
-msgstr "Cet exercice a un résultat non nul égal à %s"
+msgstr "Cet exercice a un résultat non nul égal à %s."
 
 #: views.py:634
 msgid "Where do you want to ventilate this amount?"
@@ -1085,9 +1086,10 @@ msgstr ""
 "{[li]}Création des fiches copropriétaires et de leurs lots associés.{[/li]}"
 "{[li]}Gestion des catégories de charges régissant la ventilation des "
 "dépenses entres les copropriétaires.{[/li]}{[li]}Création des appels de "
-"fonds.{[/li]}{[li]}Affectation des dépenses sur les catégories de charges.{[/li]}"
-"{[/ul]}Ces actions sont des surcouches spécifiques à la gestion d'une"
-"copropriété permettant aussi la génération automatique des écritures comptables."
+"fonds.{[/li]}{[li]}Affectation des dépenses sur les catégories de charges.{[/"
+"li]}{[/ul]}Ces actions sont des surcouches spécifiques à la gestion "
+"d'unecopropriété permettant aussi la génération automatique des écritures "
+"comptables."
 
 #: views_classload.py:154
 msgid "Manage of class loads"
@@ -1241,9 +1243,8 @@ msgstr "Voir l'ensemble"
 #: views_report.py:47
 msgid "Report of condominium"
 msgstr ""
-"Documents de synthèse établis à la clôture de l'exercice.{[br/]}"
-"Ces rapports officiels sont présentés à l'assemblée générale des "
-"copropriétaires."
+"Documents de synthèse établis à la clôture de l'exercice.{[br/]}Ces rapports "
+"officiels sont présentés à l'assemblée générale des copropriétaires."
 
 #: views_report.py:94 views_report.py:128 views_report.py:133
 #: views_report.py:205
@@ -1337,8 +1338,7 @@ msgstr "Compte de gestion pour opérations courantes"
 
 #: views_report.py:335
 msgid "Show Exeptional manage accounting report"
-msgstr ""
-"Consulter le rapport"
+msgstr "Consulter le rapport"
 
 #: views_report.py:337
 msgid "Exceptional manage accounting"
@@ -1347,3 +1347,6 @@ msgstr "Compte de gestion pour opérations exceptionnelles"
 #: views_report.py:350
 msgid "result general"
 msgstr "solde"
+
+#~ msgid "001@Propriétaire"
+#~ msgstr "001@Information"
