@@ -2,7 +2,7 @@ Les appels de fonds
 ===================
 
 Pour créer un appel de fonds, cliquez sur le menu *copropriété/Gestion/Les appels de fonds*.
-Depuis cette liste des appels de fonds, vous pouvez en créer un nouveau via le bouton "+Créer".
+Depuis cette liste des appels de fonds, vous pouvez en créer un nouveau via le bouton "+ Créer".
 
 Une fois précisés la date et le descriptif de cet appel, une nouvelle fiche d'appel est créée dans laquelle les différents détails de l'appel sont saisis à l'aide du bouton "+ Ajouter". Pour chacun, sélectionnez la catégorie de charges concernée et le montant appelé.
 
