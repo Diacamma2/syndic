@@ -21,11 +21,11 @@ Ce rapport présente la situation financière de la copropriété et la situatio
  
 Compte de gestion générale
 --------------------------
-Ce rapport présente les recettes et les dépenses relatifs à l’exercice comptable :
+Ce rapport présente les recettes et les dépenses relatives à l’exercice comptable :
 
  * Les dépenses et les produits courants réels
  * Les dépenses et les produits exceptionnels réels
- * Les recettes et les dépenses budgétés (budgets n et n+1) tels que votés par les copropriétaires en AG.
+ * Les dépenses et les recettes budgétés (budgets n et n+1) tels que votés par les copropriétaires en AG.
 
 Compte de gestion pour opérations courantes
 -------------------------------------------
