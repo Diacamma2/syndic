@@ -5,7 +5,8 @@ Suite aux appels de fonds, les copropriétaires règlent ce qu'ils doivent au sy
 Pour saisir un règlement depuis la liste des copropriétaires, ouvrez la fiche de tiers du copropriétaire et affichez les écritures le concernant.
 
     Menu *Copropriété/Gestion/Les proprietaires et les lots*
-       Ouvrez la fiche du propriétaire, onglet "Comptabilité" 
+    
+Ouvrez la fiche du propriétaire, onglet "Comptabilité" 
             
     .. image:: payoff.png
 
