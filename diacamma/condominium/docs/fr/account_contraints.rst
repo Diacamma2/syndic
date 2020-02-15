@@ -7,7 +7,7 @@ Une comptabilité d'engagement
 
 Les opérations réalisées au titre de la copropriété doivent être comptabilisées par le syndic en respect du principe de la partie double,et ce dès l'engagement des dépenses et des recettes. Chaque exercice comptable étant indépendant, cela permet de lui rattacher les dépenses et les recettes qui lui sont propres sans qu'il soit tenu compte de la date effective des encaissements/décaissements. Toute copropriété doit établir un budget prévisionnel.
 
-le Livre-journal, obligatoire, enregistre chronologiquement les opérations ayant une incidence sur le fonctionnement du syndicat des copropriétaires.
+Le Livre-journal, obligatoire, enregistre chronologiquement les opérations ayant une incidence sur le fonctionnement du syndicat des copropriétaires.
 
 Seules les petites copropriétés de moins de 10 lots et un budget prévisionnel inférieur à 15 000 € ne sont pas soumises à la comptabilité en partie double, mais doivent tout de même établir un budget prévisionnel.
 
