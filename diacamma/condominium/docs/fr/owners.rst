@@ -23,7 +23,7 @@ Les lots
 Un lot peut être détenu par un ou plusieurs propriétaires et un propriétaire peut être propriétaire d'un ou plusieurs lots. 
 
 Déclarez les lots de votre copropriété.
-Précisez en plus de la description du lot, les tantièmes et le propriétaires de chacun.
+Précisez en plus de la description du lot, les tantièmes et le propriétaire de chacun.
 Vous devez veillez à la cohérence des tantièmes attribués aux lots sans quoi la répartition des charges et la détermination des appels de fonds seront incorrects.
 
     .. image:: set_owner.png
