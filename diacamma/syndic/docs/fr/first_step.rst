@@ -103,3 +103,4 @@ Définissez vos différents dossiers dans lesquels seront enregistrés vos docum
 
 Après avoir parcouru ces points, votre logiciel *Diacamma Syndic* est pleinement opérationnel.
 N'hésistez pas à consulter le forum: de nombreuses astuces peuvent vous aider à utiliser au mieux votre logiciel.
+
