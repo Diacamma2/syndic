@@ -39,3 +39,4 @@ Sur le site officiel du logiciel, https://www.diacamma.org, vous trouverez des t
 
 Si vous souhaitez un service et un support plus personnalisé, vous pouvez faire confiance à notre partenaire officiel SLETO.
 Pour en savoir plus sur des solutions d'hébergement et de support, rendez vous sur https://www.sleto.net
+
