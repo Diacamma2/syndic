@@ -4,7 +4,7 @@ Les rapports
 Vous retrouvez ici les rapports correspondant aux quatre premières annexes de la réglementation française.
 L'annexe 5 n'est pas proposée actuellement dans Diacamma Syndic. celle-ci correspondant aux dépenses en lien avec les travaux et les dépenses exceptionnelles non clôturés en fin d'exercice. Pour obtenir un tel rapport, un outil de gestion spécifique doit être mis en place.
 
-Ces rapports sont sauvegardés automatiquement dans le gestionnaire de documents au moment de la clôture de l’exercice.
+Ces rapports sont sauvegardés automatiquement dans le *Gestionnaire de documents* au moment de la clôture de l’exercice.
 Si vous voulez les imprimer ou les rééditer, il vous est proposé par défaut de télécharger les documents sauvegardés.
 Vous pouvez aussi générer un nouveau PDF, en utilisant votre propre modèle. 
 Par contre celui-ci comportera la mention « duplicata » en filigrane.
