@@ -7,8 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
+<<<<<<< HEAD
 "POT-Creation-Date: 2020-02-22 17:52+0000\n"
 "PO-Revision-Date: 2019-12-19 13:19+0100\n"
+=======
+"POT-Creation-Date: 2020-02-03 11:58+0000\n"
+"PO-Revision-Date: 2020-02-03 12:58+0100\n"
+>>>>>>> 2dae03efa5cfc24bf904d9ee2f3da7bb032f161a
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -737,8 +742,9 @@ msgid "Filtrer by owner"
 msgstr "Filtrer by owner"
 
 #: views.py:87 views.py:122
-msgid "You have the maximum of owners!"
-msgstr "You have the maximum of owners!"
+#, python-format
+msgid "You can't have more than %s owners!"
+msgstr "You can't have more than %s owners!"
 
 #: views.py:90 views_classload.py:495
 msgid "Property lots"

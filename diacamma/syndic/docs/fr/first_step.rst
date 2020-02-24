@@ -1,14 +1,14 @@
 Prise en main
 =============
 
-Le logiciel *Diacamma Syndic* comprends un grand nombre de paramétrages et peut paraître difficile à configurer pour couvrir les besoins de votre structure.
+Le logiciel *Diacamma Syndic* comprend un grand nombre de paramétrages et peut paraître difficile à configurer pour couvrir les besoins de votre structure.
 
 Nous vous proposons ce guide pour vous aider à franchir cette première étape dans l'utilisation de cet outil.
 
 Suivez pas à pas les différents phases de réglage. Dans chaque étape, nous ne détaillons pas les fonctionnalités. Nous vous invitons également à vous référer au reste du manuel utilisateur pour cela.
 
 Il peut être intéressant de réaliser des sauvegardes au cours de cette procédure.
-Cela vous permettra, si vous faite une erreur, de revenir à une étape précédente sans tout recommencer (installation comprise).
+Cela vous permettra, si vous faites une erreur, de revenir à une étape précédente sans tout recommencer (installation comprise).
 
 Vérifiez la mise à jour de votre logiciel
 ------------------------------------------
@@ -21,7 +21,7 @@ Présentation de votre copropriété
 
 	Menu *General/Nos coordonnées*
 
-Dans cette écran, vous pouvez décrire les coordonnées de votre structure.
+Dans cet écran, vous pouvez décrire les coordonnées de votre structure.
 De nombreuses fonctionnalités utilisent ces informations en particulier pour les impressions.
 
 Création de votre premier exercice comptable
@@ -49,16 +49,16 @@ Définition des catégories de charges, des lots et des tantièmes
 	Menu *Copropriété/Les catégories de charges*
 
 Déclarez vos copropriétaires ainsi que les lots de votre copropriété.
-Ajoutez vos catégories de charges et définisez pour chacune les quote-parts parts ou les lots associés.
+Ajoutez vos catégories de charges et définissez pour chacune les quote-parts ou les lots associés.
 
 Mise à jour comptable
 ---------------------
 
-	Menu *Comptabilité/Gestion comptable/écritures comptables
+	Menu *Comptabilité/Gestion comptable/Écritures comptables*
 
 	Menu *Comptabilité/Gestion comptable/Modèles d'écriture*
 
-Si vous mettez en place *Diacamma Syndic* en cours d'exercice comptable, vous devrez dans un premier temps saisir le report à nouveau de l'exercice précédent ainsi que saisir les écritures du début d'année.
+Si vous mettez en place *Diacamma Syndic* en cours d'exercice comptable, vous devrez dans un premier temps saisir les à-nouveaux et le report à nouveau (ASL) de l'exercice précédent ainsi que saisir les écritures du début d'année.
 
 Pour vous aidez dans la saisie de votre comptabilité, nous vous conseillons d'utiliser les modèles d'écriture. Enregistrez en tant que modèles les écritures récurrentes que vous passez plusieurs fois au cours d'une année. Ainsi vous pouvez rapidement compléter votre comptabilité en quelques clics.
 
@@ -68,8 +68,9 @@ Le courriel
 	Menu *Administration/Modules (conf.)/Paramètrages de courriel*
 
 Définissez vos réglages pour votre courriel.
-Le serveur smpt permettra à *Diacamma Syndic* d'envoyé un certain nombre de messages : documents en PDF, mot de passe de connexion, ...
-Vous pouvez préciser comment réagissent les liens 'écrire à tous' réagis avec votre logiciel de messagerie.
+Le serveur smpt permettra à *Diacamma Syndic* d'envoyer un certain nombre de messages : documents en PDF, mot de passe de connexion, ...
+
+Vous pouvez préciser comment réagissent les liens 'écrire à tous' avec votre logiciel de messagerie.
 
 Les responsables
 ----------------
@@ -80,7 +81,7 @@ Les responsables
 
 	Menu *Général/Nos coordonnées*
 
-Dans la fenêtre de vos coordonnées, vous pouvez associer les personnes résponsables de votre syndic et de votre syndicat de copropriétaires.
+Dans la fenêtre de vos coordonnées, vous pouvez associer les personnes responsables de votre syndic et de votre syndicat de copropriétaires.
 Utilisez l'outil de recherche et assignez-leur une fonction.
 Vous pouvez également rajouter des fonctions propres à votre structure.
 
@@ -102,3 +103,4 @@ Définissez vos différents dossiers dans lesquels seront enregistrés vos docum
 
 Après avoir parcouru ces points, votre logiciel *Diacamma Syndic* est pleinement opérationnel.
 N'hésistez pas à consulter le forum: de nombreuses astuces peuvent vous aider à utiliser au mieux votre logiciel.
+

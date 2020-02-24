@@ -82,7 +82,7 @@ class ExpenseTest(PaymentTest):
         self.assertEqual(len(self.json_actions), 2)
         self.assert_json_equal('LABELFORM', 'third', None)
         self.assert_json_equal('LABELFORM', 'info', ["aucun tiers sélectionné"])
-        self.assert_grid_equal('expensedetail', {"set": "catégorie de charges", "designation": "désignation", "expense_account": "compte", "price": "prix", "ratio_txt": "ratio"}, 0)  # nb=5
+        self.assert_grid_equal('expensedetail', {"set": "catégorie de charges", "designation": "désignation", "expense_account": "compte", "price": "montant", "ratio_txt": "ratio"}, 0)  # nb=5
         self.assert_count_equal('#expensedetail/actions', 4)
         self.assert_json_equal('LABELFORM', 'status', 0)
         self.assertEqual(len(self.json_actions), 2)
@@ -839,7 +839,7 @@ class ExpenseBelgiumTest(PaymentTest):
         self.assertEqual(len(self.json_actions), 2)
         self.assert_json_equal('LABELFORM', 'third', None)
         self.assert_json_equal('LABELFORM', 'info', ["aucun tiers sélectionné"])
-        self.assert_grid_equal('expensedetail', {"set": "catégorie de charges", "designation": "désignation", "expense_account": "compte", "price": "prix", "ratio_txt": "ratio"}, 0)  # nb=5
+        self.assert_grid_equal('expensedetail', {"set": "catégorie de charges", "designation": "désignation", "expense_account": "compte", "price": "montant", "ratio_txt": "ratio"}, 0)  # nb=5
         self.assert_count_equal('#expensedetail/actions', 4)
         self.assert_json_equal('LABELFORM', 'status', 0)
         self.assertEqual(len(self.json_actions), 2)

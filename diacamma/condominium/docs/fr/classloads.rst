@@ -1,7 +1,9 @@
 Les catégories de charges
 =========================
 
-Depuis le menu *Copropriété/Gestion/Les catégories de charges*, vous pouvez individualiser la répartition des charges. Celles-ci peuvent être liées ou non aux lots.
+     Menu *Copropriété/Gestion/Les catégories de charges*
+     
+Vous pouvez individualiser la répartition des charges qui sont liées ou non aux lots.
 Par exemple, vous pouvez distinguer comme catégories de charges : les montées d'excalier, les garages, le chauffage, l'eau, ...
 
 Charges courantes et charges exceptionnelles
@@ -14,12 +16,13 @@ La réglementation française impose de distinguer les charges de copropriété 
 La répartition
 --------------
 
-Deux modes de répartition peuvent être utilisés pour chaque catégorie de charges.
+Deux modes de répartition peuvent être utilisés pour chaque catégorie de charges:
+
  * Liée au lots
-Dans ce cas, assignez un ensemble de lots sur cette catégorie: les tantièmes correspondants seront automatiquement associés au différents propriétaires afin de définir la répartition des charges de la catégorie.
+   Dans ce cas, assignez un ensemble de lots sur cette catégorie: les tantièmes correspondants seront automatiquement associés aux différents propriétaires afin de définir la répartition des charges de la catégorie.
  * Non liée au lots
-Vous pouvez, dans ce cas, définir pour les propriétaires concernés,  les tantièmes grâce auxquels les charges de la catégorie seront réparties.
-Ce mode de répartition est utilisé dans le cas de consommations fixes (surface, étage, ...) ou individuelles (consommation d'eau).
+   Vous pouvez, dans ce cas, définir pour les propriétaires concernés, les tantièmes grâce auxquels les charges de la catégorie seront réparties.
+   Ce mode de répartition est utilisé dans le cas de consommations fixes (surface, étage, ...) ou individuelles (consommation d'eau).
 
 Les budgets prévisionnels
 -------------------------
