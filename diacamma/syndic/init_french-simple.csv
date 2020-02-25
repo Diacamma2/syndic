@@ -1,15 +1,15 @@
 code;name
 102;Provisions pour travaux décidés
-103;Avances	
-1031;Avances de trésorerie	
+103;Avances
+1031;Avances de trésorerie
 1032;Avances travaux au titre de l'article 18.6e alinéa de la loi susvisée
 1033;Autres avances
-105;Fonds travaux	
+105;Fonds de travaux
 120;Solde en attente sur travaux et opérations exceptionnelles
-131;Subventions accordées en instance de versement	
-401;Fournisseurs - Factures parvenues	
-408;Fournisseurs - Factures non parvenues	
-409;Fournisseurs débiteurs	
+131;Subventions accordées en instance de versement
+401;Fournisseurs - Factures parvenues
+408;Fournisseurs - Factures non parvenues
+409;Fournisseurs débiteurs
 450;Copropriétaire individualisé
 4501;Copropriétaire - budget prévisionnel
 4502;Copropriétaire - travaux et opération exceptionnelles
@@ -17,37 +17,37 @@ code;name
 4504;Copropriétaire - emprunts
 4505;Copropriétaire - fonds de travaux
 459;Copropriétaire - créances douteuses
-512;Banques	
+512;Banques
 531;Caisse
-601;Eau	
-602;Electricité	
+601;Eau
+602;Electricité
 603;Chauffage, énergie et combustibles
-604;Achats produits d'entretien et petits équipements	
+604;Achats produits d'entretien et petits équipements
 605;Matériel
 606;Fournitures
 611;Nettoyage des locaux
-612;Location immobilières
-613;Location mobilières
-614;Contrats de maintenance		
-615;Entretien et petites réparations		
-616;Primes d'assurances		
-621;Rénumération du syndic sur gestion copropriété		
+612;Locations immobilières
+613;Locations mobilières
+614;Contrats de maintenance
+615;Entretien et petites réparations
+616;Primes d'assurances
+621;Rémunérations du syndic sur gestion copropriété
 6213;Frais postaux
-622;Autres honoraires du syndic		
-624;Frais du conseil syndical		
+622;Autres honoraires du syndic
+624;Frais du conseil syndical
 627;Frais des services bancaires
-671;Travaux décidés par l'assemblée générale		
-672;Travaux urgents		
+671;Travaux décidés par l'assemblée générale
+672;Travaux urgents
 673;Etudes techniques, diagnostic, consultation
-678;Charges exceptionnelles		
+678;Charges exceptionnelles
 701;Appels de fonds - Provisions sur opérations courantes
-702;Appels de fonds - Provisions sur travaux de l'article 14-2 et opérations exceptionnelles
+702;Appels de fonds - Provisions sur travaux du I de l'article 14-2 et opérations exceptionnelles
 703;Appels de fonds - Avances
 704;Appels de fonds - Remboursements d'annuités d'emprunts
-705;Appels de fonds - Fonds de travaux
+705;Appels de fonds - Affectation du fonds de travaux
 711;Subventions
 712;Emprunts
 713;Indemnités d'assurances
-714;Produits divers
+714;Produits divers (dont intérêts légaux dus par les copropriétaires)
 716;Produits financiers
-717;Produits exceptionnels
+718;Produits exceptionnels
