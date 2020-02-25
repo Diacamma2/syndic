@@ -1,6 +1,8 @@
 Les appels de fonds
 ===================
 
+Avant de commencer, assurez-vous que vos catégories de charges sont bien existantes et les dépenses correspondantes réparties entre vos différents copropriétaires.
+
      Menu *copropriété/Gestion/Les appels de fonds*
      
 Depuis cette liste des appels de fonds, vous pouvez en créer un nouveau via le bouton "+ Créer".

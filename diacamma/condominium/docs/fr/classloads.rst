@@ -10,7 +10,8 @@ Charges courantes et charges exceptionnelles
 ------------------------------------------
 
 Une catégorie de charges donnée concerne soit des charges courantes, soit des charges exceptionnelles.
-Les premières sont récurrentes d'une année sur l'autre et les secondes relèvent d'opérations ponctuelles et/ou exceptionnelles (ex. travaux votés en AG) pour lesquelles les catégories correspondantes seront clôturées une fois ces opérations terminées.
+Les premières, en lien avec le fonctionnement et le maintien en bon état de la copropriété, sont récurrentes d'une année sur l'autre et doivent obligatoirement être budgétées (quelle que soit la taille de la copropriété) avant d'être engagées. Les secondes sont relatives à des opérations ponctuelles ne relevant pas du budget prévisionnel (ex. travaux votés en AG) pour lesquelles les catégories correspondantes seront clôturées une fois ces opérations terminées. Généralement, elles aussi font l'objet d'un budget bien que la réglementation ne l'impose pas.
+
 La réglementation française impose de distinguer les charges de copropriété selon leur nature (charges courantes et charges exceptionnelles).
 
 La répartition
@@ -19,9 +20,15 @@ La répartition
 Deux modes de répartition peuvent être utilisés pour chaque catégorie de charges:
 
  * Liée au lots
-   Dans ce cas, assignez un ensemble de lots sur cette catégorie: les tantièmes correspondants seront automatiquement associés aux différents propriétaires afin de définir la répartition des charges de la catégorie.
+ 
+   Dans ce cas, assignez un ensemble de lots sur cette catégorie. Pour cela, affichez la catégorie et cliquez sur le bouton "Editer". Sélectionnez les lots concernés par la catégorie en les faisant passer de la liste de gauche sur la liste de droite.
+   Les tantièmes correspondants seront automatiquement associés aux différents propriétaires afin de définir la répartition des charges de la catégorie.
+   
+   
  * Non liée au lots
-   Vous pouvez, dans ce cas, définir pour les propriétaires concernés, les tantièmes grâce auxquels les charges de la catégorie seront réparties.
+ 
+   Vous devez, dans ce cas, définir pour les propriétaires concernés les tantièmes grâce auxquels les charges de la catégorie seront réparties.  Ceci fait, validez votre saisie et vérifiez l'association *Catégorie - Propriétaires concernés*.
+   
    Ce mode de répartition est utilisé dans le cas de consommations fixes (surface, étage, ...) ou individuelles (consommation d'eau).
 
 Les budgets prévisionnels
