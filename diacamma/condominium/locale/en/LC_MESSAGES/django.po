@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-02-24 15:35+0000\n"
+"POT-Creation-Date: 2020-02-26 18:40+0000\n"
 "PO-Revision-Date: 2020-02-03 12:58+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -895,7 +895,8 @@ msgstr "Parameters"
 msgid "Data converted"
 msgstr "Condominium accounting data converted"
 
-#: views.py:492 views.py:533 views.py:594 views_classload.py:438
+#: views.py:492 views.py:533 views.py:594 views_classload.py:147
+#: views_classload.py:438
 msgid "Condominium"
 msgstr "Condominium"
 
@@ -1062,10 +1063,6 @@ msgstr "Modify recoverable load ratio"
 #: views_classload.py:140
 msgid "Delete recoverable load ratio"
 msgstr "Delete recoverable load ratio"
-
-#: views_classload.py:147
-msgid "condominium"
-msgstr "condominium"
 
 #: views_classload.py:147
 msgid "Condominium tools"
@@ -1333,3 +1330,6 @@ msgstr "Exceptional manage accounting"
 #: views_report.py:350
 msgid "result general"
 msgstr "result general"
+
+#~ msgid "condominium"
+#~ msgstr "condominium"
