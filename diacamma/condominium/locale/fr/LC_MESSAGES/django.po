@@ -188,7 +188,7 @@ msgstr "total des appels de fonds"
 
 #: models.py:539
 msgid "total payoff"
-msgstr "réglements perçus"
+msgstr "règlements perçus"
 
 #: models.py:540 printmodel/Owner_0002.py:212 printmodel/Owner_0003.py:180
 msgid "total owner"
@@ -215,7 +215,7 @@ msgstr "solde propriétaire (ch. courantes)"
 #: models.py:547 printmodel/CallFunds_0001.py:169 printmodel/Owner_0001.py:377
 #: printmodel/Owner_0003.py:186
 msgid "current total payoff"
-msgstr "total des réglements (sur ch. courantes)"
+msgstr "total des règlements (sur ch. courantes)"
 
 #: models.py:548 printmodel/Owner_0001.py:379 printmodel/Owner_0003.py:184
 msgid "current total ventilated"
@@ -244,7 +244,7 @@ msgstr "total des appels de fonds (ch. exceptionnelles)"
 
 #: models.py:555 printmodel/CallFunds_0001.py:173 printmodel/Owner_0001.py:385
 msgid "exceptional total payoff"
-msgstr "total des réglements (sur ch. exceptionnelles)"
+msgstr "total des règlements (sur ch. exceptionnelles)"
 
 #: models.py:556 printmodel/CallFunds_0001.py:174 printmodel/Owner_0001.py:386
 msgid "exceptional total owner"
@@ -256,7 +256,7 @@ msgstr "total des appels de fonds (avance)"
 
 #: models.py:559 printmodel/CallFunds_0001.py:176
 msgid "cash advance total payoff"
-msgstr "total des réglements (avance)"
+msgstr "total des règlements (avance)"
 
 #: models.py:560 printmodel/CallFunds_0001.py:177
 msgid "fund for works total call for funds"
@@ -264,7 +264,7 @@ msgstr "total des appels de fonds (fonds de travaux)"
 
 #: models.py:561 printmodel/CallFunds_0001.py:178
 msgid "fund for works total payoff"
-msgstr "total des réglements (fonds travaux)"
+msgstr "total des règlements (fonds travaux)"
 
 #: models.py:630
 #, python-format
@@ -396,7 +396,7 @@ msgstr "numéros"
 #: models.py:1264 printmodel/Owner_0001.py:373 printmodel/Owner_0002.py:211
 #: printmodel/Owner_0003.py:177
 msgid "description"
-msgstr "déscription"
+msgstr "description"
 
 #: models.py:1301 printmodel/Owner_0001.py:373 printmodel/Owner_0002.py:211
 msgid "property lot"
@@ -467,7 +467,7 @@ msgstr "Valider"
 
 #: models.py:1523
 msgid "Category of charge not fill!"
-msgstr "La catégorie de charge est sans assignation !"
+msgstr "La catégorie de charges est sans assignation !"
 
 #: models.py:1537 models.py:1800
 msgid "Closed"
@@ -564,7 +564,7 @@ msgstr "copropriétaire - créances sur avances"
 
 #: models.py:2023
 msgid "condominium-default-owner-account4"
-msgstr "copropriétaires - créances suremprunts"
+msgstr "copropriétaires - créances sur emprunts"
 
 #: models.py:2030
 msgid "condominium-default-owner-account5"
@@ -877,7 +877,7 @@ msgid ""
 "{[center]}"
 msgstr ""
 "Cet outil de conversion va changer votre comptabilité pour respecter la loi "
-"Française sur les copropriétés.{[br/]}Pour les exercices non-cloturés "
+"Française sur les copropriétés. {[br/]}Pour les exercices non-cloturés "
 "suivant : {[br/]}%s{[br/]}Il effectuera les actions : {[br/]} - Changer les "
 "comptes de chaque propriétaire.{[br/]} - Dévalider toutes les écritures "
 "(mise au brouillard).{[br/]} - Désarchiver les appels de fonds et les "
@@ -1082,7 +1082,7 @@ msgstr "Gestion"
 #: views_classload.py:151
 msgid "Manage of condominium"
 msgstr ""
-"Ensemble d'actions permettant la gestion d'une copropriété:{[br/]}{[ul]}"
+"Ensemble d'actions permettant la gestion d'une copropriété :{[br/]}{[ul]}"
 "{[li]}Création des fiches copropriétaires et de leurs lots associés.{[/li]}"
 "{[li]}Gestion des catégories de charges régissant la ventilation des "
 "dépenses entres les copropriétaires.{[/li]}{[li]}Création des appels de "
