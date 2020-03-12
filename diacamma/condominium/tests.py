@@ -1009,6 +1009,16 @@ class OwnerTest(PaymentTest):
         self.assert_json_equal('LABELFORM', 'total_exceptional_payoff', 30.00)
         self.assert_json_equal('LABELFORM', 'total_exceptional_owner', -9.27)
 
+        self.assert_grid_equal('payment', {'date': 'date', 'assignment': 'affectation', 'amount': 'montant', 'mode': 'mode', 'bank_account': 'compte bancaire', 'reference': 'référence'}, 2)
+        self.assert_json_equal('', 'payment/@0/date', "2015-06-15")
+        self.assert_json_equal('', 'payment/@0/assignment', "appel de fonds N°1 Minimum")
+        self.assert_json_equal('', 'payment/@0/amount', 100.0)
+        self.assert_json_equal('', 'payment/@0/mode', 0)
+        self.assert_json_equal('', 'payment/@1/date', "2015-07-21")
+        self.assert_json_equal('', 'payment/@1/assignment', "appel de fonds N°2 Minimum")
+        self.assert_json_equal('', 'payment/@1/amount', 30.0)
+        self.assert_json_equal('', 'payment/@1/mode', 0)
+
     def test_close_classload(self):
         add_test_callfunds(False, True)
         add_test_expenses_fr(False, True)
@@ -1218,6 +1228,11 @@ class OwnerTest(PaymentTest):
         self.assert_json_equal('', 'entryline/@2/debit', -45.00)
         self.assert_json_equal('', 'entryline/@3/entry.date_value', "2015-07-21")
         self.assert_json_equal('', 'entryline/@3/credit', 30.00)
+        self.assert_count_equal('#entryline/actions', 4)
+        self.assert_action_equal('#entryline/actions/@0', ('Editer', 'images/edit.png', 'diacamma.accounting', 'entryAccountOpenFromLine', 0, 1, 0))
+        self.assert_action_equal('#entryline/actions/@1', ('Supprimer', 'images/delete.png', 'diacamma.accounting', 'entryAccountDel', 0, 1, 2))
+        self.assert_action_equal('#entryline/actions/@2', ('Clôturer', 'images/ok.png', 'diacamma.accounting', 'entryAccountClose', 0, 1, 2))
+        self.assert_action_equal('#entryline/actions/@3', ('(dé)lettrage', 'images/left.png', 'diacamma.accounting', 'entryAccountLink', 0, 1, 2))
         self.assert_json_equal('LABELFORM', 'thirdtotal', -17.07)
         self.assert_json_equal('LABELFORM', 'sumtopay', 17.07)
         self.assert_count_equal('callfunds', 2)
