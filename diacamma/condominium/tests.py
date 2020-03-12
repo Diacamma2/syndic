@@ -988,7 +988,7 @@ class OwnerTest(PaymentTest):
         self.factory.xfer = OwnerShow()
         self.calljson('/diacamma.condominium/ownerShow', {'owner': 1}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'ownerShow')
-        self.assert_count_equal('', 52)
+        self.assert_count_equal('', 53)
         self.assert_json_equal('LABELFORM', 'total_current_initial', 23.45)
         self.assert_json_equal('LABELFORM', 'total_current_call', 131.25)
         self.assert_json_equal('LABELFORM', 'total_current_payoff', 100.00)
@@ -1394,7 +1394,7 @@ class OwnerBelgiumTest(PaymentTest):
         self.factory.xfer = OwnerShow()
         self.calljson('/diacamma.condominium/ownerShow', {'owner': 1}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'ownerShow')
-        self.assert_count_equal('', 50)
+        self.assert_count_equal('', 51)
         self.assert_grid_equal('partition', {"set": "catégorie de charges", 'set.budget_txt': 'budget', 'set.sumexpense': 'dépense',
                                              'value': 'tantième', 'ratio': 'ratio', "ventilated": "ventilé", 'recovery_load': 'charges récupérables'}, 2)
         self.assert_json_equal('', 'partition/@1/set', "[2] BBB")

@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-03-05 15:56+0000\n"
-"PO-Revision-Date: 2020-02-03 12:57+0100\n"
+"POT-Creation-Date: 2020-03-12 11:36+0000\n"
+"PO-Revision-Date: 2020-03-12 12:36+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr\n"
@@ -23,15 +23,45 @@ msgstr ""
 msgid "Diacamma condominium"
 msgstr "Copropriété Diacamma"
 
-#: editors.py:99 editors.py:136
+#: editors.py:102 editors.py:139
 msgid "third"
 msgstr "tiers"
 
-#: editors.py:162
+#: editors.py:165
 msgid "current class loads"
 msgstr "catégories de charges courantes"
 
-#: editors.py:266
+#: editors.py:199
+msgid "payment"
+msgstr "versement"
+
+#: editors.py:200 models.py:1400 models.py:1683 printmodel/Owner_0001.py:369
+#: printmodel/Owner_0002.py:213 printmodel/Owner_0003.py:181
+msgid "date"
+msgstr "date"
+
+#: editors.py:201
+msgid "assignment"
+msgstr "affectation"
+
+#: editors.py:202 models.py:1612 models.py:1621
+#: printmodel/CallFunds_0001.py:165 printmodel/Owner_0001.py:374
+msgid "amount"
+msgstr "montant"
+
+#: editors.py:203 printmodel/Owner_0001.py:374
+msgid "mode"
+msgstr "mode"
+
+#: editors.py:204 printmodel/Owner_0001.py:374
+msgid "bank account"
+msgstr "compte bancaire"
+
+#: editors.py:205 printmodel/Owner_0001.py:374
+msgid "reference"
+msgstr "référence"
+
+#: editors.py:291
 msgid "No category of charge defined!"
 msgstr "Aucune catégorie de charge définie !"
 
@@ -406,11 +436,6 @@ msgstr "lot de propriété"
 msgid "property lots"
 msgstr "lots de propriété"
 
-#: models.py:1400 models.py:1683 printmodel/Owner_0001.py:369
-#: printmodel/Owner_0002.py:213 printmodel/Owner_0003.py:181
-msgid "date"
-msgstr "date"
-
 #: models.py:1401 models.py:1684 printmodel/Owner_0001.py:369
 msgid "comment"
 msgstr "commentaire"
@@ -480,11 +505,6 @@ msgstr "Une écriture d'un appel de fonds est validée !"
 #: models.py:1604
 msgid "calls of funds"
 msgstr "appels de fonds"
-
-#: models.py:1612 models.py:1621 printmodel/CallFunds_0001.py:165
-#: printmodel/Owner_0001.py:374
-msgid "amount"
-msgstr "montant"
 
 #: models.py:1614 models.py:1840
 msgid "entry"
@@ -649,18 +669,6 @@ msgstr "règlement"
 #: printmodel/Owner_0001.py:374
 msgid "payer"
 msgstr "payeur"
-
-#: printmodel/Owner_0001.py:374
-msgid "mode"
-msgstr "mode"
-
-#: printmodel/Owner_0001.py:374
-msgid "bank account"
-msgstr "compte bancaire"
-
-#: printmodel/Owner_0001.py:374
-msgid "reference"
-msgstr "référence"
 
 #: printmodel/Owner_0002.py:9
 msgid "situation"
