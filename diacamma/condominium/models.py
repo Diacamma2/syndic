@@ -484,10 +484,10 @@ class LoadCountSet(QuerySet):
             self.fill_title(designation, total=entry_line.amount)
             total += entry_line.amount
         self.change_value(code_ident,
-                          total={'format': "{[b]}{0}[/b]}", 'value': total},
-                          ratio={'format': "{[b]}{0}[/b]}", 'value': "%d/%d" % (partition_item.value, partition_item.set.total_part)},
-                          ventilated={'format': "{[b]}{0}[/b]}", 'value': total * ratio},
-                          recoverable_load={'format': "{[b]}{0}[/b]}", 'value': total * ratio * load_ratio})
+                          total={'format': "{[b]}{0}{[/b]}", 'value': total},
+                          ratio={'format': "{[b]}{0}{[/b]}", 'value': "%d/%d" % (partition_item.value, partition_item.set.total_part)},
+                          ventilated={'format': "{[b]}{0}{[/b]}", 'value': total * ratio},
+                          recoverable_load={'format': "{[b]}{0}{[/b]}", 'value': total * ratio * load_ratio})
         self.partition_general_total += total
         self.partition_ventilated_total += total * ratio
         self.partition_recoverable_load_total += total * ratio * load_ratio
@@ -507,10 +507,10 @@ class LoadCountSet(QuerySet):
             self.fill_account(partition_item, account, ratio)
         if partition_ident is not None:
             self.change_value(partition_ident,
-                              total={'format': "{[i]}{0}[/i]}", 'value': self.partition_general_total},
-                              ratio={'format': "{[i]}{0}[/i]}", 'value': "%d/%d" % (partition_item.value, partition_item.set.total_part)},
-                              ventilated={'format': "{[i]}{0}[/i]}", 'value': self.partition_ventilated_total},
-                              recoverable_load={'format': "{[i]}{0}[/i]}", 'value': self.partition_recoverable_load_total})
+                              total={'format': "{[i]}{0}{[/i]}", 'value': self.partition_general_total},
+                              ratio={'format': "{[i]}{0}{[/i]}", 'value': "%d/%d" % (partition_item.value, partition_item.set.total_part)},
+                              ventilated={'format': "{[i]}{0}{[/i]}", 'value': self.partition_ventilated_total},
+                              recoverable_load={'format': "{[i]}{0}{[/i]}", 'value': self.partition_recoverable_load_total})
         self.general_total += self.partition_general_total
         self.ventilated_total += self.partition_ventilated_total
         self.recoverable_load_total += self.partition_recoverable_load_total
@@ -525,9 +525,9 @@ class LoadCountSet(QuerySet):
             for partition_item in Partition.objects.filter(self.partition_query).distinct():
                 self.fill_partition(partition_item)
             self.fill_title('',
-                            total={'format': "{[u]}{0}[/u]}", 'value': self.general_total},
-                            ventilated={'format': "{[u]}{0}[/u]}", 'value': self.ventilated_total},
-                            recoverable_load={'format': "{[u]}{0}[/u]}", 'value': self.recoverable_load_total})
+                            total={'format': "{[u]}{0}{[/u]}", 'value': self.general_total},
+                            ventilated={'format': "{[u]}{0}{[/u]}", 'value': self.ventilated_total},
+                            recoverable_load={'format': "{[u]}{0}{[/u]}", 'value': self.recoverable_load_total})
 
 
 class Owner(Supporting):
