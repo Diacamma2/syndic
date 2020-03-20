@@ -52,9 +52,9 @@ from lucterios.contacts.models import AbstractContact
 
 from diacamma.accounting.models import CostAccounting, EntryAccount, ChartsAccount, EntryLineAccount, FiscalYear, Budget, AccountThird, Third
 from diacamma.accounting.tools import currency_round, current_system_account, get_amount_sum, correct_accounting_code, format_with_devise
+from diacamma.accounting.tools_reports import get_spaces
 from diacamma.payoff.models import Supporting, Payoff, BankTransaction, DepositSlip
 from diacamma.condominium.system import current_system_condo
-from diacamma.accounting.tools_reports import get_spaces
 
 
 class Set(LucteriosModel):
@@ -2062,6 +2062,8 @@ def condominium_checkparam():
     LucteriosGroup.redefine_generic(_("# condominium (shower)"), Set.get_permission(True, False, False), Owner.get_permission(True, False, False),
                                     CallFunds.get_permission(True, False, False), Expense.get_permission(True, False, False),
                                     Payoff.get_permission(True, False, False), DepositSlip.get_permission(True, False, False))
+
+    current_system_condo().check_account_config()
 
 
 @Signal.decorate('convertdata')

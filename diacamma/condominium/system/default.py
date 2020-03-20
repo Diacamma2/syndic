@@ -54,6 +54,20 @@ class DefaultSystemCondo(object):
                 titles[name] = _(name)
         return titles
 
+    def check_account_config(self):
+        from diacamma.accounting.tools import current_system_account
+        try:
+            lettering_check = Params.getvalue("accounting-lettering-check").split('{[br/]}')
+            changed = False
+            for account in ChartsAccount.objects.filter(year=FiscalYear.get_current(), code__regex=current_system_account().get_societary_mask()):
+                if account.code not in lettering_check:
+                    lettering_check.append(account.code)
+                    changed = True
+            if changed:
+                Params.setvalue("accounting-lettering-check", '{[br/]}'.join(lettering_check))
+        except LucteriosException:
+            pass
+
     def get_callfunds_list(self):
         return {}
 
@@ -115,11 +129,12 @@ class DefaultSystemCondo(object):
 
     def ventilate_result(self, fiscal_year, ventilate):
         Owner.throw_not_allowed()
+        self.check_account_config()
         result = fiscal_year.total_revenue - fiscal_year.total_expense
         if abs(result) > 0.001:
             total_part = PropertyLot.get_total_part()
             if total_part > 0:
-                close_entry = EntryAccount(year=fiscal_year, designation=_("Ventilation for %s") % fiscal_year, journal_id=5)
+                close_entry = EntryAccount(year=fiscal_year, designation=_("Ventilation for %s") % fiscal_year.toText, journal_id=5)
                 close_entry.check_date()
                 close_entry.save()
                 if ventilate == 0:

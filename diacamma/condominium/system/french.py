@@ -30,8 +30,7 @@ from lucterios.CORE.parameters import Params
 from lucterios.framework.tools import same_day_months_after, get_date_formating
 
 from diacamma.accounting.tools import correct_accounting_code, currency_round, current_system_account
-from diacamma.accounting.models import ChartsAccount, EntryAccount, EntryLineAccount, Journal,\
-    FiscalYear
+from diacamma.accounting.models import ChartsAccount, EntryAccount, EntryLineAccount, Journal, FiscalYear
 from diacamma.condominium.system.default import DefaultSystemCondo
 from diacamma.condominium.models import CallFunds, Set, CallDetail
 
