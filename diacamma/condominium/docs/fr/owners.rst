@@ -1,6 +1,14 @@
 Les copropriétaires
 ===================
-Un copropriétaire est un tiers, personne physique ou morale :
+
+La réglementation française impose d'individualiser les comptes des copropriétaires. Cela nécessite d'ouvrir une subdivision du  compte 450000 pour chaque copropriétaire. L'AG peut aussi décider de distinguer les créances selon leur nature (comptes '450-100', '450-200', '450-300'...).
+
+Avant de créer vos copropriétaires, vous devez paramétrer votre copropriété en spécifiant les comptes généraux devant être utilisés par vous, grâce à quoi les subdivisions seront possibles :
+
+     Menu *Administration/Modules (conf.)/Configuration de la copropriété*
+
+
+Tout copropriétaire est un tiers, personne physique ou morale :
 
     Menu *Bureautique/Adresses et contacts/Personnes...*
 
@@ -8,12 +16,12 @@ qui est propriétaire de lot(s) de copropriété.
 
     Menu *Copropriété/Gestion/Les propriétaires et les lots* - onglet "Les propriétaires"
 
-Pour ajouter un propriétaire à la liste, bouton "+ Créer".
+Ajoutez un propriétaire à la liste à l'aide du bouton "+ Créer".
 Sélectionnez-le dans la liste des tiers. Cette liste est actualisable en utilisant le bouton "+". Au préalable, assurez-vous que vos tiers sont bien existants.
 
-Comptablement, un copropriétaire est également un tiers comptable possédant des comptes "copriétaires individualisés" (comptes '450-1xx', '450-2xx', '450-3xx'... dans le plan comptable français). Pour un propriétaire donné, les comptes auxiliaires (nominatifs) ont été créés automatiquement lors de la création de la fiche du propriétaire.
+Comptablement, un copropriétaire est également un tiers comptable pour lequel des comptes "copropriétaire individualisé" sont ouverts automatiquement, à la condition que votre copropriété ait été correctement paramétrée. Contrôlez les comptes généraux qui leur sont affectés.
 
-Vous pouvez aussi voir ici un résumé de la situation financière de chacun des copropriétaires.
+La liste des copropriétaires affichée, vous pouvez aussi avoir le résumé de la situation financière de chacun.
 
 Les lots
 --------
