@@ -28,7 +28,7 @@ La durée de l'exercice comptable
 Plan comptable
 --------------
 
-Le plan comptable de de la copropriété doit respecter la nomenclature des comptes énoncée dans l’arrêté du 14 mars 2005 relatif aux comptes du syndicat des copropriétaires, avec possibilité de subdivision en cas de besoin (ex. 512 Banques → 512100 Mabanque).
+Le plan comptable de la copropriété doit respecter la nomenclature des comptes énoncée dans l’arrêté du 14 mars 2005 relatif aux comptes du syndicat des copropriétaires, avec possibilité de subdivision en cas de besoin (ex. 512 Banques → 512100 Mabanque).
 
 Le Plan Comptable Général des entreprises ne doit pas être utilisé. 
 
