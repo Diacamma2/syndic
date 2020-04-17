@@ -27,8 +27,9 @@ from lucterios.framework.tools import convert_date
 from lucterios.CORE.models import Parameter
 from lucterios.CORE.parameters import Params
 
-from diacamma.accounting.models import FiscalYear, Budget
-from diacamma.accounting.test_tools import create_account, add_entry
+from diacamma.accounting.models import FiscalYear, Budget, Third, AccountThird
+from diacamma.accounting.test_tools import create_account, add_entry,\
+    change_legal
 from diacamma.payoff.models import Payoff
 from diacamma.condominium.models import Set, Owner, Partition, CallFunds, CallDetail, Expense, ExpenseDetail, PropertyLot, RecoverableLoadRatio
 
@@ -40,11 +41,13 @@ def _set_budget(setitem, code, amount):
     setitem.change_budget_product(cost, year.id)
 
 
+def _set_partition(setpart, owner, value):
+    part = Partition.objects.get(set=setpart, owner=owner)
+    part.value = value
+    part.save()
+
+
 def _create_owners(set1, set2, set3, set4, with_lots=True):
-    def set_partition(setpart, owner, value):
-        part = Partition.objects.get(set=setpart, owner=owner)
-        part.value = value
-        part.save()
     owner1 = Owner.objects.create(third_id=4)
     owner1.editor.before_save(None)
     owner1.save()
@@ -61,18 +64,18 @@ def _create_owners(set1, set2, set3, set4, with_lots=True):
         set1.set_of_lots.set(PropertyLot.objects.all())
         set1.save()
     else:
-        set_partition(setpart=set1, owner=owner1, value=45.0)
-        set_partition(setpart=set1, owner=owner2, value=35.0)
-        set_partition(setpart=set1, owner=owner3, value=20.0)
-    set_partition(setpart=set2, owner=owner1, value=75.0)
-    set_partition(setpart=set2, owner=owner2, value=0.0)
-    set_partition(setpart=set2, owner=owner3, value=25.0)
-    set_partition(setpart=set3, owner=owner1, value=45.0)
-    set_partition(setpart=set3, owner=owner2, value=35.0)
-    set_partition(setpart=set3, owner=owner3, value=20.0)
-    set_partition(setpart=set4, owner=owner1, value=45.0)
-    set_partition(setpart=set4, owner=owner2, value=35.0)
-    set_partition(setpart=set4, owner=owner3, value=20.0)
+        _set_partition(setpart=set1, owner=owner1, value=45.0)
+        _set_partition(setpart=set1, owner=owner2, value=35.0)
+        _set_partition(setpart=set1, owner=owner3, value=20.0)
+    _set_partition(setpart=set2, owner=owner1, value=75.0)
+    _set_partition(setpart=set2, owner=owner2, value=0.0)
+    _set_partition(setpart=set2, owner=owner3, value=25.0)
+    _set_partition(setpart=set3, owner=owner1, value=45.0)
+    _set_partition(setpart=set3, owner=owner2, value=35.0)
+    _set_partition(setpart=set3, owner=owner3, value=20.0)
+    _set_partition(setpart=set4, owner=owner1, value=45.0)
+    _set_partition(setpart=set4, owner=owner2, value=35.0)
+    _set_partition(setpart=set4, owner=owner3, value=20.0)
 
 
 def default_setowner_fr(with_lots=True):
@@ -214,3 +217,14 @@ def main_be():
     init_compta()
     add_test_callfunds(False, True)
     add_test_expenses_be(False, True)
+
+
+def create_owner_fr(name):
+    contact = change_legal(name)
+    new_third = Third.objects.create(contact=contact, status=0)
+    for code in ['4501', '4502', '4503', '4504', '4505']:
+        AccountThird.objects.create(third=new_third, code=code)
+    owner = Owner.objects.create(third=new_third)
+    owner.editor.before_save(None)
+    owner.save()
+    return owner

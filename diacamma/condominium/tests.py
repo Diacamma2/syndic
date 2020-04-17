@@ -36,13 +36,15 @@ from lucterios.mailing.models import Message
 from lucterios.mailing.test_tools import decode_b64
 from lucterios.contacts.views_contacts import IndividualList
 
-from diacamma.accounting.models import EntryAccount, FiscalYear
+from diacamma.accounting.models import EntryAccount, FiscalYear, ChartsAccount,\
+    Third, AccountThird
 from diacamma.accounting.views import ThirdShow, ThirdList, AccountThirdAddModify
 from diacamma.accounting.views_entries import EntryAccountList
 from diacamma.accounting.views_accounts import FiscalYearClose, FiscalYearBegin, FiscalYearReportLastYear
 from diacamma.accounting.views_other import CostAccountingList
 from diacamma.accounting.test_tools import initial_thirds_fr, default_compta_fr, default_costaccounting, default_compta_be, initial_thirds_be,\
-    check_pdfreport
+    check_pdfreport, create_account, set_accounting_system, add_entry,\
+    change_legal
 
 from diacamma.payoff.models import Payoff
 from diacamma.payoff.views import PayableShow, PayableEmail, PayoffAddModify
@@ -54,7 +56,15 @@ from diacamma.condominium.views_classload import SetList, SetAddModify, SetDel, 
 from diacamma.condominium.views import OwnerAndPropertyLotList, OwnerAdd, OwnerDel, OwnerShow, PropertyLotAddModify, CondominiumConvert, OwnerVentilatePay,\
     OwnerLoadCount, OwnerMultiPay, OwnerPayableEmail, OwnerModify
 from diacamma.condominium.views_report import FinancialStatus, GeneralManageAccounting, CurrentManageAccounting, ExceptionalManageAccounting
-from diacamma.condominium.test_tools import default_setowner_fr, add_test_callfunds, old_accounting, add_test_expenses_fr, init_compta, add_years, default_setowner_be, add_test_expenses_be
+from diacamma.condominium.test_tools import default_setowner_fr, add_test_callfunds, old_accounting, add_test_expenses_fr, init_compta, add_years, default_setowner_be, add_test_expenses_be,\
+    create_owner_fr, _set_partition, _set_budget
+from diacamma.condominium.models import PropertyLot, Set
+from diacamma.payoff.views_conf import paramchange_payoff
+from lucterios.contacts.tests_contacts import change_ourdetail
+from lucterios.CORE.models import Parameter
+from diacamma.condominium.views_callfunds import CallFundsList,\
+    CallFundsAddCurrent, CallFundsTransition, CallFundsShow
+from diacamma.accounting.views_reports import FiscalYearTrialBalance
 
 
 class SetOwnerTest(LucteriosTest):
@@ -1749,3 +1759,344 @@ class OwnerTestOldAccounting(PaymentTest):
         self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
         self.assert_count_equal('entryline', 2)
         self.assert_json_equal('LABELFORM', 'result', [175.00, 187.34, -12.34, 31.11, 31.11])
+
+
+class ExempleArcTest(PaymentTest):
+
+    def setUp(self):
+        LucteriosTest.setUp(self)
+        self._setup_exemple()
+
+    def _setup_exemple(self):
+        Parameter.change_value('CORE-connectmode', '2')
+        Parameter.change_value('CORE-Wizard', 'False')
+        paramchange_payoff([])
+        change_ourdetail()
+        set_accounting_system('FR')
+        new_year = FiscalYear.objects.create(begin='2016-01-01', end='2016-12-31', status=1)
+        new_year.set_has_actif()
+        create_account(['502', '512'], 0, None)  # 1 2
+        create_account(['4501', '4502', '4503', '4504', '4505'], 0, None)  # 3 4 5 6 7
+        create_account(['401'], 1, None)  # 8
+        create_account(['120', '1031', '1032', '105'], 2, None)  # 9 10 11 12
+        create_account(['701', '702', '703', '704', '705'], 3, None)  # 13 14 15 16 17
+        create_account(['601', '602', '604', '607', '627'], 4, None)  # 18 19 20 21 22
+        default_bankaccount_fr()
+        self._config_comdominum()
+        new_third = Third.objects.create(contact=change_legal('Engie'), status=0)
+        AccountThird.objects.create(third=new_third, code='401')
+        new_third = Third.objects.create(contact=change_legal('Propre & Net'), status=0)
+        AccountThird.objects.create(third=new_third, code='401')
+
+        add_entry(new_year.id, 1, '2016-01-01', 'Report à nouveau', """-1|10|0|800.000000|0|0|None|
+-2|11|0|2500.000000|0|0|None|
+-3|8|6|650.000000|0|0|None|
+-3|8|7|200.000000|0|0|None|
+-3|3|3|100.000000|0|0|None|
+-3|3|1|-250.000000|0|0|None|
+-3|3|0|-580.000000|0|0|None|
+-3|1|0|3000.000000|0|0|None|
+-3|2|0|1880.000000|0|0|None|""", True)
+
+    def _config_comdominum(self):
+        owner_dupont = create_owner_fr('M. Dupont')  # lot 1, 10, 11 = 205+30+30 = 265
+        owner_durant = create_owner_fr('M. Durant')  # lot 2, 6 = 130+20 = 150
+        owner_dernier = create_owner_fr('M. Mme Dernier')  # lot 5, 9 = 185+20 = 205
+        owner_dubois = create_owner_fr('M. Mme Dubois')  # lot 3, 7 = 170+20 = 190
+        owner_paul_pierre = create_owner_fr('M. Paul Mme Pierre')  # lot 4, 8 = 170+20 = ;;190
+        PropertyLot.objects.create(num=1, value=205.0, description="Local commercial RDC gauche", owner=owner_dupont)
+        PropertyLot.objects.create(num=2, value=130.0, description="Appartement RDC droite", owner=owner_durant)
+        PropertyLot.objects.create(num=3, value=170.0, description="Appartement 1er étage", owner=owner_dubois)
+        PropertyLot.objects.create(num=4, value=170.0, description="Appartement 2ème étage", owner=owner_paul_pierre)
+        PropertyLot.objects.create(num=5, value=185.0, description="Appartement 3ème étage", owner=owner_dernier)
+        PropertyLot.objects.create(num=6, value=20.0, description="Emplacement parking N°1", owner=owner_durant)
+        PropertyLot.objects.create(num=7, value=20.0, description="Emplacement parking N°2", owner=owner_dubois)
+        PropertyLot.objects.create(num=8, value=20.0, description="Emplacement parking N°3", owner=owner_paul_pierre)
+        PropertyLot.objects.create(num=9, value=20.0, description="Emplacement parking N°4", owner=owner_dernier)
+        PropertyLot.objects.create(num=10, value=30.0, description="Parking sous-sol N°1", owner=owner_dupont)
+        PropertyLot.objects.create(num=11, value=30.0, description="Parking sous-sol N°2", owner=owner_dupont)
+
+        new_set = Set.objects.create(name="Généraux", is_link_to_lots=True, type_load=0)
+        new_set.set_of_lots.set(PropertyLot.objects.all())
+        new_set.save()
+        _set_budget(new_set, '601', 3800.0)
+
+        new_set = Set.objects.create(name="Escalier", is_link_to_lots=False, type_load=0)
+        _set_partition(setpart=new_set, owner=owner_dupont, value=289.0)
+        _set_partition(setpart=new_set, owner=owner_durant, value=144.0)
+        _set_partition(setpart=new_set, owner=owner_dernier, value=199.0)
+        _set_partition(setpart=new_set, owner=owner_dubois, value=184.0)
+        _set_partition(setpart=new_set, owner=owner_paul_pierre, value=184.0)
+        _set_budget(new_set, '601', 120.0)
+
+        new_set = Set.objects.create(name="Chauffage", is_link_to_lots=False, type_load=0)
+        _set_partition(setpart=new_set, owner=owner_dupont, value=310.0)
+        _set_partition(setpart=new_set, owner=owner_durant, value=110.0)
+        _set_partition(setpart=new_set, owner=owner_dernier, value=260.0)
+        _set_partition(setpart=new_set, owner=owner_dubois, value=160.0)
+        _set_partition(setpart=new_set, owner=owner_paul_pierre, value=160.0)
+        _set_budget(new_set, '601', 2030.0)
+
+        new_set = Set.objects.create(name="Sous-sol", is_link_to_lots=False, type_load=0)
+        _set_partition(setpart=new_set, owner=owner_dupont, value=1000.0)
+        _set_partition(setpart=new_set, owner=owner_durant, value=0.0)
+        _set_partition(setpart=new_set, owner=owner_dernier, value=0.0)
+        _set_partition(setpart=new_set, owner=owner_dubois, value=0.0)
+        _set_partition(setpart=new_set, owner=owner_paul_pierre, value=0.0)
+        _set_budget(new_set, '601', 50.0)
+
+        new_set = Set.objects.create(name="Eau privative", is_link_to_lots=False, type_load=0)
+        _set_partition(setpart=new_set, owner=owner_dupont, value=1.0)
+        _set_partition(setpart=new_set, owner=owner_durant, value=1.0)
+        _set_partition(setpart=new_set, owner=owner_dernier, value=1.0)
+        _set_partition(setpart=new_set, owner=owner_dubois, value=1.0)
+        _set_partition(setpart=new_set, owner=owner_paul_pierre, value=1.0)
+
+    def _check_accounting(self, trial_balance_values, sum_total):
+        self.factory.xfer = FiscalYearTrialBalance()
+        self.calljson('/diacamma.accounting/fiscalYearTrialBalance', {'filtercode': '', 'with_third': 1}, False)
+        self.assert_observer('core.custom', 'diacamma.accounting', 'fiscalYearTrialBalance')
+        self.assert_count_equal('report_1', len(trial_balance_values) + 2)
+        num = 0
+        for accound_code, total_debit, total_credit in trial_balance_values:
+            self.assert_json_equal('', 'report_1/@%d/designation' % num, accound_code)
+            self.assert_json_equal('', 'report_1/@%d/total_debit' % num, total_debit, delta=1e-3)
+            self.assert_json_equal('', 'report_1/@%d/total_credit' % num, total_credit, delta=1e-3)
+            num += 1
+        self.assert_json_equal('', 'report_1/@%d/designation' % num, "")
+        num += 1
+        self.assert_json_equal('', 'report_1/@%d/total_debit' % num, {'value': sum_total, 'format': '{[u]}{[b]}{0}{[/b]}{[/u]}'}, delta=1e-3)
+        self.assert_json_equal('', 'report_1/@%d/total_credit' % num, {'value': sum_total, 'format': '{[u]}{[b]}{0}{[/b]}{[/u]}'}, delta=1e-3)
+
+    def test_check_owner(self):
+        self.factory.xfer = OwnerAndPropertyLotList()
+        self.calljson('/diacamma.condominium/ownerAndPropertyLotList', {}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'ownerAndPropertyLotList')
+        self.assert_count_equal('owner', 5)
+        self.assert_json_equal('', 'owner/@0/id', '1')
+        self.assert_json_equal('', 'owner/@0/third', 'M. Dupont')
+        self.assert_json_equal('', 'owner/@0/thirdinitial', 250.0)
+        self.assert_json_equal('', 'owner/@1/id', '2')
+        self.assert_json_equal('', 'owner/@1/third', 'M. Durant')
+        self.assert_json_equal('', 'owner/@1/thirdinitial', 0.0)
+        self.assert_json_equal('', 'owner/@2/id', '3')
+        self.assert_json_equal('', 'owner/@2/third', 'M. Mme Dernier')
+        self.assert_json_equal('', 'owner/@2/thirdinitial', -100.0)
+        self.assert_json_equal('', 'owner/@3/id', '4')
+        self.assert_json_equal('', 'owner/@3/third', 'M. Mme Dubois')
+        self.assert_json_equal('', 'owner/@3/thirdinitial', 0.0)
+        self.assert_json_equal('', 'owner/@4/id', '5')
+        self.assert_json_equal('', 'owner/@4/third', 'M. Paul Mme Pierre')
+        self.assert_json_equal('', 'owner/@4/thirdinitial', 0.0)
+
+        self.assert_count_equal('propertylot', 11)
+        self.assert_json_equal('', 'propertylot/@0/num', '1')
+        self.assert_json_equal('', 'propertylot/@0/ratio', 20.5)
+        self.assert_json_equal('', 'propertylot/@0/description', "Local commercial RDC gauche")
+        self.assert_json_equal('', 'propertylot/@0/owner', 'M. Dupont')
+
+        self.assert_json_equal('', 'propertylot/@1/num', '2')
+        self.assert_json_equal('', 'propertylot/@1/ratio', 13.0)
+        self.assert_json_equal('', 'propertylot/@1/description', "Appartement RDC droite")
+        self.assert_json_equal('', 'propertylot/@1/owner', 'M. Durant')
+
+        self.assert_json_equal('', 'propertylot/@2/num', '3')
+        self.assert_json_equal('', 'propertylot/@2/ratio', 17.0)
+        self.assert_json_equal('', 'propertylot/@2/description', "Appartement 1er étage")
+        self.assert_json_equal('', 'propertylot/@2/owner', 'M. Mme Dubois')
+
+        self.assert_json_equal('', 'propertylot/@3/num', '4')
+        self.assert_json_equal('', 'propertylot/@3/ratio', 17.0)
+        self.assert_json_equal('', 'propertylot/@3/description', "Appartement 2ème étage")
+        self.assert_json_equal('', 'propertylot/@3/owner', 'M. Paul Mme Pierre')
+
+        self.assert_json_equal('', 'propertylot/@4/num', '5')
+        self.assert_json_equal('', 'propertylot/@4/ratio', 18.5)
+        self.assert_json_equal('', 'propertylot/@4/description', "Appartement 3ème étage")
+        self.assert_json_equal('', 'propertylot/@4/owner', 'M. Mme Dernier')
+
+        self.assert_json_equal('', 'propertylot/@5/num', '6')
+        self.assert_json_equal('', 'propertylot/@5/ratio', 2.0)
+        self.assert_json_equal('', 'propertylot/@5/description', "Emplacement parking N°1")
+        self.assert_json_equal('', 'propertylot/@5/owner', 'M. Durant')
+
+        self.assert_json_equal('', 'propertylot/@6/num', '7')
+        self.assert_json_equal('', 'propertylot/@6/ratio', 2.0)
+        self.assert_json_equal('', 'propertylot/@6/description', "Emplacement parking N°2")
+        self.assert_json_equal('', 'propertylot/@6/owner', 'M. Mme Dubois')
+
+        self.assert_json_equal('', 'propertylot/@7/num', '8')
+        self.assert_json_equal('', 'propertylot/@7/ratio', 2.0)
+        self.assert_json_equal('', 'propertylot/@7/description', "Emplacement parking N°3")
+        self.assert_json_equal('', 'propertylot/@7/owner', 'M. Paul Mme Pierre')
+
+        self.assert_json_equal('', 'propertylot/@8/num', '9')
+        self.assert_json_equal('', 'propertylot/@8/ratio', 2.0)
+        self.assert_json_equal('', 'propertylot/@8/description', "Emplacement parking N°4")
+        self.assert_json_equal('', 'propertylot/@8/owner', 'M. Mme Dernier')
+
+        self.assert_json_equal('', 'propertylot/@9/num', '10')
+        self.assert_json_equal('', 'propertylot/@9/ratio', 3.0)
+        self.assert_json_equal('', 'propertylot/@9/description', "Parking sous-sol N°1")
+        self.assert_json_equal('', 'propertylot/@9/owner', 'M. Dupont')
+
+        self.assert_json_equal('', 'propertylot/@10/num', '11')
+        self.assert_json_equal('', 'propertylot/@10/ratio', 3.0)
+        self.assert_json_equal('', 'propertylot/@10/description', "Parking sous-sol N°2")
+        self.assert_json_equal('', 'propertylot/@10/owner', 'M. Dupont')
+
+    def test_check_setofload(self):
+        self.factory.xfer = SetList()
+        self.calljson('/diacamma.condominium/setList', {}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'setList')
+        self.assert_count_equal('set', 5)
+        self.assert_json_equal('', 'set/@0/identify', '[1] Généraux')
+        self.assert_json_equal('', 'set/@0/budget_txt', 3800.00)
+        self.assert_json_equal('', 'set/@0/type_load', 0)
+        self.assert_json_equal('', 'set/@0/partitionfill_set', ['M. Dupont : 26,5 %',
+                                                                'M. Durant : 15,0 %',
+                                                                'M. Mme Dernier : 20,5 %',
+                                                                'M. Mme Dubois : 19,0 %',
+                                                                'M. Paul Mme Pierre : 19,0 %'])
+        self.assert_json_equal('', 'set/@0/sumexpense', 0.00)
+        self.assert_json_equal('', 'set/@1/identify', '[2] Escalier')
+        self.assert_json_equal('', 'set/@1/budget_txt', 120.00)
+        self.assert_json_equal('', 'set/@1/type_load', 0)
+        self.assert_json_equal('', 'set/@1/partitionfill_set', ['M. Dupont : 28,9 %',
+                                                                'M. Durant : 14,4 %',
+                                                                'M. Mme Dernier : 19,9 %',
+                                                                'M. Mme Dubois : 18,4 %',
+                                                                'M. Paul Mme Pierre : 18,4 %'])
+        self.assert_json_equal('', 'set/@1/sumexpense', 0.00)
+        self.assert_json_equal('', 'set/@2/identify', '[3] Chauffage')
+        self.assert_json_equal('', 'set/@2/budget_txt', 2030.00)
+        self.assert_json_equal('', 'set/@2/type_load', 0)
+        self.assert_json_equal('', 'set/@2/partitionfill_set', ['M. Dupont : 31,0 %',
+                                                                'M. Durant : 11,0 %',
+                                                                'M. Mme Dernier : 26,0 %',
+                                                                'M. Mme Dubois : 16,0 %',
+                                                                'M. Paul Mme Pierre : 16,0 %'])
+        self.assert_json_equal('', 'set/@3/sumexpense', 0.00)
+        self.assert_json_equal('', 'set/@3/identify', '[4] Sous-sol')
+        self.assert_json_equal('', 'set/@3/budget_txt', 50.00)
+        self.assert_json_equal('', 'set/@3/type_load', 0)
+        self.assert_json_equal('', 'set/@3/partitionfill_set', ['M. Dupont : 100,0 %'])
+        self.assert_json_equal('', 'set/@3/sumexpense', 0.00)
+        self.assert_json_equal('', 'set/@4/identify', '[5] Eau privative')
+        self.assert_json_equal('', 'set/@4/budget_txt', 0.00)
+        self.assert_json_equal('', 'set/@4/type_load', 0)
+        self.assert_json_equal('', 'set/@4/partitionfill_set', ['M. Dupont : 20,0 %',
+                                                                'M. Durant : 20,0 %',
+                                                                'M. Mme Dernier : 20,0 %',
+                                                                'M. Mme Dubois : 20,0 %',
+                                                                'M. Paul Mme Pierre : 20,0 %'])
+        self.assert_json_equal('', 'set/@4/sumexpense', 0.00)
+
+    def test_account(self):
+        self._check_accounting([("[1031] 1031", 0, 800.0),
+                                ("[1032] 1032", 0, 2500.0),
+                                ("[401 Engie]", 0, 650.0),
+                                ("[401 Propre & Net]", 0, 200.0),
+                                ("[4501] 4501", 0, 580.0),
+                                ("[4501 M. Dupont]", 0, 250.0),
+                                ("[4501 M. Mme Dernier]", 100.0, 0),
+                                ("[502] 502", 3000.0, 0),
+                                ("[512] 512", 1880.0, 0)],
+                               4980.0)
+
+    def test_add_default_current(self):
+        self.factory.xfer = CallFundsList()
+        self.calljson('/diacamma.condominium/callFundsList', {'status_filter': -1}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'callFundsList')
+        self.assert_count_equal('callfunds', 0)
+
+        self.factory.xfer = CallFundsAddCurrent()
+        self.calljson('/diacamma.condominium/callFundsAddCurrent', {'CONFIRME': 'YES'}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'callFundsAddCurrent')
+
+        self.factory.xfer = CallFundsList()
+        self.calljson('/diacamma.condominium/callFundsList', {'status_filter': 0}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'callFundsList')
+        self.assert_count_equal('callfunds', 4)
+        self.assert_json_equal('', 'callfunds/@0/date', "2016-01-01")
+        self.assert_json_equal('', 'callfunds/@1/date', "2016-04-01")
+        self.assert_json_equal('', 'callfunds/@2/date', "2016-07-01")
+        self.assert_json_equal('', 'callfunds/@3/date', "2016-10-01")
+        self.assert_json_equal('', 'callfunds/@0/total', 1500.00)
+        self.assert_json_equal('', 'callfunds/@1/total', 1500.00)
+        self.assert_json_equal('', 'callfunds/@2/total', 1500.00)
+        self.assert_json_equal('', 'callfunds/@3/total', 1500.00)
+        self.assertEqual(len(self.json_actions), 1)
+
+        self.factory.xfer = CallFundsTransition()
+        self.calljson('/diacamma.condominium/callFundsTransition', {'CONFIRME': 'YES', 'callfunds': 1, 'TRANSITION': 'valid'}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'callFundsTransition')
+
+        self.factory.xfer = CallFundsList()
+        self.calljson('/diacamma.condominium/callFundsList', {'status_filter': 0}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'callFundsList')
+        self.assert_count_equal('callfunds', 3)
+
+        self.factory.xfer = CallFundsList()
+        self.calljson('/diacamma.condominium/callFundsList', {'status_filter': 1}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'callFundsList')
+        self.assert_count_equal('callfunds', 5)
+        self.assert_json_equal('', 'callfunds/@0/owner', 'M. Dupont')
+        self.assert_json_equal('', 'callfunds/@0/total', 430.24, delta=1e-3)  # Book = 430.25
+        self.assert_json_equal('', 'callfunds/@1/owner', 'M. Durant')
+        self.assert_json_equal('', 'callfunds/@1/total', 202.65, delta=1e-3)
+        self.assert_json_equal('', 'callfunds/@2/owner', 'M. Mme Dernier')
+        self.assert_json_equal('', 'callfunds/@2/total', 332.67, delta=1e-3)
+        self.assert_json_equal('', 'callfunds/@3/owner', 'M. Mme Dubois')
+        self.assert_json_equal('', 'callfunds/@3/total', 267.22, delta=1e-3)
+        self.assert_json_equal('', 'callfunds/@4/owner', 'M. Paul Mme Pierre')
+        self.assert_json_equal('', 'callfunds/@4/total', 267.22, delta=1e-3)
+
+        self.factory.xfer = CallFundsShow()
+        self.calljson('/diacamma.condominium/callFundsShow', {'callfunds': 5}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'callFundsShow')
+        self.assert_json_equal('LABELFORM', 'status', 1)
+        self.assert_json_equal('LABELFORM', 'owner', 'M. Dupont')
+        self.assert_json_equal('LABELFORM', 'total', 430.24, delta=1e-3)
+        self.assert_count_equal('calldetail', 5)
+        self.assert_json_equal('', 'calldetail/@0/set', "[1] Généraux")
+        self.assert_json_equal('', 'calldetail/@0/total_amount', 950.00)
+        self.assert_json_equal('', 'calldetail/@0/set.total_part', 1000)
+        self.assert_json_equal('', 'calldetail/@0/owner_part', 265.0)
+        self.assert_json_equal('', 'calldetail/@0/price', 251.75, delta=1e-3)
+
+        self.assert_json_equal('', 'calldetail/@1/set', "[2] Escalier")
+        self.assert_json_equal('', 'calldetail/@1/total_amount', 30.00)
+        self.assert_json_equal('', 'calldetail/@1/set.total_part', 1000)
+        self.assert_json_equal('', 'calldetail/@1/owner_part', 289.00)
+        self.assert_json_equal('', 'calldetail/@1/price', 8.67, delta=1e-3)
+
+        self.assert_json_equal('', 'calldetail/@2/set', "[3] Chauffage")
+        self.assert_json_equal('', 'calldetail/@2/total_amount', 507.50)
+        self.assert_json_equal('', 'calldetail/@2/set.total_part', 1000)
+        self.assert_json_equal('', 'calldetail/@2/owner_part', 310.0)
+        self.assert_json_equal('', 'calldetail/@2/price', 157.32, delta=1e-3)  # Book = 157.32
+
+        self.assert_json_equal('', 'calldetail/@3/set', "[4] Sous-sol")
+        self.assert_json_equal('', 'calldetail/@3/total_amount', 12.50)
+        self.assert_json_equal('', 'calldetail/@3/set.total_part', 1000)
+        self.assert_json_equal('', 'calldetail/@3/owner_part', 1000.0)
+        self.assert_json_equal('', 'calldetail/@3/price', 12.50, delta=1e-3)
+
+        self.assert_json_equal('', 'calldetail/@4/set', "[5] Eau privative")
+        self.assert_json_equal('', 'calldetail/@4/price', 0.0, delta=1e-3)
+
+        self._check_accounting([("[1031] 1031", 0, 800.0),
+                                ("[1032] 1032", 0, 2500.0),
+                                ("[401 Engie]", 0, 650.0),
+                                ("[401 Propre & Net]", 0, 200.0),
+                                ("[4501] 4501", 0, 580.0),
+                                ("[4501 M. Dupont]", 430.24, 250.0),
+                                ("[4501 M. Durant]", 202.65, 0),
+                                ("[4501 M. Mme Dernier]", 432.67, 0),
+                                ("[4501 M. Mme Dubois]", 267.22, 0),
+                                ("[4501 M. Paul Mme Pierre]", 267.22, 0),
+                                ("[502] 502", 3000.0, 0),
+                                ("[512] 512", 1880.0, 0),
+                                ("[701] 701", 0.0, 1500.0)],
+                               6480.0)
