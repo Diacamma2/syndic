@@ -46,7 +46,7 @@ from diacamma.accounting.test_tools import initial_thirds_fr, default_compta_fr,
     check_pdfreport, create_account, set_accounting_system, add_entry,\
     change_legal
 
-from diacamma.payoff.models import Payoff
+from diacamma.payoff.models import Payoff, BankAccount
 from diacamma.payoff.views import PayableShow, PayableEmail, PayoffAddModify
 from diacamma.payoff.test_tools import default_bankaccount_fr, default_paymentmethod, PaymentTest, default_bankaccount_be
 
@@ -1775,26 +1775,27 @@ class ExempleArcTest(PaymentTest):
         set_accounting_system('FR')
         new_year = FiscalYear.objects.create(begin='2016-01-01', end='2016-12-31', status=1)
         new_year.set_has_actif()
-        create_account(['502', '512'], 0, None)  # 1 2
-        create_account(['4501', '4502', '4503', '4504', '4505'], 0, None)  # 3 4 5 6 7
-        create_account(['401'], 1, None)  # 8
-        create_account(['120', '1031', '1032', '105'], 2, None)  # 9 10 11 12
-        create_account(['701', '702', '703', '704', '705'], 3, None)  # 13 14 15 16 17
-        create_account(['601', '602', '604', '607', '627'], 4, None)  # 18 19 20 21 22
-        default_bankaccount_fr()
+        create_account(['502', '512', '581'], 0, None)  # 1 2 3
+        create_account(['4501', '4502', '4503', '4504', '4505'], 0, None)  # 4 5 6 7 8
+        create_account(['401'], 1, None)  # 9
+        create_account(['120', '1031', '1032', '105'], 2, None)  # 10 11 12 13
+        create_account(['701', '702', '703', '704', '705'], 3, None)  # 14 15 16 17 18
+        create_account(['601', '602', '604', '607', '627'], 4, None)  # 19 20 21 22 23
+        BankAccount.objects.create(designation="Compte chèque", reference="0123 456789 321654 12", account_code="512")
+        BankAccount.objects.create(designation="chèque en attente", reference="0123 456789 321654 12", account_code="581")
         self._config_comdominum()
         new_third = Third.objects.create(contact=change_legal('Engie'), status=0)
         AccountThird.objects.create(third=new_third, code='401')
         new_third = Third.objects.create(contact=change_legal('Propre & Net'), status=0)
         AccountThird.objects.create(third=new_third, code='401')
 
-        add_entry(new_year.id, 1, '2016-01-01', 'Report à nouveau', """-1|10|0|800.000000|0|0|None|
--2|11|0|2500.000000|0|0|None|
--3|8|6|650.000000|0|0|None|
--3|8|7|200.000000|0|0|None|
--3|3|3|100.000000|0|0|None|
--3|3|1|-250.000000|0|0|None|
--3|3|0|-580.000000|0|0|None|
+        add_entry(new_year.id, 1, '2016-01-01', 'Report à nouveau', """-1|11|0|800.000000|0|0|None|
+-2|12|0|2500.000000|0|0|None|
+-3|9|6|650.000000|0|0|None|
+-3|9|7|200.000000|0|0|None|
+-3|4|3|100.000000|0|0|None|
+-3|4|1|-250.000000|0|0|None|
+-3|4|0|-580.000000|0|0|None|
 -3|1|0|3000.000000|0|0|None|
 -3|2|0|1880.000000|0|0|None|""", True)
 
@@ -2004,7 +2005,7 @@ class ExempleArcTest(PaymentTest):
                                 ("[512] 512", 1880.0, 0)],
                                4980.0)
 
-    def test_add_default_current(self):
+    def test_add_first_current_calloffunds(self):
         self.factory.xfer = CallFundsList()
         self.calljson('/diacamma.condominium/callFundsList', {'status_filter': -1}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'callFundsList')
@@ -2100,3 +2101,50 @@ class ExempleArcTest(PaymentTest):
                                 ("[512] 512", 1880.0, 0),
                                 ("[701] 701", 0.0, 1500.0)],
                                6480.0)
+
+    def test_add_payoff(self):
+        self.factory.xfer = CallFundsAddCurrent()
+        self.calljson('/diacamma.condominium/callFundsAddCurrent', {'CONFIRME': 'YES'}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'callFundsAddCurrent')
+
+        self.factory.xfer = CallFundsTransition()
+        self.calljson('/diacamma.condominium/callFundsTransition', {'CONFIRME': 'YES', 'callfunds': 1, 'TRANSITION': 'valid'}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'callFundsTransition')
+
+        self.factory.xfer = PayoffAddModify()  # M. Dupont
+        self.calljson('/diacamma.payoff/payoffAddModify', {'SAVE': 'YES', 'supporting': 1, 'amount': '180.24', 'date': '2016-04-01', 'mode': 1, 'bank_account': 2}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.payoff', 'payoffAddModify')
+
+        self.factory.xfer = PayoffAddModify()  # M. Durant
+        self.calljson('/diacamma.payoff/payoffAddModify', {'SAVE': 'YES', 'supporting': 2, 'amount': '202.65', 'date': '2016-01-06', 'mode': 1, 'bank_account': 2}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.payoff', 'payoffAddModify')
+
+        self.factory.xfer = PayoffAddModify()  # M. Mme Dernier
+        self.calljson('/diacamma.payoff/payoffAddModify', {'SAVE': 'YES', 'supporting': 3, 'amount': '432.67', 'date': '2016-01-01', 'mode': 2, 'bank_account': 1}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.payoff', 'payoffAddModify')
+
+        self.factory.xfer = PayoffAddModify()  # M. Mme Dubois
+        self.calljson('/diacamma.payoff/payoffAddModify', {'SAVE': 'YES', 'supporting': 4, 'amount': '267.22', 'date': '2016-01-04', 'mode': 1, 'bank_account': 2}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.payoff', 'payoffAddModify')
+
+        self.factory.xfer = PayoffAddModify()  # M. Paul Mme Pierre
+        self.calljson('/diacamma.payoff/payoffAddModify', {'SAVE': 'YES', 'supporting': 5, 'amount': '150.0', 'date': '2016-01-08', 'mode': 1, 'bank_account': 2}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.payoff', 'payoffAddModify')
+
+        add_entry(1, 5, '2016-01-09', 'Remise bancaire', """-1|3|0|-800.110000|0|0|None|\n-2|2|0|800.110000|0|0|None|""", False)
+
+        self._check_accounting([("[1031] 1031", 0, 800.0),
+                                ("[1032] 1032", 0, 2500.0),
+                                ("[401 Engie]", 0, 650.0),
+                                ("[401 Propre & Net]", 0, 200.0),
+                                ("[4501] 4501", 0, 580.0),
+                                ("[4501 M. Dupont]", 430.24, 430.24),
+                                ("[4501 M. Durant]", 202.65, 202.65),
+                                ("[4501 M. Mme Dernier]", 432.67, 432.67),
+                                ("[4501 M. Mme Dubois]", 267.22, 267.22),
+                                ("[4501 M. Paul Mme Pierre]", 267.22, 150.0),
+                                ("[502] 502", 3000.0, 0),
+                                ("[512] 512", 3112.78, 0),
+                                ("[581] 581", 800.11, 800.11),
+                                ("[701] 701", 0.0, 1500.0)],
+                               8512.89)
