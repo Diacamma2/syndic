@@ -83,7 +83,7 @@ class BelgiumSystemCondo(DefaultSystemCondo):
                 titles[name] = title_lists[name]
         return titles
 
-    def get_callfunds_list(self):
+    def get_callfunds_list(self, complete=False):
         return [(0, _('current')), (1, _('working')), (2, _('rolling')), (4, _('reserved'))]
 
     def CurrentCallFundsAdding(self, to_create):

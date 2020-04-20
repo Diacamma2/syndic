@@ -68,8 +68,8 @@ class DefaultSystemCondo(object):
         except LucteriosException:
             pass
 
-    def get_callfunds_list(self):
-        return {}
+    def get_callfunds_list(self, complete=False):
+        return []
 
     def CurrentCallFundsAdding(self):
         return False

@@ -66,8 +66,11 @@ class FrenchSystemCondo(DefaultSystemCondo):
                            'condominium-mode-current-callfunds']
         return param_lists
 
-    def get_callfunds_list(self):
-        return [(0, _('current')), (1, _('exceptional')), (2, _('cash advance')), (4, _('fund for works'))]
+    def get_callfunds_list(self, complete=False):
+        callfunds_list = [(0, _('current')), (1, _('exceptional')), (2, _('cash advance')), (4, _('fund for works'))]
+        if complete:
+            callfunds_list.append((3, _('borrowing')))
+        return callfunds_list
 
     def CurrentCallFundsAdding(self, to_create):
         if to_create:

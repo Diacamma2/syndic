@@ -29,7 +29,7 @@ from lucterios.CORE.parameters import Params
 
 from diacamma.accounting.models import FiscalYear, Budget, Third, AccountThird
 from diacamma.accounting.test_tools import create_account, add_entry,\
-    change_legal
+    change_legal, get_accounting_system
 from diacamma.payoff.models import Payoff
 from diacamma.condominium.models import Set, Owner, Partition, CallFunds, CallDetail, Expense, ExpenseDetail, PropertyLot, RecoverableLoadRatio
 
@@ -175,8 +175,20 @@ def init_compta():
     year = FiscalYear.get_current()
     if Params.getvalue("condominium-old-accounting"):
         add_entry(year.id, 1, '2015-01-01', 'Report à nouveau', '-1|2|0|23.450000|0|0|None|\n-2|17|4|-23.450000|0|0|None|', True)
-    else:
-        add_entry(year.id, 1, '2015-01-01', 'Report à nouveau', '-1|2|0|16.680000|0|0|None|\n-2|17|4|-23.450000|0|0|None|\n-3|18|4|-5.730000|0|0|None|\n-4|17|5|12.500000|0|0|None|', True)
+    elif get_accounting_system() == 'FR':
+        add_entry(year.id, 1, '2015-01-01', 'Report à nouveau', """-1|2|0|16.680000|0|0|None|
+-2|17|4|-23.450000|0|0|None|
+-3|18|4|-5.730000|0|0|None|
+-4|17|5|10.500000|0|0|None|
+-5|18|5|0.7500000|0|0|None|
+-6|19|5|0.6000000|0|0|None|
+-7|20|5|0.250000|0|0|None|
+-8|21|5|0.400000|0|0|None|""", True)
+    elif get_accounting_system() == 'BE':
+        add_entry(year.id, 1, '2015-01-01', 'Report à nouveau', """-1|2|0|16.680000|0|0|None|
+-2|17|4|-23.450000|0|0|None|
+-3|18|4|-5.730000|0|0|None|
+-4|17|5|12.500000|0|0|None|""", True)
     add_entry(year.id, 5, '2015-02-20', 'Frais bancaire', '-1|2|0|-12.340000|0|0|None|\n-2|15|0|12.340000|0|0|None|', True)
 
 

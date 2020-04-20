@@ -283,7 +283,7 @@ class CallDetailEditor(LucteriosEditor):
 
     def edit(self, xfer):
         type_call = xfer.get_components('type_call')
-        type_call.set_select(current_system_condo().get_callfunds_list())
+        type_call.set_select(current_system_condo().get_callfunds_list(complete=False))
         type_call.set_action(xfer.request, xfer.get_action(), close=CLOSE_NO, modal=FORMTYPE_REFRESH)
         set_comp = xfer.get_components('set')
         if int(self.item.type_call) == 1:

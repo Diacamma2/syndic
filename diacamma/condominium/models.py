@@ -588,7 +588,8 @@ class Owner(Supporting):
     def get_third_mask(self, type_owner=1):
         def add_account_rex(typeowner):
             account = Params.getvalue("condominium-default-owner-account%d" % typeowner)
-            account_rex_list.append("^" + account + "[0-9a-zA-Z]*$")
+            if account != '':
+                account_rex_list.append("^" + account + "[0-9a-zA-Z]*$")
 
         if Params.getvalue("condominium-old-accounting"):
             return current_system_account().get_societary_mask()
@@ -655,9 +656,10 @@ class Owner(Supporting):
         return result
 
     @classmethod
-    def is_owner_account_doubled(cls, owner_type):
+    def is_owner_account_doubled(cls, owner_type, all_list=True):
         account = Params.getvalue("condominium-default-owner-account%d" % owner_type)
-        for other_owner_type in range(1, 6):
+        type_list = range(1, 6) if all_list else range(1, owner_type + 1)
+        for other_owner_type in type_list:
             if other_owner_type != owner_type:
                 if account == Params.getvalue("condominium-default-owner-account%d" % other_owner_type):
                     return True
@@ -756,20 +758,28 @@ class Owner(Supporting):
             self.date_begin = FiscalYear.get_current().begin
             entries_init = EntryAccount.objects.filter(Q(entrylineaccount__third=self.third) & Q(date_value=self.date_begin) & Q(journal__id=1)).distinct()
             if len(entries_init) > 0:
-                third_initial = self.get_third_initial()
-                if (third_initial > 0.0001) and (len(Payoff.objects.filter((Q(supporting=self) | Q(supporting__callfundssupporting__third=self.third)) & Q(entry=entries_init[0]))) == 0):
-                    init_paypoff = Payoff(supporting=self, date=self.date_begin, payer=six.text_type(self.third), mode=4,
-                                          reference=_('Last year report'), bank_fee=0)
-                    init_paypoff.amount = third_initial
-                    init_paypoff.entry = entries_init[0]
-                    init_paypoff.save(do_generate=False)
-                elif (third_initial < 0.0001) and (len(CallDetail.objects.filter(callfunds__owner=self, entry=entries_init[0])) == 0):
-                    init_call = CallFunds(owner=self, num=None, date=self.date_begin, comment=_('Last year report'), status=2, supporting=CallFundsSupporting.objects.create(third=self.third))
-                    init_call.save()
-                    init_detail = CallDetail(callfunds=init_call, set=None, designation=_('Last year report'), type_call=0)
-                    init_detail.price = abs(third_initial)
-                    init_detail.entry = entries_init[0]
-                    init_detail.save()
+                if (len(Payoff.objects.filter((Q(supporting=self) | Q(supporting__callfundssupporting__third=self.third)) & Q(entry=entries_init[0]))) == 0) and (len(CallDetail.objects.filter(callfunds__owner=self, entry=entries_init[0])) == 0):
+                    payoff_amount = 0.0
+                    init_call = None
+                    for owner_type in range(1, 6):
+                        if not self.is_owner_account_doubled(owner_type, False):
+                            account_initial = self.get_total_initial(owner_type)
+                            if account_initial > 0.0001:
+                                payoff_amount += account_initial
+                            elif account_initial < -0.0001:
+                                if init_call is None:
+                                    init_call = CallFunds(owner=self, num=None, date=self.date_begin, comment=_('Last year report'), status=2, supporting=CallFundsSupporting.objects.create(third=self.third))
+                                    init_call.save()
+                                init_detail = CallDetail(callfunds=init_call, set=None, designation=_('Last year report'), type_call=owner_type - 1)
+                                init_detail.price = abs(account_initial)
+                                init_detail.entry = entries_init[0]
+                                init_detail.save()
+                    if payoff_amount > 0.0001:
+                        init_paypoff = Payoff(supporting=self, date=self.date_begin, payer=six.text_type(self.third), mode=4,
+                                              reference=_('Last year report'), bank_fee=0)
+                        init_paypoff.amount = payoff_amount
+                        init_paypoff.entry = entries_init[0]
+                        init_paypoff.save(do_generate=False)
 
     def _deventilate_payoff(self, support_query):
         callfunds_supportings = Supporting.objects.filter(support_query).distinct()
@@ -1640,7 +1650,7 @@ class CallDetail(LucteriosModel):
         if self.id is None:
             return None
         result = "#%d" % self.type_call
-        for callfunds_id, callfunds_title in current_system_condo().get_callfunds_list():
+        for callfunds_id, callfunds_title in current_system_condo().get_callfunds_list(complete=True):
             if callfunds_id == self.type_call:
                 result = callfunds_title
                 break
