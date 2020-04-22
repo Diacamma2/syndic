@@ -899,7 +899,7 @@ class CallFundsTest(LucteriosTest):
     def test_send(self):
         from lucterios.mailing.tests import configSMTP, TestReceiver
         add_test_callfunds()
-        configSMTP('localhost', 2025)
+        configSMTP('localhost', 4025)
 
         self.factory.xfer = CallFundsShow()
         self.calljson('/diacamma.condominium/callFundsShow', {'callfunds': 2}, False)
@@ -916,7 +916,7 @@ class CallFundsTest(LucteriosTest):
         self.assertEqual(self.response_json['action']['params'], {'item_name': 'callfunds', 'modelname': 'condominium.CallFunds'})
 
         server = TestReceiver()
-        server.start(2025)
+        server.start(4025)
         try:
             self.assertEqual(0, server.count())
             self.factory.xfer = PayableEmail()
@@ -946,7 +946,7 @@ class CallFundsTest(LucteriosTest):
     def _test_multi_send(self):
         from lucterios.mailing.tests import configSMTP, TestReceiver
         add_test_callfunds()
-        configSMTP('localhost', 3025)
+        configSMTP('localhost', 4125)
 
         self.factory.xfer = CallFundsList()
         self.calljson('/diacamma.condominium/callFundsList', {'status_filter': 1}, False)
@@ -965,7 +965,7 @@ class CallFundsTest(LucteriosTest):
         self.assertEqual(self.response_json['action']['params'], {'item_name': 'callfunds', 'modelname': 'condominium.CallFunds'})
 
         server = TestReceiver()
-        server.start(3025)
+        server.start(4125)
         try:
             self.assertEqual(0, server.count())
             self.factory.xfer = PayableEmail()

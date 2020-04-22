@@ -860,7 +860,7 @@ class OwnerTest(PaymentTest):
     def test_send_owner(self):
         from lucterios.mailing.tests import configSMTP, TestReceiver
         add_test_callfunds()
-        configSMTP('localhost', 2025)
+        configSMTP('localhost', 4225)
 
         self.factory.xfer = OwnerShow()
         self.calljson('/diacamma.condominium/ownerShow', {'owner': 1}, False)
@@ -876,7 +876,7 @@ class OwnerTest(PaymentTest):
         self.assertEqual(self.response_json['action']['params'], {'item_name': 'owner'})
 
         server = TestReceiver()
-        server.start(2025)
+        server.start(4225)
         try:
             self.assertEqual(0, server.count())
             self.factory.xfer = PayableEmail()
@@ -907,9 +907,9 @@ class OwnerTest(PaymentTest):
         from lucterios.mailing.tests import configSMTP, TestReceiver
         default_paymentmethod()
         add_test_callfunds()
-        configSMTP('localhost', 2025)
+        configSMTP('localhost', 4325)
         server = TestReceiver()
-        server.start(2025)
+        server.start(4325)
         try:
             self.assertEqual(0, server.count())
             self.factory.xfer = PayableEmail()
@@ -1545,7 +1545,6 @@ class OwnerTest(PaymentTest):
         self.assert_json_equal('LABELFORM', 'thirdtotal', 15.00)
         self.assert_json_equal('LABELFORM', 'sumtopay', 0.00)
         self.assert_count_equal('callfunds', 3)
-        self.print_json('callfunds')
         self.assert_json_equal('', 'callfunds/@0/num', None)
         self.assert_json_equal('', 'callfunds/@0/date', '2015-01-01')
         self.assert_json_equal('', 'callfunds/@0/total', 12.50)
@@ -1585,7 +1584,6 @@ class OwnerTest(PaymentTest):
         self.assert_json_equal('LABELFORM', 'owner', 'Dalton William')
         self.assert_json_equal('LABELFORM', 'total', 12.50)
         self.assert_count_equal('calldetail', 5)
-        self.print_json('calldetail')
         self.assert_json_equal('', 'calldetail/@0/type_call_ex', 'charge courante')
         self.assert_json_equal('', 'calldetail/@0/set', None)
         self.assert_json_equal('', 'calldetail/@0/total_amount', 10.50)
