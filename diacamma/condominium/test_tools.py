@@ -87,7 +87,7 @@ def default_setowner_fr(with_lots=True):
     else:
         create_account(['4501', '4502', '4503', '4504', '4505'], 0, FiscalYear.get_current())
     create_account(['120', '103', '105'], 2, FiscalYear.get_current())
-    create_account(['702'], 3, FiscalYear.get_current())
+    create_account(['702', '705'], 3, FiscalYear.get_current())
     set1 = Set.objects.create(name="AAA", budget=1000, revenue_account='701', is_link_to_lots=with_lots, type_load=0)
     _set_budget(set1, '604', 1000)
     set2 = Set.objects.create(name="BBB", budget=100, revenue_account='701', type_load=0)
