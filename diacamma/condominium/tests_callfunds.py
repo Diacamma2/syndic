@@ -26,7 +26,7 @@ from shutil import rmtree
 
 from lucterios.framework.test import LucteriosTest
 from lucterios.framework.filetools import get_user_dir
-from lucterios.framework.models import LucteriosScheduler
+from lucterios.framework.model_fields import LucteriosScheduler
 from lucterios.CORE.models import Parameter
 from lucterios.CORE.parameters import Params
 

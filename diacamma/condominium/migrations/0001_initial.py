@@ -7,7 +7,7 @@ from django.conf import settings
 
 from lucterios.framework.tools import set_locale_lang
 from lucterios.CORE.models import PrintModel
-from lucterios.framework.models import LucteriosDecimalField
+from lucterios.framework.model_fields import LucteriosDecimalField
 
 
 def initial_values(*_args):

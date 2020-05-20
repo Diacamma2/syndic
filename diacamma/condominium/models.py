@@ -39,8 +39,8 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
 from django_fsm import FSMIntegerField, transition
 
-from lucterios.framework.models import LucteriosModel, get_subfield_show,\
-    LucteriosVirtualField, LucteriosDecimalField, correct_db_field
+from lucterios.framework.models import LucteriosModel, correct_db_field
+from lucterios.framework.model_fields import get_subfield_show, LucteriosVirtualField, LucteriosDecimalField
 from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.framework.tools import convert_date, get_date_formating,\
     format_to_string

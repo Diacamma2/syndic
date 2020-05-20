@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 
 import django.core.validators
 from django.db import migrations, models
-from lucterios.framework.models import LucteriosDecimalField
+from lucterios.framework.model_fields import LucteriosDecimalField
 
 
 class Migration(migrations.Migration):
