@@ -173,18 +173,32 @@ class Set(LucteriosModel):
                 cost_accounting_name = "[%d] %s %s/%s" % (self.id, self.name, year.begin.year, year.end.year)
         return cost_accounting_name
 
+    def _check_setcost_year(self, setcost):
+        if setcost.year is None:
+            year = setcost.cost_accounting.year
+            for budget in setcost.cost_accounting.budget_set.all():
+                if year is not None:
+                    break
+                year = budget.year
+            if year is not None:
+                setcost.year = year
+                setcost.save()
+                setcost.cost_accounting.year = year
+                setcost.cost_accounting.save()
+
     def rename_all_cost_accounting(self):
         for setcost in self.setcost_set.all():
+            setcost._check_year()
             try:
                 setcost.cost_accounting.name = self.get_cost_accounting_name(setcost.year)
                 setcost.cost_accounting.save()
-            except IntegrityError:
+            except (IntegrityError, AttributeError):
                 getLogger("diacamma.condominium").warning("Bad integity for cost accounting name %s", setcost.cost_accounting.name)
                 try:
                     setcost.cost_accounting.name = "%s [multi #%d]" % (self.get_cost_accounting_name(setcost.year), setcost.cost_accounting.id)
                     setcost.cost_accounting.save()
-                except IntegrityError:
-                    getLogger("diacamma.condominium").error("Bad integity for cost accounting name %s", setcost.cost_accounting.name)
+                except (IntegrityError, AttributeError):
+                    getLogger("diacamma.condominium").error("Very bad integity for cost accounting name %s", setcost.cost_accounting.name)
 
     def create_new_cost(self, year=None):
         if self.type_load == 1:
@@ -394,6 +408,19 @@ class SetCost(LucteriosModel):
     @classmethod
     def get_default_fields(cls):
         return ["year", "set", "cost_accounting"]
+
+    def _check_year(self):
+        if self.year is None:
+            year = self.cost_accounting.year
+            for budget in self.cost_accounting.budget_set.all():
+                if year is not None:
+                    break
+                year = budget.year
+            if year is not None:
+                self.year = year
+                self.save()
+                self.cost_accounting.year = year
+                self.cost_accounting.save()
 
     class Meta(object):
         verbose_name = _('cost of class load')
