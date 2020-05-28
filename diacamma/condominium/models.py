@@ -558,7 +558,7 @@ class LoadCountSet(QuerySet):
 
 
 class Owner(Supporting):
-    information = models.CharField(_('information'), max_length=200, null=True, default='')
+    information = models.CharField(verbose_name=_('information'), max_length=200, null=True, default='')
 
     property_part = LucteriosVirtualField(verbose_name=_('property tantime'), compute_from='get_property_part', format_string="N1;{0}/{1}{[br/]}{2} %")
     thirdinitial = LucteriosVirtualField(verbose_name=_('total owner initial'), compute_from='get_third_initial', format_string=lambda: format_with_devise(5))
@@ -2014,6 +2014,33 @@ def generate_pdfreport(year):
     year.get_reports(GeneralManageAccounting)
     year.get_reports(CurrentManageAccounting)
     year.get_reports(ExceptionalManageAccounting)
+
+
+def condominium_addon_for_third():
+    for field_name in ["status", 'expensetype', "date", "comment"]:
+        expense_search = Supporting.convert_field_for_search('expense', (field_name, Expense._meta.get_field(field_name), field_name, Q()))
+        yield Third.convert_field_for_search('supporting_set', expense_search, add_verbose=False)
+
+
+@Signal.decorate('addon_search')
+def condominium_addon_search(model, search_result):
+    def convert_owner_to_model(subfield):
+        owner_search = Supporting.convert_field_for_search('owner', subfield)
+        third_search = Third.convert_field_for_search('supporting_set', owner_search, add_verbose=False)
+        return model.convert_field_for_search('third_set', third_search, add_verbose=False)
+    res = False
+    if model is Third:
+        search_result.extend(condominium_addon_for_third())
+        res = True
+    if issubclass(model, AbstractContact):
+        for subfield in condominium_addon_for_third():
+            search_result.append(model.convert_field_for_search('third_set', subfield, add_verbose=False))
+        search_result.append(convert_owner_to_model(('information', Owner._meta.get_field('information'), 'information', Q())))
+        for field_name in ["num", "value", 'ratio', "description"]:
+            prop_search = Owner.convert_field_for_search('propertylot_set', (field_name, PropertyLot._meta.get_field(field_name), field_name, Q()))
+            search_result.append(convert_owner_to_model(prop_search))
+        res = True
+    return res
 
 
 @Signal.decorate('check_report')
