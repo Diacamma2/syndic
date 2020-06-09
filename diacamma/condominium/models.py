@@ -417,10 +417,13 @@ class SetCost(LucteriosModel):
                     break
                 year = budget.year
             if year is not None:
-                self.year = year
-                self.save()
-                self.cost_accounting.year = year
-                self.cost_accounting.save()
+                try:
+                    self.year = year
+                    self.save()
+                    self.cost_accounting.year = year
+                    self.cost_accounting.save()
+                except LucteriosException:
+                    pass
 
     class Meta(object):
         verbose_name = _('cost of class load')
