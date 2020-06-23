@@ -783,6 +783,11 @@ class Owner(Supporting):
         third_total -= get_amount_sum(EntryLineAccount.objects.filter(Q(third=self.third) & Q(entry__date_value=self.date_begin) & Q(entry__journal__id=1)).aggregate(Sum('amount')))
         return third_total
 
+    def ventilatePay(self, begin_date=None, end_date=None):
+        self.check_initial_operation()
+        self.set_dates(begin_date, end_date)
+        self.check_ventilate_payoff()
+
     def check_initial_operation(self):
         if FiscalYear.get_current().status != 2:
             self.date_begin = FiscalYear.get_current().begin
@@ -818,11 +823,15 @@ class Owner(Supporting):
         for export_payoff in export_payoff_list:
             entry = EntryAccount.objects.get(id=export_payoff['entry_id'])
             amount = get_amount_sum(entry.entrylineaccount_set.filter(account__code__regex=current_system_account().get_cash_mask()).aggregate(Sum('amount')))
-            Payoff.multi_save(supportings=[six.text_type(self.id)], amount=abs(amount), mode=export_payoff['mode'],
-                              payer=export_payoff['payer'], reference=export_payoff['reference'],
-                              bank_account=export_payoff['bank_account_id'] if export_payoff['bank_account_id'] is not None else 0,
-                              date=export_payoff['date'], bank_fee=export_payoff['bank_fee'], repartition=1)
-            entry.delete()
+            if Payoff.multi_save(supportings=[six.text_type(self.id)], amount=abs(amount), mode=export_payoff['mode'],
+                                 payer=export_payoff['payer'], reference=export_payoff['reference'],
+                                 bank_account=export_payoff['bank_account_id'] if export_payoff['bank_account_id'] is not None else 0,
+                                 date=export_payoff['date'], bank_fee=export_payoff['bank_fee'], repartition=1,
+                                 entry=entry if entry.close else None):
+                if not entry.close:
+                    entry.delete()
+            else:
+                raise LucteriosException(IMPORTANT, _('no deletable !'))
 
     def deventilate_calloffunds(self, min_num):
         # move payoff of call of fund in owner general list
@@ -843,15 +852,15 @@ class Owner(Supporting):
         payoffs_filter = Q(date__gte=self.date_begin) & Q(date__lte=self.date_end) & (Q(entry__close=False) | (Q(entry__entrylineaccount__third=self.third) & Q(entry__date_value=FiscalYear.get_current().begin) & Q(entry__journal__id=1)))
         payoffs = self.payoff_set.filter(payoffs_filter).distinct().order_by('date')
         for payoff in payoffs:
-            Payoff.multi_save(supportings=supportings, amount=payoff.amount, mode=payoff.mode,
-                              payer=payoff.payer, reference=payoff.reference,
-                              bank_account=payoff.bank_account_id if payoff.bank_account_id is not None else 0,
-                              date=payoff.date, bank_fee=payoff.bank_fee, repartition=1,
-                              entry=payoff.entry if (payoff.entry_id is not None) and payoff.entry.close else None)
-            if payoff.entry.close:
-                payoff.entry = None
-                payoff.save(do_generate=False)
-            payoff.delete()
+            if Payoff.multi_save(supportings=supportings, amount=payoff.amount, mode=payoff.mode,
+                                 payer=payoff.payer, reference=payoff.reference,
+                                 bank_account=payoff.bank_account_id if payoff.bank_account_id is not None else 0,
+                                 date=payoff.date, bank_fee=payoff.bank_fee, repartition=1,
+                                 entry=payoff.entry if (payoff.entry_id is not None) and payoff.entry.close else None):
+                if payoff.entry.close:
+                    payoff.entry = None
+                    payoff.save(do_generate=False)
+                payoff.delete()
 
     @property
     def entryline_set(self):
@@ -911,8 +920,8 @@ class Owner(Supporting):
 
     @property
     def payoff_query(self):
-        if self.date_begin is None:
-            self.set_dates()
+        if (self.date_begin is None) or (self.date_end is None):
+            self.set_dates(self.date_begin, self.date_end)
         return Q(date__gte=self.date_begin) & Q(date__lte=self.date_end)
 
     def get_property_part(self):
@@ -937,7 +946,7 @@ class Owner(Supporting):
             return None
         val = 0
         if type_call < 0:
-            totalfilter = Q()
+            totalfilter = Q(calldetail__set__isnull=False)
         else:
             totalfilter = Q(calldetail__type_call=type_call) & Q(calldetail__set__isnull=False)
         for callfunds in self.callfunds_set.filter(self.callfunds_query & totalfilter).distinct():
@@ -1105,6 +1114,11 @@ class Owner(Supporting):
 
     def generate_pdfreport(self):
         return None
+
+    @classmethod
+    def ventilate_pay_all(cls):
+        for owner in cls.objects.all():
+            owner.ventilatePay()
 
     @classmethod
     def check_all_account(cls):
@@ -1378,7 +1392,7 @@ class CallFundsSupporting(Supporting):
                 if mask not in masks:
                     masks[mask] = 0
                 masks[mask] += float(calldetail.price) * amount / total
-            return masks.items()
+            return list(masks.items())
         except Exception:
             return []
 

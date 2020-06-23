@@ -87,7 +87,7 @@ class FrenchSystemCondo(DefaultSystemCondo):
                     CallDetail.objects.create(set=category, type_call=0, callfunds=new_call, price=category.get_current_budget() / nb_seq, designation=_("%(type)s - #%(num)d") % {'type': _('current'), 'num': num + 1})
         else:
             year = FiscalYear.get_current()
-            calls = CallFunds.objects.filter(date__gte=year.begin, date__lte=year.end, calldetail__type_call=0).distinct()
+            calls = CallFunds.objects.filter(date__gte=year.begin, date__lte=year.end, calldetail__type_call=0, calldetail__set__isnull=False).distinct()
             return len(calls) == 0
 
     def _generate_account_callfunds_by_type(self, new_entry, type_call, calldetails):

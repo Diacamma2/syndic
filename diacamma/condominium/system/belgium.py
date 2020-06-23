@@ -93,7 +93,7 @@ class BelgiumSystemCondo(DefaultSystemCondo):
         if Params.getvalue("condominium-mode-current-callfunds") == 1:
             nb_seq = 12
         year = FiscalYear.get_current()
-        calls = CallFunds.objects.filter(date__gte=year.begin, date__lte=year.end, calldetail__type_call=0).distinct()
+        calls = CallFunds.objects.filter(date__gte=year.begin, date__lte=year.end, calldetail__type_call=0, calldetail__set__isnull=False).distinct()
         nb_curent = len(calls)
         if to_create:
             year = FiscalYear.get_current()

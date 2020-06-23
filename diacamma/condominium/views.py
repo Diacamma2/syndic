@@ -296,9 +296,7 @@ class OwnerVentilatePay(XferContainerAcknowledge):
 
     def fillresponse(self, begin_date, end_date):
         if self.confirme(_('Do you want to check ventilate payoff on calls of funds ?')):
-            self.item.check_initial_operation()
-            self.item.set_dates(begin_date, end_date)
-            self.item.check_ventilate_payoff()
+            self.item.ventilatePay(begin_date, end_date)
 
 
 @ActionsManage.affect_grid(TITLE_PRINT, "images/print.png", unique=SELECT_MULTI)
@@ -608,6 +606,11 @@ def thirdaddon_condo(item, xfer):
 @signal_and_lock.Signal.decorate('reportlastyear')
 def reportlastyear_condo(xfer):
     xfer.params['import_result'] = 'False'
+
+
+@signal_and_lock.Signal.decorate('reportlastyear_after')
+def reportlastyear_after_condo(xfer):
+    Owner.ventilate_pay_all()
 
 
 @signal_and_lock.Signal.decorate('begin_year')
