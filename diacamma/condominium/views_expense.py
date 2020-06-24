@@ -38,7 +38,7 @@ class ExpenseList(XferListEditor):
         edt.set_value(status_filter)
         edt.description = _('Filter by type')
         edt.set_location(0, 3)
-        edt.set_action(self.request, self.get_action(), modal=FORMTYPE_REFRESH, close=CLOSE_NO)
+        edt.set_action(self.request, self.return_action(), modal=FORMTYPE_REFRESH, close=CLOSE_NO)
         self.add_component(edt)
 
         edt = XferCompSelect("date_filter")
@@ -46,7 +46,7 @@ class ExpenseList(XferListEditor):
         edt.set_value(date_filter)
         edt.set_location(0, 4)
         edt.description = _('Filter by date')
-        edt.set_action(self.request, self.get_action(), modal=FORMTYPE_REFRESH, close=CLOSE_NO)
+        edt.set_action(self.request, self.return_action(), modal=FORMTYPE_REFRESH, close=CLOSE_NO)
         self.add_component(edt)
 
         self.filter = Q(status=status_filter)

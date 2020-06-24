@@ -284,7 +284,7 @@ class CallDetailEditor(LucteriosEditor):
     def edit(self, xfer):
         type_call = xfer.get_components('type_call')
         type_call.set_select(current_system_condo().get_callfunds_list(complete=False))
-        type_call.set_action(xfer.request, xfer.get_action(), close=CLOSE_NO, modal=FORMTYPE_REFRESH)
+        type_call.set_action(xfer.request, xfer.return_action(), close=CLOSE_NO, modal=FORMTYPE_REFRESH)
         set_comp = xfer.get_components('set')
         if int(self.item.type_call) == 1:
             type_load = 1
@@ -295,7 +295,7 @@ class CallDetailEditor(LucteriosEditor):
             raise LucteriosException(IMPORTANT, _('No category of charge defined!'))
         set_comp.set_needed(True)
         set_comp.set_select_query(set_list)
-        set_comp.set_action(xfer.request, xfer.get_action(), close=CLOSE_NO, modal=FORMTYPE_REFRESH)
+        set_comp.set_action(xfer.request, xfer.return_action(), close=CLOSE_NO, modal=FORMTYPE_REFRESH)
         xfer.get_components('price').prec = Params.getvalue("accounting-devise-prec")
         set_comp.get_json()
         current_set = Set.objects.get(id=set_comp.value)

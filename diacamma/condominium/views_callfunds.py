@@ -38,7 +38,7 @@ class CallFundsList(XferListEditor):
         edt.set_select(sel_list)
         edt.set_value(status_filter)
         edt.set_location(0, 3)
-        edt.set_action(self.request, self.get_action(), modal=FORMTYPE_REFRESH, close=CLOSE_NO)
+        edt.set_action(self.request, self.return_action(), modal=FORMTYPE_REFRESH, close=CLOSE_NO)
         self.add_component(edt)
         self.filter = Q(status=status_filter)
 

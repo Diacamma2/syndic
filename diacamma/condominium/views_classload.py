@@ -168,7 +168,7 @@ class SetList(XferListEditor):
         chk.set_value(self.getparam('show_inactive', False))
         chk.description = _('Show all class load')
         chk.set_location(0, self.get_max_row() + 1)
-        chk.set_action(self.request, self.get_action(), close=CLOSE_NO, modal=FORMTYPE_REFRESH)
+        chk.set_action(self.request, self.return_action(), close=CLOSE_NO, modal=FORMTYPE_REFRESH)
         self.add_component(chk)
 
 
@@ -253,7 +253,7 @@ class SetClose(XferContainerAcknowledge):
                 lbl.set_location(1, 2)
                 lbl.description = 'Do you want to ventilate this amount for each owner?'
                 dlg.add_component(lbl)
-                dlg.add_action(self.get_action(TITLE_OK, 'images/ok.png'), modal=FORMTYPE_MODAL, close=CLOSE_YES, params={'CLOSE': 'YES'})
+                dlg.add_action(self.return_action(TITLE_OK, 'images/ok.png'), modal=FORMTYPE_MODAL, close=CLOSE_YES, params={'CLOSE': 'YES'})
                 dlg.add_action(WrapAction(TITLE_CANCEL, 'images/cancel.png'))
             else:
                 if self.item.type_load == 0:
@@ -293,7 +293,7 @@ class SetAssociate(XferAddEditor):
         self.add_component(img)
         self.fill_from_model(1, 0, True, ['name', 'type_load'])
         self.fill_from_model(1, 2, False, ['set_of_lots'])
-        self.add_action(self.get_action(TITLE_OK, 'images/ok.png'), params={"SAVE": "YES"})
+        self.add_action(self.return_action(TITLE_OK, 'images/ok.png'), params={"SAVE": "YES"})
         self.add_action(WrapAction(TITLE_CANCEL, 'images/cancel.png'))
 
 
