@@ -181,7 +181,7 @@ class OwnerEditor(SupportingEditor):
         for payoff in Payoff.objects.filter(payoff_filter).values('entry_id', 'date', 'reference', 'mode', 'bank_account__designation').annotate(amount=Sum('amount')).order_by('date'):
             payoffid = payoff['entry_id']
             grid.set_value(payoffid, 'date', payoff['date'])
-            grid.set_value(payoffid, 'assignment', '{[br/]}'.join([six.text_type(supporting.get_final_child()) for supporting in Supporting.objects.filter(payoff__entry=payoff['entry_id']).distinct()]))
+            grid.set_value(payoffid, 'assignment', '{[br/]}'.join([six.text_type(supporting.get_final_child()) for supporting in Supporting.objects.filter(payoff__entry=payoff['entry_id'], third=xfer.item.third).distinct()]))
             grid.set_value(payoffid, 'amount', payoff['amount'])
             grid.set_value(payoffid, 'mode', payoff['mode'])
             grid.set_value(payoffid, 'bank_account', payoff['bank_account__designation'])

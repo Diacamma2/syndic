@@ -121,12 +121,12 @@ def default_setowner_be(with_lots=True):
 
 def add_test_callfunds(simple=True, with_payoff=False):
     call1 = CallFunds.objects.create(date='2015-06-10', comment='uvw 987')
-    CallDetail.objects.create(callfunds=call1, type_call=0, set_id=1, price='250.00', designation='set 1')
-    CallDetail.objects.create(callfunds=call1, type_call=0, set_id=2, price='25.00', designation='set 2')
-    call1.valid()  # => 5 6 7
+    CallDetail.objects.create(callfunds=call1, type_call=0, set_id=1, price='250.00', designation='set 1')  # 112,5€ / 87,5€ / 50€
+    CallDetail.objects.create(callfunds=call1, type_call=0, set_id=2, price='25.00', designation='set 2')  # 18,75€ / 0€ / 6,25€
+    call1.valid()  # => 5 6 7 : 131,25€ / 87,5€ / 56.25€
     if not simple:
         call2 = CallFunds.objects.create(date='2015-07-14', comment='working...')
-        CallDetail.objects.create(callfunds=call2, type_call=1, set_id=3, price='100.00', designation='set 3')
+        CallDetail.objects.create(callfunds=call2, type_call=1, set_id=3, price='100.00', designation='set 3')  # 45€ / 35€ / 20€
         call2.valid()  # => 9 10 11
     if with_payoff:
         pay1 = Payoff(supporting_id=4, date='2015-06-15', mode=0, amount=100.0)

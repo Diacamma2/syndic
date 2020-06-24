@@ -52,7 +52,7 @@ from diacamma.payoff.views import PayableShow, PayableEmail, PayoffAddModify
 from diacamma.payoff.views_conf import paramchange_payoff
 from diacamma.payoff.test_tools import default_bankaccount_fr, default_paymentmethod, PaymentTest, default_bankaccount_be
 
-from diacamma.condominium.models import PropertyLot, Set
+from diacamma.condominium.models import PropertyLot, Set, Owner, CallFunds
 from diacamma.condominium.views import OwnerAndPropertyLotList, OwnerAdd, OwnerDel, OwnerShow, PropertyLotAddModify, CondominiumConvert, OwnerVentilatePay,\
     OwnerLoadCount, OwnerMultiPay, OwnerPayableEmail, OwnerModify
 from diacamma.condominium.views_classload import SetList, SetAddModify, SetDel, SetShow, PartitionAddModify, CondominiumConf, SetClose,\
@@ -1619,6 +1619,114 @@ class OwnerTest(PaymentTest):
         self.assert_json_equal('', 'calldetail/@4/set.total_part', None)
         self.assert_json_equal('', 'calldetail/@4/owner_part', 0)
         self.assert_json_equal('', 'calldetail/@4/price', 0.40)
+
+    def test_check_ventilation(self):
+        init_compta()
+        year = FiscalYear.get_current()
+        add_entry(year.id, 1, '2015-01-01', 'Report à nouveau', """-2|17|7|-70.000000|0|0|None|
+-3|18|7|70.000000|0|0|None|""", True)
+        Owner.ventilate_pay_all()
+
+        self.factory.xfer = OwnerShow()
+        self.calljson('/diacamma.condominium/ownerShow', {'owner': 1}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'ownerShow')
+        self.assert_json_equal('LABELFORM', 'third', 'Minimum')
+        self.assert_count_equal('callfunds', 0)
+        self.assert_count_equal('payoff', 1)
+        self.assert_json_equal('', 'payoff/@0/amount', 29.18)
+
+        self.factory.xfer = OwnerShow()
+        self.calljson('/diacamma.condominium/ownerShow', {'owner': 2}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'ownerShow')
+        self.assert_json_equal('LABELFORM', 'third', 'Dalton William')
+        self.assert_count_equal('callfunds', 1)
+        self.assert_json_equal('', 'callfunds/@0/num', None)
+        self.assert_json_equal('', 'callfunds/@0/total', 12.5)
+        self.assert_json_equal('', 'callfunds/@0/supporting.total_rest_topay', 12.5)
+        self.assert_count_equal('payoff', 0)
+
+        self.factory.xfer = OwnerShow()
+        self.calljson('/diacamma.condominium/ownerShow', {'owner': 3}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'ownerShow')
+        self.assert_json_equal('LABELFORM', 'third', 'Dalton Joe')
+        self.assert_count_equal('callfunds', 1)
+        self.assert_json_equal('', 'callfunds/@0/num', None)
+        self.assert_json_equal('', 'callfunds/@0/total', 70.0)
+        self.assert_json_equal('', 'callfunds/@0/supporting.total_rest_topay', 70.0)
+        self.assert_count_equal('payoff', 1)
+        self.assert_json_equal('', 'payoff/@0/amount', 70.0)
+
+        add_test_callfunds(True, False)
+        Owner.ventilate_pay_all()
+
+        self.factory.xfer = OwnerShow()
+        self.calljson('/diacamma.condominium/ownerShow', {'owner': 1}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'ownerShow')
+        self.assert_json_equal('LABELFORM', 'third', 'Minimum')
+        self.assert_count_equal('callfunds', 1)
+        self.assert_json_equal('', 'callfunds/@0/num', '1')
+        self.assert_json_equal('', 'callfunds/@0/total', 131.25)
+        self.assert_json_equal('', 'callfunds/@0/supporting.total_rest_topay', 102.07)
+        self.assert_count_equal('payoff', 0)
+
+        self.factory.xfer = OwnerShow()
+        self.calljson('/diacamma.condominium/ownerShow', {'owner': 2}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'ownerShow')
+        self.assert_json_equal('LABELFORM', 'third', 'Dalton William')
+        self.assert_count_equal('callfunds', 2)
+        self.assert_json_equal('', 'callfunds/@0/num', None)
+        self.assert_json_equal('', 'callfunds/@0/total', 12.5)
+        self.assert_json_equal('', 'callfunds/@0/supporting.total_rest_topay', 12.5)
+        self.assert_json_equal('', 'callfunds/@1/num', '1')
+        self.assert_json_equal('', 'callfunds/@1/total', 87.50)
+        self.assert_json_equal('', 'callfunds/@1/supporting.total_rest_topay', 87.50)
+        self.assert_count_equal('payoff', 0)
+
+        self.factory.xfer = OwnerShow()
+        self.calljson('/diacamma.condominium/ownerShow', {'owner': 3}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'ownerShow')
+        self.assert_json_equal('LABELFORM', 'third', 'Dalton Joe')
+        self.assert_count_equal('callfunds', 2)
+        self.assert_json_equal('', 'callfunds/@0/num', None)
+        self.assert_json_equal('', 'callfunds/@0/total', 70.0)
+        self.assert_json_equal('', 'callfunds/@0/supporting.total_rest_topay', 70.0)
+        self.assert_json_equal('', 'callfunds/@1/num', '1')
+        self.assert_json_equal('', 'callfunds/@1/total', 56.25)
+        self.assert_json_equal('', 'callfunds/@1/supporting.total_rest_topay', 0.0)
+        self.assert_count_equal('payoff', 1)
+        self.assert_json_equal('', 'payoff/@0/amount', 13.75)
+
+        CallFunds.devalid('1')
+        Owner.ventilate_pay_all()
+
+        self.factory.xfer = OwnerShow()
+        self.calljson('/diacamma.condominium/ownerShow', {'owner': 1}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'ownerShow')
+        self.assert_json_equal('LABELFORM', 'third', 'Minimum')
+        self.assert_count_equal('callfunds', 0)
+        self.assert_count_equal('payoff', 1)
+        self.assert_json_equal('', 'payoff/@0/amount', 29.18)
+
+        self.factory.xfer = OwnerShow()
+        self.calljson('/diacamma.condominium/ownerShow', {'owner': 2}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'ownerShow')
+        self.assert_json_equal('LABELFORM', 'third', 'Dalton William')
+        self.assert_count_equal('callfunds', 1)
+        self.assert_json_equal('', 'callfunds/@0/num', None)
+        self.assert_json_equal('', 'callfunds/@0/total', 12.5)
+        self.assert_json_equal('', 'callfunds/@0/supporting.total_rest_topay', 12.5)
+        self.assert_count_equal('payoff', 0)
+
+        self.factory.xfer = OwnerShow()
+        self.calljson('/diacamma.condominium/ownerShow', {'owner': 3}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'ownerShow')
+        self.assert_json_equal('LABELFORM', 'third', 'Dalton Joe')
+        self.assert_count_equal('callfunds', 1)
+        self.assert_json_equal('', 'callfunds/@0/num', None)
+        self.assert_json_equal('', 'callfunds/@0/total', 70.0)
+        self.assert_json_equal('', 'callfunds/@0/supporting.total_rest_topay', 70.0)
+        self.assert_count_equal('payoff', 1)
+        self.assert_json_equal('', 'payoff/@0/amount', 70.0)
 
 
 class OwnerBelgiumTest(PaymentTest):

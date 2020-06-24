@@ -788,12 +788,23 @@ class Owner(Supporting):
         self.set_dates(begin_date, end_date)
         self.check_ventilate_payoff()
 
+    def clean_initial_operation(self):
+        current_year = FiscalYear.get_current()
+        if current_year.status != 2:
+            entries_init = EntryAccount.objects.filter(Q(entrylineaccount__third=self.third) & Q(date_value=current_year.begin) & Q(journal__id=1)).distinct()
+            for payoff in Payoff.objects.filter((Q(supporting=self) | Q(supporting__callfundssupporting__third=self.third)) & Q(entry__in=entries_init)):
+                payoff.entry = None
+                payoff.save(do_generate=False)
+                payoff.delete()
+
     def check_initial_operation(self):
-        if FiscalYear.get_current().status != 2:
-            self.date_begin = FiscalYear.get_current().begin
-            entries_init = EntryAccount.objects.filter(Q(entrylineaccount__third=self.third) & Q(date_value=self.date_begin) & Q(journal__id=1)).distinct()
+        current_year = FiscalYear.get_current()
+        if current_year.status != 2:
+            entries_init = EntryAccount.objects.filter(Q(entrylineaccount__third=self.third) & Q(date_value=current_year.begin) & Q(journal__id=1)).distinct()
             if len(entries_init) > 0:
-                if (len(Payoff.objects.filter((Q(supporting=self) | Q(supporting__callfundssupporting__third=self.third)) & Q(entry=entries_init[0]))) == 0) and (len(CallDetail.objects.filter(callfunds__owner=self, entry=entries_init[0])) == 0):
+                check_payoff = (len(Payoff.objects.filter((Q(supporting=self) | Q(supporting__callfundssupporting__third=self.third)) & Q(entry__in=entries_init))) == 0)
+                check_callfund = (len(CallDetail.objects.filter(entry__in=entries_init)) == 0)
+                if check_payoff or check_callfund:
                     payoff_amount = 0.0
                     init_call = None
                     for owner_type in range(1, 6):
@@ -801,16 +812,16 @@ class Owner(Supporting):
                             account_initial = self.get_total_initial(owner_type)
                             if account_initial > 0.0001:
                                 payoff_amount += account_initial
-                            elif account_initial < -0.0001:
+                            elif (account_initial < -0.0001) and check_callfund:
                                 if init_call is None:
-                                    init_call = CallFunds(owner=self, num=None, date=self.date_begin, comment=_('Last year report'), status=2, supporting=CallFundsSupporting.objects.create(third=self.third))
+                                    init_call = CallFunds(owner=self, num=None, date=current_year.begin, comment=_('Last year report'), status=2, supporting=CallFundsSupporting.objects.create(third=self.third))
                                     init_call.save()
                                 init_detail = CallDetail(callfunds=init_call, set=None, designation=_('Last year report'), type_call=owner_type - 1)
                                 init_detail.price = abs(account_initial)
                                 init_detail.entry = entries_init[0]
                                 init_detail.save()
-                    if payoff_amount > 0.0001:
-                        init_paypoff = Payoff(supporting=self, date=self.date_begin, payer=six.text_type(self.third), mode=4,
+                    if (payoff_amount > 0.0001) and check_payoff:
+                        init_paypoff = Payoff(supporting=self, date=current_year.begin, payer=six.text_type(self.third), mode=4,
                                               reference=_('Last year report'), bank_fee=0)
                         init_paypoff.amount = payoff_amount
                         init_paypoff.entry = entries_init[0]
@@ -835,8 +846,10 @@ class Owner(Supporting):
 
     def deventilate_calloffunds(self, min_num):
         # move payoff of call of fund in owner general list
+        self.clean_initial_operation()
         support_query = Q(third=self.third) & Q(callfundssupporting__callfunds__num__gte=min_num) & Q(payoff__entry__close=False)
         self._deventilate_payoff(support_query)
+        self.check_initial_operation()
 
     def check_ventilate_payoff(self):
         # move all payoff in owner general list
@@ -1606,6 +1619,8 @@ class CallFunds(LucteriosModel):
             for call_item in cls.objects.filter(num=num_item):
                 date = call_item.date
                 comment = call_item.comment
+                if call_item.payoff_set.all().count() > 0:
+                    raise LucteriosException(IMPORTANT, _("An payoff of a call of funds is validated !"))
                 for detail in call_item.calldetail_set.all():
                     itend = (detail.type_call, detail.set_id, detail.designation)
                     if itend not in call_details:
