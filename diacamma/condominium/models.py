@@ -803,7 +803,7 @@ class Owner(Supporting):
             entries_init = EntryAccount.objects.filter(Q(entrylineaccount__third=self.third) & Q(date_value=current_year.begin) & Q(journal__id=1)).distinct()
             if len(entries_init) > 0:
                 check_payoff = (len(Payoff.objects.filter((Q(supporting=self) | Q(supporting__callfundssupporting__third=self.third)) & Q(entry__in=entries_init))) == 0)
-                check_callfund = (len(CallDetail.objects.filter(entry__in=entries_init)) == 0)
+                check_callfund = (len(CallDetail.objects.filter(entry__in=entries_init, callfunds__owner=self)) == 0)
                 if check_payoff or check_callfund:
                     payoff_amount = 0.0
                     init_call = None
