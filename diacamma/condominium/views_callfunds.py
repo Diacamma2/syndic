@@ -3,7 +3,6 @@ from __future__ import unicode_literals
 
 from django.utils.translation import ugettext_lazy as _
 from django.db.models import Q
-from django.utils import six
 
 from lucterios.framework.xferadvance import XferListEditor, TITLE_ADD, TITLE_MODIFY, TITLE_EDIT, TITLE_DELETE, TITLE_PRINT, XferTransition,\
     TITLE_CREATE
@@ -132,7 +131,7 @@ class CallFundsPrint(SupportingPrint):
             current_callfund = self.items[0]
             return current_callfund.get_document_filename()
         else:
-            return six.text_type(self.caption)
+            return str(self.caption)
 
     def items_callback(self):
         has_item = False

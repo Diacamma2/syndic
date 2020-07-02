@@ -25,7 +25,6 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import unicode_literals
 from shutil import rmtree
 
-from django.utils import six
 
 from lucterios.framework.test import LucteriosTest
 from lucterios.framework.filetools import get_user_dir
@@ -764,7 +763,7 @@ class ReportTest(PaymentTest):
 class OwnerTest(PaymentTest):
 
     def setUp(self):
-        # six.print_('>> %s' % self._testMethodName)
+        # print('>> %s' % self._testMethodName)
         initial_thirds_fr()
         LucteriosTest.setUp(self)
         default_compta_fr(with12=False)
@@ -775,7 +774,7 @@ class OwnerTest(PaymentTest):
 
     def tearDown(self):
         LucteriosTest.tearDown(self)
-        # six.print_('<< %s' % self._testMethodName)
+        # print('<< %s' % self._testMethodName)
 
     def test_payment_owner_empty(self):
         default_paymentmethod()
@@ -868,7 +867,7 @@ class OwnerTest(PaymentTest):
         self.assert_observer('core.custom', 'diacamma.condominium', 'ownerShow')
         self.assert_json_equal('LABELFORM', 'total_current_owner', -131.25)
         self.assertEqual(len(self.json_actions), 4)
-        self.assert_action_equal(self.json_actions[2], (six.text_type('Envoyer'), 'lucterios.mailing/images/email.png', 'diacamma.condominium', 'ownerPayableEmail', 0, 1, 1))
+        self.assert_action_equal(self.json_actions[2], (str('Envoyer'), 'lucterios.mailing/images/email.png', 'diacamma.condominium', 'ownerPayableEmail', 0, 1, 1))
 
         self.factory.xfer = OwnerPayableEmail()
         self.calljson('/diacamma.condominium/ownerPayableEmail', {'owner': 1}, False)
@@ -1732,7 +1731,7 @@ class OwnerTest(PaymentTest):
 class OwnerBelgiumTest(PaymentTest):
 
     def setUp(self):
-        # six.print_('>> %s' % self._testMethodName)
+        # print('>> %s' % self._testMethodName)
         LucteriosTest.setUp(self)
         default_compta_be(with12=False)
         initial_thirds_be()
@@ -1743,7 +1742,7 @@ class OwnerBelgiumTest(PaymentTest):
 
     def tearDown(self):
         LucteriosTest.tearDown(self)
-        # six.print_('<< %s' % self._testMethodName)
+        # print('<< %s' % self._testMethodName)
 
     def test_owner_situation(self):
         add_test_callfunds(False, True)

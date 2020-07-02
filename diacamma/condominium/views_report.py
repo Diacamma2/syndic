@@ -27,7 +27,6 @@ from os.path import exists
 
 from django.utils.translation import ugettext_lazy as _
 from django.db.models import Q
-from django.utils import six
 
 from lucterios.framework.filetools import get_user_path, readimage_to_base64
 from lucterios.framework.tools import MenuManage, FORMTYPE_NOMODAL, convert_date, CLOSE_NO, FORMTYPE_REFRESH, WrapAction
@@ -92,7 +91,7 @@ class CondominiumReport(XferContainerCustom):
             lbl = XferCompLabelForm('year_1')
             lbl.set_location(1, 0, 3)
             lbl.description = _('year N-1')
-            lbl.set_value(six.text_type(self.item.last_fiscalyear))
+            lbl.set_value(str(self.item.last_fiscalyear))
             self.add_component(lbl)
         select_year = XferCompSelect(self.field_id)
         select_year.set_location(1, 1, 3)
@@ -185,7 +184,7 @@ class ManageAccounting(CondominiumReport):
         if self.next_year is not None:
             lbl = XferCompLabelForm('yearn1')
             lbl.set_location(1, 2, 3)
-            lbl.set_value(six.text_type(self.next_year))
+            lbl.set_value(str(self.next_year))
             lbl.description = _('year N+1')
             self.add_component(lbl)
             self.next_year_again = self.next_year.next_fiscalyear.first()
@@ -193,7 +192,7 @@ class ManageAccounting(CondominiumReport):
                 lbl = XferCompLabelForm('yearn2')
                 lbl.set_location(1, 3, 3)
                 lbl.description = _('year N+2')
-                lbl.set_value(six.text_type(self.next_year_again))
+                lbl.set_value(str(self.next_year_again))
                 self.add_component(lbl)
         else:
             self.next_year_again = None
@@ -312,7 +311,7 @@ class CurrentManageAccounting(ManageAccounting):
                 if set_cost is None:
                     set_cost = classloaditem.create_new_cost(year=self.next_year_again)
                 query_budget.append(~Q(code=revenue_account) & Q(cost_accounting=set_cost.cost_accounting))
-            line__current_dep, subtotal1, subtotal2, subtotalb = self.fill_part_of_grid(current_request, query_budget, line_idx, six.text_type(classloaditem), sign_value=False)
+            line__current_dep, subtotal1, subtotal2, subtotalb = self.fill_part_of_grid(current_request, query_budget, line_idx, str(classloaditem), sign_value=False)
             line_idx = line__current_dep + 1
             total1 += subtotal1
             total2 += subtotal2
@@ -360,7 +359,7 @@ class ExceptionalManageAccounting(ManageAccounting):
             current_request |= Q(account__code__regex=current_system_account().get_revenue_mask()) & ~Q(account__code=revenue_account)
             current_request &= Q(costaccounting__setcost__set=classloaditem)
             query_budget = [~Q(code=revenue_account) & Q(cost_accounting=classloaditem.current_cost_accounting) & Q(year=self.item)]
-            line__current_dep, subtotal1, subtotal2, subtotalb = self.fill_part_of_grid(current_request, query_budget, line_idx, six.text_type(classloaditem), sign_value=False)
+            line__current_dep, subtotal1, subtotal2, subtotalb = self.fill_part_of_grid(current_request, query_budget, line_idx, str(classloaditem), sign_value=False)
             total_call = classloaditem.get_total_calloffund(self.item)
             add_cell_in_grid(self.grid, line__current_dep - 1, 'calloffund', total_call, "{[u]}%s{[/u]}")
             add_cell_in_grid(self.grid, line__current_dep - 1, 'result', total_call - subtotal1, "{[u]}%s{[/u]}")

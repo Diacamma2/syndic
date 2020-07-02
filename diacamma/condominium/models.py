@@ -34,7 +34,7 @@ from django.db.utils import IntegrityError
 from django.db.models.query import QuerySet
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.utils.translation import ugettext_lazy as _
-from django.utils import six, formats
+from django.utils import formats
 from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
 from django_fsm import FSMIntegerField, transition
@@ -86,16 +86,16 @@ class Set(LucteriosModel):
 
     def set_dates(self, begin_date=None, end_date=None):
         if begin_date is None:
-            self.date_begin = six.text_type(FiscalYear.get_current().begin)
+            self.date_begin = str(FiscalYear.get_current().begin)
         else:
             self.date_begin = begin_date
         if end_date is None:
-            self.date_end = six.text_type(FiscalYear.get_current().end)
+            self.date_end = str(FiscalYear.get_current().end)
         else:
             self.date_end = end_date
-        if isinstance(self.date_begin, six.text_type):
+        if isinstance(self.date_begin, str):
             self.date_begin = convert_date(self.date_begin)
-        if isinstance(self.date_end, six.text_type):
+        if isinstance(self.date_end, str):
             self.date_end = convert_date(self.date_end)
         if self.date_end < self.date_begin:
             self.date_end = self.date_begin
@@ -137,11 +137,13 @@ class Set(LucteriosModel):
                     'partition_set', 'partitionfill_set', ("budget_txt", 'sumexpense',)]
 
     def _do_insert(self, manager, using, fields, update_pk, raw):
-        new_id = LucteriosModel._do_insert(
-            self, manager, using, fields, update_pk, raw)
+        new_ids = LucteriosModel._do_insert(self, manager, using, fields, update_pk, raw)
+        if isinstance(new_ids, int):
+            new_ids = [new_ids]
         for owner in Owner.objects.all():
-            Partition.objects.create(set_id=new_id, owner=owner)
-        return new_id
+            for new_id in new_ids:
+                Partition.objects.create(set_id=new_id, owner=owner)
+        return new_ids
 
     def get_current_cost_accounting(self):
         if self.id is None:
@@ -403,7 +405,7 @@ class SetCost(LucteriosModel):
                                         null=True, default=None, db_index=True, on_delete=models.PROTECT)
 
     def __str__(self):
-        return six.text_type(self.cost_accounting)
+        return str(self.cost_accounting)
 
     @classmethod
     def get_default_fields(cls):
@@ -597,16 +599,16 @@ class Owner(Supporting):
 
     def set_dates(self, begin_date=None, end_date=None):
         if begin_date is None:
-            self.date_begin = six.text_type(FiscalYear.get_current().begin)
+            self.date_begin = str(FiscalYear.get_current().begin)
         else:
             self.date_begin = begin_date
         if end_date is None:
-            self.date_end = six.text_type(FiscalYear.get_current().end)
+            self.date_end = str(FiscalYear.get_current().end)
         else:
             self.date_end = end_date
-        if isinstance(self.date_begin, six.text_type):
+        if isinstance(self.date_begin, str):
             self.date_begin = convert_date(self.date_begin)
-        if isinstance(self.date_end, six.text_type):
+        if isinstance(self.date_end, str):
             self.date_end = convert_date(self.date_end)
         if self.date_end < self.date_begin:
             self.date_end = self.date_begin
@@ -649,12 +651,12 @@ class Owner(Supporting):
     def date_current(self):
         if self.date_begin is None:
             self.set_dates()
-        if isinstance(self.date_end, six.text_type):
+        if isinstance(self.date_end, str):
             self.date_end = convert_date(self.date_end)
         return formats.date_format(self.date_end, "DATE_FORMAT")
 
     def __str__(self):
-        return six.text_type(self.third)
+        return str(self.third)
 
     @property
     def reference(self):
@@ -821,7 +823,7 @@ class Owner(Supporting):
                                 init_detail.entry = entries_init[0]
                                 init_detail.save()
                     if (payoff_amount > 0.0001) and check_payoff:
-                        init_paypoff = Payoff(supporting=self, date=current_year.begin, payer=six.text_type(self.third), mode=4,
+                        init_paypoff = Payoff(supporting=self, date=current_year.begin, payer=str(self.third), mode=4,
                                               reference=_('Last year report'), bank_fee=0)
                         init_paypoff.amount = payoff_amount
                         init_paypoff.entry = entries_init[0]
@@ -834,7 +836,7 @@ class Owner(Supporting):
         for export_payoff in export_payoff_list:
             entry = EntryAccount.objects.get(id=export_payoff['entry_id'])
             amount = get_amount_sum(entry.entrylineaccount_set.filter(account__code__regex=current_system_account().get_cash_mask()).aggregate(Sum('amount')))
-            if Payoff.multi_save(supportings=[six.text_type(self.id)], amount=abs(amount), mode=export_payoff['mode'],
+            if Payoff.multi_save(supportings=[str(self.id)], amount=abs(amount), mode=export_payoff['mode'],
                                  payer=export_payoff['payer'], reference=export_payoff['reference'],
                                  bank_account=export_payoff['bank_account_id'] if export_payoff['bank_account_id'] is not None else 0,
                                  date=export_payoff['date'], bank_fee=export_payoff['bank_fee'], repartition=1,
@@ -856,12 +858,12 @@ class Owner(Supporting):
         support_query = Q(third=self.third) & Q(callfundssupporting__callfunds__date__gte=self.date_begin)
         support_query &= Q(callfundssupporting__callfunds__date__lte=self.date_end) & Q(payoff__entry__close=False)
         self._deventilate_payoff(support_query)
-        supportings = [six.text_type(self.id)]
+        supportings = [str(self.id)]
 
         # move payoff from general to call of funds
         for call_fund in self.callfunds_set.filter(date__gte=self.date_begin, date__lte=self.date_end):
             if call_fund.supporting.get_total_rest_topay() > 0.0001:
-                supportings.append(six.text_type(call_fund.supporting_id))
+                supportings.append(str(call_fund.supporting_id))
         payoffs_filter = Q(date__gte=self.date_begin) & Q(date__lte=self.date_end) & (Q(entry__close=False) | (Q(entry__entrylineaccount__third=self.third) & Q(entry__date_value=FiscalYear.get_current().begin) & Q(entry__journal__id=1)))
         payoffs = self.payoff_set.filter(payoffs_filter).distinct().order_by('date')
         for payoff in payoffs:
@@ -1110,7 +1112,7 @@ class Owner(Supporting):
         return ["third", "information", 'callfunds_set', 'total_current_owner']
 
     def get_payment_name(self):
-        return _('codominium of %s') % six.text_type(self.third)
+        return _('codominium of %s') % str(self.third)
 
     def get_docname(self):
         return _('your situation')
@@ -1262,7 +1264,7 @@ class OwnerContact(LucteriosModel):
     link = models.ForeignKey(OwnerLink, verbose_name=_('owner link'), null=False, db_index=True, on_delete=models.PROTECT)
 
     def __str__(self):
-        return six.text_type(self.contact)
+        return str(self.contact)
 
     @classmethod
     def get_default_fields(cls):
@@ -1297,7 +1299,7 @@ class RecoverableLoadRatio(LucteriosModel):
 
     def get_code(self):
         chart = ChartsAccount.get_chart_account(self.code)
-        return six.text_type(chart)
+        return str(chart)
 
     class Meta(object):
         verbose_name = _('recoverable load ratio')
@@ -1550,7 +1552,7 @@ class CallFunds(LucteriosModel):
 
     def can_delete(self):
         if self.status != 0:
-            return _('"%s" cannot be deleted!') % six.text_type(self)
+            return _('"%s" cannot be deleted!') % str(self)
         return ''
 
     def set_context(self, xfer):
@@ -1810,7 +1812,7 @@ class Expense(Supporting):
 
     def can_delete(self):
         if self.status != 0:
-            return _('"%s" cannot be deleted!') % six.text_type(self)
+            return _('"%s" cannot be deleted!') % str(self)
         return ''
 
     def generate_revenue_entry(self, is_asset, fiscal_year):
@@ -1973,7 +1975,7 @@ class ExpenseRatio(LucteriosModel):
         return 100.0 * float(abs(self.value)) / float(self.expensedetail.price)
 
     def __str__(self):
-        return "%s : %s" % (six.text_type(self.owner.third), format_to_string(self.ratio, "N2", "{0} %"))
+        return "%s : %s" % (str(self.owner.third), format_to_string(self.ratio, "N2", "{0} %"))
 
     class Meta(object):
         verbose_name = _('detail of expense')

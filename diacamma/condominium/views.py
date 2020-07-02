@@ -3,7 +3,6 @@ from __future__ import unicode_literals
 
 from django.utils.translation import ugettext_lazy as _
 from django.core.exceptions import ObjectDoesNotExist
-from django.utils import six
 from django.conf import settings
 from django.db.models.query import QuerySet
 from django.db.models.functions import Concat
@@ -55,7 +54,7 @@ class OwnerAndPropertyLotList(XferListEditor):
             else:
                 sort_ownerbis = "-"
             self.params['GRID_ORDER%owner+'] = sort_ownerbis
-        items = sorted(items, key=lambda t: six.text_type(t).lower(), reverse=sort_ownerbis.startswith('-'))
+        items = sorted(items, key=lambda t: str(t).lower(), reverse=sort_ownerbis.startswith('-'))
         res = QuerySet(model=Owner)
         res._result_cache = items
         return res
@@ -220,7 +219,7 @@ class OwnerContactShow(XferContainerAcknowledge):
         if field_id == 'legalentity':
             field_id = 'legal_entity'
         self.redirect_action(ActionsManage.get_action_url(modal_name, 'Show', self), close=CLOSE_NO,
-                             params={field_id: six.text_type(self.item.contact.id)})
+                             params={field_id: str(self.item.contact.id)})
 
 
 @ActionsManage.affect_grid(TITLE_DELETE, "images/delete.png", unique=SELECT_MULTI)
@@ -279,10 +278,10 @@ class OwnerMultiPay(XferContainerAcknowledge):
 
     def fillresponse(self, begin_date, end_date):
         self.item.set_dates(begin_date, end_date)
-        supportings = [six.text_type(self.item.id)]
+        supportings = [str(self.item.id)]
         for call_fund in self.item.callfunds_set.filter(date__gte=self.item.date_begin, date__lte=self.item.date_end):
             if call_fund.supporting.get_total_rest_topay() > 0.0001:
-                supportings.append(six.text_type(call_fund.supporting_id))
+                supportings.append(str(call_fund.supporting_id))
         self.redirect_action(PayoffAddModify.get_action("", ""), params={"supportings": ";".join(supportings), 'NO_REPARTITION': 'yes', 'repartition': "1"})
 
 
@@ -317,7 +316,7 @@ class OwnerReport(XferPrintReporting):
             current_owner = self.items[0]
             return current_owner.get_document_filename()
         else:
-            return six.text_type(self.caption)
+            return str(self.caption)
 
 
 @ActionsManage.affect_show(_("Payment"), "diacamma.payoff/images/payments.png", close=CLOSE_NO, condition=lambda xfer: xfer.item.payoff_have_payment() and (len(PaymentMethod.objects.all()) > 0))
@@ -639,7 +638,7 @@ def finalizeyear_condo(xfer):
                 xfer.add_component(lbl)
                 sel_cmpt = [('0', _("For each owner"))]
                 for account in year.chartsaccount_set.filter(type_of_account=2).order_by('code'):
-                    sel_cmpt.append((account.id, six.text_type(account)))
+                    sel_cmpt.append((account.id, str(account)))
                 sel = XferCompSelect("ventilate")
                 sel.set_select(sel_cmpt)
                 sel.set_value(ventilate)

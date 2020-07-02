@@ -25,7 +25,6 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import unicode_literals
 
 from django.utils.translation import ugettext_lazy as _
-from django.utils import six
 from django.db.models.aggregates import Sum
 from django.db.models import Q
 
@@ -104,7 +103,7 @@ class OwnerEditor(SupportingEditor):
             for owner in Owner.objects.all():
                 owner_third_ids.append(owner.third_id)
             items = Third.objects.filter(accountthird__code__regex=current_system_account().get_societary_mask()).exclude(id__in=owner_third_ids).distinct()
-            items = sorted(items, key=lambda t: six.text_type(t))
+            items = sorted(items, key=lambda t: str(t))
             sel.set_select_query(items)
             xfer.add_component(sel)
             btn = XferCompButton('add_third')
@@ -181,7 +180,7 @@ class OwnerEditor(SupportingEditor):
         for payoff in Payoff.objects.filter(payoff_filter).values('entry_id', 'date', 'reference', 'mode', 'bank_account__designation').annotate(amount=Sum('amount')).order_by('date'):
             payoffid = payoff['entry_id']
             grid.set_value(payoffid, 'date', payoff['date'])
-            grid.set_value(payoffid, 'assignment', '{[br/]}'.join([six.text_type(supporting.get_final_child()) for supporting in Supporting.objects.filter(payoff__entry=payoff['entry_id'], third=xfer.item.third).distinct()]))
+            grid.set_value(payoffid, 'assignment', '{[br/]}'.join([str(supporting.get_final_child()) for supporting in Supporting.objects.filter(payoff__entry=payoff['entry_id'], third=xfer.item.third).distinct()]))
             grid.set_value(payoffid, 'amount', payoff['amount'])
             grid.set_value(payoffid, 'mode', payoff['mode'])
             grid.set_value(payoffid, 'bank_account', payoff['bank_account__designation'])
@@ -230,7 +229,7 @@ class RecoverableLoadRatioEditor(LucteriosEditor):
         for acc_ratio in RecoverableLoadRatio.objects.all():
             existed_codes.append(acc_ratio.code)
         for item in FiscalYear.get_current().chartsaccount_set.all().filter(code__regex=current_system_account().get_expence_mask()).exclude(code__in=existed_codes).order_by('code'):
-            sel_code.select_list.append((item.code, six.text_type(item)))
+            sel_code.select_list.append((item.code, str(item)))
         sel_code.set_value(self.item.code)
         xfer.add_component(sel_code)
 
@@ -342,7 +341,7 @@ class ExpenseDetailEditor(LucteriosEditor):
         sel_account.description = old_account.description
         sel_account.set_location(old_account.col, old_account.row, old_account.colspan, old_account.rowspan)
         for item in FiscalYear.get_current().chartsaccount_set.all().filter(code__regex=current_system_account().get_expence_mask()).order_by('code'):
-            sel_account.select_list.append((item.code, six.text_type(item)))
+            sel_account.select_list.append((item.code, str(item)))
         sel_account.set_value(self.item.expense_account)
         xfer.add_component(sel_account)
 

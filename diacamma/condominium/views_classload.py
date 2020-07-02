@@ -26,7 +26,6 @@ from __future__ import unicode_literals
 
 from django.utils.translation import ugettext_lazy as _
 from django.db.models import Q
-from django.utils import six
 
 from lucterios.framework.xferadvance import XferListEditor, TITLE_MODIFY, TITLE_PRINT, TITLE_ADD, TITLE_DELETE, TITLE_EDIT,\
     TITLE_OK, TITLE_CANCEL, TITLE_CLOSE, TITLE_CREATE
@@ -394,7 +393,7 @@ def editbudget_condo(xfer):
             xfer.add_component(btn)
             if year != 0:
                 current_year = FiscalYear.get_current(year)
-                xfer.params['readonly'] = six.text_type(current_year.status == 2)
+                xfer.params['readonly'] = str(current_year.status == 2)
                 if set_item.type_load == 0:
                     if len(set_item.setcost_set.filter(year=current_year)) == 0:
                         set_item.create_new_cost(year=current_year.id)
