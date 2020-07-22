@@ -1798,9 +1798,6 @@ class Expense(Supporting):
     def payoff_is_revenu(self):
         return self.expensetype == 1
 
-    def default_date(self):
-        return self.date
-
     def entry_links(self):
         ret = []
         if self.id is not None:
