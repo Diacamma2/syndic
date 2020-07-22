@@ -59,7 +59,7 @@ class SyndicTest(LucteriosTest):
         self.assert_observer('core.auth', 'CORE', 'authentification')
         self.assert_json_equal('', '', 'OK')
 
-        self.calljson('/CORE/statusMenu', {})
+        self.calljson('/CORE/statusMenu', {}, 'get')
         self.assert_observer('core.custom', 'CORE', 'statusMenu')
         self.assert_count_equal('', 15)
 
@@ -144,7 +144,7 @@ class SyndicTest(LucteriosTest):
         self.assert_observer('core.auth', 'CORE', 'authentification')
         self.assert_json_equal('', '', 'OK')
 
-        self.calljson('/CORE/situationMenu', {})
+        self.calljson('/CORE/situationMenu', {}, 'get')
         self.assert_observer('core.custom', 'CORE', 'situationMenu')
         self.assert_count_equal('', 8)
 
