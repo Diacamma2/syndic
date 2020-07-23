@@ -817,7 +817,7 @@ class OwnerTest(PaymentTest):
         self.assert_json_equal('LABELFORM', 'total_current_payoff', 0.00)
         self.assert_json_equal('LABELFORM', 'total_current_owner', -131.25)
         self.assertEqual(len(self.json_actions), 4)
-        self.assert_action_equal(self.json_actions[2], ('Règlements', 'diacamma.payoff/images/payments.png', 'diacamma.condominium', 'ownerShowPayable', 0, 1, 0))
+        self.assert_action_equal('GET', self.json_actions[2], ('Règlements', 'diacamma.payoff/images/payments.png', 'diacamma.condominium', 'ownerShowPayable', 0, 1, 0))
 
         self.factory.xfer = PayableShow()
         self.calljson('/diacamma.payoff/payableShow',
@@ -867,7 +867,7 @@ class OwnerTest(PaymentTest):
         self.assert_observer('core.custom', 'diacamma.condominium', 'ownerShow')
         self.assert_json_equal('LABELFORM', 'total_current_owner', -131.25)
         self.assertEqual(len(self.json_actions), 4)
-        self.assert_action_equal(self.json_actions[2], ('Envoyer', 'lucterios.mailing/images/email.png', 'diacamma.condominium', 'ownerPayableEmail', 0, 1, 0))
+        self.assert_action_equal('POST', self.json_actions[2], ('Envoyer', 'lucterios.mailing/images/email.png', 'diacamma.condominium', 'ownerPayableEmail', 0, 1, 0))
 
         self.factory.xfer = OwnerPayableEmail()
         self.calljson('/diacamma.condominium/ownerPayableEmail', {'owner': 1}, False)
@@ -1413,10 +1413,10 @@ class OwnerTest(PaymentTest):
         self.assert_json_equal('', 'entryline/@3/entry.date_value', "2015-07-21")
         self.assert_json_equal('', 'entryline/@3/credit', 30.00)
         self.assert_count_equal('#entryline/actions', 4)
-        self.assert_action_equal('#entryline/actions/@0', ('Editer', 'images/edit.png', 'diacamma.accounting', 'entryAccountOpenFromLine', 0, 1, 0))
-        self.assert_action_equal('#entryline/actions/@1', ('Supprimer', 'images/delete.png', 'diacamma.accounting', 'entryAccountDel', 0, 1, 2))
-        self.assert_action_equal('#entryline/actions/@2', ('Clôturer', 'images/ok.png', 'diacamma.accounting', 'entryAccountClose', 0, 1, 2))
-        self.assert_action_equal('#entryline/actions/@3', ('(dé)lettrage', 'images/left.png', 'diacamma.accounting', 'entryAccountLink', 0, 1, 2))
+        self.assert_action_equal('POST', '#entryline/actions/@0', ('Editer', 'images/edit.png', 'diacamma.accounting', 'entryAccountOpenFromLine', 0, 1, 0))
+        self.assert_action_equal('DELETE', '#entryline/actions/@1', ('Supprimer', 'images/delete.png', 'diacamma.accounting', 'entryAccountDel', 0, 1, 2))
+        self.assert_action_equal('POST', '#entryline/actions/@2', ('Clôturer', 'images/ok.png', 'diacamma.accounting', 'entryAccountClose', 0, 1, 2))
+        self.assert_action_equal('POST', '#entryline/actions/@3', ('(dé)lettrage', 'images/left.png', 'diacamma.accounting', 'entryAccountLink', 0, 1, 2))
         self.assert_json_equal('LABELFORM', 'thirdtotal', -17.07)
         self.assert_json_equal('LABELFORM', 'sumtopay', 17.07)
         self.assert_count_equal('callfunds', 2)
