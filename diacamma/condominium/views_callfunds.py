@@ -105,7 +105,7 @@ def can_printing(xfer, gridname=''):
 
 @ActionsManage.affect_grid(_("Send"), "lucterios.mailing/images/email.png", close=CLOSE_NO, unique=SELECT_MULTI, condition=lambda xfer, gridname='': can_printing(xfer) and can_send_email(xfer))
 @ActionsManage.affect_show(_("Send"), "lucterios.mailing/images/email.png", close=CLOSE_NO, condition=lambda xfer: xfer.item.status in (1, 2) and can_send_email(xfer))
-@MenuManage.describ('condominium.change_callfunds')
+@MenuManage.describ('condominium.add_callfunds')
 class CallFundsPayableEmail(XferContainerAcknowledge):
     caption = _("Send by email")
     icon = "callfunds.png"

@@ -131,6 +131,8 @@ class ExpenseDetailShowSet(XferContainerAcknowledge):
     model = ExpenseDetail
     field_id = 'expensedetail'
     caption = _("Show class load")
+    readonly = True
+    methods_allowed = ('GET', )
 
     def fillresponse(self):
         self.redirect_action(SetShow.get_action(), close=CLOSE_NO, params={'set': self.item.set_id})

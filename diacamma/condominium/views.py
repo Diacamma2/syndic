@@ -185,12 +185,14 @@ class OwnerContactSave(XferAddEditor):
 
 
 @ActionsManage.affect_grid(TITLE_ADD, "images/add.png")
-@MenuManage.describ('accounting.add_third')
+@MenuManage.describ('accounting.add_owner')
 class OwnerContactAdd(ContactSelection):
     icon = "condominium.png"
     caption = _("Add owner contact")
     select_class = OwnerContactSave
     model = OwnerContact
+    readonly = False
+    methods_allowed = ('POST', 'PUT')
 
     def fillresponse(self):
         ContactSelection.fillresponse(self)
@@ -326,6 +328,8 @@ class OwnerShowPayable(XferContainerAcknowledge):
     icon = "owner.png"
     model = Owner
     field_id = 'owner'
+    readonly = True
+    methods_allowed = ('GET', )
 
     def fillresponse(self):
         self.redirect_action(ActionsManage.get_action_url('payoff.Supporting', 'Show', self),
@@ -334,7 +338,7 @@ class OwnerShowPayable(XferContainerAcknowledge):
 
 @ActionsManage.affect_grid(_("Send"), "lucterios.mailing/images/email.png", close=CLOSE_NO, unique=SELECT_MULTI, condition=lambda xfer, gridname='': can_send_email(xfer))
 @ActionsManage.affect_show(_("Send"), "lucterios.mailing/images/email.png", close=CLOSE_NO, condition=lambda xfer: can_send_email(xfer))
-@MenuManage.describ('condominium.change_owner')
+@MenuManage.describ('condominium.add_owner')
 class OwnerPayableEmail(XferContainerAcknowledge):
     caption = _("Send by email")
     icon = "owner.png"
@@ -402,7 +406,7 @@ class CurrentOwnePrint(OwnerReport):
     pass
 
 
-@MenuManage.describ('CORE.change_parameter')
+@MenuManage.describ('CORE.add_parameter')
 class CondominiumConvert(XferContainerAcknowledge):
     icon = "condominium.png"
     caption = _("Condominium conversion")

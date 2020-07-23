@@ -907,7 +907,7 @@ class CallFundsTest(LucteriosTest):
         self.assert_json_equal('LABELFORM', 'num', 1)
         self.assert_json_equal('LABELFORM', 'owner', "Minimum")
         self.assertEqual(len(self.json_actions), 4)
-        self.assert_action_equal(self.json_actions[2], ('Envoyer', 'lucterios.mailing/images/email.png', 'diacamma.condominium', 'callFundsPayableEmail', 0, 1, 1))
+        self.assert_action_equal(self.json_actions[2], ('Envoyer', 'lucterios.mailing/images/email.png', 'diacamma.condominium', 'callFundsPayableEmail', 0, 1, 0))
 
         self.factory.xfer = CallFundsPayableEmail()
         self.calljson('/diacamma.condominium/callFundsPayableEmail', {'callfunds': 2}, False)

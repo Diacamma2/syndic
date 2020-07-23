@@ -817,7 +817,7 @@ class OwnerTest(PaymentTest):
         self.assert_json_equal('LABELFORM', 'total_current_payoff', 0.00)
         self.assert_json_equal('LABELFORM', 'total_current_owner', -131.25)
         self.assertEqual(len(self.json_actions), 4)
-        self.assert_action_equal(self.json_actions[2], ('Règlements', 'diacamma.payoff/images/payments.png', 'diacamma.condominium', 'ownerShowPayable', 0, 1, 1))
+        self.assert_action_equal(self.json_actions[2], ('Règlements', 'diacamma.payoff/images/payments.png', 'diacamma.condominium', 'ownerShowPayable', 0, 1, 0))
 
         self.factory.xfer = PayableShow()
         self.calljson('/diacamma.payoff/payableShow',
@@ -867,7 +867,7 @@ class OwnerTest(PaymentTest):
         self.assert_observer('core.custom', 'diacamma.condominium', 'ownerShow')
         self.assert_json_equal('LABELFORM', 'total_current_owner', -131.25)
         self.assertEqual(len(self.json_actions), 4)
-        self.assert_action_equal(self.json_actions[2], (str('Envoyer'), 'lucterios.mailing/images/email.png', 'diacamma.condominium', 'ownerPayableEmail', 0, 1, 1))
+        self.assert_action_equal(self.json_actions[2], ('Envoyer', 'lucterios.mailing/images/email.png', 'diacamma.condominium', 'ownerPayableEmail', 0, 1, 0))
 
         self.factory.xfer = OwnerPayableEmail()
         self.calljson('/diacamma.condominium/ownerPayableEmail', {'owner': 1}, False)

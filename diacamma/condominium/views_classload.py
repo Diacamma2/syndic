@@ -66,7 +66,7 @@ def fill_params(self, is_mini=False, new_params=False):
     self.add_component(btn)
 
 
-@MenuManage.describ('CORE.change_parameter')
+@MenuManage.describ('CORE.add_parameter')
 class CondominiumCheckOwner(XferContainerAcknowledge):
     icon = "owner.png"
     caption = _("Condominium check owner")
@@ -229,6 +229,7 @@ class SetClose(XferContainerAcknowledge):
     model = Set
     field_id = 'set'
     caption = _("Close class load")
+    methods_allowed = ('DELETE', )
 
     def fillresponse(self, ventilate=False):
         msg = self.item.check_close()
@@ -340,6 +341,8 @@ class ClassCategoryCosts(XferContainerAcknowledge):
     model = Set
     field_id = 'set'
     caption = _("Report")
+    readonly = True
+    methods_allowed = ('GET', )
 
     def fillresponse(self):
         year_item = FiscalYear.get_current()
@@ -357,6 +360,8 @@ class ClassCategoryBudget(XferContainerAcknowledge):
     model = CostAccounting
     field_id = 'costaccounting'
     caption = _("Budget")
+    readonly = True
+    methods_allowed = ('GET', )
 
     def fillresponse(self):
         if (self.item.id is None) and (self.getparam('set') is not None):
