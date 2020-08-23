@@ -35,13 +35,15 @@ from diacamma.accounting.views import ThirdShow
 
 from diacamma.payoff.test_tools import default_bankaccount_fr, PaymentTest,\
     default_bankaccount_be
-from diacamma.payoff.views import SupportingThirdValid, PayoffAddModify
+from diacamma.payoff.views import SupportingThirdValid, PayoffAddModify,\
+    PayoffDel
 
 from diacamma.condominium.test_tools import default_setowner_fr, old_accounting,\
     default_setowner_be
 from diacamma.condominium.views_expense import ExpenseList,\
     ExpenseAddModify, ExpenseDel, ExpenseShow, ExpenseDetailAddModify,\
     ExpenseTransition, ExpenseMultiPay
+from diacamma.condominium.views import OwnerShow
 
 
 class ExpenseTest(PaymentTest):
@@ -687,6 +689,216 @@ class ExpenseTest(PaymentTest):
         self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
         self.assert_json_equal('LABELFORM', 'total', 30.00)
         self.assert_json_equal('LABELFORM', 'total_rest_topay', 0.00)
+
+    def test_payoff_internal(self):
+        self.check_account(year_id=1, code='401', value=0.0)
+        self.check_account(year_id=1, code='4501', value=0.0)
+        self.check_account(year_id=1, code='512', value=0.0)
+        self.check_account(year_id=1, code='531', value=0.0)
+
+        self.factory.xfer = ExpenseAddModify()
+        self.calljson('/diacamma.condominium/expenseAddModify', {'SAVE': 'YES', 'expensetype': 0, "date": '2015-06-10', "comment": 'abc 123'}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseAddModify')
+        self.factory.xfer = SupportingThirdValid()
+        self.calljson('/diacamma.payoff/supportingThirdValid', {'supporting': 4, 'third': 3}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.payoff', 'supportingThirdValid')
+        self.factory.xfer = ExpenseDetailAddModify()
+        self.calljson('/diacamma.condominium/expenseDetailAddModify', {'SAVE': 'YES', 'expense': 4, 'set': 1, 'price': '100.00', 'comment': 'set 1', 'expense_account': '604'}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseDetailAddModify')
+
+        self.factory.xfer = ExpenseTransition()
+        self.calljson('/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 4, 'TRANSITION': 'valid'}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseTransition')
+
+        self.check_account(year_id=1, code='401', value=100.0)
+        self.check_account(year_id=1, code='4501', value=0.0)
+        self.check_account(year_id=1, code='512', value=0.0)
+        self.check_account(year_id=1, code='531', value=0.0)
+
+        self.factory.xfer = PayoffAddModify()
+        self.calljson('/diacamma.payoff/payoffAddModify', {'supporting': 4}, False)
+        self.assert_observer('core.custom', 'diacamma.payoff', 'payoffAddModify')
+        self.assert_count_equal('', 6)
+        self.assert_select_equal('mode', {0: 'espèces', 1: 'chèque', 2: 'virement', 3: 'carte de crédit', 4: 'autre', 5: 'prélèvement', 6: 'interne'})
+
+        self.factory.xfer = PayoffAddModify()
+        self.calljson('/diacamma.payoff/payoffAddModify', {'supporting': 4, 'mode': 6}, False)
+        self.assert_observer('core.custom', 'diacamma.payoff', 'payoffAddModify')
+        self.assert_count_equal('', 6)
+        self.assert_select_equal('linked_supporting', {1: "Minimum", 2: "Dalton William", 3: "Dalton Joe"})
+        self.assert_json_equal('LABELFORM', 'amount', 100.0)
+
+        self.factory.xfer = ExpenseAddModify()
+        self.calljson('/diacamma.condominium/expenseAddModify', {'SAVE': 'YES', 'expensetype': 1, "date": '2015-06-12', "comment": 'abc 123'}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseAddModify')
+        self.factory.xfer = SupportingThirdValid()
+        self.calljson('/diacamma.payoff/supportingThirdValid', {'supporting': 5, 'third': 3}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.payoff', 'supportingThirdValid')
+        self.factory.xfer = ExpenseDetailAddModify()
+        self.calljson('/diacamma.condominium/expenseDetailAddModify', {'SAVE': 'YES', 'expense': 5, 'set': 1, 'price': '50.00', 'comment': 'set 1', 'expense_account': '604'}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseDetailAddModify')
+
+        self.factory.xfer = ExpenseTransition()
+        self.calljson('/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 5, 'TRANSITION': 'valid'}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseTransition')
+
+        self.check_account(year_id=1, code='401', value=50.0)
+        self.check_account(year_id=1, code='4501', value=0.0)
+        self.check_account(year_id=1, code='512', value=0.0)
+        self.check_account(year_id=1, code='531', value=0.0)
+
+        self.factory.xfer = PayoffAddModify()
+        self.calljson('/diacamma.payoff/payoffAddModify', {'supporting': 4, 'mode': 6}, False)
+        self.assert_observer('core.custom', 'diacamma.payoff', 'payoffAddModify')
+        self.assert_count_equal('', 6)
+        self.assert_select_equal('linked_supporting', {5: 'avoir de dépense 2 - abc 123', 1: "Minimum", 2: "Dalton William", 3: "Dalton Joe"})
+        self.assert_json_equal('LABELFORM', 'amount', 50.0)
+
+        self.factory.xfer = PayoffAddModify()
+        self.calljson('/diacamma.payoff/payoffAddModify', {'supporting': 5, 'mode': 6}, False)
+        self.assert_observer('core.custom', 'diacamma.payoff', 'payoffAddModify')
+        self.assert_count_equal('', 6)
+        self.assert_select_equal('linked_supporting', {4: 'dépense 1 - abc 123'})
+        self.assert_json_equal('LABELFORM', 'amount', 50.0)
+
+        self.factory.xfer = PayoffAddModify()
+        self.calljson('/diacamma.payoff/payoffAddModify', {'SAVE': 'YES', 'supporting': 5, 'amount': '50.0',
+                                                           'date': '2015-06-12', 'mode': 6, 'linked_supporting': 4}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.payoff', 'payoffAddModify')
+
+        self.check_account(year_id=1, code='401', value=50.0)
+        self.check_account(year_id=1, code='4501', value=0.0)
+        self.check_account(year_id=1, code='512', value=0.0)
+        self.check_account(year_id=1, code='531', value=0.0)
+
+        self.factory.xfer = PayoffAddModify()
+        self.calljson('/diacamma.payoff/payoffAddModify', {'SAVE': 'YES', 'supporting': 4, 'amount': '50.0',
+                                                           'date': '2015-06-15', 'mode': 6, 'linked_supporting': 1}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.payoff', 'payoffAddModify')
+
+        self.factory.xfer = EntryAccountList()
+        self.calljson('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '0', 'filter': '0'}, False)
+        self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
+        self.assert_count_equal('entryline', 6)
+        self.assert_json_equal('', 'entryline/@0/designation_ref', 'dépense 1 - abc 123')
+        self.assert_json_equal('', 'entryline/@0/entry_account', '[401 Luke Lucky]')
+        self.assert_json_equal('', 'entryline/@0/credit', 100.00)
+        self.assert_json_equal('', 'entryline/@0/link', 'A')
+        self.assert_json_equal('', 'entryline/@1/designation_ref', 'dépense 1 - abc 123')
+        self.assert_json_equal('', 'entryline/@1/entry_account', '[604] 604')
+        self.assert_json_equal('', 'entryline/@1/debit', -100.00)
+        self.assert_json_equal('', 'entryline/@1/link', None)
+        self.assert_json_equal('', 'entryline/@2/designation_ref', 'avoir de dépense 2 - abc 123')
+        self.assert_json_equal('', 'entryline/@2/entry_account', '[401 Luke Lucky]')
+        self.assert_json_equal('', 'entryline/@2/debit', -50.00)
+        self.assert_json_equal('', 'entryline/@2/link', 'A')
+        self.assert_json_equal('', 'entryline/@3/designation_ref', 'avoir de dépense 2 - abc 123')
+        self.assert_json_equal('', 'entryline/@3/entry_account', '[604] 604')
+        self.assert_json_equal('', 'entryline/@3/credit', 50.00)
+        self.assert_json_equal('', 'entryline/@3/link', None)
+        self.assert_json_equal('', 'entryline/@4/designation_ref', 'dépense réalisée par un copropriétaire{[br/]}dépense 1 - abc 123')
+        self.assert_json_equal('', 'entryline/@4/entry_account', '[401 Luke Lucky]')
+        self.assert_json_equal('', 'entryline/@4/debit', -50.00)
+        self.assert_json_equal('', 'entryline/@4/link', 'A')
+        self.assert_json_equal('', 'entryline/@5/designation_ref', 'dépense réalisée par un copropriétaire{[br/]}Minimum')
+        self.assert_json_equal('', 'entryline/@5/entry_account', '[4501 Minimum]')
+        self.assert_json_equal('', 'entryline/@5/credit', 50.00)
+        self.assert_json_equal('', 'entryline/@5/link', None)
+
+        self.check_account(year_id=1, code='401', value=0.0)
+        self.check_account(year_id=1, code='4501', value=-50.0)
+        self.check_account(year_id=1, code='512', value=0.0)
+        self.check_account(year_id=1, code='531', value=0.0)
+
+        self.factory.xfer = ExpenseShow()
+        self.calljson('/diacamma.condominium/expenseShow', {'expense': 4}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
+        self.assert_json_equal('LABELFORM', 'total', 100.00)
+        self.assert_json_equal('LABELFORM', 'total_rest_topay', 0.00)
+        self.assert_count_equal('payoff', 2)
+        self.assert_count_equal('#payoff/actions', 2)
+        self.assert_json_equal('', 'payoff/@0/date', "2015-06-12")
+        self.assert_json_equal('', 'payoff/@0/mode', 6)
+        self.assert_json_equal('', 'payoff/@0/amount', 50.0)
+        self.assert_json_equal('', 'payoff/@0/reference', "avoir de dépense 2 - abc 123")
+        self.assert_json_equal('', 'payoff/@0/bank_account', None)
+        self.assert_json_equal('', 'payoff/@1/date', "2015-06-15")
+        self.assert_json_equal('', 'payoff/@1/mode', 6)
+        self.assert_json_equal('', 'payoff/@1/amount', 50.0)
+        self.assert_json_equal('', 'payoff/@1/reference', "Minimum")
+        self.assert_json_equal('', 'payoff/@1/bank_account', None)
+
+        self.factory.xfer = ExpenseShow()
+        self.calljson('/diacamma.condominium/expenseShow', {'expense': 5}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
+        self.assert_json_equal('LABELFORM', 'total', 50.00)
+        self.assert_json_equal('LABELFORM', 'total_rest_topay', 0.00)
+        self.assert_count_equal('payoff', 1)
+        self.assert_count_equal('#payoff/actions', 2)
+        self.assert_json_equal('', 'payoff/@0/date', "2015-06-12")
+        self.assert_json_equal('', 'payoff/@0/mode', 6)
+        self.assert_json_equal('', 'payoff/@0/amount', 50.0)
+        self.assert_json_equal('', 'payoff/@0/reference', "dépense 1 - abc 123")
+        self.assert_json_equal('', 'payoff/@0/bank_account', None)
+
+        self.factory.xfer = OwnerShow()
+        self.calljson('/diacamma.condominium/ownerShow', {'owner': 1}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'ownerShow')
+        self.assert_json_equal('LABELFORM', 'third', 'Minimum')
+        self.assert_count_equal('payoff', 1)
+        self.assert_json_equal('', 'payoff/@0/date', "2015-06-15")
+        self.assert_json_equal('', 'payoff/@0/mode', 6)
+        self.assert_json_equal('', 'payoff/@0/amount', 50.0)
+        self.assert_json_equal('', 'payoff/@0/reference', 'dépense 1 - abc 123')
+        self.assert_json_equal('', 'payoff/@0/bank_account', None)
+
+        self.factory.xfer = PayoffDel()
+        self.calljson('/diacamma.payoff/payoffDel', {'CONFIRME': 'YES', 'payoff': 1}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.payoff', 'payoffDel')
+        self.factory.xfer = PayoffDel()
+        self.calljson('/diacamma.payoff/payoffDel', {'CONFIRME': 'YES', 'payoff': 3}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.payoff', 'payoffDel')
+
+        self.factory.xfer = ExpenseShow()
+        self.calljson('/diacamma.condominium/expenseShow', {'expense': 4}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
+        self.assert_json_equal('LABELFORM', 'total', 100.00)
+        self.assert_count_equal('payoff', 0)
+        self.assert_json_equal('LABELFORM', 'total_rest_topay', 100.00)
+
+        self.factory.xfer = ExpenseShow()
+        self.calljson('/diacamma.condominium/expenseShow', {'expense': 5}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
+        self.assert_json_equal('LABELFORM', 'total', 50.00)
+        self.assert_count_equal('payoff', 0)
+        self.assert_json_equal('LABELFORM', 'total_rest_topay', 50.00)
+
+        self.factory.xfer = OwnerShow()
+        self.calljson('/diacamma.condominium/ownerShow', {'owner': 1}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'ownerShow')
+        self.assert_json_equal('LABELFORM', 'third', 'Minimum')
+        self.assert_count_equal('payoff', 0)
+
+        self.factory.xfer = EntryAccountList()
+        self.calljson('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '0', 'filter': '0'}, False)
+        self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
+        self.assert_count_equal('entryline', 4)
+        self.assert_json_equal('', 'entryline/@0/designation_ref', 'dépense 1 - abc 123')
+        self.assert_json_equal('', 'entryline/@0/entry_account', '[401 Luke Lucky]')
+        self.assert_json_equal('', 'entryline/@0/credit', 100.00)
+        self.assert_json_equal('', 'entryline/@0/link', None)
+        self.assert_json_equal('', 'entryline/@1/designation_ref', 'dépense 1 - abc 123')
+        self.assert_json_equal('', 'entryline/@1/entry_account', '[604] 604')
+        self.assert_json_equal('', 'entryline/@1/debit', -100.00)
+        self.assert_json_equal('', 'entryline/@1/link', None)
+        self.assert_json_equal('', 'entryline/@2/designation_ref', 'avoir de dépense 2 - abc 123')
+        self.assert_json_equal('', 'entryline/@2/entry_account', '[401 Luke Lucky]')
+        self.assert_json_equal('', 'entryline/@2/debit', -50.00)
+        self.assert_json_equal('', 'entryline/@2/link', None)
+        self.assert_json_equal('', 'entryline/@3/designation_ref', 'avoir de dépense 2 - abc 123')
+        self.assert_json_equal('', 'entryline/@3/entry_account', '[604] 604')
+        self.assert_json_equal('', 'entryline/@3/credit', 50.00)
+        self.assert_json_equal('', 'entryline/@3/link', None)
 
     def test_reedit_fail1(self):
         self.factory.xfer = ExpenseAddModify()

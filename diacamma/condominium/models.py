@@ -50,7 +50,8 @@ from lucterios.CORE.models import Parameter, LucteriosGroup
 from lucterios.CORE.parameters import Params
 from lucterios.contacts.models import AbstractContact
 
-from diacamma.accounting.models import CostAccounting, EntryAccount, ChartsAccount, EntryLineAccount, FiscalYear, Budget, AccountThird, Third
+from diacamma.accounting.models import CostAccounting, EntryAccount, ChartsAccount, EntryLineAccount, FiscalYear, Budget, AccountThird, Third,\
+    Journal
 from diacamma.accounting.tools import currency_round, current_system_account, get_amount_sum, correct_accounting_code, format_with_devise
 from diacamma.accounting.tools_reports import get_spaces
 from diacamma.payoff.models import Supporting, Payoff, BankTransaction, DepositSlip
@@ -1135,6 +1136,22 @@ class Owner(Supporting):
         for owner in cls.objects.all():
             owner.ventilatePay()
 
+    def delete_linked_supporting(self, payoff):
+        source_item = payoff.supporting.get_final_child()
+        target_item = payoff.linked_payoff.supporting.get_final_child()
+        if (isinstance(source_item, Expense) and isinstance(target_item, Owner)) or \
+                (isinstance(source_item, Owner) and isinstance(target_item, Expense)):
+            msg = payoff.entry.can_delete()
+            if msg != '':
+                raise LucteriosException(IMPORTANT, msg)
+            old_entry = payoff.entry
+            payoff.entry = None
+            payoff.save(do_internal=False)
+            payoff.linked_payoff.entry = None
+            payoff.linked_payoff.save(do_internal=False)
+            old_entry.delete()
+        return
+
     @classmethod
     def check_all_account(cls):
         for owner in cls.objects.all():
@@ -1750,13 +1767,20 @@ class CallDetail(LucteriosModel):
 
 
 class Expense(Supporting):
+    EXPENSETYPE_EXPENSE = 0
+    EXPENSETYPE_ASSET = 1
+    LIST_EXPENSETYPES = ((EXPENSETYPE_EXPENSE, _('expense')), (EXPENSETYPE_ASSET, _('asset of expense')))
+
+    STATUS_BUILDING = 0
+    STATUS_VALID = 1
+    STATUS_ENDED = 2
+    LIST_STATUS = ((STATUS_BUILDING, _('building')), (STATUS_VALID, _('valid')), (STATUS_ENDED, _('ended')))
+
     num = models.IntegerField(verbose_name=_('numeros'), null=True)
     date = models.DateField(verbose_name=_('date'), null=False)
     comment = models.TextField(_('comment'), null=True, default="")
-    expensetype = models.IntegerField(verbose_name=_('expense type'),
-                                      choices=((0, _('expense')), (1, _('asset of expense'))), null=False, default=0, db_index=True)
-    status = FSMIntegerField(verbose_name=_('status'),
-                             choices=((0, _('building')), (1, _('valid')), (2, _('ended'))), null=False, default=0, db_index=True)
+    expensetype = models.IntegerField(verbose_name=_('expense type'), choices=LIST_EXPENSETYPES, null=False, default=EXPENSETYPE_EXPENSE, db_index=True)
+    status = FSMIntegerField(verbose_name=_('status'), choices=LIST_STATUS, null=False, default=STATUS_BUILDING, db_index=True)
     entries = models.ManyToManyField(EntryAccount, verbose_name=_('entries'))
 
     total = LucteriosVirtualField(verbose_name=_('total'), compute_from='get_total', format_string=lambda: format_with_devise(5))
@@ -1891,6 +1915,60 @@ class Expense(Supporting):
 
     def generate_pdfreport(self):
         return None
+
+    def get_linked_supportings(self):
+        linked_supportings = []
+        other_expense_inverses = Expense.objects.filter(third=self.third, is_revenu=not self.is_revenu, status=Expense.STATUS_VALID)
+        for expense_item in other_expense_inverses:
+            if expense_item.get_total_rest_topay() > 0.001:
+                linked_supportings.append(expense_item)
+        if self.expensetype == self.EXPENSETYPE_EXPENSE:
+            for owner in Owner.objects.all():
+                linked_supportings.append(owner)
+        return linked_supportings
+
+    def accounting_of_linked_supportings(self, source_payoff, target_payoff):
+        source_item = source_payoff.supporting.get_final_child()
+        target_item = target_payoff.supporting.get_final_child()
+        if isinstance(source_item, Expense) and isinstance(target_item, Expense):
+            source_payoff.entry = target_item.entries.first()
+            target_payoff.entry = source_item.entries.first()
+            source_payoff.save(do_internal=False)
+            target_payoff.save(do_internal=False)
+        if isinstance(source_item, Expense) and isinstance(target_item, Owner):
+            fiscal_year = FiscalYear.get_current()
+            new_entry = EntryAccount.objects.create(year=fiscal_year, journal_id=Journal.DEFAULT_OTHER,
+                                                    date_value=source_payoff.date, designation=_('expense does by owner'))
+            source_third_account = source_item.get_third_account(current_system_account().get_provider_mask(), fiscal_year, source_item.third)
+            EntryLineAccount.objects.create(entry=new_entry, account=source_third_account, amount=float(source_payoff.amount) * -1,
+                                            reference=str(source_item), third=source_item.third)
+            target_third_account = target_item.get_third_account(current_system_account().get_societary_mask(), fiscal_year, target_item.third)
+            EntryLineAccount.objects.create(entry=new_entry, account=target_third_account, amount=float(target_payoff.amount) * -1,
+                                            reference=str(target_item), third=target_item.third)
+            source_payoff.entry = new_entry
+            target_payoff.entry = new_entry
+            source_payoff.save(do_internal=False)
+            target_payoff.save(do_internal=False)
+
+    def delete_linked_supporting(self, payoff):
+        source_item = payoff.supporting.get_final_child()
+        target_item = payoff.linked_payoff.supporting.get_final_child()
+        if (isinstance(source_item, Expense) and isinstance(target_item, Owner)) or \
+                (isinstance(source_item, Owner) and isinstance(target_item, Expense)):
+            msg = payoff.entry.can_delete()
+            if msg != '':
+                raise LucteriosException(IMPORTANT, msg)
+            old_entry = payoff.entry
+            payoff.entry = None
+            payoff.save(do_internal=False)
+            payoff.linked_payoff.entry = None
+            payoff.linked_payoff.save(do_internal=False)
+            old_entry.delete()
+        return
+
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+        self.expensetype = int(self.expensetype)
+        return Supporting.save(self, force_insert=force_insert, force_update=force_update, using=using, update_fields=update_fields)
 
     class Meta(object):
         verbose_name = _('expense')
