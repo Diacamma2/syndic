@@ -28,7 +28,7 @@ class CallFundsList(XferListEditor):
     caption = _("Calls of funds")
 
     def fillresponse_header(self):
-        status_filter = self.getparam('status_filter', 0)
+        status_filter = self.getparam('status_filter', CallFunds.STATUS_BUILDING)
         self.params['status_filter'] = status_filter
         dep_field = self.item.get_field_by_name('status')
         sel_list = list(dep_field.choices)
@@ -43,13 +43,13 @@ class CallFundsList(XferListEditor):
 
     def fillresponse(self):
         XferListEditor.fillresponse(self)
-        if self.getparam('status_filter', 1) == 0:
+        if self.getparam('status_filter', CallFunds.STATUS_VALID) == CallFunds.STATUS_BUILDING:
             callfunds_grid = self.get_components('callfunds')
             callfunds_grid.delete_header('supporting.total_rest_topay')
 
 
 def CallFundsAddCurrent_cond(xfer):
-    if xfer.getparam('status_filter', 1) == 0:
+    if xfer.getparam('status_filter', CallFunds.STATUS_VALID) == CallFunds.STATUS_BUILDING:
         return current_system_condo().CurrentCallFundsAdding(False)
     else:
         return False
@@ -68,8 +68,8 @@ class CallFundsAddCurrent(XferContainerAcknowledge):
             current_system_condo().CurrentCallFundsAdding(True)
 
 
-@ActionsManage.affect_grid(TITLE_CREATE, "images/new.png", condition=lambda xfer, gridname='': xfer.getparam('status_filter', 1) == 0)
-@ActionsManage.affect_show(TITLE_MODIFY, "images/edit.png", close=CLOSE_YES, condition=lambda xfer: xfer.item.status == 0)
+@ActionsManage.affect_grid(TITLE_CREATE, "images/new.png", condition=lambda xfer, gridname='': xfer.getparam('status_filter', CallFunds.STATUS_VALID) == CallFunds.STATUS_BUILDING)
+@ActionsManage.affect_show(TITLE_MODIFY, "images/edit.png", close=CLOSE_YES, condition=lambda xfer: xfer.item.status == CallFunds.STATUS_BUILDING)
 @MenuManage.describ('condominium.add_callfunds')
 class CallFundsAddModify(XferAddEditor):
     icon = "callfunds.png"
@@ -100,11 +100,11 @@ def can_printing(xfer, gridname=''):
                 return True
         return False
     else:
-        return xfer.getparam('status_filter', 0) in (1, 2)
+        return xfer.getparam('status_filter', CallFunds.STATUS_BUILDING) in (CallFunds.STATUS_VALID, CallFunds.STATUS_ENDED)
 
 
 @ActionsManage.affect_grid(_("Send"), "lucterios.mailing/images/email.png", close=CLOSE_NO, unique=SELECT_MULTI, condition=lambda xfer, gridname='': can_printing(xfer) and can_send_email(xfer))
-@ActionsManage.affect_show(_("Send"), "lucterios.mailing/images/email.png", close=CLOSE_NO, condition=lambda xfer: xfer.item.status in (1, 2) and can_send_email(xfer))
+@ActionsManage.affect_show(_("Send"), "lucterios.mailing/images/email.png", close=CLOSE_NO, condition=lambda xfer: xfer.item.status in (CallFunds.STATUS_VALID, CallFunds.STATUS_ENDED) and can_send_email(xfer))
 @MenuManage.describ('condominium.add_callfunds')
 class CallFundsPayableEmail(XferContainerAcknowledge):
     caption = _("Send by email")
@@ -118,7 +118,7 @@ class CallFundsPayableEmail(XferContainerAcknowledge):
 
 
 @ActionsManage.affect_grid(TITLE_PRINT, "images/print.png", unique=SELECT_MULTI, condition=can_printing)
-@ActionsManage.affect_show(TITLE_PRINT, "images/print.png", close=CLOSE_NO, condition=lambda xfer: xfer.item.status in (1, 2))
+@ActionsManage.affect_show(TITLE_PRINT, "images/print.png", close=CLOSE_NO, condition=lambda xfer: xfer.item.status in (CallFunds.STATUS_VALID, CallFunds.STATUS_ENDED))
 @MenuManage.describ('condominium.change_callfunds')
 class CallFundsPrint(SupportingPrint):
     icon = "callfunds.png"
@@ -136,7 +136,7 @@ class CallFundsPrint(SupportingPrint):
     def items_callback(self):
         has_item = False
         for item in self.items:
-            if item.status > 0:
+            if item.status != CallFunds.STATUS_BUILDING:
                 has_item = True
                 yield item
         if not has_item:
@@ -154,7 +154,7 @@ class CallFundsDel(XferDelete):
     def fillresponse(self):
         num_list = []
         for item in self.items:
-            if item.status == 1:
+            if item.status == CallFunds.STATUS_VALID:
                 num_list.append(str(item.num))
             else:
                 num_list = None
@@ -175,8 +175,8 @@ class CallFundsTransition(XferTransition):
     field_id = 'callfunds'
 
 
-@ActionsManage.affect_grid(TITLE_ADD, "images/add.png", condition=lambda xfer, gridname='': xfer.item.status == 0)
-@ActionsManage.affect_grid(TITLE_MODIFY, "images/edit.png", unique=SELECT_SINGLE, condition=lambda xfer, gridname='': xfer.item.status == 0)
+@ActionsManage.affect_grid(TITLE_ADD, "images/add.png", condition=lambda xfer, gridname='': xfer.item.status == CallFunds.STATUS_BUILDING)
+@ActionsManage.affect_grid(TITLE_MODIFY, "images/edit.png", unique=SELECT_SINGLE, condition=lambda xfer, gridname='': xfer.item.status == CallFunds.STATUS_BUILDING)
 @MenuManage.describ('condominium.add_callfunds')
 class CallDetailAddModify(XferAddEditor):
     icon = "callfunds.png"
@@ -186,7 +186,7 @@ class CallDetailAddModify(XferAddEditor):
     caption_modify = _("Modify detail of call")
 
 
-@ActionsManage.affect_grid(TITLE_DELETE, "images/delete.png", unique=SELECT_MULTI, condition=lambda xfer, gridname='': xfer.item.status == 0)
+@ActionsManage.affect_grid(TITLE_DELETE, "images/delete.png", unique=SELECT_MULTI, condition=lambda xfer, gridname='': xfer.item.status == CallFunds.STATUS_BUILDING)
 @MenuManage.describ('condominium.add_callfunds')
 class CallDetailDel(XferDelete):
     icon = "callfunds.png"

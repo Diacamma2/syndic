@@ -40,7 +40,8 @@ from diacamma.accounting.tools import current_system_account, format_with_devise
 from diacamma.accounting.models import Third, FiscalYear
 from diacamma.payoff.editors import SupportingEditor
 from diacamma.payoff.models import Payoff, Supporting
-from diacamma.condominium.models import Set, CallDetail, CallFundsSupporting, Owner, RecoverableLoadRatio
+from diacamma.condominium.models import Set, CallDetail, CallFunds, CallFundsSupporting, Expense, Owner, RecoverableLoadRatio,\
+    LIST_DEFAULT_ACCOUNTS
 from diacamma.condominium.system import current_system_condo
 
 
@@ -93,7 +94,7 @@ class OwnerEditor(SupportingEditor):
             if Params.getvalue("condominium-old-accounting"):
                 new_account.append(Params.getvalue("condominium-default-owner-account"))
             else:
-                for num_account in range(1, 6):
+                for num_account in LIST_DEFAULT_ACCOUNTS:
                     new_account.append(Params.getvalue("condominium-default-owner-account%d" % num_account))
             sel = XferCompSelect('third')
             sel.needed = True
@@ -262,7 +263,7 @@ class CallFundsEditor(LucteriosEditor):
 
     def show(self, xfer):
         self.item.check_supporting()
-        if (self.item.supporting is not None) and (self.item.status > 0):
+        if (self.item.supporting is not None) and (self.item.status != CallFunds.STATUS_BUILDING):
             old_item = xfer.item
             old_model = xfer.model
             try:
@@ -272,7 +273,7 @@ class CallFundsEditor(LucteriosEditor):
             finally:
                 xfer.item = old_item
                 xfer.model = old_model
-        if self.item.status == 0:
+        if self.item.status == CallFunds.STATUS_BUILDING:
             grid = xfer.get_components("calldetail")
             grid.delete_header('total_amount')
             grid.delete_header('owner_part')
@@ -285,7 +286,7 @@ class CallDetailEditor(LucteriosEditor):
         type_call.set_select(current_system_condo().get_callfunds_list(complete=False))
         type_call.set_action(xfer.request, xfer.return_action(), close=CLOSE_NO, modal=FORMTYPE_REFRESH)
         set_comp = xfer.get_components('set')
-        if int(self.item.type_call) == 1:
+        if int(self.item.type_call) == CallDetail.TYPECALL_EXCEPTIONAL:
             type_load = 1
         else:
             type_load = 0
@@ -298,20 +299,20 @@ class CallDetailEditor(LucteriosEditor):
         xfer.get_components('price').prec = Params.getvalue("accounting-devise-prec")
         set_comp.get_json()
         current_set = Set.objects.get(id=set_comp.value)
-        if current_set.type_load == 0:
-            if int(self.item.type_call) == 0:
+        if current_set.type_load == Set.TYPELOAD_CURRENT:
+            if int(self.item.type_call) == CallDetail.TYPECALL_CURRENT:
                 xfer.get_components('price').value = current_set.get_new_current_callfunds()
-            elif int(self.item.type_call) == 4:
+            elif int(self.item.type_call) == CallDetail.TYPECALL_FUNDFORWORK:
                 xfer.get_components('price').value = current_set.get_current_budget() * 0.05
             else:
                 xfer.get_components('price').value = 0.0
-        elif current_set.type_load == 1:
-            already_called = 0
+        elif current_set.type_load == Set.TYPELOAD_EXCEPTIONAL:
+            already_called = 0.0
             call_details = CallDetail.objects.filter(set_id=set_comp.value)
             if self.item.id is not None:
                 call_details = call_details.exclude(id=self.item.id)
             for detail in call_details:
-                already_called += detail.price
+                already_called += float(detail.price)
             xfer.get_components('price').value = max(0, float(current_set.get_current_budget()) - float(already_called))
 
 
@@ -321,7 +322,7 @@ class ExpenseEditor(SupportingEditor):
         xfer.change_to_readonly('status')
 
     def show(self, xfer):
-        if self.item.status == 0:
+        if self.item.status == Expense.STATUS_BUILDING:
             SupportingEditor.show_third(self, xfer)
             xfer.get_components('date').colspan += 1
             xfer.get_components('expensedetail').colspan += 1

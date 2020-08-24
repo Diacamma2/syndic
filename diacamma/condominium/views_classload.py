@@ -118,7 +118,7 @@ class OwnerLinkDel(XferDelete):
 
     def fillresponse(self):
         for sub_item in self.items:
-            if sub_item.id in (1, 2):
+            if sub_item.id in (OwnerLink.DEFAULT_LODGER, OwnerLink.DEFAULT_RENTAL_AGENCY):
                 raise LucteriosException(IMPORTANT, _('Link not deletable !'))
         XferDelete.fillresponse(self)
 
@@ -256,12 +256,12 @@ class SetClose(XferContainerAcknowledge):
                 dlg.add_action(self.return_action(TITLE_OK, 'images/ok.png'), modal=FORMTYPE_MODAL, close=CLOSE_YES, params={'CLOSE': 'YES'})
                 dlg.add_action(WrapAction(TITLE_CANCEL, 'images/cancel.png'))
             else:
-                if self.item.type_load == 0:
+                if self.item.type_load == Set.TYPELOAD_CURRENT:
                     self.item.close_current(ventilate)
                 else:
                     self.item.close_exceptional(ventilate)
         elif self.confirme(_('Do you want to close this class load?')):
-            if self.item.type_load == 0:
+            if self.item.type_load == Set.TYPELOAD_CURRENT:
                 self.item.close_current()
             else:
                 self.item.close_exceptional()
@@ -307,7 +307,7 @@ class SetListCost(XferListEditor):
 
     def fillresponse(self):
         current_year = FiscalYear.get_current()
-        if self.item.type_load == 0:
+        if self.item.type_load == Set.TYPELOAD_CURRENT:
             for year_item in FiscalYear.objects.filter(begin__gte=current_year.begin):
                 costs = self.item.setcost_set.filter(year=year_item)
                 if len(costs) == 0:
@@ -346,7 +346,7 @@ class ClassCategoryCosts(XferContainerAcknowledge):
 
     def fillresponse(self):
         year_item = FiscalYear.get_current()
-        if self.item.type_load == 0:
+        if self.item.type_load == Set.TYPELOAD_CURRENT:
             if len(self.item.setcost_set.filter(year=year_item)) == 0:
                 self.item.create_new_cost(year=year_item.id)
         cost_item = self.item.setcost_set.filter(year=year_item)[0]
@@ -367,7 +367,7 @@ class ClassCategoryBudget(XferContainerAcknowledge):
         if (self.item.id is None) and (self.getparam('set') is not None):
             set_item = Set.objects.get(id=self.getparam('set', 0))
             self.item = set_item.current_cost_accounting
-        params = {'cost_accounting': self.item.id, 'readonly': (self.item.status == 1)}
+        params = {'cost_accounting': self.item.id, 'readonly': (self.item.status == CostAccounting.STATUS_CLOSED)}
         set_costs = SetCost.objects.filter(cost_accounting=self.item)
         if (len(set_costs) == 1) and (set_costs[0].year_id is not None):
             params['year'] = set_costs[0].year_id
@@ -388,7 +388,7 @@ def editbudget_condo(xfer):
             select_year.set_select_query(FiscalYear.objects.all())
             select_year.set_value(year)
             select_year.description = _('year')
-            select_year.set_needed(set_item.type_load == 0)
+            select_year.set_needed(set_item.type_load == Set.TYPELOAD_CURRENT)
             select_year.set_action(xfer.request, xfer.__class__.get_action(), close=CLOSE_NO, modal=FORMTYPE_REFRESH)
             xfer.add_component(select_year)
             btn = XferCompButton('confyear')
@@ -398,7 +398,7 @@ def editbudget_condo(xfer):
             xfer.add_component(btn)
             if year != 0:
                 current_year = FiscalYear.get_current(year)
-                xfer.params['readonly'] = str(current_year.status == 2)
+                xfer.params['readonly'] = str(current_year.status == FiscalYear.STATUS_FINISHED)
                 if set_item.type_load == 0:
                     if len(set_item.setcost_set.filter(year=current_year)) == 0:
                         set_item.create_new_cost(year=current_year.id)
@@ -412,7 +412,7 @@ def editbudget_condo(xfer):
                 year = None
                 xfer.params['readonly'] = 'True'
                 cost_item = CostAccounting.objects.get(id=cost)
-            if (cost_item.status == 0) and not xfer.getparam('readonly', False):
+            if (cost_item.status == CostAccounting.STATUS_OPENED) and not xfer.getparam('readonly', False):
                 set_item.change_budget_product(cost_item, year)
     if xfer.getparam('type_of_account') is not None:
         xfer.params['readonly'] = 'True'

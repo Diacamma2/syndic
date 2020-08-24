@@ -26,12 +26,13 @@ from lucterios.CORE.models import Parameter
 from lucterios.contacts.models import Individual, LegalEntity, AbstractContact
 from lucterios.contacts.tools import ContactSelection
 
-from diacamma.accounting.models import AccountThird, FiscalYear, Third
+from diacamma.accounting.models import AccountThird, CostAccounting, FiscalYear, Third
 from diacamma.accounting.tools import correct_accounting_code, get_amount_from_format_devise
 from diacamma.payoff.models import PaymentMethod
 from diacamma.payoff.views import PayoffAddModify, can_send_email
 
-from diacamma.condominium.models import PropertyLot, Owner, Set, SetCost, convert_accounting, OwnerContact, generate_pdfreport
+from diacamma.condominium.models import PropertyLot, Owner, Set, SetCost, convert_accounting, OwnerContact, generate_pdfreport,\
+    LIST_DEFAULT_ACCOUNTS
 from diacamma.condominium.views_classload import fill_params
 from diacamma.condominium.system import current_system_condo
 
@@ -417,7 +418,7 @@ class CondominiumConvert(XferContainerAcknowledge):
         lbl.set_location(0, 0, 2)
         dlg.add_component(lbl)
         select_account = [('', None)]
-        for num_account in range(1, 6):
+        for num_account in LIST_DEFAULT_ACCOUNTS:
             owner_account = correct_accounting_code(Params.getvalue('condominium-default-owner-account%d' % num_account))
             select_account.append((owner_account, owner_account))
         row = 1
@@ -448,7 +449,7 @@ class CondominiumConvert(XferContainerAcknowledge):
             lbl.set_value_as_title(self.caption)
             lbl.set_location(1, 0)
             dlg.add_component(lbl)
-            year_list = ["{[i]} - %s{[/i]}" % year for year in FiscalYear.objects.filter(status__lt=2)]
+            year_list = ["{[i]} - %s{[/i]}" % year for year in FiscalYear.objects.filter(status__in=(FiscalYear.STATUS_BUILDING, FiscalYear.STATUS_RUNNING))]
             lab = XferCompLabelForm('info')
             lab.set_value(
                 _("This conversion tool will change your account to respect French law about condominium.{[br/]}For the no-closed fiscal years:{[newline]}%s{[newline]}It will do:{[newline]} - To change accounting code for each owners.{[newline]} - To de-validate all your entity.{[br/]} - To delete all entity link to call of funds or expenses.{[br/]} - To de-archive call of funds or expenses.{[br/]} - To generate correct account for call of funds or expenses.{[br/]}{[center]}{[u]}{[b]}Warning: This action is  definitive.{[/b]}{[/u]}{[center]}") %
@@ -469,11 +470,11 @@ class CondominiumConvert(XferContainerAcknowledge):
                 for set_cost in SetCost.objects.filter(year__status=2, cost_accounting__status=0):
                     set_cost.cost_accounting.is_protected = True
                     set_cost.cost_accounting.save()
-                    if (set_cost.year.status == 2) and (set_cost.cost_accounting.status == 0):
+                    if (set_cost.year.status == FiscalYear.STATUS_FINISHED) and (set_cost.cost_accounting.status == CostAccounting.STATUS_OPENED):
                         set_cost.cost_accounting.close()
                 for owner in Owner.objects.all():
                     owner.check_account()
-                for year in FiscalYear.objects.filter(status__lt=2):
+                for year in FiscalYear.objects.filter(status__in=(FiscalYear.STATUS_BUILDING, FiscalYear.STATUS_RUNNING)):
                     convert_accounting(year, thirds_convert)
             except BaseException:
                 Params.clear()

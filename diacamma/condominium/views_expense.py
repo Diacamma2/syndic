@@ -27,7 +27,7 @@ class ExpenseList(XferListEditor):
     caption = _("Condominium expenses")
 
     def fillresponse_header(self):
-        status_filter = self.getparam('status_filter', 0)
+        status_filter = self.getparam('status_filter', Expense.STATUS_BUILDING)
         self.params['status_filter'] = status_filter
         date_filter = self.getparam('date_filter', 0)
         self.fieldnames = Expense.get_default_fields(status_filter)
@@ -55,8 +55,8 @@ class ExpenseList(XferListEditor):
             self.filter &= Q(date__gte=current_year.begin) & Q(date__lte=current_year.end)
 
 
-@ActionsManage.affect_grid(TITLE_CREATE, "images/new.png", condition=lambda xfer, gridname='': xfer.getparam('status_filter', 0) == 0)
-@ActionsManage.affect_show(TITLE_MODIFY, "images/edit.png", close=CLOSE_YES, condition=lambda xfer: xfer.item.status == 0)
+@ActionsManage.affect_grid(TITLE_CREATE, "images/new.png", condition=lambda xfer, gridname='': xfer.getparam('status_filter', Expense.STATUS_BUILDING) == Expense.STATUS_BUILDING)
+@ActionsManage.affect_show(TITLE_MODIFY, "images/edit.png", close=CLOSE_YES, condition=lambda xfer: xfer.item.status == Expense.STATUS_BUILDING)
 @MenuManage.describ('condominium.add_expense')
 class ExpenseAddModify(XferAddEditor):
     icon = "expense.png"
@@ -75,7 +75,7 @@ class ExpenseShow(XferShowEditor):
     caption = _("Show expense")
 
 
-@ActionsManage.affect_grid(TITLE_DELETE, "images/delete.png", unique=SELECT_MULTI, condition=lambda xfer, gridname='': xfer.getparam('status_filter', 0) == 0)
+@ActionsManage.affect_grid(TITLE_DELETE, "images/delete.png", unique=SELECT_MULTI, condition=lambda xfer, gridname='': xfer.getparam('status_filter', Expense.STATUS_BUILDING) == Expense.STATUS_BUILDING)
 @MenuManage.describ('condominium.delete_expense')
 class ExpenseDel(XferDelete):
     icon = "expense.png"
@@ -92,7 +92,7 @@ class ExpenseTransition(XferTransition):
     field_id = 'expense'
 
 
-@ActionsManage.affect_grid(_('payoff'), '', close=CLOSE_NO, unique=SELECT_MULTI, condition=lambda xfer, gridname='': xfer.getparam('status_filter', -1) == 1)
+@ActionsManage.affect_grid(_('payoff'), '', close=CLOSE_NO, unique=SELECT_MULTI, condition=lambda xfer, gridname='': xfer.getparam('status_filter', -1) == Expense.STATUS_VALID)
 @MenuManage.describ('payoff.add_payoff')
 class ExpenseMultiPay(XferContainerAcknowledge):
     caption = _("Multi-pay expense")
@@ -104,8 +104,8 @@ class ExpenseMultiPay(XferContainerAcknowledge):
         self.redirect_action(PayoffAddModify.get_action("", ""), params={"supportings": expense, 'repartition': "1"})
 
 
-@ActionsManage.affect_grid(TITLE_ADD, "images/add.png", condition=lambda xfer, gridname='': xfer.item.status == 0)
-@ActionsManage.affect_grid(TITLE_MODIFY, "images/edit.png", unique=SELECT_SINGLE, condition=lambda xfer, gridname='': xfer.item.status == 0)
+@ActionsManage.affect_grid(TITLE_ADD, "images/add.png", condition=lambda xfer, gridname='': xfer.item.status == Expense.STATUS_BUILDING)
+@ActionsManage.affect_grid(TITLE_MODIFY, "images/edit.png", unique=SELECT_SINGLE, condition=lambda xfer, gridname='': xfer.item.status == Expense.STATUS_BUILDING)
 @MenuManage.describ('condominium.add_expense')
 class ExpenseDetailAddModify(XferAddEditor):
     icon = "expense.png"
@@ -115,7 +115,7 @@ class ExpenseDetailAddModify(XferAddEditor):
     caption_modify = _("Modify detail of call")
 
 
-@ActionsManage.affect_grid(TITLE_DELETE, "images/delete.png", unique=SELECT_MULTI, condition=lambda xfer, gridname='': xfer.item.status == 0)
+@ActionsManage.affect_grid(TITLE_DELETE, "images/delete.png", unique=SELECT_MULTI, condition=lambda xfer, gridname='': xfer.item.status == Expense.STATUS_BUILDING)
 @MenuManage.describ('condominium.add_expense')
 class ExpenseDetailDel(XferDelete):
     icon = "expense.png"
@@ -124,7 +124,7 @@ class ExpenseDetailDel(XferDelete):
     caption = _("Delete detail of expense")
 
 
-@ActionsManage.affect_grid(_("Show set"), "diacamma.condominium/images/set.png", unique=SELECT_SINGLE, condition=lambda xfer, gridname='': xfer.item.status == 0)
+@ActionsManage.affect_grid(_("Show set"), "diacamma.condominium/images/set.png", unique=SELECT_SINGLE, condition=lambda xfer, gridname='': xfer.item.status == Expense.STATUS_BUILDING)
 @MenuManage.describ('condominium.change_set')
 class ExpenseDetailShowSet(XferContainerAcknowledge):
     icon = "expense.png"

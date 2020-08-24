@@ -14,19 +14,19 @@ from lucterios.CORE.models import PrintModel
 def initial_values(*_args):
     from diacamma.condominium.models import OwnerLink
     set_locale_lang(settings.LANGUAGE_CODE)
-    link1, created = OwnerLink.objects.get_or_create(id=1)
+    link1, created = OwnerLink.objects.get_or_create(id=OwnerLink.DEFAULT_LODGER)
     if created:
         link1.name = _('lodger')
         link1.save()
-    link2, created = OwnerLink.objects.get_or_create(id=2)
+    link2, created = OwnerLink.objects.get_or_create(id=OwnerLink.DEFAULT_RENTAL_AGENCY)
     if created:
         link2.name = _('rental agency')
         link2.save()
-    link3, created = OwnerLink.objects.get_or_create(id=3)
+    link3, created = OwnerLink.objects.get_or_create(id=OwnerLink.DEFAULT_EMERGENCY)
     if created:
         link3.name = _('emergency')
         link3.save()
-    link4, created = OwnerLink.objects.get_or_create(id=4)
+    link4, created = OwnerLink.objects.get_or_create(id=OwnerLink.DEFAULT_SECURITY_AGENCY)
     if created:
         link4.name = _('security agency')
         link4.save()

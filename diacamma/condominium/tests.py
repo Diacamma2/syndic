@@ -60,6 +60,7 @@ from diacamma.condominium.views_callfunds import CallFundsList, CallFundsAddCurr
 from diacamma.condominium.views_report import FinancialStatus, GeneralManageAccounting, CurrentManageAccounting, ExceptionalManageAccounting
 from diacamma.condominium.test_tools import default_setowner_fr, add_test_callfunds, old_accounting, add_test_expenses_fr, init_compta, add_years, default_setowner_be, add_test_expenses_be,\
     create_owner_fr, _set_partition, _set_budget
+from diacamma.condominium.views_expense import ExpenseList
 
 
 class SetOwnerTest(LucteriosTest):
@@ -1726,6 +1727,115 @@ class OwnerTest(PaymentTest):
         self.assert_json_equal('', 'callfunds/@0/supporting.total_rest_topay', 70.0)
         self.assert_count_equal('payoff', 1)
         self.assert_json_equal('', 'payoff/@0/amount', 70.0)
+
+    def test_ventilation_internal_payoff(self):
+        add_test_callfunds(False, True)
+        add_test_expenses_fr(False, False)
+        init_compta()
+
+        self.factory.xfer = OwnerVentilatePay()
+        self.calljson('/diacamma.condominium/ownerVentilatePay', {'CONFIRME': 'YES', 'owner': 1}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'ownerVentilatePay')
+
+        self.factory.xfer = OwnerShow()
+        self.calljson('/diacamma.condominium/ownerShow', {'owner': 1}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'ownerShow')
+        self.assert_json_equal('LABELFORM', 'thirdinitial', 29.18)
+        self.assert_count_equal('entryline', 5)
+        self.assert_json_equal('LABELFORM', 'thirdtotal', -17.07)
+        self.assert_json_equal('LABELFORM', 'sumtopay', 17.07)
+        self.assert_count_equal('callfunds', 2)
+        self.assert_json_equal('', 'callfunds/@0/num', '1')
+        self.assert_json_equal('', 'callfunds/@0/date', '2015-06-10')
+        self.assert_json_equal('', 'callfunds/@0/total', 131.25)
+        self.assert_json_equal('', 'callfunds/@0/supporting.total_rest_topay', 0.00)
+        self.assert_json_equal('', 'callfunds/@1/num', '2')
+        self.assert_json_equal('', 'callfunds/@1/date', '2015-07-14')
+        self.assert_json_equal('', 'callfunds/@1/total', 45.00)
+        self.assert_json_equal('', 'callfunds/@1/supporting.total_rest_topay', 17.07)
+        self.assert_count_equal('payoff', 0)
+
+        self.factory.xfer = ExpenseList()
+        self.calljson('/diacamma.condominium/expenseList', {'status_filter': 1}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'expenseList')
+        self.assert_count_equal('expense', 2)
+        self.assert_json_equal('', 'expense/@0/num', '2')
+        self.assert_json_equal('', 'expense/@0/total', 75.0)
+        self.assert_json_equal('', 'expense/@0/total_payed', 0.0)
+        self.assert_json_equal('', 'expense/@1/num', '1')
+        self.assert_json_equal('', 'expense/@1/total', 100.0)
+        self.assert_json_equal('', 'expense/@1/total_payed', 0.0)
+
+        self.factory.xfer = PayoffAddModify()
+        self.calljson('/diacamma.payoff/payoffAddModify', {'SAVE': 'YES', 'supporting': 11, 'amount': '75.0',
+                                                           'date': '2015-08-28', 'mode': 6, 'linked_supporting': 1}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.payoff', 'payoffAddModify')
+
+        self.factory.xfer = PayoffAddModify()
+        self.calljson('/diacamma.payoff/payoffAddModify', {'SAVE': 'YES', 'supporting': 10, 'amount': '10.0',
+                                                           'date': '2015-09-07', 'mode': 6, 'linked_supporting': 1}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.payoff', 'payoffAddModify')
+
+        self.factory.xfer = OwnerShow()
+        self.calljson('/diacamma.condominium/ownerShow', {'owner': 1}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'ownerShow')
+        self.assert_json_equal('LABELFORM', 'thirdinitial', 29.18)
+        self.assert_count_equal('entryline', 7)
+        self.assert_json_equal('LABELFORM', 'thirdtotal', 67.93)
+        self.assert_json_equal('LABELFORM', 'sumtopay', 0.0)
+        self.assert_count_equal('callfunds', 2)
+        self.assert_json_equal('', 'callfunds/@1/supporting.total_rest_topay', 17.07)
+        self.assert_count_equal('payoff', 2)
+        self.assert_json_equal('', 'payoff/@0/date', "2015-08-28")
+        self.assert_json_equal('', 'payoff/@0/mode', 6)
+        self.assert_json_equal('', 'payoff/@0/amount', 75.0)
+        self.assert_json_equal('', 'payoff/@0/reference', 'dépense 2 - creation')
+        self.assert_json_equal('', 'payoff/@0/bank_account', None)
+        self.assert_json_equal('', 'payoff/@1/date', "2015-09-07")
+        self.assert_json_equal('', 'payoff/@1/mode', 6)
+        self.assert_json_equal('', 'payoff/@1/amount', 10.0)
+        self.assert_json_equal('', 'payoff/@1/reference', 'dépense 1 - opq 666')
+        self.assert_json_equal('', 'payoff/@1/bank_account', None)
+
+        self.factory.xfer = OwnerVentilatePay()
+        self.calljson('/diacamma.condominium/ownerVentilatePay', {'CONFIRME': 'YES', 'owner': 1}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'ownerVentilatePay')
+
+        self.factory.xfer = OwnerShow()
+        self.calljson('/diacamma.condominium/ownerShow', {'owner': 1}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'ownerShow')
+        self.assert_json_equal('LABELFORM', 'thirdinitial', 29.18)
+        self.assert_count_equal('entryline', 7)
+        self.assert_json_equal('LABELFORM', 'thirdtotal', 67.93)
+        self.assert_json_equal('LABELFORM', 'sumtopay', 0.0)
+        self.assert_count_equal('callfunds', 2)
+        self.assert_json_equal('', 'callfunds/@1/supporting.total_rest_topay', 7.07)
+        self.assert_count_equal('payoff', 1)
+        self.assert_json_equal('', 'payoff/@0/date', "2015-08-28")
+        self.assert_json_equal('', 'payoff/@0/mode', 6)
+        self.assert_json_equal('', 'payoff/@0/amount', 75.0)
+        self.assert_json_equal('', 'payoff/@0/reference', 'dépense 2 - creation')
+        self.assert_json_equal('', 'payoff/@0/bank_account', None)
+
+        self.factory.xfer = OwnerVentilatePay()
+        self.calljson('/diacamma.condominium/ownerVentilatePay', {'CONFIRME': 'YES', 'owner': 1}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'ownerVentilatePay')
+
+        self.factory.xfer = OwnerShow()
+        self.calljson('/diacamma.condominium/ownerShow', {'owner': 1}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'ownerShow')
+        self.assert_json_equal('LABELFORM', 'thirdinitial', 29.18)
+        self.assert_count_equal('entryline', 7)
+        self.assert_json_equal('LABELFORM', 'thirdtotal', 67.93)
+        self.assert_json_equal('LABELFORM', 'sumtopay', 0.0)
+        self.assert_count_equal('callfunds', 2)
+        self.assert_json_equal('', 'callfunds/@1/supporting.total_rest_topay', 7.07)
+        self.assert_count_equal('payoff', 1)
+        self.assert_json_equal('', 'payoff/@0/date', "2015-08-28")
+        self.assert_json_equal('', 'payoff/@0/mode', 6)
+        self.assert_json_equal('', 'payoff/@0/amount', 75.0)
+        self.assert_json_equal('', 'payoff/@0/reference', 'dépense 2 - creation')
+        self.assert_json_equal('', 'payoff/@0/bank_account', None)
 
 
 class OwnerBelgiumTest(PaymentTest):

@@ -35,7 +35,7 @@ from lucterios.framework.xfercomponents import XferCompImage, XferCompSelect, Xf
 from lucterios.framework.xferadvance import TITLE_CLOSE, TITLE_PRINT
 from lucterios.CORE.parameters import Params
 
-from diacamma.accounting.models import FiscalYear, EntryAccount
+from diacamma.accounting.models import FiscalYear, EntryAccount, ChartsAccount, Journal
 from diacamma.accounting.views_reports import FiscalYearReportPrint
 from diacamma.accounting.tools import current_system_account, format_with_devise
 from diacamma.accounting.tools_reports import get_spaces, convert_query_to_account, add_item_in_grid, fill_grid, add_cell_in_grid
@@ -165,8 +165,8 @@ class FinancialStatus(CondominiumReport):
                 last_ids.append(EntryAccount.objects.filter(year=self.item.last_fiscalyear).order_by('-id')[0].id)
             except IndexError:
                 last_ids.append(0)
-        current_filter = Q(account__type_of_account__in=(0, 1)) & ~Q(account__code__regex=current_system_account().get_cash_mask())
-        current_filter &= (~Q(entry__year__status=2) | ~(Q(entry__journal=5) & Q(entry__id__in=tuple(last_ids))))
+        current_filter = Q(account__type_of_account__in=(ChartsAccount.TYPE_ASSET, ChartsAccount.TYPE_LIABILITY)) & ~Q(account__code__regex=current_system_account().get_cash_mask())
+        current_filter &= (~Q(entry__year__status=2) | ~(Q(entry__journal=Journal.DEFAULT_OTHER) & Q(entry__id__in=tuple(last_ids))))
         line__creance, total1_creance, total2_creance = self.fill_part_of_grid('left', current_filter, line_idx + 2, _('Créance'), sign_value=-1, with_third=True)
         line__dette, total1_dette, total2_dette = self.fill_part_of_grid('right', current_filter, line_idx + 2, _('Dettes'), sign_value=1, with_third=True)
         line_idx = max(line__creance, line__dette)
@@ -250,33 +250,33 @@ class GeneralManageAccounting(ManageAccounting):
     caption = _("General manage accounting")
 
     def fill_body(self):
-        current_query = Q(costaccounting__setcost__set__type_load=0) & Q(costaccounting__setcost__set__is_active=True)
-        query_budget = Q(code__regex=current_system_account().get_expence_mask()) & Q(cost_accounting__setcost__set__type_load=0) & Q(cost_accounting__setcost__set__is_active=True)
+        current_query = Q(costaccounting__setcost__set__type_load=Set.TYPELOAD_CURRENT) & Q(costaccounting__setcost__set__is_active=True)
+        query_budget = Q(code__regex=current_system_account().get_expence_mask()) & Q(cost_accounting__setcost__set__type_load=Set.TYPELOAD_CURRENT) & Q(cost_accounting__setcost__set__is_active=True)
         budget_query = [Q(year=self.item) & query_budget]
         if self.next_year is not None:
             budget_query.append(Q(year=self.next_year) & query_budget)
         if self.next_year_again is not None:
             budget_query.append(Q(year=self.next_year_again) & query_budget)
-        line__current_dep, _total1_current_dep, _total2_current_dep, _totalb_current_dep = self.fill_part_of_grid(Q(account__type_of_account=4) & current_query, budget_query, 0, _('Current depency'))
+        line__current_dep, _total1_current_dep, _total2_current_dep, _totalb_current_dep = self.fill_part_of_grid(Q(account__type_of_account=ChartsAccount.TYPE_EXPENSE) & current_query, budget_query, 0, _('Current depency'))
 
-        query_budget = Q(code__regex=current_system_account().get_revenue_mask()) & Q(cost_accounting__setcost__set__type_load=0) & Q(cost_accounting__setcost__set__is_active=True)
+        query_budget = Q(code__regex=current_system_account().get_revenue_mask()) & Q(cost_accounting__setcost__set__type_load=Set.TYPELOAD_CURRENT) & Q(cost_accounting__setcost__set__is_active=True)
         budget_query = [Q(year=self.item) & query_budget]
         if self.next_year is not None:
             budget_query.append(Q(year=self.next_year) & query_budget)
         if self.next_year_again is not None:
             budget_query.append(Q(year=self.next_year_again) & query_budget)
-        line__current_rec, _total1_current_rec, _total2_current_rec, _totalb_current_rec = self.fill_part_of_grid(Q(account__type_of_account=3) & current_query, budget_query, line__current_dep + 1, _('Current revenue'))
+        line__current_rec, _total1_current_rec, _total2_current_rec, _totalb_current_rec = self.fill_part_of_grid(Q(account__type_of_account=ChartsAccount.TYPE_REVENUE) & current_query, budget_query, line__current_dep + 1, _('Current revenue'))
 
         self.next_year = None
         self.next_year_again = None
         current_query = Q(costaccounting__setcost__set__type_load=1) & Q(costaccounting__setcost__set__is_active=True)
-        query_budget = Q(year=self.item) & Q(code__regex=current_system_account().get_expence_mask()) & Q(cost_accounting__setcost__set__type_load=1) & Q(cost_accounting__setcost__set__is_active=True)
+        query_budget = Q(year=self.item) & Q(code__regex=current_system_account().get_expence_mask()) & Q(cost_accounting__setcost__set__type_load=Set.TYPELOAD_EXCEPTIONAL) & Q(cost_accounting__setcost__set__is_active=True)
         budget_query = [query_budget]
-        line__except_dep, _total1_except_dep, _total2_except_dep, _totalb_except_dep = self.fill_part_of_grid(Q(account__type_of_account=4) & current_query, budget_query, line__current_rec + 1, _('Exceptional depency'))
+        line__except_dep, _total1_except_dep, _total2_except_dep, _totalb_except_dep = self.fill_part_of_grid(Q(account__type_of_account=ChartsAccount.TYPE_EXPENSE) & current_query, budget_query, line__current_rec + 1, _('Exceptional depency'))
 
-        query_budget = Q(year=self.item) & Q(code__regex=current_system_account().get_revenue_mask()) & Q(cost_accounting__setcost__set__type_load=1) & Q(cost_accounting__setcost__set__is_active=True)
+        query_budget = Q(year=self.item) & Q(code__regex=current_system_account().get_revenue_mask()) & Q(cost_accounting__setcost__set__type_load=Set.TYPELOAD_EXCEPTIONAL) & Q(cost_accounting__setcost__set__is_active=True)
         budget_query = [query_budget]
-        _line__except_rec, _total1_except_rec, _total2_except_rec, _totalb_except_rec = self.fill_part_of_grid(Q(account__type_of_account=3) & current_query, budget_query, line__except_dep + 1, _('Exceptional revenue'))
+        _line__except_rec, _total1_except_rec, _total2_except_rec, _totalb_except_rec = self.fill_part_of_grid(Q(account__type_of_account=ChartsAccount.TYPE_REVENUE) & current_query, budget_query, line__except_dep + 1, _('Exceptional revenue'))
 
 
 @MenuManage.describ('condominium.change_owner', FORMTYPE_NOMODAL, 'condominium.print', _('Show Current manage accounting report'))

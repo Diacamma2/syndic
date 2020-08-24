@@ -6,11 +6,12 @@ import django.core.validators
 from django.db import migrations, models
 import django.db.models.deletion
 from lucterios.framework.model_fields import LucteriosDecimalField
+from diacamma.condominium.models import Expense
 
 
 def convert_expense_ratio(*args):
     from diacamma.condominium.models import ExpenseDetail, ExpenseRatio, Owner
-    for expense_detail in ExpenseDetail.objects.filter(expense__status__in=(1, 2)):
+    for expense_detail in ExpenseDetail.objects.filter(expense__status__in=(Expense.STATUS_BUILDING, Expense.STATUS_VALID)):
         if expense_detail.expense.expensetype == 0:
             is_asset = 1
         else:
