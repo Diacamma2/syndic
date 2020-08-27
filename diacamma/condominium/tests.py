@@ -824,7 +824,7 @@ class OwnerTest(PaymentTest):
         self.calljson('/diacamma.payoff/payableShow',
                       {'owner': 1, 'item_name': 'owner'}, False)
         self.assert_observer('core.custom', 'diacamma.payoff', 'payableShow')
-        self.assert_count_equal('', 13)
+        self.assert_count_equal('', 17)
         self.assert_json_equal('LABELFORM', 'total_current_owner', -131.25)
         self.check_payment(1, "copropriete de Minimum", "131.25")
 
