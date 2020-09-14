@@ -1244,6 +1244,18 @@ class Expense(Supporting):
     def get_show_fields(cls):
         return ["third", ("num", "date"), "expensetype", "expensedetail_set", "comment", ("status", 'total')]
 
+    @classmethod
+    def get_search_fields(cls):
+        search_fields = ["expensetype", "num", "date", "comment", "status"]
+        for fieldname in Third.get_search_fields(with_addon=False):
+            search_fields.append(cls.convert_field_for_search("third", fieldname))
+        for fieldname in ExpenseDetail.get_search_fields():
+            search_fields.append(cls.convert_field_for_search("expensedetail_set", fieldname))
+        for fieldname in Payoff.get_search_fields():
+            if fieldname != "payer":
+                search_fields.append(cls.convert_field_for_search("payoff_set", fieldname))
+        return search_fields
+
     def get_total(self):
         val = 0
         for expensedetail in self.expensedetail_set.all():
@@ -1440,6 +1452,10 @@ class ExpenseDetail(LucteriosModel):
     @classmethod
     def get_edit_fields(cls):
         return ["set", "designation", "expense_account", "price"]
+
+    @classmethod
+    def get_search_fields(cls):
+        return ["set", "designation", "expense_account", 'price']
 
     def get_ratio(self):
         ratio = []

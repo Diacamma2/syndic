@@ -9,14 +9,19 @@ from lucterios.framework.xferadvance import XferListEditor, TITLE_EDIT, TITLE_AD
 from lucterios.framework.xferadvance import XferAddEditor
 from lucterios.framework.xferadvance import XferShowEditor
 from lucterios.framework.xferadvance import XferDelete
-from lucterios.framework.tools import FORMTYPE_NOMODAL, ActionsManage, MenuManage, FORMTYPE_REFRESH, CLOSE_NO, SELECT_SINGLE, CLOSE_YES, SELECT_MULTI
-from lucterios.framework.xfercomponents import XferCompSelect
+from lucterios.framework.tools import FORMTYPE_NOMODAL, ActionsManage, MenuManage, FORMTYPE_REFRESH, CLOSE_NO, SELECT_SINGLE, CLOSE_YES, SELECT_MULTI,\
+    WrapAction
+from lucterios.framework.xfercomponents import XferCompSelect, XferCompGrid
 from lucterios.framework.xfergraphic import XferContainerAcknowledge
+from lucterios.framework.error import LucteriosException
+from lucterios.framework import signal_and_lock
 
-from diacamma.condominium.models import Expense, ExpenseDetail
 from diacamma.accounting.models import FiscalYear
-from diacamma.condominium.views_classload import SetShow
+from diacamma.accounting.tools import current_system_account
 from diacamma.payoff.views import PayoffAddModify
+from diacamma.condominium.models import Expense, ExpenseDetail
+from diacamma.condominium.views_classload import SetShow
+from lucterios.CORE.editors import XferSavedCriteriaSearchEditor
 
 
 @MenuManage.describ('condominium.change_expense', FORMTYPE_NOMODAL, 'condominium.manage', _('Manage of expenses'))
@@ -53,6 +58,15 @@ class ExpenseList(XferListEditor):
         if date_filter == 0:
             current_year = FiscalYear.get_current()
             self.filter &= Q(date__gte=current_year.begin) & Q(date__lte=current_year.end)
+
+
+@ActionsManage.affect_list(_("Search"), "diacamma.condominium/images/expense.png")
+@MenuManage.describ('condominium.change_expense')
+class ExpenseSearch(XferSavedCriteriaSearchEditor):
+    icon = "expense.png"
+    model = Expense
+    field_id = 'expense'
+    caption = _("Search expense")
 
 
 @ActionsManage.affect_grid(TITLE_CREATE, "images/new.png", condition=lambda xfer, gridname='': xfer.getparam('status_filter', Expense.STATUS_BUILDING) == Expense.STATUS_BUILDING)
@@ -136,3 +150,39 @@ class ExpenseDetailShowSet(XferContainerAcknowledge):
 
     def fillresponse(self):
         self.redirect_action(SetShow.get_action(), close=CLOSE_NO, params={'set': self.item.set_id})
+
+
+@signal_and_lock.Signal.decorate('third_addon')
+def thirdaddon_expense(item, xfer):
+    if WrapAction.is_permission(xfer.request, 'condominium.change_expense'):
+        try:
+            status_filter = xfer.getparam('status_filter', Expense.STATUS_BUILDING)
+            date_filter = xfer.getparam('date_filter', 0)
+            current_year = FiscalYear.get_current()
+            item.get_account(current_year, current_system_account().get_provider_mask())
+            xfer.new_tab(_('Expenses'))
+            edt = XferCompSelect("status_filter")
+            edt.set_select(list(Expense.get_field_by_name('status').choices))
+            edt.set_value(status_filter)
+            edt.description = _('Filter by type')
+            edt.set_location(0, 1)
+            edt.set_action(xfer.request, xfer.return_action(), modal=FORMTYPE_REFRESH, close=CLOSE_NO)
+            xfer.add_component(edt)
+            edt = XferCompSelect("date_filter")
+            edt.set_select([(0, _('only current fiscal year')), (1, _('all expenses'))])
+            edt.set_value(date_filter)
+            edt.set_location(0, 2)
+            edt.description = _('Filter by date')
+            edt.set_action(xfer.request, xfer.return_action(), modal=FORMTYPE_REFRESH, close=CLOSE_NO)
+            xfer.add_component(edt)
+            expense_filter = Q(status=status_filter) & Q(third=item)
+            if date_filter == 0:
+                expense_filter &= Q(date__gte=current_year.begin) & Q(date__lte=current_year.end)
+            expenses = Expense.objects.filter(expense_filter).distinct()
+            expense_grid = XferCompGrid('expense')
+            expense_grid.set_model(expenses, Expense.get_default_fields(status_filter), xfer)
+            expense_grid.add_action_notified(xfer, Expense)
+            expense_grid.set_location(0, 3, 2)
+            xfer.add_component(expense_grid)
+        except LucteriosException:
+            pass
