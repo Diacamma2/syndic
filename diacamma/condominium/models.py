@@ -153,7 +153,7 @@ class Set(LucteriosModel):
             new_ids = [new_ids]
         for owner in Owner.objects.all():
             for new_id in new_ids:
-                Partition.objects.create(set_id=new_id, owner=owner)
+                Partition.objects.create(set_id=new_id[0] if isinstance(new_id, tuple) else new_id, owner=owner)
         return new_ids
 
     def get_current_cost_accounting(self):
