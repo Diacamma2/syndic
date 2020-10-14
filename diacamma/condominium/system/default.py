@@ -33,6 +33,7 @@ from diacamma.accounting.tools import currency_round
 from diacamma.accounting.models import FiscalYear, EntryAccount, EntryLineAccount, ChartsAccount
 
 from diacamma.condominium.models import CallDetail, Owner, PropertyLot
+from re import match
 
 
 class DefaultSystemCondo(object):
@@ -59,12 +60,18 @@ class DefaultSystemCondo(object):
         try:
             lettering_check = Params.getvalue("accounting-lettering-check").split('{[br/]}')
             changed = False
+            new_lettering = []
+            for letter in lettering_check:
+                if match(current_system_account().get_third_mask(), letter) is not None:
+                    new_lettering.append(letter)
+                else:
+                    changed = True
             for account in ChartsAccount.objects.filter(year=FiscalYear.get_current(), code__regex=current_system_account().get_societary_mask()):
-                if account.code not in lettering_check:
-                    lettering_check.append(account.code)
+                if account.code not in new_lettering:
+                    new_lettering.append(account.code)
                     changed = True
             if changed:
-                Params.setvalue("accounting-lettering-check", '{[br/]}'.join(lettering_check))
+                Params.setvalue("accounting-lettering-check", '{[br/]}'.join(new_lettering))
         except LucteriosException:
             pass
 
