@@ -28,7 +28,7 @@ from lucterios.contacts.tools import ContactSelection
 
 from diacamma.accounting.models import AccountThird, CostAccounting, FiscalYear, Third
 from diacamma.accounting.tools import correct_accounting_code, get_amount_from_format_devise
-from diacamma.payoff.models import PaymentMethod
+from diacamma.payoff.models import PaymentMethod, Payoff, Supporting
 from diacamma.payoff.views import PayoffAddModify, can_send_email
 
 from diacamma.condominium.models import PropertyLot, Owner, Set, SetCost, convert_accounting, OwnerContact, generate_pdfreport,\
@@ -286,6 +286,49 @@ class OwnerMultiPay(XferContainerAcknowledge):
             if call_fund.supporting.get_total_rest_topay() > 0.0001:
                 supportings.append(str(call_fund.supporting_id))
         self.redirect_action(PayoffAddModify.get_action("", ""), params={"supportings": ";".join(supportings), 'NO_REPARTITION': 'yes', 'repartition': "1"})
+
+
+@ActionsManage.affect_other(_('refund'), 'images/new.png', close=CLOSE_NO, condition=lambda xfer: xfer.item.get_total_payoff_waiting() > 0.001)
+@MenuManage.describ('payoff.add_payoff')
+class OwnerRefund(XferContainerAcknowledge):
+    caption = _("Refund owner")
+    icon = "set.png"
+    model = Owner
+    field_id = 'owner'
+
+    class RefundSupporting(Supporting):
+
+        def __init__(self, owner):
+            Supporting.__init__(self, third=owner.third, is_revenu=False)
+            self.owner = owner
+
+        def __str__(self):
+            return str(self.third)
+
+        def get_total_rest_topay(self, ignore_payoff=-1):
+            return max(0, self.owner.get_total_payoff_waiting())
+
+        class Meta(object):
+            proxy = True
+
+    def fillresponse(self, begin_date, end_date):
+        self.item.set_dates(begin_date, end_date)
+        if self.getparam('SAVE') is None:
+            dlg = self.create_custom(model=Payoff)
+            dlg.item.supporting = self.RefundSupporting(self.item)
+            dlg.item.date = self.item.default_date()
+            dlg.params['supportings'] = ''
+            img = XferCompImage('img')
+            img.set_value(self.icon_path())
+            img.set_location(0, 0, 1, 6)
+            dlg.add_component(img)
+            dlg.fill_from_model(1, 0, False)
+            dlg.add_action(self.return_action(TITLE_OK, 'images/ok.png'), params={"SAVE": "YES"})
+            dlg.add_action(WrapAction(TITLE_CANCEL, 'images/cancel.png'))
+        else:
+            Payoff.multi_save([self.item.id], -1 * self.getparam('amount', 0.0), self.getparam('mode', Payoff.MODE_CASH), '',
+                              self.getparam('reference', ''), self.getparam('bank_account', None), self.getparam('date', self.item.default_date()),
+                              self.getparam('fee_bank', 0.0), Payoff.REPARTITION_BYDATE)
 
 
 @ActionsManage.affect_other(_('ventilate'), 'images/edit.png', close=CLOSE_NO)

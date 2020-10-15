@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-09-14 14:16+0000\n"
+"POT-Creation-Date: 2020-10-15 16:10+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -108,21 +108,21 @@ msgstr "code comptable %s non trouvé !"
 msgid "Error in accounting generator!"
 msgstr "Erreur dans la génération comptable !"
 
-#: system/default.py:81 system/default.py:96 system/default.py:99
+#: system/default.py:88 system/default.py:103 system/default.py:106
 msgid "This system condomium is not implemented"
 msgstr "Ce système de copropriété n'est pas implémenté !"
 
-#: system/default.py:87
+#: system/default.py:94
 #, python-format
 msgid "call of funds \"%(type)s\" #%(num)d - %(date)s"
 msgstr "appel de fonds \"%(type)s\" N°%(num)d - %(date)s"
 
-#: system/default.py:109 system/default.py:137
+#: system/default.py:116 system/default.py:144
 #, python-format
 msgid "Ventilation for %s"
 msgstr "Ventilation pour %s"
 
-#: system/default.py:121
+#: system/default.py:128
 #, python-format
 msgid "The class load %s has no owner"
 msgstr "La catégorie de charges %s n'a pas de copropriétaire"

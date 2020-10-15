@@ -937,11 +937,11 @@ class OwnerTest(PaymentTest):
             email_msg.sendemail(10, "http://testserver")
             self.assertEqual(3, server.count())
             self.assertEqual(['Minimum@worldcompany.com', 'mr-sylvestre@worldcompany.com'], server.get(0)[2])
-            server.get_msg_index(0, "Situation de 'Minimum'")
+            server.get_msg_index(0, "Minimum")
             self.assertEqual(['William.Dalton@worldcompany.com', 'mr-sylvestre@worldcompany.com'], server.get(1)[2])
-            server.get_msg_index(1, "Situation de 'Dalton William'")
+            server.get_msg_index(1, "Dalton William")
             self.assertEqual(['Joe.Dalton@worldcompany.com', 'mr-sylvestre@worldcompany.com'], server.get(2)[2])
-            server.get_msg_index(2, "Situation de 'Dalton Joe'")
+            server.get_msg_index(2, "Dalton Joe")
 
         finally:
             server.stop()
@@ -1004,7 +1004,7 @@ class OwnerTest(PaymentTest):
         self.factory.xfer = OwnerShow()
         self.calljson('/diacamma.condominium/ownerShow', {'owner': 1}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'ownerShow')
-        self.assert_count_equal('', 53)
+        self.assert_count_equal('', 54)
         self.assert_json_equal('LABELFORM', 'total_current_initial', 23.45)
         self.assert_json_equal('LABELFORM', 'total_current_call', 131.25)
         self.assert_json_equal('LABELFORM', 'total_current_payoff', 100.00)
@@ -1862,7 +1862,7 @@ class OwnerBelgiumTest(PaymentTest):
         self.factory.xfer = OwnerShow()
         self.calljson('/diacamma.condominium/ownerShow', {'owner': 1}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'ownerShow')
-        self.assert_count_equal('', 51)
+        self.assert_count_equal('', 52)
         self.assert_grid_equal('partition', {"set": "catégorie de charges", 'set.budget_txt': 'budget', 'set.sumexpense': 'dépense',
                                              'value': 'tantième', 'ratio': 'ratio', "ventilated": "ventilé", 'recovery_load': 'charges récupérables'}, 2)
         self.assert_json_equal('', 'partition/@1/set', "[2] BBB")

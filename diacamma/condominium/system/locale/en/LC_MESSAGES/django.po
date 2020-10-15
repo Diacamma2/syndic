@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-09-14 14:16+0000\n"
+"POT-Creation-Date: 2020-10-15 16:10+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -107,21 +107,21 @@ msgstr "code account %s unknown!"
 msgid "Error in accounting generator!"
 msgstr "Error in accounting generator!"
 
-#: system/default.py:81 system/default.py:96 system/default.py:99
+#: system/default.py:88 system/default.py:103 system/default.py:106
 msgid "This system condomium is not implemented"
 msgstr "This system condomium is not implemented"
 
-#: system/default.py:87
+#: system/default.py:94
 #, python-format
 msgid "call of funds \"%(type)s\" #%(num)d - %(date)s"
 msgstr "call of funds \"%(type)s\" #%(num)d - %(date)s"
 
-#: system/default.py:109 system/default.py:137
+#: system/default.py:116 system/default.py:144
 #, python-format
 msgid "Ventilation for %s"
 msgstr "Ventilation for %s"
 
-#: system/default.py:121
+#: system/default.py:128
 #, python-format
 msgid "The class load %s has no owner"
 msgstr "The class load %s has no owner"

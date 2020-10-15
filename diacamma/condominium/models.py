@@ -1610,7 +1610,7 @@ class Owner(Supporting):
 
     @property
     def reference(self):
-        return _("Situation of '%s'") % self.third
+        return str(self.third)
 
     @classmethod
     def throw_not_allowed(cls):
@@ -1760,11 +1760,13 @@ class Owner(Supporting):
                     payoff_amount = 0.0
                     init_call = None
                     for owner_type in LIST_DEFAULT_ACCOUNTS:
+                        if "condominium-default-owner-account%d" % owner_type not in current_system_condo().get_config_params(None):
+                            continue
                         if not self.is_owner_account_doubled(owner_type, False):
                             account_initial = self.get_total_initial(owner_type)
-                            if account_initial > 0.0001:
+                            if account_initial > 0.001:
                                 payoff_amount += account_initial
-                            elif (account_initial < -0.0001) and check_callfund:
+                            elif (account_initial < -0.001) and check_callfund:
                                 if init_call is None:
                                     init_call = CallFunds(owner=self, num=None, date=current_year.begin, comment=_('Last year report'), status=CallFunds.STATUS_ENDED, supporting=CallFundsSupporting.objects.create(third=self.third))
                                     init_call.save()
@@ -1772,8 +1774,8 @@ class Owner(Supporting):
                                 init_detail.price = abs(account_initial)
                                 init_detail.entry = entries_init[0]
                                 init_detail.save()
-                    if (payoff_amount > 0.0001) and check_payoff:
-                        init_paypoff = Payoff(supporting=self, date=current_year.begin, payer=str(self.third), mode=4,
+                    if (payoff_amount > 0.001) and check_payoff:
+                        init_paypoff = Payoff(supporting=self, date=current_year.begin, payer=str(self.third), mode=Payoff.MODE_OTHER,
                                               reference=_('Last year report'), bank_fee=0)
                         init_paypoff.amount = payoff_amount
                         init_paypoff.entry = entries_init[0]
@@ -1973,6 +1975,12 @@ class Owner(Supporting):
         entry_query &= Q(account__code__regex=self.get_third_mask(owner_type))
         third_total = -1 * get_amount_sum(EntryLineAccount.objects.filter(entry_query).aggregate(Sum('amount')))
         return third_total
+
+    def get_total_payoff_waiting(self):
+        amount = 0
+        for payoff in self.payoff_set.all():
+            amount += float(payoff.amount) * (1 if payoff.supporting.is_revenu else -1)
+        return amount
 
     def get_total(self):
         if self.id is None:

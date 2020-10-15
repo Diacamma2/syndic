@@ -153,17 +153,21 @@ class OwnerEditor(SupportingEditor):
     def _show_call_payoff(self, xfer):
         callfunds = xfer.get_components('callfunds')
         callfunds.actions = []
-        callfunds.colspan = 2
+        callfunds.colspan = 3
         callfunds.add_action(xfer.request, ActionsManage.get_action_url('condominium.CallFunds', 'Show', xfer), close=CLOSE_NO, unique=SELECT_SINGLE)
-        xfer.get_components('payoff').colspan = 2
+        xfer.get_components('payoff').colspan = 3
         xfer.tab = callfunds.tab
         row = xfer.get_max_row() + 1
         btn = XferCompButton('add_multipayoff')
         btn.set_location(callfunds.col, row)
         btn.set_action(xfer.request, ActionsManage.get_action_url('condominium.Owner', 'MultiPay', xfer), modal=FORMTYPE_MODAL, close=CLOSE_NO)
         xfer.add_component(btn)
-        btn = XferCompButton('add_ventilatePayoff')
+        btn = XferCompButton('add_refund')
         btn.set_location(callfunds.col + 1, row)
+        btn.set_action(xfer.request, ActionsManage.get_action_url('condominium.Owner', 'Refund', xfer), modal=FORMTYPE_MODAL, close=CLOSE_NO)
+        xfer.add_component(btn)
+        btn = XferCompButton('add_ventilatePayoff')
+        btn.set_location(callfunds.col + 2, row)
         btn.set_action(xfer.request, ActionsManage.get_action_url('condominium.Owner', 'VentilatePay', xfer), modal=FORMTYPE_MODAL, close=CLOSE_NO)
         xfer.add_component(btn)
         payoff_filter = Q(supporting__is_revenu=True) & Q(supporting__third=xfer.item.third)
@@ -186,7 +190,7 @@ class OwnerEditor(SupportingEditor):
             grid.set_value(payoffid, 'mode', payoff['mode'])
             grid.set_value(payoffid, 'bank_account', payoff['bank_account__designation'])
             grid.set_value(payoffid, 'reference', payoff['reference'])
-        grid.set_location(callfunds.col, row + 1, 2)
+        grid.set_location(callfunds.col, row + 1, 3)
         xfer.add_component(grid)
 
     def show(self, xfer):
