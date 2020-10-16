@@ -85,9 +85,9 @@ def default_setowner_fr(with_lots=True):
     if Params.getvalue("condominium-old-accounting"):
         create_account(['450'], 0, FiscalYear.get_current())
     else:
-        create_account(['4501', '4502', '4503', '4504', '4505'], 0, FiscalYear.get_current())
-    create_account(['120', '103', '105'], 2, FiscalYear.get_current())
-    create_account(['702', '705'], 3, FiscalYear.get_current())
+        create_account(['4501', '4502', '4503', '4504', '4505'], 0, FiscalYear.get_current())  # 17 18 19 20 21
+    create_account(['120', '103', '105'], 2, FiscalYear.get_current())  # 22 23 24
+    create_account(['702', '705'], 3, FiscalYear.get_current())  # 25 26
     set1 = Set.objects.create(name="AAA", budget=1000, revenue_account='701', is_link_to_lots=with_lots, type_load=0)
     _set_budget(set1, '604', 1000)
     set2 = Set.objects.create(name="BBB", budget=100, revenue_account='701', type_load=0)
@@ -104,9 +104,9 @@ def default_setowner_be(with_lots=True):
     RecoverableLoadRatio.objects.create(code='601000', ratio=60)
     RecoverableLoadRatio.objects.create(code='602000', ratio=40)
 
-    create_account(['410000', '410100'], 0, FiscalYear.get_current())
-    create_account(['100000', '160000'], 2, FiscalYear.get_current())
-    create_account(['700100', '701100', '701200'], 3, FiscalYear.get_current())
+    create_account(['410000', '410100'], 0, FiscalYear.get_current())  # 17 18
+    create_account(['100000', '160000'], 2, FiscalYear.get_current())  # 19 20
+    create_account(['700100', '701100', '701200'], 3, FiscalYear.get_current())  # 21 22 23
     set1 = Set.objects.create(name="AAA", is_link_to_lots=with_lots, type_load=0)
     _set_budget(set1, '602000', 1200)
     set2 = Set.objects.create(name="BBB", type_load=0)
