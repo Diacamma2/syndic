@@ -46,7 +46,7 @@ class BelgiumSystemCondo(DefaultSystemCondo):
         Parameter.change_value('condominium-default-owner-account1', correct_accounting_code('410100'))
         Parameter.change_value('condominium-default-owner-account2', correct_accounting_code('410000'))
         Parameter.change_value('condominium-default-owner-account3', correct_accounting_code('410100'))
-        Parameter.change_value('condominium-default-owner-account4', correct_accounting_code(''))
+        Parameter.change_value('condominium-default-owner-account4', correct_accounting_code('410100'))
         Parameter.change_value('condominium-default-owner-account5', correct_accounting_code('410000'))
         Parameter.change_value('condominium-current-revenue-account', correct_accounting_code('701100'))
         Parameter.change_value('condominium-exceptional-revenue-account', correct_accounting_code('700100'))
