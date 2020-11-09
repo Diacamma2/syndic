@@ -308,6 +308,9 @@ class OwnerRefund(XferContainerAcknowledge):
         def get_total_rest_topay(self, ignore_payoff=-1):
             return max(0, self.owner.get_total_payoff_waiting())
 
+        def get_max_payoff(self, ignore_payoff=-1):
+            return 1000000
+
         class Meta(object):
             proxy = True
 
