@@ -821,12 +821,12 @@ class ExpenseTest(PaymentTest):
         self.assert_json_equal('', 'payoff/@0/mode', 6)
         self.assert_json_equal('', 'payoff/@0/amount', 50.0)
         self.assert_json_equal('', 'payoff/@0/reference', "avoir de dépense 2 - abc 123")
-        self.assert_json_equal('', 'payoff/@0/bank_account', None)
+        self.assert_json_equal('', 'payoff/@0/bank_account_ex', None)
         self.assert_json_equal('', 'payoff/@1/date', "2015-06-15")
         self.assert_json_equal('', 'payoff/@1/mode', 6)
         self.assert_json_equal('', 'payoff/@1/amount', 50.0)
         self.assert_json_equal('', 'payoff/@1/reference', "Minimum")
-        self.assert_json_equal('', 'payoff/@1/bank_account', None)
+        self.assert_json_equal('', 'payoff/@1/bank_account_ex', None)
 
         self.factory.xfer = ExpenseShow()
         self.calljson('/diacamma.condominium/expenseShow', {'expense': 5}, False)
@@ -839,7 +839,7 @@ class ExpenseTest(PaymentTest):
         self.assert_json_equal('', 'payoff/@0/mode', 6)
         self.assert_json_equal('', 'payoff/@0/amount', 50.0)
         self.assert_json_equal('', 'payoff/@0/reference', "dépense 1 - abc 123")
-        self.assert_json_equal('', 'payoff/@0/bank_account', None)
+        self.assert_json_equal('', 'payoff/@0/bank_account_ex', None)
 
         self.factory.xfer = OwnerShow()
         self.calljson('/diacamma.condominium/ownerShow', {'owner': 1}, False)
@@ -850,7 +850,7 @@ class ExpenseTest(PaymentTest):
         self.assert_json_equal('', 'payoff/@0/mode', 6)
         self.assert_json_equal('', 'payoff/@0/amount', 50.0)
         self.assert_json_equal('', 'payoff/@0/reference', 'dépense 1 - abc 123')
-        self.assert_json_equal('', 'payoff/@0/bank_account', None)
+        self.assert_json_equal('', 'payoff/@0/bank_account_ex', None)
 
         self.factory.xfer = PayoffDel()
         self.calljson('/diacamma.payoff/payoffDel', {'CONFIRME': 'YES', 'payoff': 1}, False)

@@ -1791,12 +1791,12 @@ class OwnerTest(PaymentTest):
         self.assert_json_equal('', 'payoff/@0/mode', 6)
         self.assert_json_equal('', 'payoff/@0/amount', 75.0)
         self.assert_json_equal('', 'payoff/@0/reference', 'dépense 2 - creation')
-        self.assert_json_equal('', 'payoff/@0/bank_account', None)
+        self.assert_json_equal('', 'payoff/@0/bank_account_ex', None)
         self.assert_json_equal('', 'payoff/@1/date', "2015-09-07")
         self.assert_json_equal('', 'payoff/@1/mode', 6)
         self.assert_json_equal('', 'payoff/@1/amount', 10.0)
         self.assert_json_equal('', 'payoff/@1/reference', 'dépense 1 - opq 666')
-        self.assert_json_equal('', 'payoff/@1/bank_account', None)
+        self.assert_json_equal('', 'payoff/@1/bank_account_ex', None)
 
         self.factory.xfer = OwnerVentilatePay()
         self.calljson('/diacamma.condominium/ownerVentilatePay', {'CONFIRME': 'YES', 'owner': 1}, False)
@@ -1816,7 +1816,7 @@ class OwnerTest(PaymentTest):
         self.assert_json_equal('', 'payoff/@0/mode', 6)
         self.assert_json_equal('', 'payoff/@0/amount', 75.0)
         self.assert_json_equal('', 'payoff/@0/reference', 'dépense 2 - creation')
-        self.assert_json_equal('', 'payoff/@0/bank_account', None)
+        self.assert_json_equal('', 'payoff/@0/bank_account_ex', None)
 
         self.factory.xfer = OwnerVentilatePay()
         self.calljson('/diacamma.condominium/ownerVentilatePay', {'CONFIRME': 'YES', 'owner': 1}, False)
@@ -1836,7 +1836,7 @@ class OwnerTest(PaymentTest):
         self.assert_json_equal('', 'payoff/@0/mode', 6)
         self.assert_json_equal('', 'payoff/@0/amount', 75.0)
         self.assert_json_equal('', 'payoff/@0/reference', 'dépense 2 - creation')
-        self.assert_json_equal('', 'payoff/@0/bank_account', None)
+        self.assert_json_equal('', 'payoff/@0/bank_account_ex', None)
 
     def test_refund_ventilation(self):
         init_compta()
