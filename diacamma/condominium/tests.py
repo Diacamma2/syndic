@@ -639,10 +639,9 @@ class SetOwnerTest(LucteriosTest):
         self.calljson('/diacamma.condominium/setShow', {'set': 1}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'setShow')
         self.assert_count_equal('partition', 2)
-        self.assert_json_equal('', 'partition/@0/value', '55.00')
-        self.assert_json_equal('', 'partition/@0/owner', 'Dalton William')
-        self.assert_json_equal('', 'partition/@1/value', '45.00')
-        self.assert_json_equal('', 'partition/@1/owner', 'Minimum')
+        partitions_value = [(partition['value'], partition['owner']) for partition in self.get_json_path('partition')]
+        partitions_value.sort(key=lambda part: part[0])
+        self.assertEqual(partitions_value, [(45.00, 'Minimum'), (55.00, 'Dalton William')])
 
 
 class ReportTest(PaymentTest):
