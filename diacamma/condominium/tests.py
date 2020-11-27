@@ -42,7 +42,8 @@ from diacamma.accounting.views import ThirdShow, ThirdList, AccountThirdAddModif
 from diacamma.accounting.views_entries import EntryAccountList
 from diacamma.accounting.views_accounts import FiscalYearClose, FiscalYearBegin, FiscalYearReportLastYear
 from diacamma.accounting.views_other import CostAccountingList
-from diacamma.accounting.views_reports import FiscalYearTrialBalance
+from diacamma.accounting.views_reports import FiscalYearTrialBalance,\
+    FiscalYearReportPrint
 from diacamma.accounting.test_tools import initial_thirds_fr, default_compta_fr, default_costaccounting, default_compta_be, initial_thirds_be,\
     check_pdfreport, create_account, set_accounting_system, add_entry, change_legal
 
@@ -53,7 +54,8 @@ from diacamma.payoff.test_tools import default_bankaccount_fr, default_paymentme
 
 from diacamma.condominium.models import PropertyLot, Set, Owner, CallFunds
 from diacamma.condominium.views import OwnerAndPropertyLotList, OwnerAdd, OwnerDel, OwnerShow, PropertyLotAddModify, CondominiumConvert, OwnerVentilatePay,\
-    OwnerLoadCount, OwnerMultiPay, OwnerPayableEmail, OwnerModify, OwnerRefund
+    OwnerLoadCount, OwnerMultiPay, OwnerPayableEmail, OwnerModify, OwnerRefund,\
+    OwnerReport, OwnerAndPropertyLotPrint
 from diacamma.condominium.views_classload import SetList, SetAddModify, SetDel, SetShow, PartitionAddModify, CondominiumConf, SetClose,\
     OwnerLinkAddModify, OwnerLinkDel, RecoverableLoadRatioAddModify, RecoverableLoadRatioDel
 from diacamma.condominium.views_callfunds import CallFundsList, CallFundsAddCurrent, CallFundsTransition, CallFundsShow
@@ -759,6 +761,54 @@ class ReportTest(PaymentTest):
         self.assert_json_equal('', 'report_1/@4/calloffund', {'value': 100.0, 'format': '{[u]}{0}{[/u]}'})
         self.assert_json_equal('', 'report_1/@4/result', {'value': 25.0, 'format': '{[u]}{0}{[/u]}'})
 
+    def test_financial_pdf(self):
+        self.factory.xfer = FiscalYearReportPrint()
+        self.calljson('/diacamma.accounting/fiscalYearReportPrint', {'modulename': 'diacamma.condominium.views_report', 'classname': 'FinancialStatus', "PRINT_MODE": 3}, False)
+        self.assert_observer('core.print', 'diacamma.accounting', 'fiscalYearReportPrint')
+        self.save_pdf()
+
+    def test_general_pdf(self):
+        self.factory.xfer = FiscalYearReportPrint()
+        self.calljson('/diacamma.accounting/fiscalYearReportPrint', {'modulename': 'diacamma.condominium.views_report', 'classname': 'GeneralManageAccounting', "PRINT_MODE": 3}, False)
+        self.assert_observer('core.print', 'diacamma.accounting', 'fiscalYearReportPrint')
+        self.save_pdf()
+
+    def test_current_pdf(self):
+        self.factory.xfer = FiscalYearReportPrint()
+        self.calljson('/diacamma.accounting/fiscalYearReportPrint', {'modulename': 'diacamma.condominium.views_report', 'classname': 'CurrentManageAccounting', "PRINT_MODE": 3}, False)
+        self.assert_observer('core.print', 'diacamma.accounting', 'fiscalYearReportPrint')
+        self.save_pdf()
+
+    def test_exceptionnal_pdf(self):
+        self.factory.xfer = FiscalYearReportPrint()
+        self.calljson('/diacamma.accounting/fiscalYearReportPrint', {'modulename': 'diacamma.condominium.views_report', 'classname': 'ExceptionalManageAccounting', "PRINT_MODE": 3}, False)
+        self.assert_observer('core.print', 'diacamma.accounting', 'fiscalYearReportPrint')
+        self.save_pdf()
+
+    def test_financial_ods(self):
+        self.factory.xfer = FiscalYearReportPrint()
+        self.calljson('/diacamma.accounting/fiscalYearReportPrint', {'modulename': 'diacamma.condominium.views_report', 'classname': 'FinancialStatus', "PRINT_MODE": 2}, False)
+        self.assert_observer('core.print', 'diacamma.accounting', 'fiscalYearReportPrint')
+        self.save_ods()
+
+    def test_general_ods(self):
+        self.factory.xfer = FiscalYearReportPrint()
+        self.calljson('/diacamma.accounting/fiscalYearReportPrint', {'modulename': 'diacamma.condominium.views_report', 'classname': 'GeneralManageAccounting', "PRINT_MODE": 2}, False)
+        self.assert_observer('core.print', 'diacamma.accounting', 'fiscalYearReportPrint')
+        self.save_ods()
+
+    def test_current_ods(self):
+        self.factory.xfer = FiscalYearReportPrint()
+        self.calljson('/diacamma.accounting/fiscalYearReportPrint', {'modulename': 'diacamma.condominium.views_report', 'classname': 'CurrentManageAccounting', "PRINT_MODE": 2}, False)
+        self.assert_observer('core.print', 'diacamma.accounting', 'fiscalYearReportPrint')
+        self.save_ods()
+
+    def test_exceptionnal_ods(self):
+        self.factory.xfer = FiscalYearReportPrint()
+        self.calljson('/diacamma.accounting/fiscalYearReportPrint', {'modulename': 'diacamma.condominium.views_report', 'classname': 'ExceptionalManageAccounting', "PRINT_MODE": 2}, False)
+        self.assert_observer('core.print', 'diacamma.accounting', 'fiscalYearReportPrint')
+        self.save_ods()
+
 
 class OwnerTest(PaymentTest):
 
@@ -1033,6 +1083,36 @@ class OwnerTest(PaymentTest):
         self.assert_json_equal('', 'payment/@1/assignment', "appel de fonds N°2 Minimum")
         self.assert_json_equal('', 'payment/@1/amount', 30.0)
         self.assert_json_equal('', 'payment/@1/mode', 0)
+
+    def test_owner_list_print_pdf(self):
+        add_test_callfunds(False, True)
+        add_test_expenses_fr(False, True)
+        init_compta()
+
+        self.factory.xfer = OwnerAndPropertyLotPrint()
+        self.calljson('/diacamma.condominium/ownerAndPropertyLotPrint', {"PRINT_MODE": 3}, False)
+        self.assert_observer('core.print', 'diacamma.condominium', 'ownerAndPropertyLotPrint')
+        self.save_pdf()
+
+    def test_owner_list_print_ods(self):
+        add_test_callfunds(False, True)
+        add_test_expenses_fr(False, True)
+        init_compta()
+
+        self.factory.xfer = OwnerAndPropertyLotPrint()
+        self.calljson('/diacamma.condominium/ownerAndPropertyLotPrint', {"PRINT_MODE": 2}, False)
+        self.assert_observer('core.print', 'diacamma.condominium', 'ownerAndPropertyLotPrint')
+        self.save_ods()
+
+    def test_owner_situation_print_pdf(self):
+        add_test_callfunds(False, True)
+        add_test_expenses_fr(False, True)
+        init_compta()
+
+        self.factory.xfer = OwnerReport()
+        self.calljson('/diacamma.condominium/ownerReport', {'owner': 1, "PRINT_MODE": 3, 'model': 9}, False)
+        self.assert_observer('core.print', 'diacamma.condominium', 'ownerReport')
+        self.save_pdf()
 
     def test_close_classload(self):
         add_test_callfunds(False, True)
