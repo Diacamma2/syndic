@@ -32,14 +32,12 @@ class ExpenseList(XferListEditor):
     caption = _("Condominium expenses")
 
     def fillresponse_header(self):
-        status_filter = self.getparam('status_filter', Expense.STATUS_BUILDING)
+        status_filter = self.getparam('status_filter', Expense.STATUS_BUILDING_WAITING)
         self.params['status_filter'] = status_filter
         date_filter = self.getparam('date_filter', 0)
         self.fieldnames = Expense.get_default_fields(status_filter)
-        dep_field = self.item.get_field_by_name('status')
-        sel_list = list(dep_field.choices)
         edt = XferCompSelect("status_filter")
-        edt.set_select(sel_list)
+        edt.set_select(Expense.SELECTION_STATUS)
         edt.set_value(status_filter)
         edt.description = _('Filter by type')
         edt.set_location(0, 3)
@@ -54,7 +52,12 @@ class ExpenseList(XferListEditor):
         edt.set_action(self.request, self.return_action(), modal=FORMTYPE_REFRESH, close=CLOSE_NO)
         self.add_component(edt)
 
-        self.filter = Q(status=status_filter)
+        if status_filter == Expense.STATUS_BUILDING_WAITING:
+            self.filter = Q(status=Expense.STATUS_BUILDING) | Q(status=Expense.STATUS_WAITING)
+        elif status_filter != Expense.STATUS_ALL:
+            self.filter = Q(status=status_filter)
+        else:
+            self.filter = Q()
         if date_filter == 0:
             current_year = FiscalYear.get_current()
             self.filter &= Q(date__gte=current_year.begin) & Q(date__lte=current_year.end)
@@ -69,8 +72,8 @@ class ExpenseSearch(XferSavedCriteriaSearchEditor):
     caption = _("Search expense")
 
 
-@ActionsManage.affect_grid(TITLE_CREATE, "images/new.png", condition=lambda xfer, gridname='': xfer.getparam('status_filter', Expense.STATUS_BUILDING) == Expense.STATUS_BUILDING)
-@ActionsManage.affect_show(TITLE_MODIFY, "images/edit.png", close=CLOSE_YES, condition=lambda xfer: xfer.item.status == Expense.STATUS_BUILDING)
+@ActionsManage.affect_grid(TITLE_CREATE, "images/new.png", condition=lambda xfer, gridname='': xfer.getparam('status_filter', Expense.STATUS_BUILDING) in (Expense.STATUS_BUILDING, Expense.STATUS_WAITING, Expense.STATUS_BUILDING_WAITING))
+@ActionsManage.affect_show(TITLE_MODIFY, "images/edit.png", close=CLOSE_YES, condition=lambda xfer: xfer.item.status in (Expense.STATUS_BUILDING, Expense.STATUS_WAITING))
 @MenuManage.describ('condominium.add_expense')
 class ExpenseAddModify(XferAddEditor):
     icon = "expense.png"
@@ -87,6 +90,11 @@ class ExpenseShow(XferShowEditor):
     model = Expense
     field_id = 'expense'
     caption = _("Show expense")
+
+    def fillresponse(self):
+        XferShowEditor.fillresponse(self)
+        if self.item.status == Expense.STATUS_WAITING:
+            self.remove_component('total_rest_topay')
 
 
 @ActionsManage.affect_grid(TITLE_DELETE, "images/delete.png", unique=SELECT_MULTI, condition=lambda xfer, gridname='': xfer.getparam('status_filter', Expense.STATUS_BUILDING) == Expense.STATUS_BUILDING)
@@ -106,7 +114,7 @@ class ExpenseTransition(XferTransition):
     field_id = 'expense'
 
 
-@ActionsManage.affect_grid(_('payoff'), '', close=CLOSE_NO, unique=SELECT_MULTI, condition=lambda xfer, gridname='': xfer.getparam('status_filter', -1) == Expense.STATUS_VALID)
+@ActionsManage.affect_grid(_('payoff'), '', close=CLOSE_NO, unique=SELECT_MULTI, condition=lambda xfer, gridname='': xfer.getparam('status_filter', Expense.STATUS_BUILDING_WAITING) == Expense.STATUS_VALID)
 @MenuManage.describ('payoff.add_payoff')
 class ExpenseMultiPay(XferContainerAcknowledge):
     caption = _("Multi-pay expense")
@@ -118,8 +126,8 @@ class ExpenseMultiPay(XferContainerAcknowledge):
         self.redirect_action(PayoffAddModify.get_action("", ""), params={"supportings": expense, 'repartition': "1"})
 
 
-@ActionsManage.affect_grid(TITLE_ADD, "images/add.png", condition=lambda xfer, gridname='': xfer.item.status == Expense.STATUS_BUILDING)
-@ActionsManage.affect_grid(TITLE_MODIFY, "images/edit.png", unique=SELECT_SINGLE, condition=lambda xfer, gridname='': xfer.item.status == Expense.STATUS_BUILDING)
+@ActionsManage.affect_grid(TITLE_ADD, "images/add.png", condition=lambda xfer, gridname='': xfer.item.status in (Expense.STATUS_BUILDING, Expense.STATUS_WAITING))
+@ActionsManage.affect_grid(TITLE_MODIFY, "images/edit.png", unique=SELECT_SINGLE, condition=lambda xfer, gridname='': xfer.item.status in (Expense.STATUS_BUILDING, Expense.STATUS_WAITING))
 @MenuManage.describ('condominium.add_expense')
 class ExpenseDetailAddModify(XferAddEditor):
     icon = "expense.png"
@@ -129,7 +137,7 @@ class ExpenseDetailAddModify(XferAddEditor):
     caption_modify = _("Modify detail of call")
 
 
-@ActionsManage.affect_grid(TITLE_DELETE, "images/delete.png", unique=SELECT_MULTI, condition=lambda xfer, gridname='': xfer.item.status == Expense.STATUS_BUILDING)
+@ActionsManage.affect_grid(TITLE_DELETE, "images/delete.png", unique=SELECT_MULTI, condition=lambda xfer, gridname='': xfer.item.status in (Expense.STATUS_BUILDING, Expense.STATUS_WAITING))
 @MenuManage.describ('condominium.add_expense')
 class ExpenseDetailDel(XferDelete):
     icon = "expense.png"
@@ -138,7 +146,7 @@ class ExpenseDetailDel(XferDelete):
     caption = _("Delete detail of expense")
 
 
-@ActionsManage.affect_grid(_("Show set"), "diacamma.condominium/images/set.png", unique=SELECT_SINGLE, condition=lambda xfer, gridname='': xfer.item.status == Expense.STATUS_BUILDING)
+@ActionsManage.affect_grid(_("Show set"), "diacamma.condominium/images/set.png", unique=SELECT_SINGLE, condition=lambda xfer, gridname='': xfer.item.status in (Expense.STATUS_BUILDING, Expense.STATUS_WAITING))
 @MenuManage.describ('condominium.change_set')
 class ExpenseDetailShowSet(XferContainerAcknowledge):
     icon = "expense.png"

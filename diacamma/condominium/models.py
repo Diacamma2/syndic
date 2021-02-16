@@ -1205,10 +1205,16 @@ class Expense(Supporting):
     EXPENSETYPE_ASSET = 1
     LIST_EXPENSETYPES = ((EXPENSETYPE_EXPENSE, _('expense')), (EXPENSETYPE_ASSET, _('asset of expense')))
 
+    STATUS_ALL = -2
+    STATUS_BUILDING_WAITING = -1
     STATUS_BUILDING = 0
     STATUS_VALID = 1
     STATUS_ENDED = 2
-    LIST_STATUS = ((STATUS_BUILDING, _('building')), (STATUS_VALID, _('valid')), (STATUS_ENDED, _('ended')))
+    STATUS_WAITING = 3
+    STATUS_CANCEL = 4
+    LIST_STATUS = ((STATUS_BUILDING, _('building')), (STATUS_WAITING, _('waiting')), (STATUS_VALID, _('valid')),
+                   (STATUS_ENDED, _('ended')), (STATUS_CANCEL, _('cancel')))
+    SELECTION_STATUS = ((STATUS_BUILDING_WAITING, str(_('building')) + '+' + str(_('waiting'))),) + LIST_STATUS + ((STATUS_ALL, None),)
 
     num = models.IntegerField(verbose_name=_('numeros'), null=True)
     date = models.DateField(verbose_name=_('date'), null=False)
@@ -1227,9 +1233,9 @@ class Expense(Supporting):
         return "%s %s - %s" % (typetxt, self.num, self.comment)
 
     @classmethod
-    def get_default_fields(cls, status=-1):
+    def get_default_fields(cls, status=STATUS_BUILDING_WAITING):
         fields = ["num", "date", "third", "comment", 'total']
-        if status == cls.STATUS_VALID:
+        if status in (cls.STATUS_WAITING, cls.STATUS_VALID):
             fields.append('total_payed')
         return fields
 
@@ -1261,6 +1267,12 @@ class Expense(Supporting):
         for expensedetail in self.expensedetail_set.all():
             val += currency_round(expensedetail.price)
         return val
+
+    def can_add_pay(self):
+        if self.status == self.STATUS_WAITING:
+            return True
+        else:
+            return Supporting.can_add_pay(self)
 
     def get_current_date(self):
         return self.date
@@ -1300,16 +1312,10 @@ class Expense(Supporting):
             is_close = is_close or ((payoff.entry is not None) and payoff.entry.close)
         return not is_close
 
-    transitionname__reedit = _("Re-edit")
-
-    @transition(field=status, source=STATUS_VALID, target=STATUS_BUILDING, conditions=[lambda item:item.check_if_can_reedit()])
-    def reedit(self, clean_payoff=True):
+    def deleteEntries(self):
         def del_entry(entry_id):
             current_entry = EntryAccount.objects.get(id=entry_id)
             current_entry.delete()
-        if clean_payoff:
-            for payoff in self.payoff_set.all():
-                payoff.delete()
         for detail in self.expensedetail_set.filter(entry__isnull=False):
             old_entityid = detail.entry_id
             detail.entry = None
@@ -1318,22 +1324,51 @@ class Expense(Supporting):
         for entry in self.entries.all():
             del_entry(entry.id)
 
-    transitionname__valid = _("Valid")
+    def assign_num(self, fiscal_year):
+        if self.num is None:
+            val = Expense.objects.filter(date__gte=fiscal_year.begin, date__lte=fiscal_year.end).exclude(status=self.STATUS_BUILDING).aggregate(Max('num'))
+            if val['num__max'] is None:
+                self.num = 1
+            else:
+                self.num = val['num__max'] + 1
 
-    @transition(field=status, source=STATUS_BUILDING, target=STATUS_VALID, conditions=[lambda item:item.get_info_state() == []])
-    def valid(self):
+    transitionname__waited = _("To wait")
+
+    @transition(field=status, source=STATUS_BUILDING, target=STATUS_WAITING, conditions=[lambda item:item.get_info_state() == []])
+    def waited(self):
+        pass
+
+    def valid_execute(self):
         if self.expensetype == self.EXPENSETYPE_EXPENSE:
             is_asset = 1
         else:
             is_asset = -1
         fiscal_year = FiscalYear.get_current()
-        val = Expense.objects.filter(date__gte=fiscal_year.begin, date__lte=fiscal_year.end).exclude(status=0).aggregate(Max('num'))
-        if val['num__max'] is None:
-            self.num = 1
-        else:
-            self.num = val['num__max'] + 1
+        self.assign_num(fiscal_year)
         self.generate_expense_entry(is_asset, fiscal_year)
         self.generate_revenue_entry(is_asset, fiscal_year)
+
+    def can_valide(self):
+        return (self.get_info_state() == []) and (self.expensedetail_set.count() > 0)
+
+    transitionname__valid = _("Valid")
+
+    @transition(field=status, source=STATUS_BUILDING, target=STATUS_VALID, conditions=[lambda item:item.can_valide()])
+    def valid(self):
+        self.valid_execute()
+
+    transitionname__validex = _("Valid")
+
+    @transition(field=status, source=STATUS_WAITING, target=STATUS_VALID, conditions=[lambda item:item.can_valide()])
+    def validex(self):
+        self.valid_execute()
+
+    transitionname__reedit = _("Re-edit")
+
+    @transition(field=status, source=STATUS_VALID, target=STATUS_WAITING, conditions=[lambda item:item.check_if_can_reedit()])
+    def reedit(self):
+        self.deleteEntries()
+        self.assign_num(FiscalYear.get_current())
 
     transitionname__close = _("Closed")
 
@@ -1348,6 +1383,23 @@ class Expense(Supporting):
         for payoff in self.payoff_set.all():
             if payoff.entry is not None:
                 payoff.entry.closed()
+
+    def execute_cancel(self):
+        for payoff in self.payoff_set.all():
+            payoff.delete()
+        self.deleteEntries()
+
+    transitionname__cancelw = _("Cancel")
+
+    @transition(field=status, source=STATUS_WAITING, target=STATUS_CANCEL, conditions=[lambda item:item.check_if_can_reedit()])
+    def cancelw(self):
+        self.execute_cancel()
+
+    transitionname__cancelv = _("Cancel")
+
+    @transition(field=status, source=STATUS_VALID, target=STATUS_CANCEL, conditions=[lambda item:item.check_if_can_reedit()])
+    def cancelv(self):
+        self.execute_cancel()
 
     def get_info_state(self):
         info = []
@@ -2152,12 +2204,12 @@ def convert_accounting(year, thirds_convert):
         if (expense.status == Expense.STATUS_ENDED):
             expense.status = Expense.STATUS_VALID
             expense.save()
-        expense.reedit(clean_payoff=False)
+        expense.reedit()
         expense.num = None
         expense.save()
         expense_list.append(expense)
     for expense in expense_list:
-        expense.valid()
+        expense.validex()
     for pay_off in Payoff.objects.filter(date__gte=year.begin, date__lte=year.end):
         pay_off.save()
 

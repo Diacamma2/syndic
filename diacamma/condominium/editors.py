@@ -324,13 +324,15 @@ class ExpenseEditor(SupportingEditor):
 
     def edit(self, xfer):
         xfer.change_to_readonly('status')
+        if self.item.status == Expense.STATUS_WAITING:
+            xfer.change_to_readonly('expensetype')
 
     def show(self, xfer):
         if self.item.status == Expense.STATUS_BUILDING:
             SupportingEditor.show_third(self, xfer)
             xfer.get_components('date').colspan += 1
             xfer.get_components('expensedetail').colspan += 1
-        else:
+        elif self.item.status != Expense.STATUS_CANCEL:
             SupportingEditor.show(self, xfer)
 
 
