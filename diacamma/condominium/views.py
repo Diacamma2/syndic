@@ -416,6 +416,12 @@ class PaymentDel(XferDelete):
         ids = ids.split(';')
         self.items = Payoff.objects.filter(entry_id__in=ids).distinct()
 
+    def fillresponse(self, owner, begin_date, end_date):
+        XferDelete.fillresponse(self)
+        if self.getparam("CONFIRME", "") != "":
+            currentowner = Owner.objects.get(id=owner)
+            currentowner.ventilatePay(begin_date, end_date)
+
 
 @ActionsManage.affect_grid(TITLE_MODIFY, "images/edit.png", unique=SELECT_SINGLE)
 @ActionsManage.affect_grid(TITLE_ADD, "images/add.png")
@@ -716,6 +722,8 @@ def finalizeyear_condo(xfer):
                 sel.set_location(1, row + 1)
                 xfer.add_component(sel)
         elif xfer.observer_name == "core.acknowledge":
+            for owner in Owner.objects.all():
+                owner.ventilatePay(year.begin, year.end)
             for set_cost in year.setcost_set.filter(year=year, set__is_active=True, set__type_load=0):
                 if ventilate == 0:
                     current_system_condo().ventilate_costaccounting(year, set_cost.set, set_cost.cost_accounting, DEFAULT_ACCOUNT_CURRENT, Params.getvalue("condominium-current-revenue-account"))

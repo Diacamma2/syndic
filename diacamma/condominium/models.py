@@ -1049,6 +1049,8 @@ class CallFunds(LucteriosModel):
         self.delete()
         if last_call is not None:
             self.__dict__ = last_call.__dict__
+        for owner in Owner.objects.all():
+            owner.ventilatePay()
 
     transitionname__close = _("Closed")
 
@@ -1085,6 +1087,8 @@ class CallFunds(LucteriosModel):
             new_call = CallFunds.objects.create(date=date, comment=comment)
             for ident, price in call_details.items():
                 CallDetail.objects.create(callfunds=new_call, type_call=ident[0], set_id=ident[1], designation=ident[2], price=price)
+        for owner in Owner.objects.all():
+            owner.ventilatePay()
 
     def generate_accounting(self, fiscal_year=None):
         if (self.owner is not None) and (self.status == self.STATUS_VALID) and not Params.getvalue("condominium-old-accounting"):
