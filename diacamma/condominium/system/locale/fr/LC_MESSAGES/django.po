@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-02-15 17:16+0000\n"
+"POT-Creation-Date: 2021-03-04 12:14+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -108,11 +108,11 @@ msgstr "code comptable %s non trouvé !"
 msgid "Error in accounting generator!"
 msgstr "Erreur dans la génération comptable !"
 
-#: system/default.py:88 system/default.py:103 system/default.py:106
+#: system/default.py:89 system/default.py:104 system/default.py:107
 msgid "This system condomium is not implemented"
 msgstr "Ce système de copropriété n'est pas implémenté !"
 
-#: system/default.py:94
+#: system/default.py:95
 #, python-format
 msgid "call of funds \"%(type)s\" #%(num)d - %(date)s"
 msgstr "appel de fonds \"%(type)s\" N°%(num)d - %(date)s"

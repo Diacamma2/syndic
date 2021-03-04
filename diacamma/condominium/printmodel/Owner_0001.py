@@ -322,9 +322,54 @@ value = """
 </table>
 
 <text height="10.0" width="150.0" top="180.0" left="20.0" padding="1.0" spacing="1.0" border_color="black" border_style="" border_width="0.2" text_align="left" line_height="11" font_family="sans-serif" font_weight="" font_size="11">
-{[b]}%(payoff)s{[/b]}
+{[b]}%(payments)s{[/b]}
 </text>
 <table height="20.0" width="150.0" top="190.0" left="20.0" padding="1.0" spacing="0.1" border_color="black" border_style="" border_width="0.2">
+    <columns width="25.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
+    {[b]}%(date)s{[/b]}
+    </columns>
+    <columns width="20.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
+    {[b]}%(amount)s{[/b]}
+    </columns>
+    <columns width="20.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
+    {[b]}%(mode)s{[/b]}
+    </columns>
+    <columns width="25.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
+    {[b]}%(bank_account)s{[/b]}
+    </columns>
+    <columns width="30.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
+    {[b]}%(reference)s{[/b]}
+    </columns>
+    <columns width="30.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
+    {[b]}%(assignment)s{[/b]}
+    </columns>
+    <rows data="payments_set">
+        <cell display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="start" line_height="7" font_family="sans-serif" font_weight="" font_size="7">
+#date
+        </cell>
+        <cell display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="start" line_height="7" font_family="sans-serif" font_weight="" font_size="7">
+#amount
+        </cell>
+        <cell display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="start" line_height="7" font_family="sans-serif" font_weight="" font_size="7">
+#mode
+        </cell>
+        <cell display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="start" line_height="7" font_family="sans-serif" font_weight="" font_size="7">
+#bank_account
+        </cell>
+        <cell display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="start" line_height="7" font_family="sans-serif" font_weight="" font_size="7">
+#reference
+        </cell>
+        <cell display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="start" line_height="7" font_family="sans-serif" font_weight="" font_size="7">
+#assignment
+        </cell>
+    </rows>
+</table>
+
+
+<text height="10.0" width="150.0" top="210.0" left="20.0" padding="1.0" spacing="1.0" border_color="black" border_style="" border_width="0.2" text_align="left" line_height="11" font_family="sans-serif" font_weight="" font_size="11">
+{[b]}%(payoffs)s{[/b]}
+</text>
+<table height="20.0" width="150.0" top="220.0" left="20.0" padding="1.0" spacing="0.1" border_color="black" border_style="" border_width="0.2">
     <columns width="25.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
     {[b]}%(date)s{[/b]}
     </columns>
@@ -371,7 +416,8 @@ value = """
                'partition': _('partition'), 'set': _('set'), 'budget': _('budget'), 'expense': _('expense'), 'value': _('tantime'), 'ratio': _('ratio'),
                'ventilated': _('ventilated'), 'recover_load': _('recover. load'), 'total_callfunds': _('total call for funds'), 'rest_to_pay': _('rest to pay'),
                'property': _('property lot'), 'num': _('numeros'), 'value': _('tantime'), 'ratio': _("ratio"), 'description': _('description'),
-               'payoff': _('payoff'), 'amount': _('amount'), 'payer': _('payer'), 'mode': _('mode'), 'bank_account': _('bank account'), 'reference': _('reference'),
+               'payments': _('payments'), 'assignment': _('assignment'),
+               'payoffs': _('additional payoffs'), 'amount': _('amount'), 'payer': _('payer'), 'mode': _('mode'), 'bank_account': _('bank account'), 'reference': _('reference'),
                'total_current_initial': _('current initial state'),
                'total_current_call': _('current total call for funds'),
                'total_current_payoff': _('current total payoff'),

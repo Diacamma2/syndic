@@ -17,7 +17,7 @@ from lucterios.framework.xfergraphic import XferContainerAcknowledge,\
     XferContainerCustom
 from lucterios.framework.tools import FORMTYPE_NOMODAL, ActionsManage, MenuManage, WrapAction
 from lucterios.framework.tools import SELECT_SINGLE, CLOSE_NO, FORMTYPE_REFRESH, FORMTYPE_MODAL, CLOSE_YES, SELECT_MULTI
-from lucterios.framework.error import LucteriosException, IMPORTANT
+from lucterios.framework.error import LucteriosException, IMPORTANT, GRAVE
 from lucterios.framework import signal_and_lock
 from lucterios.CORE.parameters import Params
 from lucterios.CORE.xferprint import XferPrintAction, XferPrintReporting
@@ -32,7 +32,7 @@ from diacamma.payoff.models import PaymentMethod, Payoff, Supporting
 from diacamma.payoff.views import PayoffAddModify, can_send_email
 
 from diacamma.condominium.models import PropertyLot, Owner, Set, SetCost, convert_accounting, OwnerContact, generate_pdfreport,\
-    LIST_DEFAULT_ACCOUNTS
+    LIST_DEFAULT_ACCOUNTS, DEFAULT_ACCOUNT_CURRENT, Payment
 from diacamma.condominium.views_classload import fill_params
 from diacamma.condominium.system import current_system_condo
 
@@ -271,82 +271,6 @@ class OwnerLoadCount(XferContainerCustom):
         self.add_action(WrapAction(_('Close'), 'images/close.png'))
 
 
-@ActionsManage.affect_other(_('payoff'), 'images/add.png', close=CLOSE_NO)
-@MenuManage.describ('payoff.add_payoff')
-class OwnerMultiPay(XferContainerAcknowledge):
-    caption = _("Multi-pay owner")
-    icon = "set.png"
-    model = Owner
-    field_id = 'owner'
-
-    def fillresponse(self, begin_date, end_date):
-        self.item.set_dates(begin_date, end_date)
-        supportings = [str(self.item.id)]
-        for call_fund in self.item.callfunds_set.filter(date__gte=self.item.date_begin, date__lte=self.item.date_end):
-            if call_fund.supporting.get_total_rest_topay() > 0.0001:
-                supportings.append(str(call_fund.supporting_id))
-        self.redirect_action(PayoffAddModify.get_action("", ""), params={"supportings": ";".join(supportings), 'NO_REPARTITION': 'yes', 'repartition': "1"})
-
-
-@ActionsManage.affect_other(_('refund'), 'images/new.png', close=CLOSE_NO, condition=lambda xfer: xfer.item.get_total_payoff_waiting() > 0.001)
-@MenuManage.describ('payoff.add_payoff')
-class OwnerRefund(XferContainerAcknowledge):
-    caption = _("Refund owner")
-    icon = "set.png"
-    model = Owner
-    field_id = 'owner'
-
-    class RefundSupporting(Supporting):
-
-        def __init__(self, owner):
-            Supporting.__init__(self, third=owner.third, is_revenu=False)
-            self.owner = owner
-
-        def __str__(self):
-            return str(self.third)
-
-        def get_total_rest_topay(self, ignore_payoff=-1):
-            return max(0, self.owner.get_total_payoff_waiting())
-
-        def get_max_payoff(self, ignore_payoff=-1):
-            return 1000000
-
-        class Meta(object):
-            proxy = True
-
-    def fillresponse(self, begin_date, end_date):
-        self.item.set_dates(begin_date, end_date)
-        if self.getparam('SAVE') is None:
-            dlg = self.create_custom(model=Payoff)
-            dlg.item.supporting = self.RefundSupporting(self.item)
-            dlg.item.date = self.item.default_date()
-            dlg.params['supportings'] = ''
-            img = XferCompImage('img')
-            img.set_value(self.icon_path())
-            img.set_location(0, 0, 1, 6)
-            dlg.add_component(img)
-            dlg.fill_from_model(1, 0, False)
-            dlg.add_action(self.return_action(TITLE_OK, 'images/ok.png'), params={"SAVE": "YES"})
-            dlg.add_action(WrapAction(TITLE_CANCEL, 'images/cancel.png'))
-        else:
-            Payoff.multi_save([self.item.id], -1 * self.getparam('amount', 0.0), self.getparam('mode', Payoff.MODE_CASH), '',
-                              self.getparam('reference', ''), self.getparam('bank_account', None), self.getparam('date', self.item.default_date()),
-                              self.getparam('fee_bank', 0.0), Payoff.REPARTITION_BYDATE)
-
-
-@ActionsManage.affect_other(_('ventilate'), 'images/edit.png', close=CLOSE_NO)
-@MenuManage.describ('payoff.add_payoff')
-class OwnerVentilatePay(XferContainerAcknowledge):
-    caption = _("Multi-pay owner")
-    icon = "set.png"
-    model = Owner
-    field_id = 'owner'
-
-    def fillresponse(self, begin_date, end_date):
-        if self.confirme(_('Do you want to check ventilate payoff on calls of funds ?')):
-            self.item.ventilatePay(begin_date, end_date)
-
-
 @ActionsManage.affect_grid(TITLE_PRINT, "images/print.png", unique=SELECT_MULTI)
 @ActionsManage.affect_show(TITLE_PRINT, "images/print.png", close=CLOSE_NO)
 @MenuManage.describ('condominium.change_owner')
@@ -395,6 +319,102 @@ class OwnerPayableEmail(XferContainerAcknowledge):
     def fillresponse(self):
         self.redirect_action(ActionsManage.get_action_url('payoff.Supporting', 'Email', self),
                              close=CLOSE_NO, params={'item_name': self.field_id})
+
+
+@ActionsManage.affect_grid(_('payoff'), 'images/add.png', close=CLOSE_NO)
+@MenuManage.describ('payoff.add_payoff')
+class PaymentMultiPay(XferContainerAcknowledge):
+    caption = _("Multi-pay owner")
+    icon = "set.png"
+    model = Payment
+    field_id = 'payments'
+
+    def fillresponse(self, owner, begin_date, end_date):
+        currentowner = Owner.objects.get(id=owner)
+        currentowner.set_dates(begin_date, end_date)
+        supportings = [str(currentowner.id)]
+        for call_fund in currentowner.callfunds_set.filter(date__gte=currentowner.date_begin, date__lte=currentowner.date_end):
+            if call_fund.supporting.get_total_rest_topay() > 0.0001:
+                supportings.append(str(call_fund.supporting_id))
+        self.redirect_action(PayoffAddModify.get_action("", ""), params={"supportings": ";".join(supportings), 'NO_REPARTITION': 'yes', 'repartition': "1"})
+
+
+@ActionsManage.affect_grid(_('refund'), 'images/new.png', close=CLOSE_NO, condition=lambda xfer, gridname: xfer.item.get_total_payoff_waiting() > 0.001)
+@MenuManage.describ('payoff.add_payoff')
+class PaymentRefund(XferContainerAcknowledge):
+    caption = _("Refund owner")
+    icon = "set.png"
+    model = Payment
+    field_id = 'payments'
+
+    class RefundSupporting(Supporting):
+
+        def __init__(self, owner):
+            Supporting.__init__(self, third=owner.third, is_revenu=False)
+            self.owner = owner
+
+        def __str__(self):
+            return str(self.third)
+
+        def get_total_rest_topay(self, ignore_payoff=-1):
+            return max(0, self.owner.get_total_payoff_waiting())
+
+        def get_max_payoff(self, ignore_payoff=-1):
+            return 1000000
+
+        class Meta(object):
+            proxy = True
+
+    def fillresponse(self, owner, begin_date, end_date):
+        currentowner = Owner.objects.get(id=owner)
+        currentowner.set_dates(begin_date, end_date)
+        if self.getparam('SAVE') is None:
+            dlg = self.create_custom(model=Payoff)
+            dlg.item.supporting = self.RefundSupporting(currentowner)
+            dlg.item.date = currentowner.default_date()
+            dlg.params['supportings'] = ''
+            img = XferCompImage('img')
+            img.set_value(self.icon_path())
+            img.set_location(0, 0, 1, 6)
+            dlg.add_component(img)
+            dlg.fill_from_model(1, 0, False)
+            dlg.add_action(self.return_action(TITLE_OK, 'images/ok.png'), params={"SAVE": "YES"})
+            dlg.add_action(WrapAction(TITLE_CANCEL, 'images/cancel.png'))
+        else:
+            Payoff.multi_save([currentowner.id], -1 * self.getparam('amount', 0.0), self.getparam('mode', Payoff.MODE_CASH), '',
+                              self.getparam('reference', ''), self.getparam('bank_account', None), self.getparam('date', currentowner.default_date()),
+                              self.getparam('fee_bank', 0.0), Payoff.REPARTITION_BYDATE)
+
+
+@ActionsManage.affect_grid(_('ventilate'), 'images/edit.png', close=CLOSE_NO)
+@MenuManage.describ('payoff.add_payoff')
+class PaymentVentilatePay(XferContainerAcknowledge):
+    caption = _("Multi-pay owner")
+    icon = "set.png"
+    model = Payment
+    field_id = 'payments'
+
+    def fillresponse(self, owner, begin_date, end_date):
+        currentowner = Owner.objects.get(id=owner)
+        if self.confirme(_('Do you want to check ventilate payoff on calls of funds ?')):
+            currentowner.ventilatePay(begin_date, end_date)
+
+
+@ActionsManage.affect_grid(TITLE_DELETE, "images/delete.png", unique=SELECT_MULTI)
+@MenuManage.describ('condominium.delete_owner')
+class PaymentDel(XferDelete):
+    icon = "owner.png"
+    model = Payment
+    field_id = 'payments'
+    caption = _("Delete payment")
+
+    def _search_model(self):
+        self.model = Payoff
+        ids = self.getparam(self.field_id)
+        if ids is None:
+            raise LucteriosException(GRAVE, _("No selection"))
+        ids = ids.split(';')
+        self.items = Payoff.objects.filter(entry_id__in=ids).distinct()
 
 
 @ActionsManage.affect_grid(TITLE_MODIFY, "images/edit.png", unique=SELECT_SINGLE)
@@ -698,7 +718,7 @@ def finalizeyear_condo(xfer):
         elif xfer.observer_name == "core.acknowledge":
             for set_cost in year.setcost_set.filter(year=year, set__is_active=True, set__type_load=0):
                 if ventilate == 0:
-                    current_system_condo().ventilate_costaccounting(set_cost.set, set_cost.cost_accounting, 1, Params.getvalue("condominium-current-revenue-account"))
+                    current_system_condo().ventilate_costaccounting(year, set_cost.set, set_cost.cost_accounting, DEFAULT_ACCOUNT_CURRENT, Params.getvalue("condominium-current-revenue-account"))
                 set_cost.cost_accounting.close()
             current_system_condo().ventilate_result(year, ventilate)
 

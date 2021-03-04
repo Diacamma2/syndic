@@ -42,16 +42,14 @@ from django_fsm import FSMIntegerField, transition
 from lucterios.framework.models import LucteriosModel, correct_db_field
 from lucterios.framework.model_fields import get_subfield_show, LucteriosVirtualField, LucteriosDecimalField
 from lucterios.framework.error import LucteriosException, IMPORTANT
-from lucterios.framework.tools import convert_date, get_date_formating,\
-    format_to_string
+from lucterios.framework.tools import convert_date, get_date_formating, format_to_string
 from lucterios.framework.signal_and_lock import Signal
 from lucterios.framework.auditlog import auditlog
 from lucterios.CORE.models import Parameter, LucteriosGroup
 from lucterios.CORE.parameters import Params
 from lucterios.contacts.models import AbstractContact
 
-from diacamma.accounting.models import CostAccounting, EntryAccount, ChartsAccount, EntryLineAccount, FiscalYear, Budget, AccountThird, Third,\
-    Journal
+from diacamma.accounting.models import CostAccounting, EntryAccount, ChartsAccount, EntryLineAccount, FiscalYear, Budget, AccountThird, Third, Journal
 from diacamma.accounting.tools import currency_round, current_system_account, get_amount_sum, correct_accounting_code, format_with_devise
 from diacamma.accounting.tools_reports import get_spaces
 from diacamma.payoff.models import Supporting, Payoff, BankTransaction, DepositSlip
@@ -203,15 +201,19 @@ class Set(LucteriosModel):
         for setcost in self.setcost_set.all():
             setcost._check_year()
             try:
-                setcost.cost_accounting.name = self.get_cost_accounting_name(setcost.year)
-                setcost.cost_accounting.save()
-            except (IntegrityError, AttributeError):
-                getLogger("diacamma.condominium").warning("Bad integity for cost accounting name %s", setcost.cost_accounting.name)
-                try:
-                    setcost.cost_accounting.name = "%s [multi #%d]" % (self.get_cost_accounting_name(setcost.year), setcost.cost_accounting.id)
+                new_name = self.get_cost_accounting_name(setcost.year)
+                if setcost.cost_accounting.name != new_name:
+                    setcost.cost_accounting.name = new_name
                     setcost.cost_accounting.save()
-                except (IntegrityError, AttributeError):
-                    getLogger("diacamma.condominium").error("Very bad integity for cost accounting name %s", setcost.cost_accounting.name)
+            except (IntegrityError, AttributeError, LucteriosException):
+                getLogger("diacamma.condominium").warning("Bad integity for cost accounting name '%s'", setcost.cost_accounting.name)
+                try:
+                    new_name = "%s [multi #%d]" % (self.get_cost_accounting_name(setcost.year), setcost.cost_accounting.id)
+                    if setcost.cost_accounting.name != new_name:
+                        setcost.cost_accounting.name = new_name
+                        setcost.cost_accounting.save()
+                except (IntegrityError, AttributeError, LucteriosException):
+                    getLogger("diacamma.condominium").error("Very bad integity for cost accounting name '%s'", setcost.cost_accounting.name)
 
     def create_new_cost(self, year=None):
         if self.type_load == self.TYPELOAD_EXCEPTIONAL:
@@ -377,7 +379,8 @@ class Set(LucteriosModel):
     def close(self, type_owner, initial_code, with_ventil):
         if with_ventil:
             own_set = self.setcost_set.all().order_by('year__begin')[0]
-            current_system_condo().ventilate_costaccounting(self, own_set.cost_accounting, type_owner, initial_code)
+            year = FiscalYear.get_current()
+            current_system_condo().ventilate_costaccounting(year, self, own_set.cost_accounting, type_owner, initial_code)
         for set_cost in self.setcost_set.all():
             set_cost.cost_accounting.close()
         self.is_active = False
@@ -1212,9 +1215,9 @@ class Expense(Supporting):
     STATUS_ENDED = 2
     STATUS_WAITING = 3
     STATUS_CANCEL = 4
-    LIST_STATUS = ((STATUS_BUILDING, _('building')), (STATUS_WAITING, _('waiting')), (STATUS_VALID, _('valid')),
-                   (STATUS_ENDED, _('ended')), (STATUS_CANCEL, _('cancel')))
-    SELECTION_STATUS = ((STATUS_BUILDING_WAITING, str(_('building')) + '+' + str(_('waiting'))),) + LIST_STATUS + ((STATUS_ALL, None),)
+    LIST_STATUS = ((STATUS_BUILDING, _('building expense')), (STATUS_WAITING, _('waiting expense')), (STATUS_VALID, _('valid expense')),
+                   (STATUS_ENDED, _('ended expense')), (STATUS_CANCEL, _('cancel expense')))
+    SELECTION_STATUS = ((STATUS_BUILDING_WAITING, str(_('building expense')) + '+' + str(_('waiting expense'))),) + LIST_STATUS + ((STATUS_ALL, None),)
 
     num = models.IntegerField(verbose_name=_('numeros'), null=True)
     date = models.DateField(verbose_name=_('date'), null=False)
@@ -1564,13 +1567,61 @@ class ExpenseRatio(LucteriosModel):
         ordering = ['owner__third_id']
 
 
+class Payment(LucteriosModel):
+
+    id = models.IntegerField(verbose_name=_('id'), null=False, default=0, db_index=True)
+    date = models.DateField(verbose_name=_('date'), null=False)
+    assignment = models.CharField(_('assignment'), max_length=500, null=True, default='')
+    amount = LucteriosDecimalField(verbose_name=_('amount'), max_digits=10, decimal_places=3, default=0.0,
+                                   validators=[MinValueValidator(0.0), MaxValueValidator(9999999.999)], format_string=lambda: format_with_devise(5))
+    mode = models.IntegerField(verbose_name=_('mode'), choices=Payoff.LIST_MODES, null=False, default=Payoff.MODE_CASH, db_index=True)
+    bank_account = models.CharField(_('bank account'), max_length=200, null=True, default='')
+    reference = models.CharField(_('reference'), max_length=200, null=True, default='')
+
+    @classmethod
+    def get_default_fields(cls, status=-1):
+        return ['date', 'amount', 'mode', 'bank_account', 'reference', 'assignment']
+
+    class Meta(object):
+        abstract = True
+        verbose_name = _('payment')
+        verbose_name_plural = _('payments')
+
+
+class PaymentSet(QuerySet):
+
+    def __init__(self, model=None, query=None, using=None, hints=None):
+        QuerySet.__init__(self, model=Payment, query=query, using=using, hints=hints)
+        self._result_cache = None
+        self.model._meta.pk = Payoff()._meta.pk
+        self.third = self._hints['third']
+        self.date_begin = self._hints['date_begin']
+        self.date_end = self._hints['date_end']
+
+    def _fetch_all(self):
+        if self._result_cache is None:
+            self._result_cache = []
+            payoff_filter = Q(supporting__is_revenu=True) & Q(supporting__third=self.third)
+            payoff_filter &= Q(date__gte=self.date_begin)
+            payoff_filter &= Q(date__lte=self.date_end)
+            for payoff in Payoff.objects.filter(payoff_filter).values('entry_id', 'date', 'reference', 'mode', 'bank_account__designation').annotate(amount=Sum('amount')).order_by('date'):
+                paymentid = payoff['entry_id']
+                self._result_cache.append(Payment(id=paymentid,
+                                                  date=payoff['date'],
+                                                  assignment='{[br/]}'.join([str(supporting.get_final_child()) for supporting in Supporting.objects.filter(payoff__entry=payoff['entry_id'], third=self.third).distinct()]),
+                                                  amount=payoff['amount'],
+                                                  mode=payoff['mode'],
+                                                  bank_account=payoff['bank_account__designation'],
+                                                  reference=payoff['reference']))
+
+
 class Owner(Supporting):
     information = models.CharField(verbose_name=_('information'), max_length=200, null=True, default='')
 
     property_part = LucteriosVirtualField(verbose_name=_('property tantime'), compute_from='get_property_part', format_string="N1;{0}/{1}{[br/]}{2} %")
     thirdinitial = LucteriosVirtualField(verbose_name=_('total owner initial'), compute_from='get_third_initial', format_string=lambda: format_with_devise(5))
     total_all_call = LucteriosVirtualField(verbose_name=_('total call for funds'), compute_from=lambda item: item.get_total_call(-1), format_string=lambda: format_with_devise(5))
-    total_payoff = LucteriosVirtualField(verbose_name=_('total payoff'), compute_from='get_total_payoff_calculated', format_string=lambda: format_with_devise(5))
+    total_payoff = LucteriosVirtualField(verbose_name=_('total payments'), compute_from='get_total_payoff_calculated', format_string=lambda: format_with_devise(5))
     thirdtotal = LucteriosVirtualField(verbose_name=_('total owner'), compute_from='get_thirdtotal', format_string=lambda: format_with_devise(5))
     sumtopay = LucteriosVirtualField(verbose_name=_('sum to pay'), compute_from='get_sumtopay', format_string=lambda: format_with_devise(5))
 
@@ -1720,7 +1771,7 @@ class Owner(Supporting):
                   _("007@Funds"): [('total_cash_advance_call', 'total_cash_advance_payoff'),
                                    ('total_fund_works_call', 'total_fund_works_payoff')
                                    ],
-                  _("008@callfunds"): ['callfunds_set', 'payoff_set'],
+                  _("008@callfunds"): ['callfunds_set', 'total_all_call', 'payments_set', 'total_payoff', 'payoff_set'],
                   }
         if Params.getvalue("condominium-old-accounting"):
             del fields[_("005@Situation")][5]
@@ -1754,7 +1805,7 @@ class Owner(Supporting):
         fields.extend(["exceptionnal_set.set.str", "exceptionnal_set.set.budget_txt", 'exceptionnal_set.set.sumexpense',
                        'exceptionnal_set.total_callfunds',
                        "exceptionnal_set.value", 'exceptionnal_set.ratio', 'exceptionnal_set.ventilated'])
-        fields.extend(['payoff_set'])
+        fields.extend(['payments_set', 'payoff_set'])
         fields.extend(['total_current_call', 'total_current_payoff',
                        'total_current_initial', 'total_current_ventilated',
                        'total_current_regularization', 'total_extra',
@@ -1783,8 +1834,14 @@ class Owner(Supporting):
             return None
         if self.date_begin is None:
             self.set_dates()
-        third_total = get_amount_sum(EntryLineAccount.objects.filter(Q(third=self.third) & Q(entry__date_value__lt=self.date_begin)).aggregate(Sum('amount')))
-        third_total -= get_amount_sum(EntryLineAccount.objects.filter(Q(third=self.third) & Q(entry__date_value=self.date_begin) & Q(entry__journal__id=1)).aggregate(Sum('amount')))
+        third_total = 0
+        year = FiscalYear.objects.filter(begin__lte=self.date_begin, end__gte=self.date_begin).first()
+        if year is not None:
+            new_entries = EntryLineAccount.objects.filter(Q(third=self.third) & Q(entry__year=year) & Q(entry__journal__id=Journal.DEFAULT_LASTYEAR))
+            third_total = -get_amount_sum(new_entries.aggregate(Sum('amount')))
+            if (year.status == FiscalYear.STATUS_BUILDING) and (new_entries.count() == 0):
+                third_total = self.third.get_total(year.last_fiscalyear.end, ignore_close=True) if year.last_fiscalyear is not None else 0
+            third_total -= get_amount_sum(EntryLineAccount.objects.filter(Q(third=self.third) & Q(entry__year=year) & Q(entry__date_value__lt=self.date_begin) & ~Q(entry__journal__id=Journal.DEFAULT_LASTYEAR)).aggregate(Sum('amount')))
         return third_total
 
     def ventilatePay(self, begin_date=None, end_date=None):
@@ -1872,7 +1929,7 @@ class Owner(Supporting):
         for call_fund in self.callfunds_set.filter(date__gte=self.date_begin, date__lte=self.date_end):
             if call_fund.supporting.get_total_rest_topay() > 0.0001:
                 supportings.append(str(call_fund.supporting_id))
-        payoffs_filter = Q(date__gte=self.date_begin) & Q(date__lte=self.date_end) & (Q(entry__close=False) | (Q(entry__entrylineaccount__third=self.third) & Q(entry__date_value=FiscalYear.get_current().begin) & Q(entry__journal__id=1)))
+        payoffs_filter = Q(date__gte=self.date_begin) & Q(date__lte=self.date_end) & (Q(entry__close=False) | (Q(entry__entrylineaccount__third=self.third) & Q(entry__date_value=FiscalYear.get_current().begin) & Q(entry__journal__id=Journal.DEFAULT_LASTYEAR)))
         payoffs = self.payoff_set.filter(payoffs_filter).distinct().order_by('date')
         for payoff in payoffs:
             if payoff.mode != Payoff.MODE_INTERNAL:
@@ -1899,7 +1956,8 @@ class Owner(Supporting):
         query &= Q(account__code__regex=self.get_third_mask(DEFAULT_ACCOUNT_ALL))
         query &= Q(entry__date_value__gte=self.date_begin)
         query &= Q(entry__date_value__lte=self.date_end)
-        query &= ~Q(entry__journal__id=1)
+        query &= ~Q(entry__journal__id=Journal.DEFAULT_LASTYEAR)
+        query &= ~Q(entry__designation=current_system_account().CLOSE_TITLE_THIRD)
         return OwnerEntryLineAccount.objects.filter(query).distinct()
 
     @property
@@ -1908,29 +1966,32 @@ class Owner(Supporting):
             self.set_dates()
         return LoadCountSet(hints={'owner': self})
 
+    @property
+    def payments_set(self):
+        if self.date_begin is None:
+            self.set_dates()
+        return PaymentSet(hints={'third': self.third, 'date_begin': self.date_begin, 'date_end': self.date_end})
+
     def get_thirdtotal(self):
         if self.id is None:
             return None
         if self.date_begin is None:
             self.set_dates()
-        return self.third.get_total(self.date_end)
+        return self.get_third_initial() - self.get_total_call(-1) + self.get_total_payoff_calculated()
 
     def get_sumtopay(self):
         if self.id is None:
             return None
         if self.date_begin is None:
             self.set_dates()
-        return max(0, -1 * self.third.get_total(self.date_end))
+        return max(0, -1 * self.get_thirdtotal())
 
     def get_total_payoff_calculated(self):
         if self.id is None:
             return None
-        if self.date_begin is None:
-            self.set_dates()
-        entry_query = Q(third=self.third) & Q(entry__date_value__gte=self.date_begin)
-        entry_query &= Q(entry__date_value__lte=self.date_end) & Q(amount__lt=0)
-        third_total = -1 * get_amount_sum(EntryLineAccount.objects.filter(entry_query).aggregate(Sum('amount')))
-        third_total += get_amount_sum(EntryLineAccount.objects.filter(Q(third=self.third) & Q(entry__date_value=self.date_begin) & Q(entry__journal__id=1) & Q(amount__lt=0)).aggregate(Sum('amount')))
+        third_total = 0
+        for payment in self.payments_set.all():
+            third_total += float(payment.amount)
         return third_total
 
     @property
@@ -2013,7 +2074,7 @@ class Owner(Supporting):
         third_total = get_amount_sum(EntryLineAccount.objects.filter(entry_query).aggregate(Sum('amount')))
 
         entry_query = Q(third=self.third) & Q(entry__date_value=self.date_begin)
-        entry_query &= Q(entry__journal__id=1) & Q(account__code__regex=self.get_third_mask(owner_type))
+        entry_query &= Q(entry__journal__id=Journal.DEFAULT_LASTYEAR) & Q(account__code__regex=self.get_third_mask(owner_type))
         third_total -= get_amount_sum(EntryLineAccount.objects.filter(entry_query).aggregate(Sum('amount')))
         return third_total
 

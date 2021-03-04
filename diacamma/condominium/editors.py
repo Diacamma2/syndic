@@ -25,23 +25,19 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import unicode_literals
 
 from django.utils.translation import ugettext_lazy as _
-from django.db.models.aggregates import Sum
-from django.db.models import Q
 
 from lucterios.framework.editors import LucteriosEditor
-from lucterios.framework.xfercomponents import XferCompButton, XferCompSelect, XferCompGrid
+from lucterios.framework.xfercomponents import XferCompButton, XferCompSelect
 from lucterios.framework.xferadvance import XferSave, TITLE_DELETE
-from lucterios.framework.tools import ActionsManage, FORMTYPE_MODAL, CLOSE_NO, SELECT_SINGLE, FORMTYPE_REFRESH, SELECT_MULTI, get_format_from_field
+from lucterios.framework.tools import ActionsManage, FORMTYPE_MODAL, CLOSE_NO, SELECT_SINGLE, FORMTYPE_REFRESH, SELECT_MULTI
 from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.CORE.parameters import Params
 from lucterios.contacts.models import CustomField
 
-from diacamma.accounting.tools import current_system_account, format_with_devise
+from diacamma.accounting.tools import current_system_account
 from diacamma.accounting.models import Third, FiscalYear
 from diacamma.payoff.editors import SupportingEditor
-from diacamma.payoff.models import Payoff, Supporting
-from diacamma.condominium.models import Set, CallDetail, CallFunds, CallFundsSupporting, Expense, Owner, RecoverableLoadRatio,\
-    LIST_DEFAULT_ACCOUNTS
+from diacamma.condominium.models import Set, CallDetail, CallFunds, CallFundsSupporting, Expense, Owner, RecoverableLoadRatio, LIST_DEFAULT_ACCOUNTS
 from diacamma.condominium.system import current_system_condo
 
 
@@ -155,43 +151,13 @@ class OwnerEditor(SupportingEditor):
         callfunds.actions = []
         callfunds.colspan = 3
         callfunds.add_action(xfer.request, ActionsManage.get_action_url('condominium.CallFunds', 'Show', xfer), close=CLOSE_NO, unique=SELECT_SINGLE)
-        xfer.get_components('payoff').colspan = 3
-        xfer.tab = callfunds.tab
-        row = xfer.get_max_row() + 1
-        btn = XferCompButton('add_multipayoff')
-        btn.set_location(callfunds.col, row)
-        btn.set_action(xfer.request, ActionsManage.get_action_url('condominium.Owner', 'MultiPay', xfer), modal=FORMTYPE_MODAL, close=CLOSE_NO)
-        xfer.add_component(btn)
-        btn = XferCompButton('add_refund')
-        btn.set_location(callfunds.col + 1, row)
-        btn.set_action(xfer.request, ActionsManage.get_action_url('condominium.Owner', 'Refund', xfer), modal=FORMTYPE_MODAL, close=CLOSE_NO)
-        xfer.add_component(btn)
-        btn = XferCompButton('add_ventilatePayoff')
-        btn.set_location(callfunds.col + 2, row)
-        btn.set_action(xfer.request, ActionsManage.get_action_url('condominium.Owner', 'VentilatePay', xfer), modal=FORMTYPE_MODAL, close=CLOSE_NO)
-        xfer.add_component(btn)
-        payoff_filter = Q(supporting__is_revenu=True) & Q(supporting__third=xfer.item.third)
-        payoff_filter &= Q(date__gte=xfer.item.date_begin)
-        payoff_filter &= Q(date__lte=xfer.item.date_end)
-        grid = XferCompGrid('payment')
-        grid.no_pager = True
-        grid.description = _('payment')
-        grid.add_header('date', _('date'), htype='D')
-        grid.add_header('assignment', _('assignment'))
-        grid.add_header('amount', _('amount'), htype=format_with_devise(7))
-        grid.add_header('mode', _('mode'), htype=get_format_from_field(Payoff.get_field_by_name('mode')))
-        grid.add_header('bank_account', _('bank account'))
-        grid.add_header('reference', _('reference'))
-        for payoff in Payoff.objects.filter(payoff_filter).values('entry_id', 'date', 'reference', 'mode', 'bank_account__designation').annotate(amount=Sum('amount')).order_by('date'):
-            payoffid = payoff['entry_id']
-            grid.set_value(payoffid, 'date', payoff['date'])
-            grid.set_value(payoffid, 'assignment', '{[br/]}'.join([str(supporting.get_final_child()) for supporting in Supporting.objects.filter(payoff__entry=payoff['entry_id'], third=xfer.item.third).distinct()]))
-            grid.set_value(payoffid, 'amount', payoff['amount'])
-            grid.set_value(payoffid, 'mode', payoff['mode'])
-            grid.set_value(payoffid, 'bank_account', payoff['bank_account__designation'])
-            grid.set_value(payoffid, 'reference', payoff['reference'])
-        grid.set_location(callfunds.col, row + 1, 3)
-        xfer.add_component(grid)
+        payments = xfer.get_components('payments')
+        payments.colspan = 3
+        payments.move_action('diacamma.condominium/paymentDel', -1)
+        payoff = xfer.get_components('payoff')
+        payoff.colspan = 3
+        payoff.actions = []
+        payoff.description = _('additional payoffs')
 
     def show(self, xfer):
         xfer.params['supporting'] = self.item.id
@@ -277,6 +243,7 @@ class CallFundsEditor(LucteriosEditor):
             finally:
                 xfer.item = old_item
                 xfer.model = old_model
+            xfer.get_components('payoff').actions = []
         if self.item.status == CallFunds.STATUS_BUILDING:
             grid = xfer.get_components("calldetail")
             grid.delete_header('total_amount')

@@ -32,7 +32,8 @@ from lucterios.framework.tools import get_date_formating
 from diacamma.accounting.tools import currency_round
 from diacamma.accounting.models import FiscalYear, EntryAccount, EntryLineAccount, ChartsAccount
 
-from diacamma.condominium.models import CallDetail, Owner, PropertyLot
+from diacamma.condominium.models import CallDetail, Owner, PropertyLot,\
+    DEFAULT_ACCOUNT_EXCEPTIONNEL
 from re import match
 
 
@@ -105,14 +106,13 @@ class DefaultSystemCondo(object):
     def generate_expense_for_expense(self, expense, is_asset, fiscal_year):
         raise LucteriosException(IMPORTANT, _('This system condomium is not implemented'))
 
-    def ventilate_costaccounting(self, own_set, cost_accounting, type_owner, initial_code):
-        if type_owner == 2:
+    def ventilate_costaccounting(self, fiscal_year, own_set, cost_accounting, type_owner, initial_code):
+        if type_owner == DEFAULT_ACCOUNT_EXCEPTIONNEL:
             result = currency_round(CallDetail.objects.filter(set=own_set).aggregate(sum=Sum('price'))['sum'])
         else:
             result = cost_accounting.get_total_revenue()
         result -= cost_accounting.get_total_expense()
         if abs(result) > 0.0001:
-            fiscal_year = FiscalYear.get_current()
             close_entry = EntryAccount(year=fiscal_year, designation=_("Ventilation for %s") % own_set, journal_id=5)
             close_entry.check_date()
             close_entry.save()

@@ -42,7 +42,7 @@ from diacamma.condominium.views_callfunds import CallFundsList, CallFundsAddModi
     CallFundsShow, CallDetailAddModify, CallFundsTransition, CallFundsPrint, CallFundsAddCurrent, CallFundsPayableEmail
 from diacamma.condominium.test_tools import default_setowner_fr, old_accounting, default_setowner_be, add_test_callfunds
 from diacamma.condominium.models import Set, CallFunds
-from diacamma.condominium.views import OwnerVentilatePay, OwnerShow
+from diacamma.condominium.views import PaymentVentilatePay, OwnerShow
 
 
 class CallFundsTest(LucteriosTest):
@@ -326,7 +326,7 @@ class CallFundsTest(LucteriosTest):
         self.assert_json_equal('', 'calldetail/@0/owner_part', "35.00")
         self.assert_json_equal('', 'calldetail/@0/price', 87.50)
         self.assert_count_equal('payoff', 0)
-        self.assert_count_equal('#payoff/actions', 3)
+        self.assert_count_equal('#payoff/actions', 0)
         self.assert_json_equal('LABELFORM', 'status', 1)
         self.assert_json_equal('LABELFORM', 'total', 87.50)
 
@@ -719,7 +719,7 @@ class CallFundsTest(LucteriosTest):
         self.assert_json_equal('', 'calldetail/@2/type_call_ex', 'fonds travaux')
 
         self.assert_count_equal('payoff', 0)
-        self.assert_count_equal('#payoff/actions', 3)
+        self.assert_count_equal('#payoff/actions', 0)
         self.assert_json_equal('LABELFORM', 'status', 1)
         self.assert_json_equal('LABELFORM', 'total', 175.00)
 
@@ -886,9 +886,9 @@ class CallFundsTest(LucteriosTest):
         self.assertEqual(0.00, ChartsAccount.get_current_total_from_code('512'), '512')
         self.assertEqual(-60.00, ChartsAccount.get_current_total_from_code('531'), '531')
 
-        self.factory.xfer = OwnerVentilatePay()
-        self.calljson('/diacamma.condominium/ownerVentilatePay', {'CONFIRME': 'YES', 'owner': 1}, False)
-        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'ownerVentilatePay')
+        self.factory.xfer = PaymentVentilatePay()
+        self.calljson('/diacamma.condominium/paymentVentilatePay', {'CONFIRME': 'YES', 'owner': 1}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'paymentVentilatePay')
 
         self.assertEqual(-270.00, ChartsAccount.get_current_total_from_code('4501'), '4501')
         self.assertEqual(-180.00, ChartsAccount.get_current_total_from_code('4502'), '4502')
@@ -1375,7 +1375,7 @@ class CallFundsBelgiumTest(LucteriosTest):
         self.assert_count_equal('#calldetail/actions', 0)
         self.assert_json_equal('', 'calldetail/@0/type_call_ex', 'charge courante')
         self.assert_count_equal('payoff', 0)
-        self.assert_count_equal('#payoff/actions', 3)
+        self.assert_count_equal('#payoff/actions', 0)
         self.assert_json_equal('LABELFORM', 'status', 1)
         self.assert_json_equal('LABELFORM', 'total', 87.50)
 
