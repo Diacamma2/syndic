@@ -1759,8 +1759,8 @@ class Owner(Supporting):
         fields = {"": [((_('name'), 'third'),), ],
                   _("001@Information"): [],
                   _("002@Lots"): ['propertylot_set'],
-                  _("003@Contacts"): ['ownercontact_set'],
-                  _("004@Accounting"): ['thirdinitial', 'entryline_set', 'thirdtotal', 'sumtopay'],
+                  _("003@callfunds"): ['callfunds_set', 'total_all_call', 'payments_set', 'total_payoff', 'payoff_set'],
+                  _("004@Contacts"): ['ownercontact_set'],
                   _("005@Situation"): [('partition_set',),
                                        'total_current_initial',
                                        ('total_current_call', 'total_current_payoff'),
@@ -1775,7 +1775,7 @@ class Owner(Supporting):
                   _("007@Funds"): [('total_cash_advance_call', 'total_cash_advance_payoff'),
                                    ('total_fund_works_call', 'total_fund_works_payoff')
                                    ],
-                  _("008@callfunds"): ['callfunds_set', 'total_all_call', 'payments_set', 'total_payoff', 'payoff_set'],
+                  _("008@Accounting"): ['thirdinitial', 'entryline_set', 'thirdtotal', 'sumtopay'],
                   }
         if Params.getvalue("condominium-old-accounting"):
             del fields[_("005@Situation")][5]
