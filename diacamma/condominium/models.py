@@ -459,8 +459,6 @@ class OwnerEntryLineAccount(EntryLineAccount):
 
 
 class LoadCount(LucteriosModel):
-
-    id = models.IntegerField(verbose_name=_('id'), null=False, default=0, db_index=True)
     designation = models.TextField(_('designation'), null=False, default="")
     total = LucteriosDecimalField(_('total'), null=False, max_digits=10, decimal_places=3, default=0.0,
                                   validators=[MinValueValidator(0.0), MaxValueValidator(9999999.999)], format_string=lambda: format_with_devise(5))
@@ -475,7 +473,8 @@ class LoadCount(LucteriosModel):
         return ['designation', 'total', 'ratio', 'ventilated', 'recoverable_load']
 
     class Meta(object):
-        abstract = True
+        managed = False
+        default_permissions = []
         verbose_name = _('load count')
         verbose_name_plural = _('load counts')
 
@@ -1572,8 +1571,6 @@ class ExpenseRatio(LucteriosModel):
 
 
 class Payment(LucteriosModel):
-
-    id = models.IntegerField(verbose_name=_('id'), null=False, default=0, db_index=True)
     date = models.DateField(verbose_name=_('date'), null=False)
     assignment = models.CharField(_('assignment'), max_length=500, null=True, default='')
     amount = LucteriosDecimalField(verbose_name=_('amount'), max_digits=10, decimal_places=3, default=0.0,
@@ -1587,7 +1584,8 @@ class Payment(LucteriosModel):
         return ['date', 'amount', 'mode', 'bank_account', 'reference', 'assignment']
 
     class Meta(object):
-        abstract = True
+        managed = False
+        default_permissions = []
         verbose_name = _('payment')
         verbose_name_plural = _('payments')
 
