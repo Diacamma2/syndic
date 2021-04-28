@@ -10,7 +10,7 @@ import lucterios.framework.model_fields
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('payoff', '0011_auto_20210428_1414'),
+        ('payoff', '0010_fee_account'),
         ('condominium', '0016_recoverableloadratio'),
     ]
 
