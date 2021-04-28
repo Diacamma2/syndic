@@ -722,8 +722,7 @@ def finalizeyear_condo(xfer):
                 sel.set_location(1, row + 1)
                 xfer.add_component(sel)
         elif xfer.observer_name == "core.acknowledge":
-            for owner in Owner.objects.all():
-                owner.ventilatePay(year.begin, year.end)
+            Owner.ventilate_pay_all(year.begin, year.end)
             for set_cost in year.setcost_set.filter(year=year, set__is_active=True, set__type_load=0):
                 if ventilate == 0:
                     current_system_condo().ventilate_costaccounting(year, set_cost.set, set_cost.cost_accounting, DEFAULT_ACCOUNT_CURRENT, Params.getvalue("condominium-current-revenue-account"))

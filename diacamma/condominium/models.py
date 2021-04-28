@@ -473,7 +473,6 @@ class LoadCount(LucteriosModel):
         return ['designation', 'total', 'ratio', 'ventilated', 'recoverable_load']
 
     class Meta(object):
-        managed = False
         default_permissions = []
         verbose_name = _('load count')
         verbose_name_plural = _('load counts')
@@ -1584,7 +1583,6 @@ class Payment(LucteriosModel):
         return ['date', 'amount', 'mode', 'bank_account', 'reference', 'assignment']
 
     class Meta(object):
-        managed = False
         default_permissions = []
         verbose_name = _('payment')
         verbose_name_plural = _('payments')
@@ -1863,10 +1861,10 @@ class Owner(Supporting):
     def check_initial_operation(self):
         current_year = FiscalYear.get_current()
         if current_year.status != 2:
-            entries_init = EntryAccount.objects.filter(Q(entrylineaccount__third=self.third) & Q(date_value=current_year.begin) & Q(journal__id=1)).distinct()
-            if len(entries_init) > 0:
-                check_payoff = (len(Payoff.objects.filter((Q(supporting=self) | Q(supporting__callfundssupporting__third=self.third)) & Q(entry__in=entries_init))) == 0)
-                check_callfund = (len(CallDetail.objects.filter(entry__in=entries_init, callfunds__owner=self)) == 0)
+            entries_init_first = EntryAccount.objects.filter(Q(entrylineaccount__third=self.third) & Q(date_value=current_year.begin) & Q(journal__id=1)).distinct().first()
+            if entries_init_first is not None:
+                check_payoff = (len(Payoff.objects.filter((Q(supporting=self) | Q(supporting__callfundssupporting__third=self.third)) & Q(entry=entries_init_first))) == 0)
+                check_callfund = (len(CallDetail.objects.filter(entry=entries_init_first, callfunds__owner=self)) == 0)
                 if check_payoff or check_callfund:
                     payoff_amount = 0.0
                     init_call = None
@@ -1883,13 +1881,13 @@ class Owner(Supporting):
                                     init_call.save()
                                 init_detail = CallDetail(callfunds=init_call, set=None, designation=_('Last year report'), type_call=owner_type - 1)
                                 init_detail.price = abs(account_initial)
-                                init_detail.entry = entries_init[0]
+                                init_detail.entry = entries_init_first
                                 init_detail.save()
                     if (payoff_amount > 0.001) and check_payoff:
                         init_paypoff = Payoff(supporting=self, date=current_year.begin, payer=str(self.third), mode=Payoff.MODE_OTHER,
                                               reference=_('Last year report'), bank_fee=0)
                         init_paypoff.amount = payoff_amount
-                        init_paypoff.entry = entries_init[0]
+                        init_paypoff.entry = entries_init_first
                         init_paypoff.save(do_generate=False)
 
     def _deventilate_payoff(self, support_query):
@@ -1938,7 +1936,7 @@ class Owner(Supporting):
                 if Payoff.multi_save(supportings=supportings, amount=payoff.amount, mode=payoff.mode,
                                      payer=payoff.payer, reference=payoff.reference,
                                      bank_account=payoff.bank_account_id if payoff.bank_account_id is not None else 0,
-                                     date=payoff.date, bank_fee=payoff.bank_fee, repartition=1,
+                                     date=payoff.date, bank_fee=payoff.bank_fee, repartition=Payoff.REPARTITION_BYDATE,
                                      entry=payoff.entry if (payoff.entry_id is not None) and payoff.entry.close else None):
                     if payoff.entry.close:
                         payoff.entry = None
@@ -2214,9 +2212,9 @@ class Owner(Supporting):
         return None
 
     @classmethod
-    def ventilate_pay_all(cls):
+    def ventilate_pay_all(cls, begin_date=None, end_date=None):
         for owner in cls.objects.all():
-            owner.ventilatePay()
+            owner.ventilatePay(begin_date=begin_date, end_date=end_date)
 
     def delete_linked_supporting(self, payoff):
         target_item = payoff.linked_payoff.supporting.get_final_child()
