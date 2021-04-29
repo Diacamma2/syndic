@@ -2,8 +2,6 @@
 
 import django.core.validators
 from django.db import migrations, models
-import django.db.models.deletion
-import django_fsm
 import lucterios.framework.model_fields
 
 
