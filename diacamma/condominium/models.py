@@ -92,6 +92,9 @@ class Set(LucteriosModel):
         LucteriosModel.__init__(self, *args, **kwargs)
         self.date_begin = None
         self.date_end = None
+        self.is_compute_sum_values = False
+        self.expense_sum = 0.0
+        self.recovery_load_sum = 0.0
 
     def set_dates(self, begin_date=None, end_date=None):
         if begin_date is None:
@@ -332,22 +335,28 @@ class Set(LucteriosModel):
             res = Decimal(0.0)
         return res
 
-    def get_expenselist(self):
-        if self.date_begin is None:
-            self.set_dates()
-        return self.expensedetail_set.filter(expense__date__gte=self.date_begin, expense__date__lte=self.date_end)
+    def compute_sum_values(self):
+        if not self.is_compute_sum_values:
+            self.is_compute_sum_values = True
+            self.expense_sum = 0.0
+            self.recovery_load_sum = 0.0
+            if self.date_begin is None:
+                self.set_dates()
+            entryline_filter = Q(account__type_of_account=ChartsAccount.TYPE_EXPENSE)
+            entryline_filter &= Q(entry__date_value__gte=self.date_begin) & Q(entry__date_value__lte=self.date_end)
+            entryline_filter &= Q(costaccounting__setcost__set=self)
+            for entry in EntryLineAccount.objects.filter(entryline_filter).distinct():
+                recovery_load_ratio = RecoverableLoadRatio.objects.filter(code=entry.account.code).first()
+                self.expense_sum += float(entry.amount)
+                if recovery_load_ratio is not None:
+                    load_ratio = recovery_load_ratio.ratio
+                    self.recovery_load_sum += float(entry.amount) * float(load_ratio) / 100.0
 
     def get_sumexpense(self):
         if self.id is None:
             return None
-        total = 0
-        for expense_detail in self.get_expenselist():
-            if expense_detail.expense.status != Expense.STATUS_BUILDING:
-                if expense_detail.expense.expensetype == Expense.EXPENSETYPE_EXPENSE:
-                    total += expense_detail.price
-                else:
-                    total -= expense_detail.price
-        return total
+        self.compute_sum_values()
+        return self.expense_sum
 
     def refresh_ratio_link_lots(self):
         if self.is_link_to_lots:
@@ -592,6 +601,7 @@ class Partition(LucteriosModel):
 
     def __init__(self, *args, **kwargs):
         LucteriosModel.__init__(self, *args, **kwargs)
+        self.is_compute_values = False
         self.ventilated_value = 0.0
         self.recovery_load_value = 0.0
 
@@ -620,26 +630,16 @@ class Partition(LucteriosModel):
             self.set.set_dates(xfer.getparam("begin_date"), xfer.getparam("end_date"))
 
     def compute_values(self):
-        self.ventilated_value = 0.0
-        self.recovery_load_value = 0.0
-        ratio = self.get_ratio()
-        if abs(ratio) > 0.01:
-            try:
-                year = FiscalYear.objects.get(begin__lte=self.set.date_end, end__gte=self.set.date_end)
-            except (ObjectDoesNotExist, ValueError):
-                year = FiscalYear.get_current()
-                if (year is None) or (self.set is None) or (self.set.date_end is None) or (self.set.date_end < year.begin):
-                    return 0
-            recovery_load_result = 0
-            self.ventilated_result = 0
-            for entry in EntryLineAccount.objects.filter(Q(account__type_of_account=4) & (Q(entry__year=year) | Q(entry__year__isnull=True)) & Q(costaccounting__setcost__set=self.set)).distinct():
-                recovery_load_ratio = RecoverableLoadRatio.objects.filter(code=entry.account.code)
-                self.ventilated_result += float(entry.amount)
-                if len(recovery_load_ratio) > 0:
-                    load_ratio = recovery_load_ratio[0].ratio
-                    recovery_load_result += float(entry.amount) * float(load_ratio) / 100.0
-            self.ventilated_value = self.ventilated_result * ratio / 100.0
-            self.recovery_load_value = recovery_load_result * ratio / 100.0
+        if not self.is_compute_values:
+            self.is_compute_values = True
+            ratio = self.get_ratio()
+            if abs(ratio) > 0.01:
+                self.set.compute_sum_values()
+                self.ventilated_value = self.set.expense_sum * ratio / 100.0
+                self.recovery_load_value = self.set.recovery_load_sum * ratio / 100.0
+            else:
+                self.ventilated_value = 0.0
+                self.recovery_load_value = 0.0
 
     def get_ventilated(self):
         if self.id is None:

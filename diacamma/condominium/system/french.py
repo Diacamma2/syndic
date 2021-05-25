@@ -119,7 +119,7 @@ class FrenchSystemCondo(DefaultSystemCondo):
         if revenue_account is None:
             raise LucteriosException(IMPORTANT, _("code account %s unknown!") % revenue_code)
         price = currency_round(expense_detail.price)
-        new_entry = EntryAccount.objects.create(year=fiscal_year, date_value=expense_detail.expense.date, designation=expense_detail.__str__(), journal=Journal.objects.get(id=3))
+        new_entry = EntryAccount.objects.create(year=fiscal_year, date_value=expense_detail.expense.date, designation=expense_detail.__str__(), journal=Journal.objects.get(id=Journal.DEFAULT_SELLING))
         EntryLineAccount.objects.create(account=revenue_account, amount=is_asset * price, entry=new_entry, costaccounting=cost_accounting)
         for ratio in expense_detail.expenseratio_set.all():
             third_account = expense_detail.expense.get_third_account(current_system_account().get_societary_mask(), fiscal_year, ratio.owner.third)
@@ -146,7 +146,7 @@ class FrenchSystemCondo(DefaultSystemCondo):
             reserve_account = ChartsAccount.get_account(reserve_code, fiscal_year)
             if revenue_account is None:
                 raise LucteriosException(IMPORTANT, _("code account %s unknown!") % reserve_code)
-            new_entry = EntryAccount.objects.create(year=fiscal_year, date_value=expense.expense.date, designation=expense.__str__(), journal=Journal.objects.get(id=3))
+            new_entry = EntryAccount.objects.create(year=fiscal_year, date_value=expense.expense.date, designation=expense.__str__(), journal=Journal.objects.get(id=Journal.DEFAULT_SELLING))
             for detail in expense.expensedetail_set.all():
                 detail.generate_ratio(is_asset)
                 if detail.set.type_load == 1:
@@ -165,7 +165,7 @@ class FrenchSystemCondo(DefaultSystemCondo):
 
     def generate_expense_for_expense(self, expense, is_asset, fiscal_year):
         third_account = expense.get_third_account(current_system_account().get_provider_mask(), fiscal_year)
-        new_entry = EntryAccount.objects.create(year=fiscal_year, date_value=expense.date, designation=expense.__str__(), journal=Journal.objects.get(id=2))
+        new_entry = EntryAccount.objects.create(year=fiscal_year, date_value=expense.date, designation=expense.__str__(), journal=Journal.objects.get(id=Journal.DEFAULT_BUYING))
         total = 0
         for detail in expense.expensedetail_set.all():
             detail_account = ChartsAccount.get_account(detail.expense_account, fiscal_year)
