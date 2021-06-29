@@ -66,7 +66,8 @@ class BelgiumSystemCondo(DefaultSystemCondo):
                        'condominium-current-revenue-account', 'condominium-exceptional-revenue-account',
                        'condominium-advance-revenue-account', 'condominium-fundforworks-revenue-account',
                        'condominium-exceptional-reserve-account', 'condominium-advance-reserve-account',
-                       'condominium-fundforworks-reserve-account', 'condominium-mode-current-callfunds']
+                       'condominium-fundforworks-reserve-account', 'condominium-mode-current-callfunds',
+                       'condominium-payoff-calloffunds']
         return param_lists
 
     def get_param_titles(self, names):

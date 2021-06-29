@@ -243,7 +243,8 @@ class CallFundsEditor(LucteriosEditor):
             finally:
                 xfer.item = old_item
                 xfer.model = old_model
-            xfer.get_components('payoff').actions = []
+            if Params.getvalue('condominium-payoff-calloffunds') is False:
+                xfer.get_components('payoff').actions = []
         if self.item.status == CallFunds.STATUS_BUILDING:
             grid = xfer.get_components("calldetail")
             grid.delete_header('total_amount')

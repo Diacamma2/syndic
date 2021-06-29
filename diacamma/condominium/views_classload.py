@@ -251,7 +251,7 @@ class SetClose(XferContainerAcknowledge):
                 lbl = XferCompCheck('ventilate')
                 lbl.set_value(ventilate)
                 lbl.set_location(1, 2)
-                lbl.description = 'Do you want to ventilate this amount for each owner?'
+                lbl.description = _('Do you want to ventilate this amount for each owner?')
                 dlg.add_component(lbl)
                 dlg.add_action(self.return_action(TITLE_OK, 'images/ok.png'), modal=FORMTYPE_MODAL, close=CLOSE_YES, params={'CLOSE': 'YES'})
                 dlg.add_action(WrapAction(TITLE_CANCEL, 'images/cancel.png'))

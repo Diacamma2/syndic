@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-03-29 08:12+0000\n"
+"POT-Creation-Date: 2021-06-29 15:48+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,92 +18,92 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: system/belgium.py:73
+#: system/belgium.py:74
 msgid "default current owner account"
 msgstr "compte courant de proprietaire par défaut"
 
-#: system/belgium.py:73
+#: system/belgium.py:74
 msgid "default working owner account"
 msgstr "compte de travaux de proprietaire par défaut"
 
-#: system/belgium.py:74
+#: system/belgium.py:75
 msgid "default rolling owner account"
 msgstr "compte de roulement de proprietaire par défaut"
 
-#: system/belgium.py:74
+#: system/belgium.py:75
 msgid "default reserved owner account"
 msgstr "compte de reserve de proprietaire par défaut"
 
-#: system/belgium.py:75
+#: system/belgium.py:76
 msgid "current revenue account"
 msgstr "compte de revenu des courants"
 
-#: system/belgium.py:75
+#: system/belgium.py:76
 msgid "working revenue account"
 msgstr "compte de revenu des travaux"
 
-#: system/belgium.py:76
+#: system/belgium.py:77
 #, fuzzy
 #| msgid "working revenue account"
 msgid "rolling revenue account"
 msgstr "compte de revenu des travaux"
 
-#: system/belgium.py:76
+#: system/belgium.py:77
 #, fuzzy
 #| msgid "current revenue account"
 msgid "reserved revenue account"
 msgstr "compte de revenu des courants"
 
-#: system/belgium.py:77
+#: system/belgium.py:78
 msgid "working reserved account"
 msgstr "compte de réserve des travaux"
 
-#: system/belgium.py:77
+#: system/belgium.py:78
 msgid "rolling reserved account"
 msgstr "compte de réserve des roulements"
 
-#: system/belgium.py:78
+#: system/belgium.py:79
 msgid "reserved account"
 msgstr "compte de réserve"
 
-#: system/belgium.py:87 system/belgium.py:103 system/french.py:70
+#: system/belgium.py:88 system/belgium.py:104 system/french.py:70
 #: system/french.py:87
 msgid "current"
 msgstr "charge courante"
 
-#: system/belgium.py:87
+#: system/belgium.py:88
 msgid "working"
 msgstr "charge de travaux"
 
-#: system/belgium.py:87
+#: system/belgium.py:88
 msgid "rolling"
 msgstr "roulement"
 
-#: system/belgium.py:87
+#: system/belgium.py:88
 msgid "reserved"
 msgstr "réserve"
 
-#: system/belgium.py:101 system/french.py:85
+#: system/belgium.py:102 system/french.py:85
 #, python-format
 msgid "Call of funds #%(num)d of year from %(begin)s to %(end)s"
 msgstr "Appel de fonds N°%(num)d de l'exercice du %(begin)s au %(end)s"
 
-#: system/belgium.py:103 system/french.py:87
+#: system/belgium.py:104 system/french.py:87
 #, python-format
 msgid "%(type)s - #%(num)d"
 msgstr "%(type)s - N°%(num)d"
 
-#: system/belgium.py:119 system/french.py:105
+#: system/belgium.py:120 system/french.py:105
 msgid "incorrect account for call of found"
 msgstr "compte incorrect pour l'appel de fonds !"
 
-#: system/belgium.py:139 system/french.py:120 system/french.py:144
+#: system/belgium.py:140 system/french.py:120 system/french.py:144
 #: system/french.py:148 system/french.py:173
 #, python-format
 msgid "code account %s unknown!"
 msgstr "code comptable %s non trouvé !"
 
-#: system/belgium.py:146 system/french.py:129 system/french.py:162
+#: system/belgium.py:147 system/french.py:129 system/french.py:162
 #: system/french.py:180
 msgid "Error in accounting generator!"
 msgstr "Erreur dans la génération comptable !"
