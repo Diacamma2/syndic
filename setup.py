@@ -63,5 +63,5 @@ setup(
         "diacamma.condominium.migrations": ['*'],
         "diacamma.condominium": ['build', 'images/*', 'locale/*/*/*', 'help/*'],
     },
-    install_requires=["lucterios ~=2.5", "lucterios-contacts ~=2.5", "diacamma-financial ~=2.5"],
+    install_requires=["lucterios ~=2.6", "lucterios-contacts ~=2.6", "diacamma-financial ~=2.6"],
 )
