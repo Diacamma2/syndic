@@ -1905,7 +1905,7 @@ class Owner(Supporting):
             if export_payoff['mode'] != Payoff.MODE_INTERNAL:
                 entry = EntryAccount.objects.get(id=export_payoff['entry_id'])
                 amount = get_amount_sum(entry.entrylineaccount_set.filter(account__code__regex=current_system_account().get_cash_mask()).aggregate(Sum('amount')))
-                if Payoff.multi_save(supportings=[str(self.id)], amount=abs(amount), mode=export_payoff['mode'],
+                if Payoff.multi_save(supportings=[str(self.id)], amount=amount, mode=export_payoff['mode'],
                                      payer=export_payoff['payer'], reference=export_payoff['reference'],
                                      bank_account=export_payoff['bank_account_id'] if export_payoff['bank_account_id'] is not None else 0,
                                      date=export_payoff['date'], bank_fee=export_payoff['bank_fee'], repartition=1,
@@ -2083,7 +2083,7 @@ class Owner(Supporting):
         if self.date_begin is None:
             self.set_dates()
         entry_query = Q(third=self.third) & Q(entry__date_value__gte=self.date_begin) & Q(entry__year=self.current_year)
-        entry_query &= Q(entry__date_value__lte=self.date_end) & Q(entry__journal__id=Journal.DEFAULT_PAYMENT)
+        entry_query &= Q(entry__date_value__lte=self.date_end) & (Q(entry__journal__id=Journal.DEFAULT_OTHER) | Q(entry__journal__id=Journal.DEFAULT_PAYMENT))
         entry_query &= Q(account__code__regex=self.get_third_mask(owner_type))
         third_total = -1 * get_amount_sum(EntryLineAccount.objects.filter(entry_query).aggregate(Sum('amount')))
         return third_total
