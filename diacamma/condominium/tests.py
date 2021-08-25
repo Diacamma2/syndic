@@ -2580,7 +2580,6 @@ class OwnerTestOldAccounting(PaymentTest):
         self.factory.xfer = OwnerShow()
         self.calljson('/diacamma.condominium/ownerShow', {'owner': 1}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'ownerShow')
-        self.print_json('entryline')
         self.assert_json_equal('LABELFORM', 'thirdinitial', 0.0)
         self.assert_json_equal('LABELFORM', 'total_current_initial', 0.00)
         self.assert_json_equal('LABELFORM', 'total_current_call', 131.25)
