@@ -1982,9 +1982,13 @@ class Owner(Supporting):
     def get_thirdtotal(self):
         if self.id is None:
             return None
-        if self.date_begin is None:
-            self.set_dates()
-        return self.get_third_initial() - self.get_total_call(-1) + self.get_total_payoff()
+        if Params.getvalue("condominium-old-accounting"):
+            if self.date_begin is None:
+                self.set_dates()
+            return self.get_third_initial() - self.get_total_call(-1) + self.get_total_payoff()
+        else:
+            period_amount = get_amount_sum(self.entryline_set.aggregate(Sum('amount')))
+            return self.get_third_initial() - period_amount
 
     def get_sumtopay(self):
         if self.id is None:
