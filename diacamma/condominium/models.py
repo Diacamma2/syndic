@@ -422,7 +422,7 @@ class Set(LucteriosModel):
 
 
 class SetCost(LucteriosModel):
-    year = models.ForeignKey(FiscalYear, verbose_name=_('fiscal year'), null=True, default=None, db_index=True, on_delete=models.PROTECT)
+    year = models.ForeignKey(FiscalYear, verbose_name=_('fiscal year'), null=True, default=None, db_index=True, on_delete=models.CASCADE)
     set = models.ForeignKey(Set, verbose_name=_('class load'), null=False, default=None, db_index=True, on_delete=models.CASCADE)
     cost_accounting = models.ForeignKey(CostAccounting, verbose_name=_('cost accounting'),
                                         null=True, default=None, db_index=True, on_delete=models.PROTECT)
