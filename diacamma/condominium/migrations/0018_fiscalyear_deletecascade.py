@@ -9,7 +9,6 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('accounting', '0016_fiscalyear_deletecascade'),
-        ('payoff', '0011_auto_20210924_0859'),
         ('condominium', '0017_proxy_models'),
     ]
 
