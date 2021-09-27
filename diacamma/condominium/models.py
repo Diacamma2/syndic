@@ -29,13 +29,13 @@ from decimal import Decimal
 
 from django.db import models
 from django.db.models import Q
-from django.db.models.aggregates import Sum, Max
+from django.db.models.aggregates import Sum, Max, Count
 from django.db.utils import IntegrityError
 from django.db.models.query import QuerySet
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.utils.translation import ugettext_lazy as _
 from django.utils import formats
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, FieldDoesNotExist
 from django.conf import settings
 from django_fsm import FSMIntegerField, transition
 
@@ -1326,8 +1326,11 @@ class Expense(Supporting):
             detail.entry = None
             detail.save()
             del_entry(old_entityid)
-        for entry in self.entries.all():
-            del_entry(entry.id)
+        try:
+            for entry in self.entries.all():
+                del_entry(entry.id)
+        except FieldDoesNotExist:
+            pass
 
     def assign_num(self, fiscal_year):
         if self.num is None:
@@ -2322,6 +2325,26 @@ def condominium_addon_search(model, search_result):
             search_result.append(convert_owner_to_model(prop_search))
         res = True
     return res
+
+
+@Signal.decorate('delete_fiscalyear')
+def condominium_deleteyear(year):
+    for callfunds in CallFunds.objects.filter(date__gte=year.begin, date__lte=year.end):
+        callfunds.delete()
+    for callfunds in CallFunds.objects.filter(calldetail__entry__year=year):
+        callfunds.delete()
+    for expensedetail in ExpenseDetail.objects.filter(entry__year=year):
+        expensedetail.delete()
+    for expense in Expense.objects.filter(date__gte=year.begin, date__lte=year.end):
+        expense.deleteEntries()
+        expense.delete()
+    for expense in Expense.objects.annotate(detailnb=Count('expensedetail')).filter(detailnb=0):
+        expense.deleteEntries()
+        expense.delete()
+    for setcost in SetCost.objects.filter(cost_accounting__year=year):
+        setcost.delete()
+    for setcost in SetCost.objects.filter(year=year):
+        setcost.delete()
 
 
 @Signal.decorate('check_report')
