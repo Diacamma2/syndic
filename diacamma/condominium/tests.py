@@ -1583,7 +1583,7 @@ class OwnerTest(PaymentTest):
         self.assert_json_equal('', 'entryline/@4/entry.date_value', "2015-07-21")
         self.assert_json_equal('', 'entryline/@4/credit', 27.93)
         self.assert_json_equal('LABELFORM', 'total_all_call', 176.25)
-        self.assert_json_equal('LABELFORM', 'total_payoff', 130.0) # 159.18 
+        self.assert_json_equal('LABELFORM', 'total_payoff', 130.0)  # 159.18
         self.assert_json_equal('LABELFORM', 'thirdtotal', -17.07)
         self.assert_json_equal('LABELFORM', 'sumtopay', 17.07)
         self.assert_count_equal('callfunds', 2)
@@ -1886,7 +1886,7 @@ class OwnerTest(PaymentTest):
         self.assert_json_equal('LABELFORM', 'thirdinitial', 29.18)
         self.assert_count_equal('entryline', 5)
         self.assert_json_equal('LABELFORM', 'total_all_call', 176.25)
-        self.assert_json_equal('LABELFORM', 'total_payoff', 130.0) # 159.18
+        self.assert_json_equal('LABELFORM', 'total_payoff', 130.0)  # 159.18
         self.assert_json_equal('LABELFORM', 'thirdtotal', -17.07)
         self.assert_json_equal('LABELFORM', 'sumtopay', 17.07)
         self.assert_count_equal('callfunds', 2)
@@ -2236,7 +2236,7 @@ class OwnerBelgiumTest(PaymentTest):
         self.assert_json_equal('', 'entryline/@4/entry.date_value', "2015-07-21")
         self.assert_json_equal('', 'entryline/@4/credit', 2.07)
         self.assert_json_equal('LABELFORM', 'total_all_call', 176.25)
-        self.assert_json_equal('LABELFORM', 'total_payoff', 130) # 159.18
+        self.assert_json_equal('LABELFORM', 'total_payoff', 130)  # 159.18
         self.assert_json_equal('LABELFORM', 'thirdtotal', -17.07)
         self.assert_json_equal('LABELFORM', 'sumtopay', 17.07)
         self.assert_count_equal('callfunds', 2)
