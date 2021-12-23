@@ -138,7 +138,7 @@ class FinancialStatus(CondominiumReport):
         self.add_component(self.grid)
 
     def fill_part_of_grid(self, side, current_filter, index_begin, title, sign_value=None, with_third=False):
-        data_line, total1, total2, _totalb = convert_query_to_account(self.filter & current_filter, self.lastfilter & current_filter, sign_value=sign_value, with_third=with_third)
+        data_line, total1, total2, _totalb, _account_codes = convert_query_to_account(self.filter & current_filter, self.lastfilter & current_filter, sign_value=sign_value, with_third=with_third)
         add_cell_in_grid(self.grid, index_begin, side, get_spaces(5) + '{[u]}%s{[/u]}' % title)
         line_idx = index_begin + 1
         line_idx = fill_grid(self.grid, line_idx, side, data_line)
@@ -215,7 +215,7 @@ class ManageAccounting(CondominiumReport):
         self.add_component(self.grid)
 
     def fill_part_of_grid(self, current_filter, query_budget, index_begin, title, sign_value=None):
-        data_line, total1, total2, totalb = convert_query_to_account(self.filter & current_filter, self.lastfilter & current_filter, query_budget=query_budget, sign_value=sign_value)
+        data_line, total1, total2, totalb, _account_codes = convert_query_to_account(self.filter & current_filter, self.lastfilter & current_filter, query_budget=query_budget, sign_value=sign_value)
         add_cell_in_grid(self.grid, index_begin, 'design', get_spaces(5) + '{[u]}%s{[/u]}' % title)
         line_idx = index_begin + 1
         for data_item in data_line:
