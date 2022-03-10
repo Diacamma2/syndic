@@ -1,0 +1,8 @@
+include:
+  - project: 'lucterios2/lucterios'
+    ref: master
+    file: '/utils/gitlab-ci_template.yml'
+
+variables:
+  APPLICATION_TARGET: diacamma
+  MANUAL_PATH: diacamma/syndic/pdf/build_fr/latex/DiacammaSyndic.pdf
