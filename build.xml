@@ -1,8 +1,29 @@
 <project name="Diacamma2.syndic" default="all" basedir=".">
-	<property name="core.path" value="${basedir}/../lct-core"/>
-	<property name="contact.path" value="${basedir}/../lct-contacts" />
-        <property name="document.path" value="${basedir}/../lct-documents" />
-	<property name="financial.path" value="${basedir}/../financial" />
+	<taskdef resource="net/sf/antcontrib/antlib.xml">
+		<classpath>
+			<pathelement location="/usr/share/java/lib/ant-contrib-0.6.jar" />
+		</classpath>
+	</taskdef>
+	<exec executable="python3" outputproperty="packages.path" failifexecutionfails="false" errorproperty="">
+		<arg value="-m" />
+		<arg value="site" />
+		<arg value="--user-site" />
+	</exec>	
+	<if>
+		<available file="${basedir}/../lct-core" />
+		<then>
+			<property name="core.path" value="${basedir}/../lct-core" />
+			<property name="contact.path" value="${basedir}/../lct-contacts" />
+		    <property name="document.path" value="${basedir}/../lct-documents" />
+			<property name="financial.path" value="${basedir}/../financial" />
+		</then>
+		<else>
+			<property name="core.path" value="${packages.path}" />
+			<property name="contact.path" value="${packages.path}" />
+		    <property name="document.path" value="${packages.path}" />
+			<property name="financial.path" value="${packages.path}" />
+		</else>
+	</if>
 	<property name="project.packagepath" value="diacamma/syndic,diacamma/condominium" />
 	<property name="project.packagename" value="diacamma.syndic diacamma.condominium" />
 	<property name="project.name" value="diacamma" />
@@ -13,5 +34,13 @@
 	<property name="project.test.source" value="${basedir}/diacamma,${financial.path}/diacamma"/>
 	<property name="project.test.omit" value="${core.path}/lucterios/install/*"/>
 	<property name="project.test.include" value="${core.path}/lucterios/CORE/*.py,${core.path}/lucterios/framework/*.py"/>
-    <import file="${core.path}/utils/lib_build.xml"/>
+	<if>
+		<available file="${basedir}/utils/lib_build.xml" />
+		<then>
+			<import file="${basedir}/utils/lib_build.xml" />
+		</then>
+		<else>
+			<import file="${basedir}/../lct-core/utils/lib_build.xml" />
+		</else>
+	</if>
 </project>
