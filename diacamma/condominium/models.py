@@ -47,7 +47,7 @@ from lucterios.framework.signal_and_lock import Signal
 from lucterios.framework.auditlog import auditlog
 from lucterios.CORE.models import Parameter, LucteriosGroup
 from lucterios.CORE.parameters import Params
-from lucterios.contacts.models import AbstractContact
+from lucterios.contacts.models import AbstractContact, CustomField, CustomizeObject
 
 from diacamma.accounting.models import CostAccounting, EntryAccount, ChartsAccount, EntryLineAccount, FiscalYear, Budget, AccountThird, Third, Journal
 from diacamma.accounting.tools import currency_round, current_system_account, get_amount_sum, correct_accounting_code, format_with_devise
@@ -765,20 +765,64 @@ class PartitionExceptional(Partition):
         ordering = ['owner__third_id', 'set_id']
 
 
-class PropertyLot(LucteriosModel):
-    num = models.IntegerField(verbose_name=_('numeros'), null=False, default=1)
+class PropertyLotCustomField(LucteriosModel):
+    property = models.ForeignKey('PropertyLot', verbose_name=_('property'), null=False, on_delete=models.CASCADE)
+    field = models.ForeignKey(CustomField, verbose_name=_('field'), null=False, on_delete=models.CASCADE)
     value = models.IntegerField(_('tantime'), default=0, validators=[MinValueValidator(0), MaxValueValidator(1000000)])
+
+    @classmethod
+    def get_total_part(cls, field):
+        total = cls.objects.filter(field=field).aggregate(sum=Sum('value'))
+        if ('sum' in total.keys()) and (total['sum'] is not None):
+            return total['sum']
+        else:
+            return 0
+
+    def get_ratio(self):
+        total = self.get_total_part(self.field)
+        if abs(total) < 0.01:
+            return 0.0
+        else:
+            return 100.0 * float(self.value) / float(total)
+
+    def get_data(self):
+        return "%d (%.1f %%)" % (self.value, self.get_ratio())
+
+    def get_auditlog_object(self):
+        return self.property.get_final_child()
+
+    class Meta(object):
+        verbose_name = _('custom field value')
+        verbose_name_plural = _('custom field values')
+        default_permissions = []
+
+
+class PropertyLot(LucteriosModel, CustomizeObject):
+    CustomFieldClass = PropertyLotCustomField
+    FieldName = 'property'
+
+    num = models.IntegerField(verbose_name=_('numeros'), null=False, default=1)
+    value = models.IntegerField(_('main tantime'), default=0, validators=[MinValueValidator(0), MaxValueValidator(1000000)])
     description = models.TextField(_('description'), null=True, default="")
     owner = models.ForeignKey('condominium.Owner', verbose_name=_('owner'), null=False, db_index=True, on_delete=models.CASCADE)
 
-    ratio = LucteriosVirtualField(verbose_name=_("ratio"), compute_from='get_ratio', format_string='N1;{0} %')
+    ratio = LucteriosVirtualField(verbose_name=_("main ratio"), compute_from='get_ratio', format_string='N1;{0} %')
+    value_ratio = LucteriosVirtualField(verbose_name=_("main tantime"), compute_from='get_value_ratio')
+
+    def __init__(self, *args, **kwargs):
+        LucteriosModel.__init__(self, *args, **kwargs)
+        CustomizeObject.__init__(self)
 
     def __str__(self):
         return "[%s] %s" % (self.num, self.description)
 
     @classmethod
     def get_default_fields(cls):
-        return ["num", "value", 'ratio', "description", "owner"]
+        fields_desc = ["num", "value_ratio"]
+        for cf_name, cf_model in CustomField.get_fields(cls):
+            fields_desc.append((cf_model.name, cf_name))
+        fields_desc.extend(["description", "owner"])
+        return fields_desc
 
     @classmethod
     def get_edit_fields(cls):
@@ -798,6 +842,15 @@ class PropertyLot(LucteriosModel):
             return 0.0
         else:
             return 100.0 * float(self.value) / float(total)
+
+    def get_value_ratio(self):
+        return "%d (%.1f %%)" % (self.value, self.ratio)
+
+    def _convert_model_for_attr(self, cf_model, ccf_model):
+        if hasattr(self, 'mother'):
+            return CustomizeObject._convert_model_for_attr(self, cf_model, ccf_model)
+        else:
+            return ccf_model.get_data()
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         LucteriosModel.save(self, force_insert=force_insert, force_update=force_update, using=using, update_fields=update_fields)

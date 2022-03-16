@@ -36,6 +36,8 @@ from lucterios.CORE.views import ObjectMerge
 from lucterios.mailing.models import Message
 from lucterios.mailing.test_tools import decode_b64
 from lucterios.contacts.views_contacts import IndividualList
+from lucterios.contacts.models import CustomField
+from lucterios.contacts.views import CustomFieldAddModify, CustomFieldDel
 
 from diacamma.accounting.models import EntryAccount, FiscalYear, Third, AccountThird
 from diacamma.accounting.views import ThirdShow, ThirdList, AccountThirdAddModify
@@ -52,7 +54,7 @@ from diacamma.payoff.views import PayableShow, PayableEmail, PayoffAddModify
 from diacamma.payoff.views_conf import paramchange_payoff
 from diacamma.payoff.test_tools import default_bankaccount_fr, default_paymentmethod, PaymentTest, default_bankaccount_be
 
-from diacamma.condominium.models import PropertyLot, Set, Owner, CallFunds
+from diacamma.condominium.models import PropertyLot, Set, Owner, CallFunds, PropertyLotCustomField
 from diacamma.condominium.views import OwnerAndPropertyLotList, OwnerAdd, OwnerDel, OwnerShow, PropertyLotAddModify, CondominiumConvert, PaymentVentilatePay,\
     OwnerLoadCount, PaymentMultiPay, OwnerPayableEmail, OwnerModify, PaymentRefund,\
     OwnerReport, OwnerAndPropertyLotPrint
@@ -360,13 +362,115 @@ class SetOwnerTest(LucteriosTest):
         self.assert_count_equal('accountthird', 3)
         self.assert_json_equal('', 'accountthird/@2/code', '450')
 
+    def test_add_secondarykeys(self):
+        default_setowner_fr(with_lots=False)
+        self.factory.xfer = OwnerAndPropertyLotList()
+        self.calljson('/diacamma.condominium/ownerAndPropertyLotList', {}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'ownerAndPropertyLotList')
+        self.assert_count_equal('owner', 3)
+        self.assert_grid_equal('propertylot', {"num": "N°", "value_ratio": "tantième principal", "description": "description", "owner": "propriétaire"}, 0)  # nb=5
+        self.assert_grid_equal('custom_field', {"name": "nom"}, 0)
+
+        self.factory.xfer = CustomFieldAddModify()
+        self.calljson('/lucterios.contacts/customFieldAddModify', {'basic_model': 'condominium.PropertyLot', 'custom_editor_title': 'Clef secondaire', 'custom_type': 1}, False)
+        self.assert_observer('core.custom', 'lucterios.contacts', 'customFieldAddModify')
+        self.assert_count_equal('', 3)
+        self.assert_json_equal('LABELFORM', 'modelname', 'condominium.PropertyLot')
+        self.assert_json_equal('EDIT', 'name', '')
+
+        self.factory.xfer = CustomFieldAddModify()
+        self.calljson('/lucterios.contacts/customFieldAddModify',
+                      {'SAVE': 'YES', "name": "second", "kind": '1', 'modelname': 'condominium.PropertyLot'}, False)
+        self.assert_observer('core.acknowledge', 'lucterios.contacts', 'customFieldAddModify')
+
+        self.factory.xfer = OwnerAndPropertyLotList()
+        self.calljson('/diacamma.condominium/ownerAndPropertyLotList', {}, False)
+        self.assert_count_equal('custom_field', 1)
+        self.assert_json_equal('', 'custom_field/@0/name', 'second')
+        self.assert_grid_equal('propertylot', {"num": "N°", "value_ratio": "tantième principal", "custom_1": "second", "description": "description", "owner": "propriétaire"}, 0)
+
+        self.factory.xfer = CustomFieldAddModify()
+        self.calljson('/lucterios.contacts/customFieldAddModify',
+                      {'SAVE': 'YES', "name": "the second", "kind": '1', 'modelname': 'condominium.PropertyLot', 'custom_field': 1}, False)
+        self.assert_observer('core.acknowledge', 'lucterios.contacts', 'customFieldAddModify')
+
+        self.factory.xfer = OwnerAndPropertyLotList()
+        self.calljson('/diacamma.condominium/ownerAndPropertyLotList', {}, False)
+        self.assert_count_equal('custom_field', 1)
+        self.assert_json_equal('', 'custom_field/@0/name', 'the second')
+        self.assert_grid_equal('propertylot', {"num": "N°", "value_ratio": "tantième principal", "custom_1": "the second", "description": "description", "owner": "propriétaire"}, 0)
+
+        self.factory.xfer = PropertyLotAddModify()
+        self.calljson('/diacamma.condominium/propertyLotAddModify', {}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'propertyLotAddModify')
+        self.assert_count_equal('', 6)
+        self.assert_json_equal('FLOAT', 'value', 0)
+        self.assert_json_equal('FLOAT', 'custom_1', 0)
+
+        self.factory.xfer = PropertyLotAddModify()
+        self.calljson('/diacamma.condominium/propertyLotAddModify',
+                      {'SAVE': 'YES', "num": "1", "value": 800, "description": 'Apart A', 'owner': 1, 'custom_1': 600}, False)
+
+        self.factory.xfer = PropertyLotAddModify()
+        self.calljson('/diacamma.condominium/propertyLotAddModify',
+                      {'SAVE': 'YES', "num": "2", "value": 200, "description": 'Apart B', 'owner': 2, 'custom_1': 400}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'propertyLotAddModify')
+
+        self.factory.xfer = OwnerAndPropertyLotList()
+        self.calljson('/diacamma.condominium/ownerAndPropertyLotList', {}, False)
+        self.assert_count_equal('propertylot', 2)
+        self.assert_json_equal('', 'propertylot/@0/num', '1')
+        self.assert_json_equal('', 'propertylot/@0/value_ratio', "800 (80.0 %)")
+        self.assert_json_equal('', 'propertylot/@0/custom_1', "600 (60.0 %)")
+        self.assert_json_equal('', 'propertylot/@0/description', 'Apart A')
+        self.assert_json_equal('', 'propertylot/@0/owner', 'Minimum')
+        self.assert_json_equal('', 'propertylot/@1/num', '2')
+        self.assert_json_equal('', 'propertylot/@1/value_ratio', "200 (20.0 %)")
+        self.assert_json_equal('', 'propertylot/@1/custom_1', "400 (40.0 %)")
+        self.assert_json_equal('', 'propertylot/@1/description', 'Apart B')
+        self.assert_json_equal('', 'propertylot/@1/owner', 'Dalton William')
+
+        self.factory.xfer = PropertyLotAddModify()
+        self.calljson('/diacamma.condominium/propertyLotAddModify',
+                      {'SAVE': 'YES', "num": "2", "value": 400, "description": 'Apart B', 'owner': 2, 'custom_1': 200, 'propertylot': 2}, False)
+
+        self.factory.xfer = OwnerAndPropertyLotList()
+        self.calljson('/diacamma.condominium/ownerAndPropertyLotList', {}, False)
+        self.assert_count_equal('propertylot', 2)
+        self.assert_json_equal('', 'propertylot/@0/num', '1')
+        self.assert_json_equal('', 'propertylot/@0/value_ratio', "800 (66.7 %)")
+        self.assert_json_equal('', 'propertylot/@0/custom_1', "600 (75.0 %)")
+        self.assert_json_equal('', 'propertylot/@0/description', 'Apart A')
+        self.assert_json_equal('', 'propertylot/@0/owner', 'Minimum')
+        self.assert_json_equal('', 'propertylot/@1/num', '2')
+        self.assert_json_equal('', 'propertylot/@1/value_ratio', "400 (33.3 %)")
+        self.assert_json_equal('', 'propertylot/@1/custom_1', "200 (25.0 %)")
+        self.assert_json_equal('', 'propertylot/@1/description', 'Apart B')
+        self.assert_json_equal('', 'propertylot/@1/owner', 'Dalton William')
+
+        self.factory.xfer = CustomFieldDel()
+        self.calljson('/lucterios.contacts/customFieldDel', {'CONFIRME': 'YES', 'custom_field': 1}, False)
+        self.assert_observer('core.acknowledge', 'lucterios.contacts', 'customFieldDel')
+
+        self.factory.xfer = OwnerAndPropertyLotList()
+        self.calljson('/diacamma.condominium/ownerAndPropertyLotList', {}, False)
+        self.assert_count_equal('custom_field', 0)
+        self.assert_grid_equal('propertylot', {"num": "N°", "value_ratio": "tantième principal", "description": "description", "owner": "propriétaire"}, 2)
+        self.assert_json_equal('', 'propertylot/@0/value_ratio', "800 (66.7 %)")
+        self.assert_json_equal('', 'propertylot/@0/description', 'Apart A')
+        self.assert_json_equal('', 'propertylot/@0/owner', 'Minimum')
+        self.assert_json_equal('', 'propertylot/@1/num', '2')
+        self.assert_json_equal('', 'propertylot/@1/value_ratio', "400 (33.3 %)")
+        self.assert_json_equal('', 'propertylot/@1/description', 'Apart B')
+        self.assert_json_equal('', 'propertylot/@1/owner', 'Dalton William')
+
     def test_add_propertylot(self):
         default_setowner_fr(with_lots=False)
         self.factory.xfer = OwnerAndPropertyLotList()
         self.calljson('/diacamma.condominium/ownerAndPropertyLotList', {}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'ownerAndPropertyLotList')
         self.assert_count_equal('owner', 3)
-        self.assert_grid_equal('propertylot', {"num": "N°", "value": "tantième", "ratio": "ratio", "description": "description", "owner": "propriétaire"}, 0)  # nb=5
+        self.assert_grid_equal('propertylot', {"num": "N°", "value_ratio": "tantième principal", "description": "description", "owner": "propriétaire"}, 0)  # nb=5
 
         self.factory.xfer = PropertyLotAddModify()
         self.calljson('/diacamma.condominium/propertyLotAddModify', {}, False)
@@ -385,8 +489,8 @@ class SetOwnerTest(LucteriosTest):
         self.assert_count_equal('owner', 3)
         self.assert_count_equal('propertylot', 1)
         self.assert_json_equal('', 'propertylot/@0/num', '1')
-        self.assert_json_equal('', 'propertylot/@0/value', 100.0)
-        self.assert_json_equal('', 'propertylot/@0/ratio', 100.0)
+        self.assert_json_equal('', 'propertylot/@0/value_ratio', "100 (100.0 %)")
+        self.assert_json_equal('', 'propertylot/@0/description', 'Apart A')
         self.assert_json_equal('', 'propertylot/@0/owner', 'Minimum')
 
         self.factory.xfer = PropertyLotAddModify()
@@ -394,13 +498,13 @@ class SetOwnerTest(LucteriosTest):
                       {'SAVE': 'YES', "num": "2", "value": '150', "description": 'Apart B', 'owner': 2}, False)
         self.factory.xfer = PropertyLotAddModify()
         self.calljson('/diacamma.condominium/propertyLotAddModify',
-                      {'SAVE': 'YES', "num": "3", "value": '125', "description": 'Apart B', 'owner': 3}, False)
+                      {'SAVE': 'YES', "num": "3", "value": '125', "description": 'Apart C', 'owner': 3}, False)
         self.factory.xfer = PropertyLotAddModify()
         self.calljson('/diacamma.condominium/propertyLotAddModify',
-                      {'SAVE': 'YES', "num": "4", "value": '15', "description": 'Cave A', 'owner': 1}, False)
+                      {'SAVE': 'YES', "num": "4", "value": '15', "description": 'Cave 1', 'owner': 1}, False)
         self.factory.xfer = PropertyLotAddModify()
         self.calljson('/diacamma.condominium/propertyLotAddModify',
-                      {'SAVE': 'YES', "num": "5", "value": '15', "description": 'Cave A', 'owner': 2}, False)
+                      {'SAVE': 'YES', "num": "5", "value": '15', "description": 'Cave 2', 'owner': 2}, False)
 
         self.factory.xfer = OwnerAndPropertyLotList()
         self.calljson('/diacamma.condominium/ownerAndPropertyLotList', {}, False)
@@ -408,24 +512,24 @@ class SetOwnerTest(LucteriosTest):
         self.assert_count_equal('owner', 3)
         self.assert_count_equal('propertylot', 5)
         self.assert_json_equal('', 'propertylot/@0/num', '1')
-        self.assert_json_equal('', 'propertylot/@0/value', '100')
-        self.assert_json_equal('', 'propertylot/@0/ratio', 24.69)
+        self.assert_json_equal('', 'propertylot/@0/value_ratio', '100 (24.7 %)')
+        self.assert_json_equal('', 'propertylot/@0/description', 'Apart A')
         self.assert_json_equal('', 'propertylot/@0/owner', 'Minimum')
         self.assert_json_equal('', 'propertylot/@1/num', '2')
-        self.assert_json_equal('', 'propertylot/@1/value', '150')
-        self.assert_json_equal('', 'propertylot/@1/ratio', 37.04)
+        self.assert_json_equal('', 'propertylot/@1/value_ratio', '150 (37.0 %)')
+        self.assert_json_equal('', 'propertylot/@1/description', 'Apart B')
         self.assert_json_equal('', 'propertylot/@1/owner', 'Dalton William')
         self.assert_json_equal('', 'propertylot/@2/num', '3')
-        self.assert_json_equal('', 'propertylot/@2/value', '125')
-        self.assert_json_equal('', 'propertylot/@2/ratio', 30.86)
+        self.assert_json_equal('', 'propertylot/@2/value_ratio', '125 (30.9 %)')
+        self.assert_json_equal('', 'propertylot/@2/description', 'Apart C')
         self.assert_json_equal('', 'propertylot/@2/owner', 'Dalton Joe')
         self.assert_json_equal('', 'propertylot/@3/num', '4')
-        self.assert_json_equal('', 'propertylot/@3/value', '15')
-        self.assert_json_equal('', 'propertylot/@3/ratio', 3.70)
+        self.assert_json_equal('', 'propertylot/@3/value_ratio', '15 (3.7 %)')
+        self.assert_json_equal('', 'propertylot/@3/description', 'Cave 1')
         self.assert_json_equal('', 'propertylot/@3/owner', 'Minimum')
         self.assert_json_equal('', 'propertylot/@4/num', '5')
-        self.assert_json_equal('', 'propertylot/@4/value', '15')
-        self.assert_json_equal('', 'propertylot/@4/ratio', 3.70)
+        self.assert_json_equal('', 'propertylot/@4/value_ratio', '15 (3.7 %)')
+        self.assert_json_equal('', 'propertylot/@4/description', 'Cave 2')
         self.assert_json_equal('', 'propertylot/@4/owner', 'Dalton William')
 
         self.assert_json_equal('', 'owner/@2/third', 'Minimum')
@@ -2753,17 +2857,38 @@ class ExempleArcTest(PaymentTest):
         owner_dernier = create_owner_fr('M. Mme Dernier')  # lot 5, 9 = 185+20 = 205
         owner_dubois = create_owner_fr('M. Mme Dubois')  # lot 3, 7 = 170+20 = 190
         owner_paul_pierre = create_owner_fr('M. Paul Mme Pierre')  # lot 4, 8 = 170+20 = ;;190
-        PropertyLot.objects.create(num=1, value=205.0, description="Local commercial RDC gauche", owner=owner_dupont)
-        PropertyLot.objects.create(num=2, value=130.0, description="Appartement RDC droite", owner=owner_durant)
-        PropertyLot.objects.create(num=3, value=170.0, description="Appartement 1er étage", owner=owner_dubois)
-        PropertyLot.objects.create(num=4, value=170.0, description="Appartement 2ème étage", owner=owner_paul_pierre)
-        PropertyLot.objects.create(num=5, value=185.0, description="Appartement 3ème étage", owner=owner_dernier)
-        PropertyLot.objects.create(num=6, value=20.0, description="Emplacement parking N°1", owner=owner_durant)
-        PropertyLot.objects.create(num=7, value=20.0, description="Emplacement parking N°2", owner=owner_dubois)
-        PropertyLot.objects.create(num=8, value=20.0, description="Emplacement parking N°3", owner=owner_paul_pierre)
-        PropertyLot.objects.create(num=9, value=20.0, description="Emplacement parking N°4", owner=owner_dernier)
-        PropertyLot.objects.create(num=10, value=30.0, description="Parking sous-sol N°1", owner=owner_dupont)
-        PropertyLot.objects.create(num=11, value=30.0, description="Parking sous-sol N°2", owner=owner_dupont)
+        subkey1 = CustomField.objects.create(modelname="condominium.PropertyLot", name="escalier", kind=1)
+        subkey2 = CustomField.objects.create(modelname="condominium.PropertyLot", name="chauffage", kind=1)
+        subkey3 = CustomField.objects.create(modelname="condominium.PropertyLot", name="sous-sol", kind=1)
+        lot1 = PropertyLot.objects.create(num=1, value=205, description="Local commercial RDC gauche", owner=owner_dupont)
+        lot2 = PropertyLot.objects.create(num=2, value=130, description="Appartement RDC droite", owner=owner_durant)
+        lot3 = PropertyLot.objects.create(num=3, value=170, description="Appartement 1er étage", owner=owner_dubois)
+        lot4 = PropertyLot.objects.create(num=4, value=170, description="Appartement 2ème étage", owner=owner_paul_pierre)
+        lot5 = PropertyLot.objects.create(num=5, value=185, description="Appartement 3ème étage", owner=owner_dernier)
+        _lot6 = PropertyLot.objects.create(num=6, value=20, description="Emplacement parking N°1", owner=owner_durant)
+        _lot7 = PropertyLot.objects.create(num=7, value=20, description="Emplacement parking N°2", owner=owner_dubois)
+        _lot8 = PropertyLot.objects.create(num=8, value=20, description="Emplacement parking N°3", owner=owner_paul_pierre)
+        _lot9 = PropertyLot.objects.create(num=9, value=20, description="Emplacement parking N°4", owner=owner_dernier)
+        _lot10 = PropertyLot.objects.create(num=10, value=30, description="Parking sous-sol N°1", owner=owner_dupont)
+        _lot11 = PropertyLot.objects.create(num=11, value=30, description="Parking sous-sol N°2", owner=owner_dupont)
+
+        PropertyLotCustomField.objects.create(field=subkey1, property=lot1, value=289)  # dupont
+        PropertyLotCustomField.objects.create(field=subkey1, property=lot2, value=144)  # durant
+        PropertyLotCustomField.objects.create(field=subkey1, property=lot5, value=199)  # dernier
+        PropertyLotCustomField.objects.create(field=subkey1, property=lot3, value=184)  # dubois
+        PropertyLotCustomField.objects.create(field=subkey1, property=lot4, value=184)  # paul_pierre
+
+        PropertyLotCustomField.objects.create(field=subkey2, property=lot1, value=310)  # dupont
+        PropertyLotCustomField.objects.create(field=subkey2, property=lot2, value=110)  # durant
+        PropertyLotCustomField.objects.create(field=subkey2, property=lot5, value=260)  # dernier
+        PropertyLotCustomField.objects.create(field=subkey2, property=lot3, value=160)  # dubois
+        PropertyLotCustomField.objects.create(field=subkey2, property=lot4, value=160)
+
+        PropertyLotCustomField.objects.create(field=subkey3, property=lot1, value=1000)  # dupont
+        PropertyLotCustomField.objects.create(field=subkey3, property=lot2, value=0)  # durant
+        PropertyLotCustomField.objects.create(field=subkey3, property=lot5, value=0)  # dernier
+        PropertyLotCustomField.objects.create(field=subkey3, property=lot3, value=0)  # dubois
+        PropertyLotCustomField.objects.create(field=subkey3, property=lot4, value=0)  # paul_pierre
 
         new_set = Set.objects.create(name="Généraux", is_link_to_lots=True, type_load=0)
         new_set.set_of_lots.set(PropertyLot.objects.all())
@@ -2838,59 +2963,97 @@ class ExempleArcTest(PaymentTest):
         self.assert_json_equal('', 'owner/@4/third', 'M. Paul Mme Pierre')
         self.assert_json_equal('', 'owner/@4/thirdinitial', 0.0)
 
-        self.assert_count_equal('propertylot', 11)
+        self.assert_grid_equal('custom_field', {"name": "nom"}, 3)
+        self.assert_json_equal('', 'custom_field/@0/name', 'escalier')
+        self.assert_json_equal('', 'custom_field/@1/name', 'chauffage')
+        self.assert_json_equal('', 'custom_field/@2/name', 'sous-sol')
+
+        self.assert_grid_equal('propertylot', {"num": "N°", "value_ratio": "tantième principal", "custom_1": "escalier", "custom_2": "chauffage", "custom_3": "sous-sol", "description": "description", "owner": "propriétaire"}, 11)
         self.assert_json_equal('', 'propertylot/@0/num', '1')
-        self.assert_json_equal('', 'propertylot/@0/ratio', 20.5)
+        self.assert_json_equal('', 'propertylot/@0/value_ratio', '205 (20.5 %)')
+        self.assert_json_equal('', 'propertylot/@0/custom_1', '289 (28.9 %)')
+        self.assert_json_equal('', 'propertylot/@0/custom_2', '310 (31.0 %)')
+        self.assert_json_equal('', 'propertylot/@0/custom_3', '1000 (100.0 %)')
         self.assert_json_equal('', 'propertylot/@0/description', "Local commercial RDC gauche")
         self.assert_json_equal('', 'propertylot/@0/owner', 'M. Dupont')
 
         self.assert_json_equal('', 'propertylot/@1/num', '2')
-        self.assert_json_equal('', 'propertylot/@1/ratio', 13.0)
+        self.assert_json_equal('', 'propertylot/@1/value_ratio', '130 (13.0 %)')
+        self.assert_json_equal('', 'propertylot/@1/custom_1', '144 (14.4 %)')
+        self.assert_json_equal('', 'propertylot/@1/custom_2', '110 (11.0 %)')
+        self.assert_json_equal('', 'propertylot/@1/custom_3', '0 (0.0 %)')
         self.assert_json_equal('', 'propertylot/@1/description', "Appartement RDC droite")
         self.assert_json_equal('', 'propertylot/@1/owner', 'M. Durant')
 
         self.assert_json_equal('', 'propertylot/@2/num', '3')
-        self.assert_json_equal('', 'propertylot/@2/ratio', 17.0)
+        self.assert_json_equal('', 'propertylot/@2/value_ratio', '170 (17.0 %)')
+        self.assert_json_equal('', 'propertylot/@2/custom_1', '184 (18.4 %)')
+        self.assert_json_equal('', 'propertylot/@2/custom_2', '160 (16.0 %)')
+        self.assert_json_equal('', 'propertylot/@2/custom_3', '0 (0.0 %)')
         self.assert_json_equal('', 'propertylot/@2/description', "Appartement 1er étage")
         self.assert_json_equal('', 'propertylot/@2/owner', 'M. Mme Dubois')
 
         self.assert_json_equal('', 'propertylot/@3/num', '4')
-        self.assert_json_equal('', 'propertylot/@3/ratio', 17.0)
+        self.assert_json_equal('', 'propertylot/@3/value_ratio', '170 (17.0 %)')
+        self.assert_json_equal('', 'propertylot/@3/custom_1', '184 (18.4 %)')
+        self.assert_json_equal('', 'propertylot/@3/custom_2', '160 (16.0 %)')
+        self.assert_json_equal('', 'propertylot/@3/custom_3', '0 (0.0 %)')
         self.assert_json_equal('', 'propertylot/@3/description', "Appartement 2ème étage")
         self.assert_json_equal('', 'propertylot/@3/owner', 'M. Paul Mme Pierre')
 
         self.assert_json_equal('', 'propertylot/@4/num', '5')
-        self.assert_json_equal('', 'propertylot/@4/ratio', 18.5)
+        self.assert_json_equal('', 'propertylot/@4/value_ratio', '185 (18.5 %)')
+        self.assert_json_equal('', 'propertylot/@4/custom_1', '199 (19.9 %)')
+        self.assert_json_equal('', 'propertylot/@4/custom_2', '260 (26.0 %)')
+        self.assert_json_equal('', 'propertylot/@4/custom_3', '0 (0.0 %)')
         self.assert_json_equal('', 'propertylot/@4/description', "Appartement 3ème étage")
         self.assert_json_equal('', 'propertylot/@4/owner', 'M. Mme Dernier')
 
         self.assert_json_equal('', 'propertylot/@5/num', '6')
-        self.assert_json_equal('', 'propertylot/@5/ratio', 2.0)
+        self.assert_json_equal('', 'propertylot/@5/value_ratio', '20 (2.0 %)')
+        self.assert_json_equal('', 'propertylot/@5/custom_1', '0 (0.0 %)')
+        self.assert_json_equal('', 'propertylot/@5/custom_2', '0 (0.0 %)')
+        self.assert_json_equal('', 'propertylot/@5/custom_3', '0 (0.0 %)')
         self.assert_json_equal('', 'propertylot/@5/description', "Emplacement parking N°1")
         self.assert_json_equal('', 'propertylot/@5/owner', 'M. Durant')
 
         self.assert_json_equal('', 'propertylot/@6/num', '7')
-        self.assert_json_equal('', 'propertylot/@6/ratio', 2.0)
+        self.assert_json_equal('', 'propertylot/@6/value_ratio', '20 (2.0 %)')
+        self.assert_json_equal('', 'propertylot/@6/custom_1', '0 (0.0 %)')
+        self.assert_json_equal('', 'propertylot/@6/custom_2', '0 (0.0 %)')
+        self.assert_json_equal('', 'propertylot/@6/custom_3', '0 (0.0 %)')
         self.assert_json_equal('', 'propertylot/@6/description', "Emplacement parking N°2")
         self.assert_json_equal('', 'propertylot/@6/owner', 'M. Mme Dubois')
 
         self.assert_json_equal('', 'propertylot/@7/num', '8')
-        self.assert_json_equal('', 'propertylot/@7/ratio', 2.0)
+        self.assert_json_equal('', 'propertylot/@7/value_ratio', '20 (2.0 %)')
+        self.assert_json_equal('', 'propertylot/@7/custom_1', '0 (0.0 %)')
+        self.assert_json_equal('', 'propertylot/@7/custom_2', '0 (0.0 %)')
+        self.assert_json_equal('', 'propertylot/@7/custom_3', '0 (0.0 %)')
         self.assert_json_equal('', 'propertylot/@7/description', "Emplacement parking N°3")
         self.assert_json_equal('', 'propertylot/@7/owner', 'M. Paul Mme Pierre')
 
         self.assert_json_equal('', 'propertylot/@8/num', '9')
-        self.assert_json_equal('', 'propertylot/@8/ratio', 2.0)
+        self.assert_json_equal('', 'propertylot/@8/value_ratio', '20 (2.0 %)')
+        self.assert_json_equal('', 'propertylot/@8/custom_1', '0 (0.0 %)')
+        self.assert_json_equal('', 'propertylot/@8/custom_2', '0 (0.0 %)')
+        self.assert_json_equal('', 'propertylot/@8/custom_3', '0 (0.0 %)')
         self.assert_json_equal('', 'propertylot/@8/description', "Emplacement parking N°4")
         self.assert_json_equal('', 'propertylot/@8/owner', 'M. Mme Dernier')
 
         self.assert_json_equal('', 'propertylot/@9/num', '10')
-        self.assert_json_equal('', 'propertylot/@9/ratio', 3.0)
+        self.assert_json_equal('', 'propertylot/@9/value_ratio', '30 (3.0 %)')
+        self.assert_json_equal('', 'propertylot/@9/custom_1', '0 (0.0 %)')
+        self.assert_json_equal('', 'propertylot/@9/custom_2', '0 (0.0 %)')
+        self.assert_json_equal('', 'propertylot/@9/custom_3', '0 (0.0 %)')
         self.assert_json_equal('', 'propertylot/@9/description', "Parking sous-sol N°1")
         self.assert_json_equal('', 'propertylot/@9/owner', 'M. Dupont')
 
         self.assert_json_equal('', 'propertylot/@10/num', '11')
-        self.assert_json_equal('', 'propertylot/@10/ratio', 3.0)
+        self.assert_json_equal('', 'propertylot/@10/value_ratio', '30 (3.0 %)')
+        self.assert_json_equal('', 'propertylot/@10/custom_1', '0 (0.0 %)')
+        self.assert_json_equal('', 'propertylot/@10/custom_2', '0 (0.0 %)')
+        self.assert_json_equal('', 'propertylot/@10/custom_3', '0 (0.0 %)')
         self.assert_json_equal('', 'propertylot/@10/description', "Parking sous-sol N°2")
         self.assert_json_equal('', 'propertylot/@10/owner', 'M. Dupont')
 

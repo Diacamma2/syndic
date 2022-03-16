@@ -222,6 +222,19 @@ class CallFundsSupportingEditor(SupportingEditor):
     pass
 
 
+class PropertyLotEditor(LucteriosEditor):
+
+    def edit(self, xfer):
+        xfer.item.mother = True
+        CustomField.edit_fields(xfer, 1, 1)
+        xfer.move_components('description', 0, 20)
+        xfer.move_components('owner', 0, 20)
+
+    def saving(self, xfer):
+        LucteriosEditor.saving(self, xfer)
+        self.item.set_custom_values(xfer.params)
+
+
 class CallFundsEditor(LucteriosEditor):
 
     def before_save(self, xfer):

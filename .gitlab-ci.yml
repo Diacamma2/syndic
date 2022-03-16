@@ -6,3 +6,5 @@ include:
 variables:
   APPLICATION_TARGET: diacamma
   MANUAL_PATH: diacamma/syndic/pdf/build_fr/latex/DiacammaSyndic.pdf
+  CLONE_LIST: lucterios2/lucterios:lct-core lucterios2/contacts:lct-contacts lucterios2/documents:lct-documents diacamma2/financial:financial
+  

@@ -23,7 +23,7 @@ from lucterios.CORE.parameters import Params
 from lucterios.CORE.xferprint import XferPrintAction, XferPrintReporting
 from lucterios.CORE.models import Parameter
 
-from lucterios.contacts.models import Individual, LegalEntity, AbstractContact
+from lucterios.contacts.models import Individual, LegalEntity, AbstractContact, CustomField
 from lucterios.contacts.tools import ContactSelection
 
 from diacamma.accounting.models import AccountThird, CostAccounting, FiscalYear, Third
@@ -32,7 +32,7 @@ from diacamma.payoff.models import PaymentMethod, Payoff, Supporting
 from diacamma.payoff.views import PayoffAddModify, can_send_email
 
 from diacamma.condominium.models import PropertyLot, Owner, Set, SetCost, convert_accounting, OwnerContact, generate_pdfreport,\
-    LIST_DEFAULT_ACCOUNTS, DEFAULT_ACCOUNT_CURRENT, Payment
+    LIST_DEFAULT_ACCOUNTS, DEFAULT_ACCOUNT_CURRENT, Payment, PropertyLotCustomField
 from diacamma.condominium.views_classload import fill_params
 from diacamma.condominium.system import current_system_condo
 
@@ -61,6 +61,9 @@ class OwnerAndPropertyLotList(XferListEditor):
         return res
 
     def fillresponse_header(self):
+        self.params['basic_model'] = 'condominium.PropertyLot'
+        self.params['custom_editor_title'] = _('Secondary key')
+        self.params['custom_type'] = CustomField.KIND_INTEGER
         self.new_tab(_("Owners"))
         contact_filter = self.getparam('filter', '')
         comp = XferCompEdit('filter')
@@ -91,8 +94,18 @@ class OwnerAndPropertyLotList(XferListEditor):
         self.fill_grid(self.get_max_row(), PropertyLot, 'propertylot', PropertyLot.objects.all())
         lbl = XferCompLabelForm("total_lot")
         lbl.set_location(1, 5)
-        lbl.set_value(_("Total of lot parts: %d") % PropertyLot.get_total_part())
+        lbl.set_value(_("Total of main lot parts: %d") % PropertyLot.get_total_part())
         self.add_component(lbl)
+        for cf_name, cf_model in CustomField.get_fields(PropertyLot):
+            lbl = XferCompLabelForm("total_%s" % cf_name)
+            lbl.set_location(1, self.get_max_row() + 1)
+            lbl.set_value(_("Total of secondary key '%(name)s': %(value)d") % {'name': cf_model.name, 'value': PropertyLotCustomField.get_total_part(cf_model)})
+            self.add_component(lbl)
+        self.new_tab(_("Secondary keys"))
+        self.fill_grid(0, CustomField, "custom_field", CustomField.get_filter(PropertyLot))
+        grid_custom = self.get_components('custom_field')
+        grid_custom.delete_header('model_title')
+        grid_custom.delete_header('kind_txt')
 
 
 @ActionsManage.affect_list(TITLE_PRINT, "images/print.png", close=CLOSE_NO)
@@ -438,6 +451,11 @@ class PropertyLotAddModify(XferAddEditor):
     field_id = 'propertylot'
     caption_add = _("Add property lot")
     caption_modify = _("Modify property lot")
+
+    def fillresponse(self):
+        if self.item.id is None:
+            self.item.owner = Owner()
+        XferAddEditor.fillresponse(self)
 
 
 @ActionsManage.affect_grid(TITLE_DELETE, "images/delete.png", unique=SELECT_MULTI)
