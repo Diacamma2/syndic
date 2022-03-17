@@ -74,10 +74,11 @@ class Set(LucteriosModel):
         MinValueValidator(0.0), MaxValueValidator(9999999.999)])
     revenue_account = models.CharField(_('revenue account'), max_length=50)
     cost_accounting = models.ForeignKey(CostAccounting, verbose_name=_('cost accounting'), null=True, default=None, db_index=True, on_delete=models.PROTECT)
-    is_link_to_lots = models.BooleanField(_('is link to lots'), default=False)
+    is_link_to_lots = models.BooleanField(_('is link to lots'), default=True)
     type_load = models.IntegerField(verbose_name=_('type of load'), choices=LIST_TYPELOADS, null=False, default=TYPELOAD_CURRENT, db_index=True)
     is_active = models.BooleanField(_('is active'), default=True)
     set_of_lots = models.ManyToManyField('PropertyLot', verbose_name=_('set of lots'), blank=True)
+    secondarykey = models.ForeignKey(CustomField, verbose_name=_('distribution key'), null=True, default=None, db_index=True, on_delete=models.PROTECT)
 
     identify = LucteriosVirtualField(verbose_name=_('name'), compute_from="get_identify")
     budget_txt = LucteriosVirtualField(verbose_name=_('budget'), compute_from="get_current_budget", format_string=lambda: format_with_devise(5))
@@ -134,7 +135,7 @@ class Set(LucteriosModel):
 
     @classmethod
     def get_edit_fields(cls):
-        fields = ["name", "type_load", 'is_link_to_lots']
+        fields = ["name", "type_load", 'is_link_to_lots', 'secondarykey', 'set_of_lots']
         if Params.getvalue("condominium-old-accounting"):
             fields.append("revenue_account")
         return fields
@@ -143,10 +144,10 @@ class Set(LucteriosModel):
     def get_show_fields(cls):
         if Params.getvalue("condominium-old-accounting"):
             return [("name", ), ("revenue_account", 'current_cost_accounting'), ("type_load", 'is_active'),
-                    ('is_link_to_lots', 'total_part'), 'partition_set', 'partitionfill_set', ("budget_txt", 'sumexpense',)]
+                    ('is_link_to_lots', 'secondarykey'), 'partition_set', 'partitionfill_set', 'total_part', ("budget_txt", 'sumexpense',)]
         else:
-            return [("name", 'current_cost_accounting'), ("type_load", 'is_active'), ('is_link_to_lots', 'total_part'),
-                    'partition_set', 'partitionfill_set', ("budget_txt", 'sumexpense',)]
+            return [("name", 'current_cost_accounting'), ("type_load", 'is_active'), ('is_link_to_lots', 'secondarykey'),
+                    'partition_set', 'partitionfill_set', 'total_part', ("budget_txt", 'sumexpense',)]
 
     def _do_insert(self, manager, using, fields, update_pk, raw):
         new_ids = LucteriosModel._do_insert(self, manager, using, fields, update_pk, raw)
@@ -362,8 +363,8 @@ class Set(LucteriosModel):
         if self.is_link_to_lots:
             for part in self.partition_set.all():
                 value = 0
-                for lot in self.set_of_lots.filter(owner=part.owner):
-                    value += lot.value
+                for property_lot in self.set_of_lots.filter(owner=part.owner):
+                    value += property_lot.get_value_by_key(self.secondarykey)
                 part.value = value
                 part.save()
 
@@ -846,16 +847,30 @@ class PropertyLot(LucteriosModel, CustomizeObject):
     def get_value_ratio(self):
         return "%d (%.1f %%)" % (self.value, self.ratio)
 
+    def get_value_by_key(self, customField):
+        if customField is None:
+            return self.value
+        else:
+            secondary_key = self._get_custom_for_attr(customField)
+            return self._convert_value_for_attr(customField, secondary_key.value)
+
     def _convert_model_for_attr(self, cf_model, ccf_model):
         if hasattr(self, 'mother'):
             return CustomizeObject._convert_model_for_attr(self, cf_model, ccf_model)
         else:
             return ccf_model.get_data()
 
-    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
-        LucteriosModel.save(self, force_insert=force_insert, force_update=force_update, using=using, update_fields=update_fields)
+    def refresh_set_ratio(self):
         for set_linked in Set.objects.filter(is_link_to_lots=True, set_of_lots__id=self.id):
             set_linked.refresh_ratio_link_lots()
+
+    def set_custom_values(self, params):
+        CustomizeObject.set_custom_values(self, params)
+        self.refresh_set_ratio()
+
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+        LucteriosModel.save(self, force_insert=force_insert, force_update=force_update, using=using, update_fields=update_fields)
+        self.refresh_set_ratio()
 
     class Meta(object):
         verbose_name = _('property lot')

@@ -28,4 +28,9 @@ class Migration(migrations.Migration):
                 'default_permissions': [],
             },
         ),
+        migrations.AddField(
+            model_name='set',
+            name='secondarykey',
+            field=models.ForeignKey(default=None, null=True, on_delete=django.db.models.deletion.PROTECT, to='contacts.customfield', verbose_name='distribution key'),
+        ),
     ]

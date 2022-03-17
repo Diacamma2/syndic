@@ -69,7 +69,7 @@ class SyndicTest(LucteriosTest):
         self.assert_json_equal('', '', 'OK')
 
         steplist = get_wizard_step_list()
-        self.assertEqual(17, len(steplist.split(';')), steplist)
+        self.assertEqual(18, len(steplist.split(';')), steplist)
 
         self.calljson('/CORE/configurationWizard', {'steplist': steplist})
         self.assert_observer('core.custom', 'CORE', 'configurationWizard')
@@ -121,21 +121,25 @@ class SyndicTest(LucteriosTest):
 
         self.calljson('/CORE/configurationWizard', {'steplist': steplist, 'step': 12})
         self.assert_observer('core.custom', 'CORE', 'configurationWizard')
-        self.assert_count_equal('', 9)
+        self.assert_count_equal('', 8)
 
         self.calljson('/CORE/configurationWizard', {'steplist': steplist, 'step': 13})
         self.assert_observer('core.custom', 'CORE', 'configurationWizard')
-        self.assert_count_equal('', 8)
+        self.assert_count_equal('', 9)
 
         self.calljson('/CORE/configurationWizard', {'steplist': steplist, 'step': 14})
         self.assert_observer('core.custom', 'CORE', 'configurationWizard')
-        self.assert_count_equal('', 9)
+        self.assert_count_equal('', 8)
 
         self.calljson('/CORE/configurationWizard', {'steplist': steplist, 'step': 15})
         self.assert_observer('core.custom', 'CORE', 'configurationWizard')
-        self.assert_count_equal('', 10)
+        self.assert_count_equal('', 9)
 
         self.calljson('/CORE/configurationWizard', {'steplist': steplist, 'step': 16})
+        self.assert_observer('core.custom', 'CORE', 'configurationWizard')
+        self.assert_count_equal('', 10)
+
+        self.calljson('/CORE/configurationWizard', {'steplist': steplist, 'step': 17})
         self.assert_observer('core.custom', 'CORE', 'configurationWizard')
         self.assert_count_equal('', 13)
 

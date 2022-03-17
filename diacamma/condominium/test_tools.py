@@ -31,7 +31,9 @@ from diacamma.accounting.models import FiscalYear, Budget, Third, AccountThird
 from diacamma.accounting.test_tools import create_account, add_entry,\
     change_legal, get_accounting_system
 from diacamma.payoff.models import Payoff
-from diacamma.condominium.models import Set, Owner, Partition, CallFunds, CallDetail, Expense, ExpenseDetail, PropertyLot, RecoverableLoadRatio
+from diacamma.condominium.models import Set, Owner, Partition, CallFunds, CallDetail, Expense, ExpenseDetail, PropertyLot, RecoverableLoadRatio,\
+    PropertyLotCustomField
+from lucterios.contacts.models import CustomField
 
 
 def _set_budget(setitem, code, amount):
@@ -58,21 +60,28 @@ def _create_owners(set1, set2, set3, set4, with_lots=True):
     owner3.editor.before_save(None)
     owner3.save()
     if with_lots:
-        PropertyLot.objects.create(num=1, value=45.0, description="Appart A", owner=owner1)
-        PropertyLot.objects.create(num=2, value=35.0, description="Appart B", owner=owner2)
-        PropertyLot.objects.create(num=3, value=20.0, description="Appart C", owner=owner3)
+        subkey = CustomField.objects.create(modelname="condominium.PropertyLot", name="sub", kind=1)
+        lot1 = PropertyLot.objects.create(num=1, value=45.0, description="Appart A", owner=owner1)
+        lot2 = PropertyLot.objects.create(num=2, value=35.0, description="Appart B", owner=owner2)
+        lot3 = PropertyLot.objects.create(num=3, value=20.0, description="Appart C", owner=owner3)
+        PropertyLotCustomField.objects.create(field=subkey, property=lot1, value=45)
+        PropertyLotCustomField.objects.create(field=subkey, property=lot2, value=35)
+        PropertyLotCustomField.objects.create(field=subkey, property=lot3, value=20)
         set1.set_of_lots.set(PropertyLot.objects.all())
         set1.save()
+        set3.secondarykey = subkey
+        set3.set_of_lots.set(PropertyLot.objects.all())
+        set3.save()
     else:
         _set_partition(setpart=set1, owner=owner1, value=45.0)
         _set_partition(setpart=set1, owner=owner2, value=35.0)
         _set_partition(setpart=set1, owner=owner3, value=20.0)
+        _set_partition(setpart=set3, owner=owner1, value=45.0)
+        _set_partition(setpart=set3, owner=owner2, value=35.0)
+        _set_partition(setpart=set3, owner=owner3, value=20.0)
     _set_partition(setpart=set2, owner=owner1, value=75.0)
     _set_partition(setpart=set2, owner=owner2, value=0.0)
     _set_partition(setpart=set2, owner=owner3, value=25.0)
-    _set_partition(setpart=set3, owner=owner1, value=45.0)
-    _set_partition(setpart=set3, owner=owner2, value=35.0)
-    _set_partition(setpart=set3, owner=owner3, value=20.0)
     _set_partition(setpart=set4, owner=owner1, value=45.0)
     _set_partition(setpart=set4, owner=owner2, value=35.0)
     _set_partition(setpart=set4, owner=owner3, value=20.0)
@@ -90,11 +99,11 @@ def default_setowner_fr(with_lots=True):
     create_account(['702', '705'], 3, FiscalYear.get_current())  # 25 26
     set1 = Set.objects.create(name="AAA", budget=1000, revenue_account='701', is_link_to_lots=with_lots, type_load=0)
     _set_budget(set1, '604', 1000)
-    set2 = Set.objects.create(name="BBB", budget=100, revenue_account='701', type_load=0)
+    set2 = Set.objects.create(name="BBB", budget=100, revenue_account='701', is_link_to_lots=False, type_load=0)
     _set_budget(set2, '604', 100)
-    set3 = Set.objects.create(name="CCC", budget=500, revenue_account='702', type_load=1)
+    set3 = Set.objects.create(name="CCC", budget=500, revenue_account='702', is_link_to_lots=with_lots, type_load=1)
     _set_budget(set3, '604', 500)
-    set4 = Set.objects.create(name="OLD", budget=100, revenue_account='702', type_load=1, is_active=False)
+    set4 = Set.objects.create(name="OLD", budget=100, revenue_account='702', is_link_to_lots=False, type_load=1, is_active=False)
     _set_budget(set4, '602', 100)
     _create_owners(set1, set2, set3, set4, with_lots)
     Owner.check_all_account()

@@ -52,6 +52,7 @@ from diacamma.accounting.views_reports import CostAccountingIncomeStatement
 from diacamma.condominium.models import Set, Partition, ExpenseDetail, Owner, PropertyLot, SetCost, OwnerLink,\
     RecoverableLoadRatio
 from diacamma.condominium.system import clear_system_condo, current_system_condo
+from lucterios.contacts.models import CustomField
 
 
 def fill_params(self, is_mini=False, new_params=False):
@@ -183,7 +184,7 @@ class SetPrint(XferPrintAction):
 
 
 @ActionsManage.affect_grid(TITLE_CREATE, "images/new.png")
-@ActionsManage.affect_show(TITLE_MODIFY, "images/edit.png", close=CLOSE_YES, condition=lambda xfer: xfer.item.is_active)
+@ActionsManage.affect_show(TITLE_MODIFY, "images/edit.png", close=CLOSE_NO, condition=lambda xfer: xfer.item.is_active)
 @MenuManage.describ('condominium.add_set')
 class SetAddModify(XferAddEditor):
     icon = "set.png"
@@ -191,7 +192,6 @@ class SetAddModify(XferAddEditor):
     field_id = 'set'
     caption_add = _("Add class load")
     caption_modify = _("Modify class load")
-    redirect_to_show = False
 
 
 @ActionsManage.affect_grid(TITLE_EDIT, "images/show.png", unique=SELECT_SINGLE)
@@ -274,27 +274,6 @@ class PartitionAddModify(XferAddEditor):
     model = Partition
     field_id = 'partition'
     caption_modify = _("Modify partition")
-
-
-@ActionsManage.affect_show(TITLE_EDIT, "images/show.png", condition=lambda xfer: xfer.item.is_link_to_lots and xfer.item.is_active)
-@MenuManage.describ('condominium.add_set')
-class SetAssociate(XferAddEditor):
-    icon = "set.png"
-    model = Set
-    field_id = 'set'
-    redirect_to_show = False
-    caption = _("Associate lots")
-
-    def fillresponse(self):
-        self.caption = self.caption
-        img = XferCompImage('img')
-        img.set_value(self.icon_path())
-        img.set_location(0, 0, 1, 6)
-        self.add_component(img)
-        self.fill_from_model(1, 0, True, ['name', 'type_load'])
-        self.fill_from_model(1, 2, False, ['set_of_lots'])
-        self.add_action(self.return_action(TITLE_OK, 'images/ok.png'), params={"SAVE": "YES"})
-        self.add_action(WrapAction(TITLE_CANCEL, 'images/cancel.png'))
 
 
 @ActionsManage.affect_show(_('Costs'), "images/right.png")
@@ -487,14 +466,21 @@ def conf_wizard_condominium(wizard_ident, xfer):
     if isinstance(wizard_ident, list) and (xfer is None):
         wizard_ident.append(("condominium_params", 35))
         wizard_ident.append(("condominium_owner", 45))
-        wizard_ident.append(("condominium_lot", 46))
-        wizard_ident.append(("condominium_classload", 47))
+        wizard_ident.append(("condominium_keys", 46))
+        wizard_ident.append(("condominium_lot", 47))
+        wizard_ident.append(("condominium_classload", 48))
     elif (xfer is not None) and (wizard_ident == "condominium_params"):
         xfer.add_title(_("Diacamma condominium"), _("Condominium configuration"))
         fill_params(xfer, True)
     elif (xfer is not None) and (wizard_ident == "condominium_owner"):
         xfer.add_title(_("Diacamma condominium"), _("Owners"), _('Add owners of your condominium.'))
         xfer.fill_grid(xfer.get_max_row(), Owner, 'owner', Owner.objects.all())
+    elif (xfer is not None) and (wizard_ident == "condominium_keys"):
+        xfer.add_title(_("Diacamma condominium"), _("Secondary keys"), _('Define secondary keys of your condominium.'))
+        xfer.fill_grid(xfer.get_max_row(), CustomField, "custom_field", CustomField.get_filter(PropertyLot))
+        grid_custom = xfer.get_components('custom_field')
+        grid_custom.delete_header('model_title')
+        grid_custom.delete_header('kind_txt')
     elif (xfer is not None) and (wizard_ident == "condominium_lot"):
         xfer.add_title(_("Diacamma condominium"), _("Property lots"), _('Define the lots for each owners.'))
         xfer.fill_grid(xfer.get_max_row(), PropertyLot, 'propertylot', PropertyLot.objects.all())

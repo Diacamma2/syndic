@@ -37,7 +37,8 @@ from lucterios.contacts.models import CustomField
 from diacamma.accounting.tools import current_system_account
 from diacamma.accounting.models import Third, FiscalYear
 from diacamma.payoff.editors import SupportingEditor
-from diacamma.condominium.models import Set, CallDetail, CallFunds, CallFundsSupporting, Expense, Owner, RecoverableLoadRatio, LIST_DEFAULT_ACCOUNTS
+from diacamma.condominium.models import Set, CallDetail, CallFunds, CallFundsSupporting, Expense, Owner, RecoverableLoadRatio, LIST_DEFAULT_ACCOUNTS,\
+    PropertyLot
 from diacamma.condominium.system import current_system_condo
 
 
@@ -47,6 +48,15 @@ class SetEditor(LucteriosEditor):
         revenue_account = xfer.get_components('revenue_account')
         if revenue_account is not None:
             revenue_account.mask = current_system_account().get_revenue_mask()
+        secondarykey = xfer.get_components('secondarykey')
+        secondarykey.set_select_query(CustomField.objects.filter(modelname=PropertyLot.get_long_name()))
+        secondarykey.select_list[0] = ((0, _('main')))
+        is_link_to_lots = xfer.get_components('is_link_to_lots')
+        is_link_to_lots.java_script = """
+var is_link=current.getValue();
+parent.get('secondarykey').setVisible(is_link);
+parent.get('set_of_lots').setVisible(is_link);
+"""
 
     def show(self, xfer):
         if xfer.item.is_link_to_lots:
@@ -59,6 +69,13 @@ class SetEditor(LucteriosEditor):
         partition.delete_header('set')
         partition.delete_header('set.budget_txt')
         partition.delete_header('set.sumexpense')
+        is_link_to_lots = xfer.get_components('is_link_to_lots')
+        if is_link_to_lots.value:
+            secondarykey = xfer.get_components('secondarykey')
+            if secondarykey.value is None:
+                secondarykey.value = _('main')
+        else:
+            xfer.remove_component('secondarykey')
 
 
 class OwnerEditor(SupportingEditor):
