@@ -39,11 +39,11 @@ class FrenchSystemCondo(DefaultSystemCondo):
 
     def initialize_system(self):
         Parameter.change_value('condominium-default-owner-account', correct_accounting_code('450'))
-        Parameter.change_value('condominium-default-owner-account1', correct_accounting_code('4501'))
-        Parameter.change_value('condominium-default-owner-account2', correct_accounting_code('4502'))
-        Parameter.change_value('condominium-default-owner-account3', correct_accounting_code('4503'))
-        Parameter.change_value('condominium-default-owner-account4', correct_accounting_code('4504'))
-        Parameter.change_value('condominium-default-owner-account5', correct_accounting_code('4505'))
+        Parameter.change_value('condominium-default-owner-account1', correct_accounting_code('450'))
+        Parameter.change_value('condominium-default-owner-account2', correct_accounting_code('450'))
+        Parameter.change_value('condominium-default-owner-account3', correct_accounting_code('450'))
+        Parameter.change_value('condominium-default-owner-account4', correct_accounting_code('450'))
+        Parameter.change_value('condominium-default-owner-account5', correct_accounting_code('450'))
         Parameter.change_value('condominium-current-revenue-account', correct_accounting_code('701'))
         Parameter.change_value('condominium-exceptional-revenue-account', correct_accounting_code('702'))
         Parameter.change_value('condominium-fundforworks-revenue-account', correct_accounting_code('705'))

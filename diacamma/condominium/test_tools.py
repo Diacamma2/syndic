@@ -87,9 +87,18 @@ def _create_owners(set1, set2, set3, set4, with_lots=True):
     _set_partition(setpart=set4, owner=owner3, value=20.0)
 
 
+def param_owner_with_sub_accounts():
+    Params.setvalue("condominium-default-owner-account1", "4501")
+    Params.setvalue("condominium-default-owner-account2", "4502")
+    Params.setvalue("condominium-default-owner-account3", "4503")
+    Params.setvalue("condominium-default-owner-account4", "4504")
+    Params.setvalue("condominium-default-owner-account5", "4505")
+
+
 def default_setowner_fr(with_lots=True):
     RecoverableLoadRatio.objects.create(code='602', ratio=60)
     RecoverableLoadRatio.objects.create(code='604', ratio=40)
+    param_owner_with_sub_accounts()
 
     if Params.getvalue("condominium-old-accounting"):
         create_account(['450'], 0, FiscalYear.get_current())
@@ -118,11 +127,11 @@ def default_setowner_be(with_lots=True):
     create_account(['700100', '701100', '701200'], 3, FiscalYear.get_current())  # 21 22 23
     set1 = Set.objects.create(name="AAA", is_link_to_lots=with_lots, type_load=0)
     _set_budget(set1, '602000', 1200)
-    set2 = Set.objects.create(name="BBB", type_load=0)
+    set2 = Set.objects.create(name="BBB", is_link_to_lots=False, type_load=0)
     _set_budget(set2, '602000', 120)
-    set3 = Set.objects.create(name="CCC", type_load=1)
+    set3 = Set.objects.create(name="CCC", is_link_to_lots=with_lots, type_load=1)
     _set_budget(set3, '602000', 600)
-    set4 = Set.objects.create(name="OLD", type_load=1, is_active=False)
+    set4 = Set.objects.create(name="OLD", is_link_to_lots=False, type_load=1, is_active=False)
     _set_budget(set4, '601000', 120)
     _create_owners(set1, set2, set3, set4, with_lots)
     Owner.check_all_account()

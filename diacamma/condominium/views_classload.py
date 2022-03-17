@@ -45,12 +45,12 @@ from lucterios.CORE.xferprint import XferPrintAction
 
 from diacamma.accounting.tools import correct_accounting_code,\
     get_amount_from_format_devise
-from diacamma.accounting.models import CostAccounting, FiscalYear
+from diacamma.accounting.models import CostAccounting, FiscalYear, EntryAccount
 from diacamma.accounting.views_budget import BudgetList
 from diacamma.accounting.views_reports import CostAccountingIncomeStatement
 
 from diacamma.condominium.models import Set, Partition, ExpenseDetail, Owner, PropertyLot, SetCost, OwnerLink,\
-    RecoverableLoadRatio
+    RecoverableLoadRatio, PropertyLotCustomField
 from diacamma.condominium.system import clear_system_condo, current_system_condo
 from lucterios.contacts.models import CustomField
 
@@ -193,6 +193,11 @@ class SetAddModify(XferAddEditor):
     caption_add = _("Add class load")
     caption_modify = _("Modify class load")
 
+    def fillresponse(self):
+        if self.item.id is None:
+            self.item.is_link_to_lots = True
+        XferAddEditor.fillresponse(self)
+
 
 @ActionsManage.affect_grid(TITLE_EDIT, "images/show.png", unique=SELECT_SINGLE)
 @MenuManage.describ('condominium.change_set')
@@ -220,6 +225,18 @@ class SetDel(XferDelete):
     model = Set
     field_id = 'set'
     caption = _("Delete class load")
+
+
+@ActionsManage.affect_list(_('Check from keys'), "images/refresh.png", close=CLOSE_NO, condition=lambda xfer: Set.objects.all().count() == 0)
+@MenuManage.describ('condominium.add_set')
+class SetCheckFromKeys(XferContainerAcknowledge):
+    icon = "set.png"
+    model = Set
+    field_id = 'set'
+    caption = _("Check from keys")
+
+    def fillresponse(self):
+        Set.checkFromKeys()
 
 
 @ActionsManage.affect_show(_('Finished'), "images/down.png", condition=lambda xfer: xfer.item.is_active)
@@ -465,29 +482,43 @@ def paramtitles_condomium(names, titles):
 def conf_wizard_condominium(wizard_ident, xfer):
     if isinstance(wizard_ident, list) and (xfer is None):
         wizard_ident.append(("condominium_params", 35))
-        wizard_ident.append(("condominium_owner", 45))
-        wizard_ident.append(("condominium_keys", 46))
+        wizard_ident.append(("condominium_keys", 45))
+        wizard_ident.append(("condominium_owner", 46))
         wizard_ident.append(("condominium_lot", 47))
         wizard_ident.append(("condominium_classload", 48))
     elif (xfer is not None) and (wizard_ident == "condominium_params"):
         xfer.add_title(_("Diacamma condominium"), _("Condominium configuration"))
         fill_params(xfer, True)
-    elif (xfer is not None) and (wizard_ident == "condominium_owner"):
-        xfer.add_title(_("Diacamma condominium"), _("Owners"), _('Add owners of your condominium.'))
-        xfer.fill_grid(xfer.get_max_row(), Owner, 'owner', Owner.objects.all())
     elif (xfer is not None) and (wizard_ident == "condominium_keys"):
         xfer.add_title(_("Diacamma condominium"), _("Secondary keys"), _('Define secondary keys of your condominium.'))
+        xfer.params['basic_model'] = 'condominium.PropertyLot'
+        xfer.params['custom_editor_title'] = _('Secondary key')
+        xfer.params['custom_type'] = CustomField.KIND_INTEGER
         xfer.fill_grid(xfer.get_max_row(), CustomField, "custom_field", CustomField.get_filter(PropertyLot))
         grid_custom = xfer.get_components('custom_field')
         grid_custom.delete_header('model_title')
         grid_custom.delete_header('kind_txt')
+    elif (xfer is not None) and (wizard_ident == "condominium_owner"):
+        xfer.add_title(_("Diacamma condominium"), _("Owners"), _('Add owners of your condominium.'))
+        xfer.fill_grid(xfer.get_max_row(), Owner, 'owner', Owner.objects.all())
     elif (xfer is not None) and (wizard_ident == "condominium_lot"):
         xfer.add_title(_("Diacamma condominium"), _("Property lots"), _('Define the lots for each owners.'))
         xfer.fill_grid(xfer.get_max_row(), PropertyLot, 'propertylot', PropertyLot.objects.all())
         lbl = XferCompLabelForm("total_lot")
         lbl.set_location(0, xfer.get_max_row() + 1)
-        lbl.set_value(_("Total of lot parts: %d") % PropertyLot.get_total_part())
+        lbl.set_value(_("Total of main lot parts: %d") % PropertyLot.get_total_part())
         xfer.add_component(lbl)
+        for cf_name, cf_model in CustomField.get_fields(PropertyLot):
+            lbl = XferCompLabelForm("total_%s" % cf_name)
+            lbl.set_location(0, xfer.get_max_row() + 1)
+            lbl.set_value(_("Total of secondary key '%(name)s': %(value)d") % {'name': cf_model.name, 'value': PropertyLotCustomField.get_total_part(cf_model)})
+            xfer.add_component(lbl)
     elif (xfer is not None) and (wizard_ident == "condominium_classload"):
+        if (Set.objects.all().count() == 0) and (EntryAccount.objects.all().count() == 0):
+            Set.checkFromKeys()
         xfer.add_title(_("Diacamma condominium"), _("Class loads"), _('Define the class loads of your condominium.'))
         xfer.fill_grid(xfer.get_max_row(), Set, 'set', Set.objects.all())
+        btn = XferCompButton('check_set')
+        btn.set_location(1, xfer.get_max_row() + 1)
+        btn.set_action(xfer.request, ActionsManage.get_action_url(Set.get_long_name(), 'CheckFromKeys', xfer), close=CLOSE_NO, modal=FORMTYPE_MODAL)
+        xfer.add_component(btn)

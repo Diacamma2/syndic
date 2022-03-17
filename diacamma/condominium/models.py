@@ -74,7 +74,7 @@ class Set(LucteriosModel):
         MinValueValidator(0.0), MaxValueValidator(9999999.999)])
     revenue_account = models.CharField(_('revenue account'), max_length=50)
     cost_accounting = models.ForeignKey(CostAccounting, verbose_name=_('cost accounting'), null=True, default=None, db_index=True, on_delete=models.PROTECT)
-    is_link_to_lots = models.BooleanField(_('is link to lots'), default=True)
+    is_link_to_lots = models.BooleanField(_('is link to lots'), default=False)
     type_load = models.IntegerField(verbose_name=_('type of load'), choices=LIST_TYPELOADS, null=False, default=TYPELOAD_CURRENT, db_index=True)
     is_active = models.BooleanField(_('is active'), default=True)
     set_of_lots = models.ManyToManyField('PropertyLot', verbose_name=_('set of lots'), blank=True)
@@ -416,6 +416,18 @@ class Set(LucteriosModel):
     def delete(self, using=None):
         LucteriosModel.delete(self, using=using)
         Set.delete_orphelin_costaccounting()
+
+    @classmethod
+    def checkFromKeys(cls):
+        if cls.objects.filter(is_link_to_lots=True, secondarykey=None).first() is None:
+            main_set = cls.objects.create(name=_('main'), is_link_to_lots=True, secondarykey=None, type_load=Set.TYPELOAD_CURRENT)
+            main_set.set_of_lots.set(PropertyLot.objects.all())
+            main_set.save()
+        for _name, cf_model in CustomField.get_fields(PropertyLot):
+            if cls.objects.filter(is_link_to_lots=True, secondarykey=cf_model).first() is None:
+                main_set = cls.objects.create(name=cf_model.name, is_link_to_lots=True, secondarykey=cf_model, type_load=Set.TYPELOAD_CURRENT)
+                main_set.set_of_lots.set(PropertyLot.objects.all())
+                main_set.save()
 
     class Meta(object):
         verbose_name = _('class load')
@@ -845,7 +857,7 @@ class PropertyLot(LucteriosModel, CustomizeObject):
             return 100.0 * float(self.value) / float(total)
 
     def get_value_ratio(self):
-        return "%d (%.1f %%)" % (self.value, self.ratio)
+        return "%d (%.1f %%)" % (self.value, self.get_ratio())
 
     def get_value_by_key(self, customField):
         if customField is None:
