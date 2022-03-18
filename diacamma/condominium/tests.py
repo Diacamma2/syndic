@@ -375,7 +375,7 @@ class SetOwnerTest(LucteriosTest):
         self.calljson('/diacamma.condominium/ownerAndPropertyLotList', {}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'ownerAndPropertyLotList')
         self.assert_count_equal('owner', 3)
-        self.assert_grid_equal('propertylot', {"num": "N°", "value_ratio": "tantième principal", "description": "description", "owner": "propriétaire"}, 0)  # nb=5
+        self.assert_grid_equal('propertylot', {"num": "N°", "value_ratio": "tantième général", "description": "description", "owner": "propriétaire"}, 0)  # nb=5
         self.assert_grid_equal('custom_field', {"name": "nom"}, 0)
 
         self.factory.xfer = CustomFieldAddModify()
@@ -394,7 +394,7 @@ class SetOwnerTest(LucteriosTest):
         self.calljson('/diacamma.condominium/ownerAndPropertyLotList', {}, False)
         self.assert_count_equal('custom_field', 1)
         self.assert_json_equal('', 'custom_field/@0/name', 'second')
-        self.assert_grid_equal('propertylot', {"num": "N°", "value_ratio": "tantième principal", "custom_1": "second", "description": "description", "owner": "propriétaire"}, 0)
+        self.assert_grid_equal('propertylot', {"num": "N°", "value_ratio": "tantième général", "custom_1": "second", "description": "description", "owner": "propriétaire"}, 0)
 
         self.factory.xfer = CustomFieldAddModify()
         self.calljson('/lucterios.contacts/customFieldAddModify',
@@ -405,7 +405,7 @@ class SetOwnerTest(LucteriosTest):
         self.calljson('/diacamma.condominium/ownerAndPropertyLotList', {}, False)
         self.assert_count_equal('custom_field', 1)
         self.assert_json_equal('', 'custom_field/@0/name', 'the second')
-        self.assert_grid_equal('propertylot', {"num": "N°", "value_ratio": "tantième principal", "custom_1": "the second", "description": "description", "owner": "propriétaire"}, 0)
+        self.assert_grid_equal('propertylot', {"num": "N°", "value_ratio": "tantième général", "custom_1": "the second", "description": "description", "owner": "propriétaire"}, 0)
 
         self.factory.xfer = PropertyLotAddModify()
         self.calljson('/diacamma.condominium/propertyLotAddModify', {}, False)
@@ -462,7 +462,7 @@ class SetOwnerTest(LucteriosTest):
         self.factory.xfer = OwnerAndPropertyLotList()
         self.calljson('/diacamma.condominium/ownerAndPropertyLotList', {}, False)
         self.assert_count_equal('custom_field', 0)
-        self.assert_grid_equal('propertylot', {"num": "N°", "value_ratio": "tantième principal", "description": "description", "owner": "propriétaire"}, 2)
+        self.assert_grid_equal('propertylot', {"num": "N°", "value_ratio": "tantième général", "description": "description", "owner": "propriétaire"}, 2)
         self.assert_json_equal('', 'propertylot/@0/value_ratio', "800 (66.7 %)")
         self.assert_json_equal('', 'propertylot/@0/description', 'Apart A')
         self.assert_json_equal('', 'propertylot/@0/owner', 'Minimum')
@@ -477,7 +477,7 @@ class SetOwnerTest(LucteriosTest):
         self.calljson('/diacamma.condominium/ownerAndPropertyLotList', {}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'ownerAndPropertyLotList')
         self.assert_count_equal('owner', 3)
-        self.assert_grid_equal('propertylot', {"num": "N°", "value_ratio": "tantième principal", "description": "description", "owner": "propriétaire"}, 0)  # nb=5
+        self.assert_grid_equal('propertylot', {"num": "N°", "value_ratio": "tantième général", "description": "description", "owner": "propriétaire"}, 0)  # nb=5
 
         self.factory.xfer = PropertyLotAddModify()
         self.calljson('/diacamma.condominium/propertyLotAddModify', {}, False)
@@ -1603,7 +1603,7 @@ class OwnerTest(PaymentTest):
         self.assert_count_equal('', 11)
         self.assert_json_equal('LABELFORM', 'sumexpense', 0.0)
         self.assert_json_equal('LABELFORM', 'is_link_to_lots', True)
-        self.assert_json_equal('LABELFORM', 'secondarykey', 'principale')
+        self.assert_json_equal('LABELFORM', 'secondarykey', 'générale')
         self.assert_json_equal('', 'partitionfill/@0/owner', 'Minimum')
         self.assert_json_equal('', 'partitionfill/@0/ratio', 45.0)
         self.assert_json_equal('', 'partitionfill/@0/ventilated', 0.0)
@@ -2976,7 +2976,7 @@ class ExempleArcTest(PaymentTest):
         self.assert_json_equal('', 'custom_field/@1/name', 'chauffage')
         self.assert_json_equal('', 'custom_field/@2/name', 'sous-sol')
 
-        self.assert_grid_equal('propertylot', {"num": "N°", "value_ratio": "tantième principal", "custom_1": "escalier", "custom_2": "chauffage", "custom_3": "sous-sol", "description": "description", "owner": "propriétaire"}, 11)
+        self.assert_grid_equal('propertylot', {"num": "N°", "value_ratio": "tantième général", "custom_1": "escalier", "custom_2": "chauffage", "custom_3": "sous-sol", "description": "description", "owner": "propriétaire"}, 11)
         self.assert_json_equal('', 'propertylot/@0/num', '1')
         self.assert_json_equal('', 'propertylot/@0/value_ratio', '205 (20.5 %)')
         self.assert_json_equal('', 'propertylot/@0/custom_1', '289 (28.9 %)')
