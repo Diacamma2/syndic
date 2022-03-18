@@ -21,15 +21,20 @@ Deux modes de répartition peuvent être utilisés pour chaque catégorie de cha
 
  * Liée au lots
  
-   Dans ce cas, assignez un ensemble de lots sur cette catégorie. Pour cela, affichez la catégorie et cliquez sur le bouton "Editer". Sélectionnez les lots concernés par la catégorie en les faisant passer de la liste de gauche sur la liste de droite.
+   Dans ce cas, sélectionnez la clef de répartition concernée (principal ou secondaire) ainsi que les lots concernés par la catégorie en les faisant passer de la liste de gauche sur la liste de droite.  
+   Le plus souvent, vous aurez à assignez l'ensemble de lots sur une catégorie par rapport à une clef de répartition.   
+
    Les tantièmes correspondants seront automatiquement associés aux différents propriétaires afin de définir la répartition des charges de la catégorie.
    
    
  * Non liée au lots
  
-   Vous devez, dans ce cas, définir pour les propriétaires concernés les tantièmes grâce auxquels les charges de la catégorie seront réparties.  Ceci fait, validez votre saisie et vérifiez l'association *Catégorie - Propriétaires concernés*.
+   Vous devez, dans ce cas, définir pour les propriétaires concernés les tantièmes grâce auxquels les charges de la catégorie seront réparties.
+   Ceci fait, validez votre saisie et vérifiez l'association *Catégorie - Propriétaires concernés*.
    
-   Ce mode de répartition est utilisé dans le cas de consommations fixes (surface, étage, ...) ou individuelles (consommation d'eau).
+   Ce mode de répartition est utilisé dans le cas de consommations individuelles (chauffage, consommation d'eau, ...).
+   
+Notez qu'à la première utilisation de Diacamma Syndic, si aucune catégorie de charge n'est créée, un bouton "Contrôler les clefs de répartition" vous permet de générer une catégorie de charge "courante" par clefs définies.
 
 Les budgets prévisionnels
 -------------------------

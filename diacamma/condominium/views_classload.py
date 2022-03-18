@@ -506,7 +506,7 @@ def conf_wizard_condominium(wizard_ident, xfer):
         xfer.fill_grid(xfer.get_max_row(), PropertyLot, 'propertylot', PropertyLot.objects.all())
         lbl = XferCompLabelForm("total_lot")
         lbl.set_location(0, xfer.get_max_row() + 1)
-        lbl.set_value(_("Total of main lot parts: %d") % PropertyLot.get_total_part())
+        lbl.set_value(_("Total of general lot parts: %d") % PropertyLot.get_total_part())
         xfer.add_component(lbl)
         for cf_name, cf_model in CustomField.get_fields(PropertyLot):
             lbl = XferCompLabelForm("total_%s" % cf_name)

@@ -50,7 +50,7 @@ class SetEditor(LucteriosEditor):
             revenue_account.mask = current_system_account().get_revenue_mask()
         secondarykey = xfer.get_components('secondarykey')
         secondarykey.set_select_query(CustomField.objects.filter(modelname=PropertyLot.get_long_name()))
-        secondarykey.select_list[0] = ((0, _('main')))
+        secondarykey.select_list[0] = ((0, _('general')))
         is_link_to_lots = xfer.get_components('is_link_to_lots')
         is_link_to_lots.java_script = """
 var is_link=current.getValue();
@@ -73,7 +73,7 @@ parent.get('set_of_lots').setVisible(is_link);
         if is_link_to_lots.value:
             secondarykey = xfer.get_components('secondarykey')
             if secondarykey.value is None:
-                secondarykey.value = _('main')
+                secondarykey.value = _('general')
         else:
             xfer.remove_component('secondarykey')
 

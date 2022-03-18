@@ -28,11 +28,14 @@ Les lots
 
     Menu *Copropriété/Gestion/Les propriétaires et les lots* - onglet "Les lots"
     
-Un lot peut être détenu par un ou plusieurs propriétaires et un propriétaire peut être propriétaire d'un ou plusieurs lots. 
+Un lot peut être détenu par un seul propriétaire (moral ou physique) et un propriétaire peut être propriétaire d'un ou plusieurs lots. 
+
+Par défaut, Diacamma Syndic ne vous propose qu'une clef de répartition générale.
+Par contre, vous pouvez définir un ensemble de clefs de répartition secondaire correspondant au descriptif de votre copropriété.
 
 Déclarez les lots de votre copropriété.
-Précisez en plus de la description du lot, les tantièmes et le propriétaire de chacun.
-Vous devez veillez à la cohérence des tantièmes attribués aux lots sans quoi la répartition des charges et la détermination des appels de fonds seront incorrects.
+Précisez en plus de la description du lot, les tantièmes (général et secondaires) et le propriétaire de chacun.
+Vous devez veillez à la cohérence des différents tantièmes attribués aux lots sans quoi la répartition des charges et la détermination des appels de fonds seront incorrects.
 
     .. image:: set_owner.png
 

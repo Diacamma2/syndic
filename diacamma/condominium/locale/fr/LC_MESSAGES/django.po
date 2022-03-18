@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-03-17 15:41+0000\n"
-"PO-Revision-Date: 2022-03-17 16:41+0100\n"
+"POT-Creation-Date: 2022-03-18 09:54+0000\n"
+"PO-Revision-Date: 2022-03-18 10:53+0100\n"
 "Last-Translator: Laurent Gay <l.gay@sd-libre.fr>\n"
 "Language-Team: français <>\n"
 "Language: fr\n"
@@ -19,14 +19,14 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Generator: Poedit 2.3\n"
 
-#: __init__.py:43 views_classload.py:485 views_classload.py:488
-#: views_classload.py:497 views_classload.py:500 views_classload.py:514
+#: __init__.py:43 views_classload.py:490 views_classload.py:493
+#: views_classload.py:502 views_classload.py:505 views_classload.py:519
 msgid "Diacamma condominium"
 msgstr "Copropriété Diacamma"
 
 #: editors.py:53 editors.py:76 models.py:423
-msgid "main"
-msgstr "principale"
+msgid "general"
+msgstr "générale"
 
 #: editors.py:114 editors.py:187
 msgid "third"
@@ -84,7 +84,7 @@ msgstr "budget"
 msgid "revenue account"
 msgstr "compte de produits"
 
-#: models.py:76 models.py:87 models.py:440 views_classload.py:401
+#: models.py:76 models.py:87 models.py:440 views_classload.py:406
 msgid "cost accounting"
 msgstr "comptabilité analytique"
 
@@ -180,7 +180,7 @@ msgstr "décompte de charges"
 
 #: models.py:600 models.py:1218 models.py:1570 printmodel/CallFunds_0001.py:160
 #: printmodel/Owner_0001.py:416 printmodel/Owner_0002.py:209
-#: views_classload.py:426
+#: views_classload.py:431
 msgid "set"
 msgstr "catégorie de charges"
 
@@ -272,8 +272,8 @@ msgid "numeros"
 msgstr "numéros"
 
 #: models.py:818 models.py:823
-msgid "main tantime"
-msgstr "tantième principal"
+msgid "general tantime"
+msgstr "tantième général"
 
 #: models.py:819 printmodel/Owner_0001.py:418 printmodel/Owner_0002.py:211
 #: printmodel/Owner_0003.py:177
@@ -281,8 +281,8 @@ msgid "description"
 msgstr "description"
 
 #: models.py:822
-msgid "main ratio"
-msgstr "ratio principal"
+msgid "general ratio"
+msgstr "ratio général"
 
 #: models.py:888 printmodel/Owner_0001.py:418 printmodel/Owner_0002.py:211
 msgid "property lot"
@@ -812,11 +812,11 @@ msgstr "Gérer les copropriétaires et les lots"
 msgid "Owners and property lots"
 msgstr "Les propriétaires et les lots"
 
-#: views.py:65 views_classload.py:490
+#: views.py:65 views_classload.py:495
 msgid "Secondary key"
 msgstr "Clef secondaire"
 
-#: views.py:67 views_classload.py:497
+#: views.py:67 views_classload.py:502
 msgid "Owners"
 msgstr "Les propriétaires"
 
@@ -829,21 +829,21 @@ msgstr "Filtre sur le copropriétaire"
 msgid "You can't have more than %s owners!"
 msgstr "Vous ne pouvez pas avoir plus de %s propriétaires !"
 
-#: views.py:93 views_classload.py:500
+#: views.py:93 views_classload.py:505
 msgid "Property lots"
 msgstr "Les lots"
 
-#: views.py:97 views_classload.py:504
+#: views.py:97 views_classload.py:509
 #, python-format
-msgid "Total of main lot parts: %d"
-msgstr "Total des tantièmes principaux : %d"
+msgid "Total of general lot parts: %d"
+msgstr "Total des tantièmes généraux : %d"
 
-#: views.py:102 views_classload.py:509
+#: views.py:102 views_classload.py:514
 #, python-format
 msgid "Total of secondary key '%(name)s': %(value)d"
 msgstr "Total des tantièmes de la clef secondaire '%(name)s': %(value)d"
 
-#: views.py:104 views_classload.py:488
+#: views.py:104 views_classload.py:493
 msgid "Secondary keys"
 msgstr "Clefs secondaires"
 
@@ -1015,7 +1015,7 @@ msgid "Data converted"
 msgstr "Données comptables de copropriété converties."
 
 #: views.py:590 views.py:631 views.py:692 views_classload.py:147
-#: views_classload.py:433
+#: views_classload.py:438
 msgid "Condominium"
 msgstr "Copropriété"
 
@@ -1140,7 +1140,7 @@ msgstr "Voulez-vous vérifier les comptes de chaque propriétaire ?"
 msgid "Management of parameters of condominium"
 msgstr "Gestion des paramètres de copropriété"
 
-#: views_classload.py:83 views_classload.py:485
+#: views_classload.py:83 views_classload.py:490
 msgid "Condominium configuration"
 msgstr "Configuration de la copropriété"
 
@@ -1208,7 +1208,7 @@ msgstr ""
 msgid "Manage of class loads"
 msgstr "Gestion des catégories de charges"
 
-#: views_classload.py:159 views_classload.py:514
+#: views_classload.py:159 views_classload.py:519
 msgid "Class loads"
 msgstr "Les catégories de charges"
 
@@ -1228,27 +1228,27 @@ msgstr "Ajouter une catégorie de charges"
 msgid "Modify class load"
 msgstr "Modifier une catégorie de charges"
 
-#: views_classload.py:203 views_expense.py:155
+#: views_classload.py:208 views_expense.py:155
 msgid "Show class load"
 msgstr "Voir une catégorie de charges"
 
-#: views_classload.py:222
+#: views_classload.py:227
 msgid "Delete class load"
 msgstr "Supprimer une catégorie de charges"
 
-#: views_classload.py:225 views_classload.py:231
+#: views_classload.py:230 views_classload.py:236
 msgid "Check from keys"
 msgstr "Contrôler d'après les clefs"
 
-#: views_classload.py:237
+#: views_classload.py:242
 msgid "Finished"
 msgstr "Clôturer"
 
-#: views_classload.py:243
+#: views_classload.py:248
 msgid "Close class load"
 msgstr "Fermer une catégorie de charges"
 
-#: views_classload.py:260
+#: views_classload.py:265
 #, python-format
 msgid ""
 "This class load has a difference of %s between those call of funds and those "
@@ -1257,55 +1257,55 @@ msgstr ""
 "Cette catégorie de charges a une difference de %s entre ses appels de fonds "
 "et ses dépenses."
 
-#: views_classload.py:266
+#: views_classload.py:271
 msgid "Do you want to ventilate this amount for each owner?"
 msgstr "Comment voulez-vous ventiler ce montant ?"
 
-#: views_classload.py:275
+#: views_classload.py:280
 msgid "Do you want to close this class load?"
 msgstr "Voulez-vous fermer cette catégorie de charges ?"
 
-#: views_classload.py:288
+#: views_classload.py:293
 msgid "Modify partition"
 msgstr "Modifier une partition"
 
-#: views_classload.py:291
+#: views_classload.py:296
 msgid "Costs"
 msgstr "Comptabilité analytique"
 
-#: views_classload.py:297
+#: views_classload.py:302
 msgid "Costs accounting of a class load"
 msgstr "Catégorie de charges : centres d'analyse"
 
-#: views_classload.py:328 views_classload.py:334 views_report.py:46
+#: views_classload.py:333 views_classload.py:339 views_report.py:46
 msgid "Report"
 msgstr "Rapport"
 
-#: views_classload.py:353
+#: views_classload.py:358
 msgid "Budget"
 msgstr "Budget"
 
-#: views_classload.py:381
+#: views_classload.py:386
 msgid "year"
 msgstr "exercice comptable"
 
-#: views_classload.py:431
+#: views_classload.py:436
 msgid "parameters"
 msgstr "paramètres"
 
-#: views_classload.py:488
+#: views_classload.py:493
 msgid "Define secondary keys of your condominium."
 msgstr "Définissez les clefs de distribution de votre copropriété."
 
-#: views_classload.py:497
+#: views_classload.py:502
 msgid "Add owners of your condominium."
 msgstr "Ajouter les propriétaires de votre copropriété."
 
-#: views_classload.py:500
+#: views_classload.py:505
 msgid "Define the lots for each owners."
 msgstr "Définissez les lots pour chaque copropriétaire."
 
-#: views_classload.py:514
+#: views_classload.py:519
 msgid "Define the class loads of your condominium."
 msgstr "Définissez les catégories de charges de votre copropriété."
 
@@ -1481,8 +1481,17 @@ msgstr "Compte de gestion pour opérations exceptionnelles"
 msgid "result general"
 msgstr "solde"
 
-#~ msgid "Total of lot parts: %d"
-#~ msgstr "Total des tantièmes : %d"
+#~ msgid "main ratio"
+#~ msgstr "ratio principal"
+
+#~ msgid "main tantime"
+#~ msgstr "tantième principal"
+
+#~ msgid "main"
+#~ msgstr "principale"
+
+#~ msgid "Total of main lot parts: %d"
+#~ msgstr "Total des tantièmes principaux : %d"
 
 #~ msgid "Associate lots"
 #~ msgstr "Lots associés"

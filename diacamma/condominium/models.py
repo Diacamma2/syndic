@@ -420,7 +420,7 @@ class Set(LucteriosModel):
     @classmethod
     def checkFromKeys(cls):
         if cls.objects.filter(is_link_to_lots=True, secondarykey=None).first() is None:
-            main_set = cls.objects.create(name=_('main'), is_link_to_lots=True, secondarykey=None, type_load=Set.TYPELOAD_CURRENT)
+            main_set = cls.objects.create(name=_('general'), is_link_to_lots=True, secondarykey=None, type_load=Set.TYPELOAD_CURRENT)
             main_set.set_of_lots.set(PropertyLot.objects.all())
             main_set.save()
         for _name, cf_model in CustomField.get_fields(PropertyLot):
@@ -815,12 +815,12 @@ class PropertyLot(LucteriosModel, CustomizeObject):
     FieldName = 'property'
 
     num = models.IntegerField(verbose_name=_('numeros'), null=False, default=1)
-    value = models.IntegerField(_('main tantime'), default=0, validators=[MinValueValidator(0), MaxValueValidator(1000000)])
+    value = models.IntegerField(_('general tantime'), default=0, validators=[MinValueValidator(0), MaxValueValidator(1000000)])
     description = models.TextField(_('description'), null=True, default="")
     owner = models.ForeignKey('condominium.Owner', verbose_name=_('owner'), null=False, db_index=True, on_delete=models.CASCADE)
 
-    ratio = LucteriosVirtualField(verbose_name=_("main ratio"), compute_from='get_ratio', format_string='N1;{0} %')
-    value_ratio = LucteriosVirtualField(verbose_name=_("main tantime"), compute_from='get_value_ratio')
+    ratio = LucteriosVirtualField(verbose_name=_("general ratio"), compute_from='get_ratio', format_string='N1;{0} %')
+    value_ratio = LucteriosVirtualField(verbose_name=_("general tantime"), compute_from='get_value_ratio')
 
     def __init__(self, *args, **kwargs):
         LucteriosModel.__init__(self, *args, **kwargs)

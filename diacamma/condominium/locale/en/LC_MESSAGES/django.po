@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-03-17 15:41+0000\n"
-"PO-Revision-Date: 2022-03-17 16:41+0100\n"
+"POT-Creation-Date: 2022-03-18 09:54+0000\n"
+"PO-Revision-Date: 2022-03-18 10:53+0100\n"
 "Last-Translator: Laurent Gay <l.gay@sd-libre.fr>\n"
 "Language-Team: français <>\n"
 "Language: en\n"
@@ -19,14 +19,14 @@ msgstr ""
 "X-Generator: Poedit 2.3\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: __init__.py:43 views_classload.py:485 views_classload.py:488
-#: views_classload.py:497 views_classload.py:500 views_classload.py:514
+#: __init__.py:43 views_classload.py:490 views_classload.py:493
+#: views_classload.py:502 views_classload.py:505 views_classload.py:519
 msgid "Diacamma condominium"
 msgstr "Diacamma condominium"
 
 #: editors.py:53 editors.py:76 models.py:423
-msgid "main"
-msgstr "main"
+msgid "general"
+msgstr "general"
 
 #: editors.py:114 editors.py:187
 msgid "third"
@@ -84,7 +84,7 @@ msgstr "budget"
 msgid "revenue account"
 msgstr "revenue account"
 
-#: models.py:76 models.py:87 models.py:440 views_classload.py:401
+#: models.py:76 models.py:87 models.py:440 views_classload.py:406
 msgid "cost accounting"
 msgstr "cost accounting"
 
@@ -180,7 +180,7 @@ msgstr "load counts"
 
 #: models.py:600 models.py:1218 models.py:1570 printmodel/CallFunds_0001.py:160
 #: printmodel/Owner_0001.py:416 printmodel/Owner_0002.py:209
-#: views_classload.py:426
+#: views_classload.py:431
 msgid "set"
 msgstr "category of loads"
 
@@ -272,8 +272,8 @@ msgid "numeros"
 msgstr "numeros"
 
 #: models.py:818 models.py:823
-msgid "main tantime"
-msgstr "main tantime"
+msgid "general tantime"
+msgstr "general tantime"
 
 #: models.py:819 printmodel/Owner_0001.py:418 printmodel/Owner_0002.py:211
 #: printmodel/Owner_0003.py:177
@@ -281,8 +281,8 @@ msgid "description"
 msgstr "description"
 
 #: models.py:822
-msgid "main ratio"
-msgstr "main ratio"
+msgid "general ratio"
+msgstr "general ratio"
 
 #: models.py:888 printmodel/Owner_0001.py:418 printmodel/Owner_0002.py:211
 msgid "property lot"
@@ -812,11 +812,11 @@ msgstr "Manage of owners and property lots"
 msgid "Owners and property lots"
 msgstr "Owners and property lots"
 
-#: views.py:65 views_classload.py:490
+#: views.py:65 views_classload.py:495
 msgid "Secondary key"
 msgstr "Secondary key"
 
-#: views.py:67 views_classload.py:497
+#: views.py:67 views_classload.py:502
 msgid "Owners"
 msgstr "Owners"
 
@@ -829,21 +829,21 @@ msgstr "Filtrer by owner"
 msgid "You can't have more than %s owners!"
 msgstr "You can't have more than %s owners!"
 
-#: views.py:93 views_classload.py:500
+#: views.py:93 views_classload.py:505
 msgid "Property lots"
 msgstr "Property lots"
 
-#: views.py:97 views_classload.py:504
+#: views.py:97 views_classload.py:509
 #, python-format
-msgid "Total of main lot parts: %d"
-msgstr "Total of main lot parts: %d"
+msgid "Total of general lot parts: %d"
+msgstr "Total of general lot parts: %d"
 
-#: views.py:102 views_classload.py:509
+#: views.py:102 views_classload.py:514
 #, python-format
 msgid "Total of secondary key '%(name)s': %(value)d"
 msgstr "Total of secondary key '%(name)s': %(value)d"
 
-#: views.py:104 views_classload.py:488
+#: views.py:104 views_classload.py:493
 msgid "Secondary keys"
 msgstr "Secondary keys"
 
@@ -1013,7 +1013,7 @@ msgid "Data converted"
 msgstr "Condominium accounting data converted"
 
 #: views.py:590 views.py:631 views.py:692 views_classload.py:147
-#: views_classload.py:433
+#: views_classload.py:438
 msgid "Condominium"
 msgstr "Condominium"
 
@@ -1137,7 +1137,7 @@ msgstr "Do you want to check account of owners?"
 msgid "Management of parameters of condominium"
 msgstr "Management of parameters of condominium"
 
-#: views_classload.py:83 views_classload.py:485
+#: views_classload.py:83 views_classload.py:490
 msgid "Condominium configuration"
 msgstr "Condominium configuration"
 
@@ -1197,7 +1197,7 @@ msgstr "Manage of condominium"
 msgid "Manage of class loads"
 msgstr "Manage of class loads"
 
-#: views_classload.py:159 views_classload.py:514
+#: views_classload.py:159 views_classload.py:519
 msgid "Class loads"
 msgstr "Class loads"
 
@@ -1217,27 +1217,27 @@ msgstr "Add class load"
 msgid "Modify class load"
 msgstr "Modify class load"
 
-#: views_classload.py:203 views_expense.py:155
+#: views_classload.py:208 views_expense.py:155
 msgid "Show class load"
 msgstr "Show class load"
 
-#: views_classload.py:222
+#: views_classload.py:227
 msgid "Delete class load"
 msgstr "Delete class load"
 
-#: views_classload.py:225 views_classload.py:231
+#: views_classload.py:230 views_classload.py:236
 msgid "Check from keys"
 msgstr "Check from keys"
 
-#: views_classload.py:237
+#: views_classload.py:242
 msgid "Finished"
 msgstr "Finished"
 
-#: views_classload.py:243
+#: views_classload.py:248
 msgid "Close class load"
 msgstr "Close class load"
 
-#: views_classload.py:260
+#: views_classload.py:265
 #, python-format
 msgid ""
 "This class load has a difference of %s between those call of funds and those "
@@ -1246,55 +1246,55 @@ msgstr ""
 "This class load has a difference of %s between those call of funds and those "
 "expenses."
 
-#: views_classload.py:266
+#: views_classload.py:271
 msgid "Do you want to ventilate this amount for each owner?"
 msgstr "Do you want to ventilate this amount for each owner?"
 
-#: views_classload.py:275
+#: views_classload.py:280
 msgid "Do you want to close this class load?"
 msgstr "Do you want to close this class load?"
 
-#: views_classload.py:288
+#: views_classload.py:293
 msgid "Modify partition"
 msgstr "Modify partition"
 
-#: views_classload.py:291
+#: views_classload.py:296
 msgid "Costs"
 msgstr "Costs"
 
-#: views_classload.py:297
+#: views_classload.py:302
 msgid "Costs accounting of a class load"
 msgstr "costs of class load"
 
-#: views_classload.py:328 views_classload.py:334 views_report.py:46
+#: views_classload.py:333 views_classload.py:339 views_report.py:46
 msgid "Report"
 msgstr "Report"
 
-#: views_classload.py:353
+#: views_classload.py:358
 msgid "Budget"
 msgstr "Budget"
 
-#: views_classload.py:381
+#: views_classload.py:386
 msgid "year"
 msgstr "year"
 
-#: views_classload.py:431
+#: views_classload.py:436
 msgid "parameters"
 msgstr "parameters"
 
-#: views_classload.py:488
+#: views_classload.py:493
 msgid "Define secondary keys of your condominium."
 msgstr "Define secondary keys of your condominium."
 
-#: views_classload.py:497
+#: views_classload.py:502
 msgid "Add owners of your condominium."
 msgstr "Add owners of your condominium."
 
-#: views_classload.py:500
+#: views_classload.py:505
 msgid "Define the lots for each owners."
 msgstr "Define the lots for each owners."
 
-#: views_classload.py:514
+#: views_classload.py:519
 msgid "Define the class loads of your condominium."
 msgstr "Define the class loads of your condominium."
 
@@ -1468,8 +1468,17 @@ msgstr "Exceptional manage accounting"
 msgid "result general"
 msgstr "result general"
 
-#~ msgid "Total of lot parts: %d"
-#~ msgstr "Total of lot tantimes: %d"
+#~ msgid "main ratio"
+#~ msgstr "main ratio"
+
+#~ msgid "main tantime"
+#~ msgstr "main tantime"
+
+#~ msgid "main"
+#~ msgstr "main"
+
+#~ msgid "Total of main lot parts: %d"
+#~ msgstr "Total of main lot parts: %d"
 
 #~ msgid "Associate lots"
 #~ msgstr "Associate lots"
