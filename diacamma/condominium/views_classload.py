@@ -42,6 +42,7 @@ from lucterios.CORE.models import Parameter
 from lucterios.CORE.parameters import Params
 from lucterios.CORE.views import ParamEdit
 from lucterios.CORE.xferprint import XferPrintAction
+from lucterios.contacts.models import CustomField
 
 from diacamma.accounting.tools import correct_accounting_code,\
     get_amount_from_format_devise
@@ -52,7 +53,6 @@ from diacamma.accounting.views_reports import CostAccountingIncomeStatement
 from diacamma.condominium.models import Set, Partition, ExpenseDetail, Owner, PropertyLot, SetCost, OwnerLink,\
     RecoverableLoadRatio, PropertyLotCustomField
 from diacamma.condominium.system import clear_system_condo, current_system_condo
-from lucterios.contacts.models import CustomField
 
 
 def fill_params(self, is_mini=False, new_params=False):
@@ -192,6 +192,11 @@ class SetAddModify(XferAddEditor):
     field_id = 'set'
     caption_add = _("Add class load")
     caption_modify = _("Modify class load")
+
+    def _initialize(self, request, *_, **kwargs):
+        XferAddEditor._initialize(self, request, *_, **kwargs)
+        if self.item.id is not None:
+            self.redirect_to_show = False
 
     def fillresponse(self):
         if self.item.id is None:
@@ -502,12 +507,17 @@ def conf_wizard_condominium(wizard_ident, xfer):
         xfer.add_title(_("Diacamma condominium"), _("Owners"), _('Add owners of your condominium.'))
         xfer.fill_grid(xfer.get_max_row(), Owner, 'owner', Owner.objects.all())
     elif (xfer is not None) and (wizard_ident == "condominium_lot"):
+        from diacamma.condominium.views import PropertyLotImport
         xfer.add_title(_("Diacamma condominium"), _("Property lots"), _('Define the lots for each owners.'))
         xfer.fill_grid(xfer.get_max_row(), PropertyLot, 'propertylot', PropertyLot.objects.all())
         lbl = XferCompLabelForm("total_lot")
         lbl.set_location(0, xfer.get_max_row() + 1)
         lbl.set_value(_("Total of general lot parts: %d") % PropertyLot.get_total_part())
         xfer.add_component(lbl)
+        btn = XferCompButton("btnimport")
+        btn.set_location(1, xfer.get_max_row(), 1, 2)
+        btn.set_action(xfer.request, PropertyLotImport.get_action(), close=CLOSE_NO, params={'step': 0})
+        xfer.add_component(btn)
         for cf_name, cf_model in CustomField.get_fields(PropertyLot):
             lbl = XferCompLabelForm("total_%s" % cf_name)
             lbl.set_location(0, xfer.get_max_row() + 1)

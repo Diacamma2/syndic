@@ -151,7 +151,7 @@ class SyndicTest(LucteriosTest):
 
         self.calljson('/CORE/configurationWizard', {'steplist': steplist, 'step': 13})
         self.assert_observer('core.custom', 'CORE', 'configurationWizard')
-        self.assert_count_equal('', 10)
+        self.assert_count_equal('', 11)
         self.assert_json_equal('LABELFORM', 'progress', 'étape de progression: 14/18')
         self.assert_json_equal('LABELFORM', 'subtitle', 'Les lots')
 

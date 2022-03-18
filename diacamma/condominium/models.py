@@ -363,7 +363,7 @@ class Set(LucteriosModel):
         if self.is_link_to_lots:
             for part in self.partition_set.all():
                 value = 0
-                for property_lot in self.set_of_lots.filter(owner=part.owner):
+                for property_lot in self.set_of_lots.all().filter(owner=part.owner):
                     value += property_lot.get_value_by_key(self.secondarykey)
                 part.value = value
                 part.save()
@@ -842,12 +842,32 @@ class PropertyLot(LucteriosModel, CustomizeObject):
         return ["num", "value", "description", "owner"]
 
     @classmethod
+    def get_import_fields(cls):
+        fields_desc = ["num", "value"]
+        for cf_name, cf_model in CustomField.get_fields(cls):
+            fields_desc.append((cf_name, cf_model.name))
+        fields_desc.extend(["description", "owner"])
+        return fields_desc
+
+    @classmethod
     def get_total_part(cls):
         total = cls.objects.all().aggregate(sum=Sum('value'))
         if ('sum' in total.keys()) and (total['sum'] is not None):
             return total['sum']
         else:
             return 0
+
+    @classmethod
+    def import_data(cls, rowdata, dateformat):
+        try:
+            new_item = super(PropertyLot, cls).import_data(rowdata, dateformat)
+            if new_item is not None:
+                new_item.set_custom_values(rowdata)
+            return new_item
+        except Exception as import_error:
+            cls.import_logs.append(str(import_error))
+            getLogger('diacamma.condominium').exception("import_data")
+            return None
 
     def get_ratio(self):
         total = self.get_total_part()
@@ -873,8 +893,9 @@ class PropertyLot(LucteriosModel, CustomizeObject):
             return ccf_model.get_data()
 
     def refresh_set_ratio(self):
-        for set_linked in Set.objects.filter(is_link_to_lots=True, set_of_lots__id=self.id):
-            set_linked.refresh_ratio_link_lots()
+        for set_linked in Set.objects.filter(is_link_to_lots=True):
+            if self in set_linked.set_of_lots.all():
+                set_linked.refresh_ratio_link_lots()
 
     def set_custom_values(self, params):
         CustomizeObject.set_custom_values(self, params)

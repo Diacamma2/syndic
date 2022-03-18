@@ -22,6 +22,7 @@ from lucterios.framework import signal_and_lock
 from lucterios.CORE.parameters import Params
 from lucterios.CORE.xferprint import XferPrintAction, XferPrintReporting
 from lucterios.CORE.models import Parameter
+from lucterios.CORE.views import ObjectImport
 
 from lucterios.contacts.models import Individual, LegalEntity, AbstractContact, CustomField
 from lucterios.contacts.tools import ContactSelection
@@ -91,16 +92,22 @@ class OwnerAndPropertyLotList(XferListEditor):
                 lbl.set_location(grid.col, self.get_max_row() + 1)
                 self.add_component(lbl)
         self.new_tab(_("Property lots"))
-        self.fill_grid(self.get_max_row(), PropertyLot, 'propertylot', PropertyLot.objects.all())
+        self.fill_grid(0, PropertyLot, 'propertylot', PropertyLot.objects.all())
+        grid = self.get_components('propertylot')
         lbl = XferCompLabelForm("total_lot")
-        lbl.set_location(1, 5)
+        lbl.set_location(0, 5)
         lbl.set_value(_("Total of general lot parts: %d") % PropertyLot.get_total_part())
         self.add_component(lbl)
         for cf_name, cf_model in CustomField.get_fields(PropertyLot):
             lbl = XferCompLabelForm("total_%s" % cf_name)
-            lbl.set_location(1, self.get_max_row() + 1)
+            lbl.set_location(0, self.get_max_row() + 1)
             lbl.set_value(_("Total of secondary key '%(name)s': %(value)d") % {'name': cf_model.name, 'value': PropertyLotCustomField.get_total_part(cf_model)})
             self.add_component(lbl)
+        btn = XferCompButton("btnimport")
+        btn.set_location(1, 5, 1, 2)
+        btn.set_action(self.request, PropertyLotImport.get_action(), close=CLOSE_NO, params={'step': 0})
+        self.add_component(btn)
+
         self.new_tab(_("Secondary keys"))
         self.fill_grid(0, CustomField, "custom_field", CustomField.get_filter(PropertyLot))
         grid_custom = self.get_components('custom_field')
@@ -465,6 +472,17 @@ class PropertyLotDel(XferDelete):
     model = PropertyLot
     field_id = 'propertylot'
     caption = _("Delete property lot")
+
+
+@ActionsManage.affect_other(_('Import'), "images/right.png")
+@MenuManage.describ('condominium.add_owner')
+class PropertyLotImport(ObjectImport):
+    icon = "owner.png"
+    model = PropertyLot
+    caption = _("Property lot import")
+
+    def get_select_models(self):
+        return PropertyLot.get_select_contact_type(True)
 
 
 def get_owners(request):
