@@ -39,4 +39,6 @@ Vous devez veillez à la cohérence des différents tantièmes attribués aux lo
 
     .. image:: set_owner.png
 
-    
+Il est possible également d'importer la liste de vos lots via un fichier CSV et le bouton "Importer des lots".
+Notez que dans le fichier CSV, les propriétaires qui n'ont être créer avant que comme contact (moral ou physique), deviendraient alors propriétaire.
+

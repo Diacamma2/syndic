@@ -41,7 +41,7 @@ from django_fsm import FSMIntegerField, transition
 
 from lucterios.framework.models import LucteriosModel, correct_db_field
 from lucterios.framework.model_fields import get_subfield_show, LucteriosVirtualField, LucteriosDecimalField
-from lucterios.framework.error import LucteriosException, IMPORTANT
+from lucterios.framework.error import LucteriosException, IMPORTANT, GRAVE
 from lucterios.framework.tools import convert_date, get_date_formating, format_to_string
 from lucterios.framework.signal_and_lock import Signal
 from lucterios.framework.auditlog import auditlog
@@ -856,6 +856,32 @@ class PropertyLot(LucteriosModel, CustomizeObject):
             return total['sum']
         else:
             return 0
+
+    @classmethod
+    def _convert_field_foreignkey(cls, fieldvalue, dep_field, fieldname, **_args):
+        def find_item(model, expectecvalue):
+            for item in model.objects.all():
+                if str(item.get_final_child()) == str(expectecvalue):
+                    return item
+            return None
+        if fieldname == 'owner':
+            new_owner = find_item(Owner, fieldvalue)
+            if new_owner is None:
+                new_third = find_item(Third, fieldvalue)
+                if new_third is None:
+                    new_contact = find_item(AbstractContact, fieldvalue)
+                    if new_contact is not None:
+                        new_third = Third.objects.create(contact=new_contact, status=Third.STATUS_ENABLE)
+                if new_third is not None:
+                    new_owner = Owner.objects.create(third=new_third)
+                    new_owner.check_account()
+                    new_owner.save()
+            if new_owner is None:
+                base_dep_field = cls.get_field_by_name('owner')
+                raise LucteriosException(GRAVE, _("%(name)s '%(value)s' unknown !") % {'name': base_dep_field.verbose_name, 'value': fieldvalue})
+            return new_owner
+        else:
+            return super(PropertyLot, cls)._convert_field_foreignkey(fieldvalue, dep_field, fieldname, **_args)
 
     @classmethod
     def import_data(cls, rowdata, dateformat):

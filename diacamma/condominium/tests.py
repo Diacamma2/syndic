@@ -57,7 +57,7 @@ from diacamma.payoff.test_tools import default_bankaccount_fr, default_paymentme
 from diacamma.condominium.models import PropertyLot, Set, Owner, CallFunds, PropertyLotCustomField
 from diacamma.condominium.views import OwnerAndPropertyLotList, OwnerAdd, OwnerDel, OwnerShow, PropertyLotAddModify, CondominiumConvert, PaymentVentilatePay,\
     OwnerLoadCount, PaymentMultiPay, OwnerPayableEmail, OwnerModify, PaymentRefund,\
-    OwnerReport, OwnerAndPropertyLotPrint
+    OwnerReport, OwnerAndPropertyLotPrint, PropertyLotImport
 from diacamma.condominium.views_classload import SetList, SetAddModify, SetDel, SetShow, PartitionAddModify, CondominiumConf, SetClose,\
     OwnerLinkAddModify, OwnerLinkDel, RecoverableLoadRatioAddModify, RecoverableLoadRatioDel
 from diacamma.condominium.views_callfunds import CallFundsList, CallFundsAddCurrent, CallFundsTransition, CallFundsShow
@@ -554,6 +554,78 @@ class SetOwnerTest(LucteriosTest):
         self.assert_count_equal('owner', 2)
         self.assert_json_equal('', 'owner/@1/third', 'Dalton William')
         self.assert_json_equal('', 'owner/@0/third', 'Dalton Joe')
+
+    def test_import_propertylot(self):
+        owner1 = Owner.objects.create(third_id=4)
+        owner1.check_account()
+        owner1.save()
+        change_legal('Rantanplan')
+        csv_content = """N°;general;ascenseur;description;propriétaire
+1;100;10;Apart A;Minimum
+2;150;30;Apart B;Dalton William
+3;125;40;Apart C;Rantanplan
+4;15;10;Cave 1;Minimum
+5;15;10;Cave 2;Dalton William
+"""
+
+        self.factory.xfer = CustomFieldAddModify()
+        self.calljson('/lucterios.contacts/customFieldAddModify',
+                      {'SAVE': 'YES', "name": "ascenseur", "kind": '1', 'modelname': 'condominium.PropertyLot'}, False)
+        self.assert_observer('core.acknowledge', 'lucterios.contacts', 'customFieldAddModify')
+
+        self.factory.xfer = OwnerAndPropertyLotList()
+        self.calljson('/diacamma.condominium/ownerAndPropertyLotList', {}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'ownerAndPropertyLotList')
+        self.assert_count_equal('owner', 1)
+        self.assert_json_equal('', 'owner/@0/third', 'Minimum')
+        self.assert_grid_equal('propertylot', {"num": "N°", "value_ratio": "tantième général", "custom_1": 'ascenseur', "description": "description", "owner": "propriétaire"}, 0)  # nb=5
+
+        self.factory.xfer = PropertyLotImport()
+        self.calljson('/diacamma.condominium/propertyLotImport', {"modelname": "condominium.PropertyLot", 'step': 3, 'quotechar': "'", 'delimiter': ';',
+                                                                  'encoding': 'utf-8', 'dateformat': '%d/%m/%Y', 'csvcontent0': csv_content,
+                                                                  "fld_num": "N°", "fld_value": "general", "fld_custom_1": "ascenseur",
+                                                                  "fld_description": "description", "fld_owner": "propriétaire"}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'propertyLotImport')
+        self.assert_count_equal('', 3)
+        self.assert_json_equal('LABELFORM', 'result', "5 éléments ont été importés")
+
+        self.factory.xfer = OwnerAndPropertyLotList()
+        self.calljson('/diacamma.condominium/ownerAndPropertyLotList', {}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'ownerAndPropertyLotList')
+        self.assert_count_equal('owner', 3)
+        self.assert_count_equal('propertylot', 5)
+        self.assert_json_equal('', 'propertylot/@0/num', '1')
+        self.assert_json_equal('', 'propertylot/@0/value_ratio', '100 (24.7 %)')
+        self.assert_json_equal('', 'propertylot/@0/custom_1', '10 (10.0 %)')
+        self.assert_json_equal('', 'propertylot/@0/description', 'Apart A')
+        self.assert_json_equal('', 'propertylot/@0/owner', 'Minimum')
+        self.assert_json_equal('', 'propertylot/@1/num', '2')
+        self.assert_json_equal('', 'propertylot/@1/value_ratio', '150 (37.0 %)')
+        self.assert_json_equal('', 'propertylot/@1/custom_1', '30 (30.0 %)')
+        self.assert_json_equal('', 'propertylot/@1/description', 'Apart B')
+        self.assert_json_equal('', 'propertylot/@1/owner', 'Dalton William')
+        self.assert_json_equal('', 'propertylot/@2/num', '3')
+        self.assert_json_equal('', 'propertylot/@2/value_ratio', '125 (30.9 %)')
+        self.assert_json_equal('', 'propertylot/@2/custom_1', '40 (40.0 %)')
+        self.assert_json_equal('', 'propertylot/@2/description', 'Apart C')
+        self.assert_json_equal('', 'propertylot/@2/owner', 'Rantanplan')
+        self.assert_json_equal('', 'propertylot/@3/num', '4')
+        self.assert_json_equal('', 'propertylot/@3/value_ratio', '15 (3.7 %)')
+        self.assert_json_equal('', 'propertylot/@3/custom_1', '10 (10.0 %)')
+        self.assert_json_equal('', 'propertylot/@3/description', 'Cave 1')
+        self.assert_json_equal('', 'propertylot/@3/owner', 'Minimum')
+        self.assert_json_equal('', 'propertylot/@4/num', '5')
+        self.assert_json_equal('', 'propertylot/@4/value_ratio', '15 (3.7 %)')
+        self.assert_json_equal('', 'propertylot/@4/custom_1', '10 (10.0 %)')
+        self.assert_json_equal('', 'propertylot/@4/description', 'Cave 2')
+        self.assert_json_equal('', 'propertylot/@4/owner', 'Dalton William')
+
+        self.assert_json_equal('', 'owner/@0/third', 'Dalton William')
+        self.assert_json_equal('', 'owner/@0/property_part', [165, 405, 40.74])
+        self.assert_json_equal('', 'owner/@1/third', 'Minimum')
+        self.assert_json_equal('', 'owner/@1/property_part', [115, 405, 28.40])
+        self.assert_json_equal('', 'owner/@2/third', 'Rantanplan')
+        self.assert_json_equal('', 'owner/@2/property_part', [125, 405, 30.86])
 
     def test_show_partition(self):
         self.factory.xfer = OwnerAndPropertyLotList()
