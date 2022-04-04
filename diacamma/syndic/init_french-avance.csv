@@ -2,7 +2,7 @@ code;name
 102;Provisions pour travaux décidés
 103;Avances
 1031;Avances de trésorerie
-1032;Avances travaux au titre de l'article 18.6e alinéa de la loi susvisée
+1032;Avances travaux au titre de l'article 18 - 6e alinéa de la loi susvisée
 1033;Autres avances
 105;Fonds de travaux
 120;Solde en attente sur travaux et opérations exceptionnelles
@@ -16,13 +16,8 @@ code;name
 441;Etat et autres organismes - subventions à recevoir
 442;Etat - impôts et versements assimilés
 443;Collectivités territoriales - aides
-450;Copropriétaire individualisé
-4501;Copropriétaire - budget prévisionnel
-4502;Copropriétaire - travaux et opération exceptionnelles
-4503;Copropriétaire - avances
-4504;Copropriétaire - emprunts
-4505;Copropriétaire - fonds de travaux
-459;Copropriétaire - créances douteuses
+450;Copropriétaires
+459;Copropriétaires - créances douteuses
 461;Débiteurs divers
 462;Créditeurs divers
 471;Compte en attente d'imputation débiteur
@@ -84,4 +79,4 @@ code;name
 714;Produits divers (dont intérêts légaux dus par les copropriétaires)
 716;Produits financiers
 718;Produits exceptionnels
-780;Reprises de dépréciations sur créances douteuses.
+780;Reprises de dépréciations sur créances douteuses
