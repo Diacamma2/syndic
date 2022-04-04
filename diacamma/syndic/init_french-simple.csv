@@ -10,13 +10,8 @@ code;name
 401;Fournisseurs - Factures parvenues
 408;Fournisseurs - Factures non parvenues
 409;Fournisseurs débiteurs
-450;Copropriétaire individualisé
-4501;Copropriétaire - budget prévisionnel
-4502;Copropriétaire - travaux et opération exceptionnelles
-4503;Copropriétaire - avances
-4504;Copropriétaire - emprunts
-4505;Copropriétaire - fonds de travaux
-459;Copropriétaire - créances douteuses
+450;Copropriétaires
+459;Copropriétaires - créances douteuses
 512;Banques
 531;Caisse
 601;Eau
