@@ -1,7 +1,7 @@
 Les copropriétaires
 ===================
 
-La réglementation française impose d'individualiser les comptes des copropriétaires. Cela nécessite d'ouvrir une subdivision du  compte 450000 pour chaque copropriétaire. L'AG peut aussi décider de distinguer les créances selon leur nature (comptes '450-100', '450-200', '450-300'...).
+La réglementation française impose d'ouvrir pour chacun des copropriétaires un compte nominatif (exemple '450MARY'), sous-compte du  compte "450000 Copropriétaires individualisés". L'AG peut aussi décider que les comptes nominatifs des copropriétaires soient eux-aussi subdivisés afin de distinguer les créances selon leur nature (comptes '450MARY-100', '450MARY-200', '450MARY-300'...).
 
 Avant de créer vos copropriétaires, vous devez paramétrer votre copropriété en spécifiant les comptes généraux devant être utilisés par vous, grâce à quoi les subdivisions seront possibles :
 
