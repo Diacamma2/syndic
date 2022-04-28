@@ -1014,6 +1014,8 @@ class CallFundsSupporting(Supporting):
 
     def generate_pdfreport(self):
         if self.callfunds.status != CallFunds.STATUS_BUILDING:
+            year = FiscalYear.get_current(convert_date(self.callfunds.date))
+            self.callfunds.owner.set_dates(begin_date=year.begin, end_date=self.callfunds.date)
             return Supporting.generate_pdfreport(self)
         return None
 

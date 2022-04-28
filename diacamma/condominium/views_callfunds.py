@@ -18,6 +18,7 @@ from lucterios.framework.xfersearch import get_criteria_list
 from diacamma.payoff.views import can_send_email, SupportingPrint
 from diacamma.condominium.models import CallFunds, CallDetail
 from diacamma.condominium.system import current_system_condo
+from diacamma.accounting.models import FiscalYear
 
 
 @MenuManage.describ('condominium.change_callfunds', FORMTYPE_NOMODAL, 'condominium.manage', _('Manage of calls of funds'))
@@ -137,6 +138,8 @@ class CallFundsPrint(SupportingPrint):
         has_item = False
         for item in self.items:
             if item.status != CallFunds.STATUS_BUILDING:
+                year = FiscalYear.get_current(item.date)
+                item.owner.set_dates(begin_date=year.begin, end_date=item.date)
                 has_item = True
                 yield item
         if not has_item:
