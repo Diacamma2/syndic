@@ -8,12 +8,12 @@ from django.db.models.query import QuerySet
 from django.db.models.functions import Concat
 from django.db.models import Q, Value
 
-from lucterios.framework.xferadvance import TITLE_MODIFY, TITLE_ADD, TITLE_EDIT, TITLE_DELETE, TITLE_PRINT, TITLE_CANCEL, TITLE_OK,\
+from lucterios.framework.xferadvance import TITLE_MODIFY, TITLE_ADD, TITLE_EDIT, TITLE_DELETE, TITLE_PRINT, TITLE_CANCEL, TITLE_OK, \
     TITLE_CREATE
 from lucterios.framework.xferadvance import XferListEditor, XferShowEditor, XferAddEditor, XferDelete
-from lucterios.framework.xfercomponents import XferCompLabelForm, XferCompDate, XferCompButton, XferCompImage, XferCompSelect, XferCompEdit,\
+from lucterios.framework.xfercomponents import XferCompLabelForm, XferCompDate, XferCompButton, XferCompImage, XferCompSelect, XferCompEdit, \
     XferCompGrid
-from lucterios.framework.xfergraphic import XferContainerAcknowledge,\
+from lucterios.framework.xfergraphic import XferContainerAcknowledge, \
     XferContainerCustom
 from lucterios.framework.tools import FORMTYPE_NOMODAL, ActionsManage, MenuManage, WrapAction
 from lucterios.framework.tools import SELECT_SINGLE, CLOSE_NO, FORMTYPE_REFRESH, FORMTYPE_MODAL, CLOSE_YES, SELECT_MULTI
@@ -32,7 +32,7 @@ from diacamma.accounting.tools import correct_accounting_code, get_amount_from_f
 from diacamma.payoff.models import PaymentMethod, Payoff, Supporting
 from diacamma.payoff.views import PayoffAddModify, can_send_email
 
-from diacamma.condominium.models import PropertyLot, Owner, Set, SetCost, convert_accounting, OwnerContact, generate_pdfreport,\
+from diacamma.condominium.models import PropertyLot, Owner, Set, SetCost, convert_accounting, OwnerContact, generate_pdfreport, \
     LIST_DEFAULT_ACCOUNTS, DEFAULT_ACCOUNT_CURRENT, Payment, PropertyLotCustomField
 from diacamma.condominium.views_classload import fill_params
 from diacamma.condominium.system import current_system_condo
@@ -65,6 +65,8 @@ class OwnerAndPropertyLotList(XferListEditor):
         self.params['basic_model'] = 'condominium.PropertyLot'
         self.params['custom_editor_title'] = _('Secondary key')
         self.params['custom_type'] = CustomField.KIND_INTEGER
+        self.params['args_min'] = 0
+        self.params['args_max'] = 100000
         self.new_tab(_("Owners"))
         contact_filter = self.getparam('filter', '')
         comp = XferCompEdit('filter')
@@ -326,7 +328,7 @@ class OwnerShowPayable(XferContainerAcknowledge):
     model = Owner
     field_id = 'owner'
     readonly = True
-    methods_allowed = ('GET', )
+    methods_allowed = ('GET',)
 
     def fillresponse(self):
         self.redirect_action(ActionsManage.get_action_url('payoff.Supporting', 'Show', self),
@@ -566,7 +568,7 @@ class CondominiumConvert(XferContainerAcknowledge):
             year_list = ["{[i]} - %s{[/i]}" % year for year in FiscalYear.objects.filter(status__in=(FiscalYear.STATUS_BUILDING, FiscalYear.STATUS_RUNNING))]
             lab = XferCompLabelForm('info')
             lab.set_value(
-                _("This conversion tool will change your account to respect French law about condominium.{[br/]}For the no-closed fiscal years:{[newline]}%s{[newline]}It will do:{[newline]} - To change accounting code for each owners.{[newline]} - To de-validate all your entity.{[br/]} - To delete all entity link to call of funds or expenses.{[br/]} - To de-archive call of funds or expenses.{[br/]} - To generate correct account for call of funds or expenses.{[br/]}{[center]}{[u]}{[b]}Warning: This action is  definitive.{[/b]}{[/u]}{[center]}") %
+                _("This conversion tool will change your account to respect French law about condominium.{[br/]}For the no-closed fiscal years:{[newline]}%s{[newline]}It will do:{[newline]} - To change accounting code for each owners.{[newline]} - To de-validate all your entity.{[br/]} - To delete all entity link to call of funds or expenses.{[br/]} - To de-archive call of funds or expenses.{[br/]} - To generate correct account for call of funds or expenses.{[br/]}{[center]}{[u]}{[b]}Warning: This action is  definitive.{[/b]}{[/u]}{[center]}") % 
                 '{[br/]}'.join(year_list))
             lab.set_location(0, 1, 4)
             dlg.add_component(lab)
