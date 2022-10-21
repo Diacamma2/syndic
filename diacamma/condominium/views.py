@@ -66,7 +66,7 @@ class OwnerAndPropertyLotList(XferListEditor):
         self.params['custom_editor_title'] = _('Secondary key')
         self.params['custom_type'] = CustomField.KIND_INTEGER
         self.params['args_min'] = 0
-        self.params['args_max'] = 100000
+        self.params['args_max'] = 1_000_000_000
         self.new_tab(_("Owners"))
         contact_filter = self.getparam('filter', '')
         comp = XferCompEdit('filter')

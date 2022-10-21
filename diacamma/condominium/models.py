@@ -781,7 +781,7 @@ class PartitionExceptional(Partition):
 class PropertyLotCustomField(LucteriosModel):
     property = models.ForeignKey('PropertyLot', verbose_name=_('property'), null=False, on_delete=models.CASCADE)
     field = models.ForeignKey(CustomField, verbose_name=_('field'), null=False, on_delete=models.CASCADE)
-    value = models.IntegerField(_('tantime'), default=0, validators=[MinValueValidator(0), MaxValueValidator(1000000)])
+    value = models.IntegerField(_('tantime'), default=0, validators=[MinValueValidator(0), MaxValueValidator(1_000_000_000)])
 
     @classmethod
     def get_total_part(cls, field):
@@ -815,7 +815,7 @@ class PropertyLot(LucteriosModel, CustomizeObject):
     FieldName = 'property'
 
     num = models.IntegerField(verbose_name=_('numeros'), null=False, default=1)
-    value = models.IntegerField(_('general tantime'), default=0, validators=[MinValueValidator(0), MaxValueValidator(1000000)])
+    value = models.IntegerField(_('general tantime'), default=0, validators=[MinValueValidator(0), MaxValueValidator(1_000_000_000)])
     description = models.TextField(_('description'), null=True, default="")
     owner = models.ForeignKey('condominium.Owner', verbose_name=_('owner'), null=False, db_index=True, on_delete=models.CASCADE)
 
