@@ -599,7 +599,7 @@ class LoadCountSet(QuerySet):
 class Partition(LucteriosModel):
     set = models.ForeignKey(Set, verbose_name=_('set'), null=False, db_index=True, on_delete=models.CASCADE)
     owner = models.ForeignKey('condominium.Owner', verbose_name=_('owner'), null=False, db_index=True, on_delete=models.CASCADE)
-    value = LucteriosDecimalField(_('tantime'), max_digits=7, decimal_places=2, default=0.0, validators=[MinValueValidator(0.0), MaxValueValidator(100000.00)], format_string="N2")
+    value = LucteriosDecimalField(_('tantime'), max_digits=13, decimal_places=2, default=0.0, validators=[MinValueValidator(0.0), MaxValueValidator(1_000_000_000.00)], format_string="N2")
 
     ratio = LucteriosVirtualField(verbose_name=_("ratio"), compute_from='get_ratio', format_string='N1;{0} %')
     ventilated = LucteriosVirtualField(verbose_name=_('ventilated'), compute_from='get_ventilated', format_string=lambda: format_with_devise(5))

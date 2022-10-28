@@ -2,6 +2,7 @@
 
 import django.core.validators
 from django.db import migrations, models
+from lucterios.framework.model_fields import LucteriosDecimalField
 
 
 class Migration(migrations.Migration):
@@ -21,5 +22,10 @@ class Migration(migrations.Migration):
             model_name='propertylotcustomfield',
             name='value',
             field=models.IntegerField(default=0, validators=[django.core.validators.MinValueValidator(0), django.core.validators.MaxValueValidator(1000000000)], verbose_name='tantime'),
+        ),
+        migrations.AlterField(
+            model_name='partition',
+            name='value',
+            field=LucteriosDecimalField(decimal_places=2, default=0.0, max_digits=13, validators=[django.core.validators.MinValueValidator(0.0), django.core.validators.MaxValueValidator(1000000000.0)], verbose_name='tantime'),
         ),
     ]
