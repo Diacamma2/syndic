@@ -55,7 +55,7 @@ class SyndicTest(LucteriosTest):
         add_test_expenses_fr(False, True)
 
     def test_status(self):
-        self.calljson('/CORE/authentification', {'username': 'admin', 'password': 'admin'})
+        self.calljson('/CORE/authentification', {'login': 'admin', 'password': 'admin'})
         self.assert_observer('core.auth', 'CORE', 'authentification')
         self.assert_json_equal('', '', 'OK')
 
@@ -64,7 +64,7 @@ class SyndicTest(LucteriosTest):
         self.assert_count_equal('', 15)
 
     def test_wizard(self):
-        self.calljson('/CORE/authentification', {'username': 'admin', 'password': 'admin'})
+        self.calljson('/CORE/authentification', {'login': 'admin', 'password': 'admin'})
         self.assert_observer('core.auth', 'CORE', 'authentification')
         self.assert_json_equal('', '', 'OK')
 
@@ -180,7 +180,7 @@ class SyndicTest(LucteriosTest):
         self.assert_json_equal('LABELFORM', 'subtitle', 'Groupes et utilisateurs')
 
     def test_situation(self):
-        self.calljson('/CORE/authentification', {'username': 'joe', 'password': 'joe'})
+        self.calljson('/CORE/authentification', {'login': 'joe', 'password': 'joe'})
         self.assert_observer('core.auth', 'CORE', 'authentification')
         self.assert_json_equal('', '', 'OK')
 
