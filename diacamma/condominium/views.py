@@ -36,6 +36,7 @@ from diacamma.condominium.models import PropertyLot, Owner, Set, SetCost, conver
     LIST_DEFAULT_ACCOUNTS, DEFAULT_ACCOUNT_CURRENT, Payment, PropertyLotCustomField
 from diacamma.condominium.views_classload import fill_params
 from diacamma.condominium.system import current_system_condo
+from lucterios.framework.models import LucteriosQuerySet
 
 
 @MenuManage.describ('condominium.change_set', FORMTYPE_NOMODAL, 'condominium.manage', _('Manage of owners and property lots'))
@@ -57,9 +58,7 @@ class OwnerAndPropertyLotList(XferListEditor):
                 sort_ownerbis = "-"
             self.params['GRID_ORDER%owner+'] = sort_ownerbis
         items = sorted(items, key=lambda t: str(t).lower(), reverse=sort_ownerbis.startswith('-'))
-        res = QuerySet(model=Owner)
-        res._result_cache = items
-        return res
+        return LucteriosQuerySet(model=Owner, initial=items)
 
     def fillresponse_header(self):
         self.params['basic_model'] = 'condominium.PropertyLot'
@@ -568,7 +567,7 @@ class CondominiumConvert(XferContainerAcknowledge):
             year_list = ["{[i]} - %s{[/i]}" % year for year in FiscalYear.objects.filter(status__in=(FiscalYear.STATUS_BUILDING, FiscalYear.STATUS_RUNNING))]
             lab = XferCompLabelForm('info')
             lab.set_value(
-                _("This conversion tool will change your account to respect French law about condominium.{[br/]}For the no-closed fiscal years:{[newline]}%s{[newline]}It will do:{[newline]} - To change accounting code for each owners.{[newline]} - To de-validate all your entity.{[br/]} - To delete all entity link to call of funds or expenses.{[br/]} - To de-archive call of funds or expenses.{[br/]} - To generate correct account for call of funds or expenses.{[br/]}{[center]}{[u]}{[b]}Warning: This action is  definitive.{[/b]}{[/u]}{[center]}") % 
+                _("This conversion tool will change your account to respect French law about condominium.{[br/]}For the no-closed fiscal years:{[newline]}%s{[newline]}It will do:{[newline]} - To change accounting code for each owners.{[newline]} - To de-validate all your entity.{[br/]} - To delete all entity link to call of funds or expenses.{[br/]} - To de-archive call of funds or expenses.{[br/]} - To generate correct account for call of funds or expenses.{[br/]}{[center]}{[u]}{[b]}Warning: This action is  definitive.{[/b]}{[/u]}{[center]}") %
                 '{[br/]}'.join(year_list))
             lab.set_location(0, 1, 4)
             dlg.add_component(lab)
