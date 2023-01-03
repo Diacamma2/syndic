@@ -629,6 +629,10 @@ class Partition(LucteriosModel):
     def get_edit_fields(cls):
         return ["set", "owner", "value"]
 
+    @classmethod
+    def get_import_fields(cls):
+        return ["owner", "value"]
+
     def get_ratio(self):
         if self.id is None:
             return 0.0

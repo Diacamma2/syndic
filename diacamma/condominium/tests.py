@@ -59,7 +59,8 @@ from diacamma.condominium.views import OwnerAndPropertyLotList, OwnerAdd, OwnerD
     OwnerLoadCount, PaymentMultiPay, OwnerPayableEmail, OwnerModify, PaymentRefund,\
     OwnerReport, OwnerAndPropertyLotPrint, PropertyLotImport
 from diacamma.condominium.views_classload import SetList, SetAddModify, SetDel, SetShow, PartitionAddModify, CondominiumConf, SetClose,\
-    OwnerLinkAddModify, OwnerLinkDel, RecoverableLoadRatioAddModify, RecoverableLoadRatioDel
+    OwnerLinkAddModify, OwnerLinkDel, RecoverableLoadRatioAddModify, RecoverableLoadRatioDel,\
+    PartitionImport
 from diacamma.condominium.views_callfunds import CallFundsList, CallFundsAddCurrent, CallFundsTransition, CallFundsShow
 from diacamma.condominium.views_report import FinancialStatus, GeneralManageAccounting, CurrentManageAccounting, ExceptionalManageAccounting
 from diacamma.condominium.test_tools import default_setowner_fr, add_test_callfunds, old_accounting, add_test_expenses_fr, init_compta, add_years, default_setowner_be, add_test_expenses_be,\
@@ -729,7 +730,7 @@ class SetOwnerTest(LucteriosTest):
         self.assert_json_equal('', 'partition/@1/owner', 'Dalton William')
         self.assert_json_equal('', 'partition/@2/value', '0.00')
         self.assert_json_equal('', 'partition/@2/owner', 'Dalton Joe')
-        self.assert_count_equal('#partition/actions', 1)
+        self.assert_count_equal('#partition/actions', 2)
         self.assert_json_equal('LABELFORM', 'is_link_to_lots', False)
         self.assert_json_equal('LABELFORM', 'total_part', 0.0)
         self.assert_json_equal('LABELFORM', 'sumexpense', 0.0)
@@ -774,6 +775,55 @@ class SetOwnerTest(LucteriosTest):
         self.assert_observer('core.custom', 'diacamma.condominium', 'setList')
         self.assert_count_equal('set', 1)
         self.assert_json_equal('', 'set/@0/partitionfill_set', ["Minimum : 16,7 %", "Dalton William : 33,3 %", "Dalton Joe : 50,0 %"])
+
+    def test_import_partition(self):
+        csv_content = """propriétaire;tantième
+Minimum;120
+Dalton Joe;80
+"""
+
+        self.factory.xfer = SetAddModify()
+        self.calljson('/diacamma.condominium/setAddModify', {'SAVE': 'YES', "name": "AAA", "is_link_to_lots": 0}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'setAddModify')
+        self.factory.xfer = OwnerAdd()
+        self.calljson('/diacamma.condominium/ownerAdd', {'SAVE': 'YES', "third": 4}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'ownerAdd')
+        self.factory.xfer = OwnerAdd()
+        self.calljson('/diacamma.condominium/ownerAdd', {'SAVE': 'YES', "third": 5}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'ownerAdd')
+        self.factory.xfer = OwnerAdd()
+        self.calljson('/diacamma.condominium/ownerAdd', {'SAVE': 'YES', "third": 7}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'ownerAdd')
+        self.factory.xfer = SetShow()
+        self.calljson('/diacamma.condominium/setShow', {'set': 1}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'setShow')
+        self.assert_json_equal('', 'partition/@0/value', '0.00')
+        self.assert_json_equal('', 'partition/@0/owner', 'Minimum')
+        self.assert_json_equal('', 'partition/@1/value', '0.00')
+        self.assert_json_equal('', 'partition/@1/owner', 'Dalton William')
+        self.assert_json_equal('', 'partition/@2/value', '0.00')
+        self.assert_json_equal('', 'partition/@2/owner', 'Dalton Joe')
+        self.assert_count_equal('#partition/actions', 2)
+        self.assert_json_equal('LABELFORM', 'total_part', 0.0)
+
+        self.factory.xfer = PartitionImport()
+        self.calljson('/diacamma.condominium/partitionImport', {'set': 1, 'step': 3, 'quotechar': "'", 'delimiter': ';',
+                                                                'encoding': 'utf-8', 'dateformat': '%d/%m/%Y', 'csvcontent0': csv_content,
+                                                                "fld_owner": "propriétaire", "fld_value": "tantième"}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'partitionImport')
+        self.assert_count_equal('', 3)
+        self.assert_json_equal('LABELFORM', 'result', "2 éléments ont été importés")
+
+        self.factory.xfer = SetShow()
+        self.calljson('/diacamma.condominium/setShow', {'set': 1}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'setShow')
+        self.assert_json_equal('', 'partition/@0/value', '120.00')
+        self.assert_json_equal('', 'partition/@0/owner', 'Minimum')
+        self.assert_json_equal('', 'partition/@1/value', '0.00')
+        self.assert_json_equal('', 'partition/@1/owner', 'Dalton William')
+        self.assert_json_equal('', 'partition/@2/value', '80.00')
+        self.assert_json_equal('', 'partition/@2/owner', 'Dalton Joe')
+        self.assert_json_equal('LABELFORM', 'total_part', 200.0)
 
     def test_merge_contacts(self):
         default_setowner_fr(with_lots=False)

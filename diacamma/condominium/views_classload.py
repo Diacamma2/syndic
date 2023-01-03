@@ -40,7 +40,7 @@ from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.framework import signal_and_lock
 from lucterios.CORE.models import Parameter
 from lucterios.CORE.parameters import Params
-from lucterios.CORE.views import ParamEdit
+from lucterios.CORE.views import ParamEdit, ObjectImport
 from lucterios.CORE.xferprint import XferPrintAction
 from lucterios.contacts.models import CustomField
 
@@ -296,6 +296,46 @@ class PartitionAddModify(XferAddEditor):
     model = Partition
     field_id = 'partition'
     caption_modify = _("Modify partition")
+
+
+@ActionsManage.affect_grid(_('Import'), "images/up.png", condition=lambda xfer, gridname='': isinstance(xfer.item, Set) and not xfer.item.is_link_to_lots and xfer.item.is_active)
+@MenuManage.describ('condominium.add_set')
+class PartitionImport(ObjectImport):
+    icon = "set.png"
+    model = Partition
+    caption = _("Import partition")
+
+    def get_select_models(self):
+        return Partition.get_select_contact_type(True)
+
+    def _read_csv_and_convert(self):
+        for part in self.current_set.partition_set.all():
+            part.delete()
+        fields_description, csv_readed = ObjectImport._read_csv_and_convert(self)
+        for csv_item in csv_readed:
+            csv_item['set'] = self.current_set
+        return fields_description, csv_readed
+
+    def _fillcontent_step3(self, dateformat):
+        ObjectImport._fillcontent_step3(self, dateformat)
+        for owner in Owner.objects.all():
+            Partition.objects.get_or_create(set=self.current_set, owner=owner)
+
+    def fillresponse(self, modelname, quotechar="'", delimiter=";", encoding="utf-8", dateformat="%d/%m/%Y", step=0):
+        self.current_set = None
+        set_id = self.getparam('set', 0)
+        if set_id != 0:
+            self.current_set = Set.objects.get(id=set_id)
+        ObjectImport.fillresponse(self, Partition.get_long_name(), quotechar, delimiter, encoding, dateformat, step)
+        modelname = self.get_components('modelname')
+        if (modelname is not None) and (set_id != 0):
+            self.tab = modelname.tab
+            lbl = XferCompLabelForm('set')
+            lbl.set_value(str(self.current_set))
+            lbl.set_location(modelname.col, modelname.row, modelname.colspan, modelname.rowspan)
+            lbl.description = _('set')
+            self.add_component(lbl)
+            self.remove_component('modelname')
 
 
 @ActionsManage.affect_show(_('Costs'), "images/right.png")
