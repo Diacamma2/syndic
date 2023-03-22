@@ -173,7 +173,7 @@ value = """<model hmargin="10.0" vmargin="10.0" page_width="210.0" page_height="
 </text>
 
 </body>
-</model>""" % {'title': _('OWNER INDIVIDUAL COUNT'), 'FiscalYear': _('Fiscal year'), 'TO PAY': _('sum to pay'),
+</model>""" % {'title': _('OWNER INDIVIDUAL COUNT'), 'FiscalYear': _('Fiscal year'), 'TO PAY': _('rest to pay'),
                'num': _('numeros'), 'value': _('tantime'), 'ratio': _('ratio'), 'description': _('description'),
                'Distribution of common and individual expenses': _('Distribution of common and individual expenses'),
                'designation': _('designation'), 'total': _('total'), 'ventilated': _('ventilated'), 'recov. load': _('recov. load'),

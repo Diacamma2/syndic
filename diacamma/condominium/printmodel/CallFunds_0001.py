@@ -177,5 +177,5 @@ value = """
         'total_fund_works_call': _('fund for works total call for funds'),
         'total_fund_works_payoff': _('fund for works total payoff'),
         'total': _('total'),
-        'sumtopay': _('sum to pay'),
+        'sumtopay': _('rest to pay'),
 }

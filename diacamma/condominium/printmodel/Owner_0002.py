@@ -204,7 +204,7 @@ value = """<model hmargin="10.0" vmargin="10.0" page_width="210.0" page_height="
 </text>
 
 </body>
-</model>""" % {'title': _('Owner situation'), 'email': _('emai'), 'tel': _('tel'), 'TO PAY': _('sum to pay'),
+</model>""" % {'title': _('Owner situation'), 'email': _('emai'), 'tel': _('tel'), 'TO PAY': _('rest to pay'),
                'exceptionnal': _('exceptional'), 'current': _('current'),
                'partition': _('partition'), 'set': _('set'), 'budget': _('budget'), 'expense': _('expense'), 'value': _('tantime'), 'ratio': _('ratio'),
                'ventilated': _('ventilated'), 'recover_load': _('recover. load'), 'total_callfunds': _('total call for funds'), 'rest_to_pay': _('rest to pay'),

@@ -991,7 +991,7 @@ class CallFundsSupporting(Supporting):
     def get_payment_fields(cls):
         return ["callfunds.num", "callfunds.date", "callfunds.comment", "third", 'callfunds.total']
 
-    def support_validated(self, validate_date):
+    def support_validated(self, validate_date, with_valid=True):
         return self
 
     def get_current_date(self):
@@ -1759,7 +1759,7 @@ class Owner(Supporting):
     total_all_call = LucteriosVirtualField(verbose_name=_('total call for funds'), compute_from=lambda item: item.get_total_call(-1), format_string=lambda: format_with_devise(5))
     total_payoff = LucteriosVirtualField(verbose_name=_('total payments'), compute_from='get_total_payoff', format_string=lambda: format_with_devise(5))
     thirdtotal = LucteriosVirtualField(verbose_name=_('total owner'), compute_from='get_thirdtotal', format_string=lambda: format_with_devise(5))
-    sumtopay = LucteriosVirtualField(verbose_name=_('sum to pay'), compute_from='get_sumtopay', format_string=lambda: format_with_devise(5))
+    sumtopay = LucteriosVirtualField(verbose_name=_('rest to pay'), compute_from='get_sumtopay', format_string=lambda: format_with_devise(5))
 
     total_current_initial = LucteriosVirtualField(verbose_name=_('current initial state'), compute_from=lambda item: item.get_total_initial(DEFAULT_ACCOUNT_CURRENT), format_string=lambda: format_with_devise(5))
     total_current_call = LucteriosVirtualField(verbose_name=_('current total call for funds'), compute_from=lambda item: item.get_total_call(CallDetail.TYPECALL_CURRENT), format_string=lambda: format_with_devise(5))
@@ -2312,7 +2312,7 @@ class Owner(Supporting):
         verbose_name = _('owner')
         verbose_name_plural = _('owners')
 
-    def support_validated(self, validate_date):
+    def support_validated(self, validate_date, with_valid=True):
         return self
 
     def get_tax(self):
