@@ -76,7 +76,7 @@ class CallFundsTest(LucteriosTest):
         self.factory.xfer = CallFundsList()
         self.calljson('/diacamma.condominium/callFundsList', {'status_filter': 1}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'callFundsList')
-        self.assert_grid_equal('callfunds', {"num": "N°", "date": "date", "owner": "propriétaire", "comment": "commentaire", "total": "total", "supporting.total_rest_topay": "reste à payer"}, 0)
+        self.assert_grid_equal('callfunds', {"num": "N°", "date": "date", "owner": "propriétaire", "comment": "commentaire", "total": "total", "supporting.total_rest_topay": "restant dû"}, 0)
 
         self.factory.xfer = CallFundsList()
         self.calljson('/diacamma.condominium/callFundsList', {'status_filter': 0}, False)
@@ -1156,7 +1156,7 @@ class CallFundsBelgiumTest(LucteriosTest):
         self.factory.xfer = CallFundsList()
         self.calljson('/diacamma.condominium/callFundsList', {'status_filter': 1}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'callFundsList')
-        self.assert_grid_equal('callfunds', {"num": "N°", "date": "date", "owner": "propriétaire", "comment": "commentaire", "total": "total", "supporting.total_rest_topay": "reste à payer"}, 0)
+        self.assert_grid_equal('callfunds', {"num": "N°", "date": "date", "owner": "propriétaire", "comment": "commentaire", "total": "total", "supporting.total_rest_topay": "restant dû"}, 0)
 
         self.factory.xfer = CallFundsList()
         self.calljson('/diacamma.condominium/callFundsList', {'status_filter': 0}, False)
