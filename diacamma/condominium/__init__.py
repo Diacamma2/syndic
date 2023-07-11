@@ -39,7 +39,7 @@ __version__ = "2.6.6." + get_build()
 
 
 def __title__():
-    from django.utils.translation import ugettext_lazy as _
+    from django.utils.translation import gettext_lazy as _
     return _("Diacamma condominium")
 
 

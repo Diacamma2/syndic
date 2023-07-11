@@ -26,7 +26,7 @@ from __future__ import unicode_literals
 
 from django.db import migrations
 from django.conf import settings
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from lucterios.framework.tools import set_locale_lang
 from diacamma.accounting.models import Journal

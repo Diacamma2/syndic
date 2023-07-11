@@ -35,11 +35,11 @@ def get_build():
     return "0"
 
 
-__version__ = "2.6.11." + get_build()
+__version__ = "2.6.12." + get_build()
 
 
 def __title__():
-    from django.utils.translation import ugettext_lazy as _
+    from django.utils.translation import gettext_lazy as _
     return _("Diacamma syndic")
 
 
