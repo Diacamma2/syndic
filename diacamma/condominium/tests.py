@@ -583,7 +583,7 @@ class SetOwnerTest(LucteriosTest):
 
         self.factory.xfer = PropertyLotImport()
         self.calljson('/diacamma.condominium/propertyLotImport', {"modelname": "condominium.PropertyLot", 'step': 3, 'quotechar': "'", 'delimiter': ';',
-                                                                  'encoding': 'utf-8', 'dateformat': '%d/%m/%Y', 'csvcontent0': csv_content,
+                                                                  'encoding': 'utf-8', 'dateformat': '%d/%m/%Y', 'importcontent0': csv_content,
                                                                   "fld_num": "N°", "fld_value": "general", "fld_custom_1": "ascenseur",
                                                                   "fld_description": "description", "fld_owner": "propriétaire"}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'propertyLotImport')
@@ -808,7 +808,7 @@ Dalton Joe;80
 
         self.factory.xfer = PartitionImport()
         self.calljson('/diacamma.condominium/partitionImport', {'set': 1, 'step': 3, 'quotechar': "'", 'delimiter': ';',
-                                                                'encoding': 'utf-8', 'dateformat': '%d/%m/%Y', 'csvcontent0': csv_content,
+                                                                'encoding': 'utf-8', 'dateformat': '%d/%m/%Y', 'importcontent0': csv_content,
                                                                 "fld_owner": "propriétaire", "fld_value": "tantième"}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'partitionImport')
         self.assert_count_equal('', 3)

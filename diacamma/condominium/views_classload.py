@@ -308,25 +308,20 @@ class PartitionImport(ObjectImport):
     def get_select_models(self):
         return Partition.get_select_contact_type(True)
 
-    def _read_csv_and_convert(self):
+    def _fillcontent_step3(self):
         for part in self.current_set.partition_set.all():
             part.delete()
-        fields_description, csv_readed = ObjectImport._read_csv_and_convert(self)
-        for csv_item in csv_readed:
-            csv_item['set'] = self.current_set
-        return fields_description, csv_readed
-
-    def _fillcontent_step3(self, dateformat):
-        ObjectImport._fillcontent_step3(self, dateformat)
+        self.import_driver.default_values = {'set': self.current_set}
+        ObjectImport._fillcontent_step3(self)
         for owner in Owner.objects.all():
             Partition.objects.get_or_create(set=self.current_set, owner=owner)
 
-    def fillresponse(self, modelname, quotechar="'", delimiter=";", encoding="utf-8", dateformat="%d/%m/%Y", step=0):
+    def fillresponse(self, drivername="CSV", step=0):
         self.current_set = None
         set_id = self.getparam('set', 0)
         if set_id != 0:
             self.current_set = Set.objects.get(id=set_id)
-        ObjectImport.fillresponse(self, Partition.get_long_name(), quotechar, delimiter, encoding, dateformat, step)
+        ObjectImport.fillresponse(self, Partition.get_long_name(), drivername, step)
         modelname = self.get_components('modelname')
         if (modelname is not None) and (set_id != 0):
             self.tab = modelname.tab
