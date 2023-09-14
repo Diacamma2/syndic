@@ -456,7 +456,7 @@ def editbudget_condo(xfer):
 
 
 @signal_and_lock.Signal.decorate('compte_no_found')
-def comptenofound_condo(known_codes, accompt_returned):
+def comptenofound_condo(known_codes, accompt_returned, cost_returned):
     if Params.getvalue("condominium-old-accounting"):
         account_filter = Q(name='condominium-default-owner-account')
         set_unknown = Set.objects.exclude(revenue_account__in=known_codes).values_list('revenue_account', flat=True)
