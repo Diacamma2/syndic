@@ -1212,7 +1212,7 @@ class OwnerTest(PaymentTest):
 
             email_msg = Message.objects.get(id=1)
             self.assertEqual(email_msg.subject, '#reference')
-            self.assertEqual(email_msg.body, 'this is a owner.')
+            self.assertEqual(email_msg.body, 'this is a owner.#footer')
             self.assertEqual(email_msg.status, 2)
             self.assertEqual(email_msg.recipients, "condominium.Owner id||8||1;2;3\n")
             self.assertEqual(email_msg.email_to_send, "condominium.Owner:1:9\ncondominium.Owner:2:9\ncondominium.Owner:3:9")
