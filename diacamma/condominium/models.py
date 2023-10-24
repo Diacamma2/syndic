@@ -2485,7 +2485,7 @@ def check_report_condomium(year):
     generate_pdfreport(year)
     for callfund in CallFunds.objects.filter(date__gte=year.begin, date__lte=year.end, status__in=(CallFunds.STATUS_VALID, CallFunds.STATUS_ENDED)):
         if callfund.supporting_id is not None:
-            callfund.supporting.get_saved_pdfreport()
+            callfund.supporting.get_saved_pdfreport(False)
 
 
 @Signal.decorate('checkparam')
