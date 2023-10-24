@@ -1549,7 +1549,7 @@ class Expense(Supporting):
         info.extend(self.check_date(self.date.isoformat()))
         return info
 
-    def get_saved_pdfreport(self):
+    def get_saved_pdfreport(self, recreate):
         return None
 
     def generate_pdfreport(self):
@@ -2344,7 +2344,7 @@ class Owner(Supporting):
             for num_account in LIST_DEFAULT_ACCOUNTS:
                 AccountThird.objects.get_or_create(third=self.third, code=correct_accounting_code(Params.getvalue("condominium-default-owner-account%d" % num_account)))
 
-    def get_saved_pdfreport(self):
+    def get_saved_pdfreport(self, recreate):
         return None
 
     def generate_pdfreport(self):

@@ -361,7 +361,7 @@ class CallFundsTest(LucteriosTest):
         check_pdfreport(self, 'CallFundsSupporting', 5, False)  # CallFunds #3 => CallFundsSupporting #5
 
         self.factory.xfer = CallFundsPrint()
-        self.calljson('/diacamma.condominium/callFundsPrint', {'callfunds': 3, 'PRINT_PERSITENT': True, 'PRINT_MODE': 0, 'MODEL': 8}, False)
+        self.calljson('/diacamma.condominium/callFundsPrint', {'callfunds': 3, 'PRINT_PERSITENT_MODE': 0, 'PRINT_MODE': 0, 'MODEL': 8}, False)
         self.assert_observer('core.print', 'diacamma.condominium', 'callFundsPrint')
         self.save_pdf()
         check_pdfreport(self, 'CallFundsSupporting', 5, True)  # CallFunds #3 => CallFundsSupporting #5
@@ -923,7 +923,7 @@ class CallFundsTest(LucteriosTest):
             self.calljson('/diacamma.payoff/payableEmail',
                           {'item_name': 'callfunds', 'callfunds': 2, 'modelname': 'condominium.CallFunds'}, False)
             self.assert_observer('core.custom', 'diacamma.payoff', 'payableEmail')
-            self.assert_count_equal('', 6)
+            self.assert_count_equal('', 5)
 
             self.factory.xfer = PayableEmail()
             self.calljson('/diacamma.payoff/payableEmail',
