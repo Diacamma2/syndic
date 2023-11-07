@@ -9,7 +9,7 @@ Avec *Diacamma*, donnez à votre structure le logiciel qu'elle mérite ! Pas bes
 
 L'application de base est entièrement gratuite et vous permet de gérer les accès à vos données et au carnet d'adresses nécessaire à votre copropriété.
 
-Les différents modules disponibles vous permettront, par exemple, de:
+Les différents modules disponibles vous permettront, par exemple, de :
 
  - Identifier les copropriétaires et leurs différents tantièmes, réaliser des appels de fonds correspondant à votre budget, ventiler les factures et les frais de la copropriété suivant les parts de chacun.
  - Gérer vos documents de façon centralisée grâce à la gestion documentaire.
