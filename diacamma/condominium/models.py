@@ -907,7 +907,10 @@ class PropertyLot(LucteriosModel, CustomizeObject):
             return 100.0 * float(self.value) / float(total)
 
     def get_value_ratio(self):
-        return "%d (%.1f %%)" % (self.value, self.get_ratio())
+        if self.value is not None:
+            return "%d (%.1f %%)" % (self.value, self.get_ratio())
+        else:
+            return "0"
 
     def get_value_by_key(self, customField):
         if customField is None:
