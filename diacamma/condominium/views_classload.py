@@ -462,7 +462,11 @@ def comptenofound_condo(known_codes, accompt_returned, cost_returned):
         set_unknown = Set.objects.exclude(revenue_account__in=known_codes).values_list('revenue_account', flat=True)
     else:
         account_filter = Q()
-        for param_item in current_system_condo().get_config_params(True):
+        config_params = current_system_condo().get_config_params(True)
+        for exclude_param in ('condominium-mode-current-callfunds', 'condominium-payoff-calloffunds'):
+            if exclude_param in config_params:
+                config_params.remove(exclude_param)
+        for param_item in config_params:
             account_filter |= Q(name=param_item)
         set_unknown = []
     param_unknown = Parameter.objects.filter(account_filter).exclude(value__in=known_codes).values_list('value', flat=True)
