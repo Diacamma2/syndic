@@ -59,7 +59,7 @@ class DefaultSystemCondo(object):
     def check_account_config(self):
         from diacamma.accounting.tools import current_system_account
         try:
-            lettering_check = Params.getvalue("accounting-lettering-check").split('{[br/]}')
+            lettering_check = Params.getvalue("accounting-lettering-check")
             changed = False
             new_lettering = []
             for letter in lettering_check:
@@ -72,7 +72,7 @@ class DefaultSystemCondo(object):
                     new_lettering.append(account.code)
                     changed = True
             if changed:
-                Params.setvalue("accounting-lettering-check", '{[br/]}'.join(new_lettering))
+                Params.setvalue("accounting-lettering-check", ';'.join(new_lettering))
         except LucteriosException:
             pass
 
