@@ -1881,9 +1881,15 @@ class Owner(Supporting):
 
     @classmethod
     def get_search_fields(cls):
-        result = []
-        for field_name in Third.get_search_fields():
+        result = ['information']
+        for field_name in Third.get_search_fields(with_addon=False):
             result.append(cls.convert_field_for_search('third', field_name))
+        for fieldname in PropertyLot.get_search_fields():
+            if isinstance(fieldname, tuple) and len(fieldname) == 2:
+                continue
+            result.append(cls.convert_field_for_search("propertylot_set", fieldname))
+        for fieldname in OwnerContact.get_search_fields():
+            result.append(cls.convert_field_for_search("ownercontact_set", fieldname))
         return result
 
     @classmethod
@@ -1966,6 +1972,18 @@ class Owner(Supporting):
                        'total_fund_works_payoff'])
 
         return fields
+
+    def can_delete(self):
+        if (self.propertylot_set.count() > 0) or (abs(self.thirdtotal) > 1e-3):
+            return _('At least one of these owners still has lots or its balance is not zero.')
+        return ''
+
+    def delete(self, using=None):
+        if self.callfunds_set.count() > 0:
+            self.third.status = Third.STATUS_DISABLE
+            self.third.save()
+        else:
+            Supporting.delete(self, using=using)
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         is_new = self.id is None

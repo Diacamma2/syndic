@@ -19,9 +19,11 @@ from lucterios.framework.tools import FORMTYPE_NOMODAL, ActionsManage, MenuManag
 from lucterios.framework.tools import SELECT_SINGLE, CLOSE_NO, FORMTYPE_REFRESH, FORMTYPE_MODAL, CLOSE_YES, SELECT_MULTI
 from lucterios.framework.error import LucteriosException, IMPORTANT, GRAVE
 from lucterios.framework import signal_and_lock
+from lucterios.framework.models import LucteriosQuerySet
 from lucterios.CORE.parameters import Params
 from lucterios.CORE.xferprint import XferPrintAction, XferPrintReporting
 from lucterios.CORE.models import Parameter
+from lucterios.CORE.editors import XferSavedCriteriaSearchEditor
 from lucterios.CORE.views import ObjectImport
 
 from lucterios.contacts.models import Individual, LegalEntity, AbstractContact, CustomField
@@ -36,7 +38,6 @@ from diacamma.condominium.models import PropertyLot, Owner, Set, SetCost, conver
     LIST_DEFAULT_ACCOUNTS, DEFAULT_ACCOUNT_CURRENT, Payment, PropertyLotCustomField
 from diacamma.condominium.views_classload import fill_params
 from diacamma.condominium.system import current_system_condo
-from lucterios.framework.models import LucteriosQuerySet
 
 
 @MenuManage.describ('condominium.change_set', FORMTYPE_NOMODAL, 'condominium.manage', _('Manage of owners and property lots'))
@@ -75,7 +76,7 @@ class OwnerAndPropertyLotList(XferListEditor):
         comp.is_default = True
         comp.description = _('Filtrer by owner')
         self.add_component(comp)
-        self.filter = Q()
+        self.filter = Q(third__status=Third.STATUS_ENABLE)
         if contact_filter != "":
             q_legalentity = Q(third__contact__legalentity__name__icontains=contact_filter)
             q_individual = Q(completename__icontains=contact_filter)
@@ -125,6 +126,15 @@ class OwnerAndPropertyLotPrint(XferPrintAction):
     field_id = 'owner'
     action_class = OwnerAndPropertyLotList
     with_text_export = True
+
+
+@ActionsManage.affect_list(_("Search"), "diacamma.condominium/images/owner.png")
+@MenuManage.describ('condominium.change_owner')
+class OwnerSearch(XferSavedCriteriaSearchEditor):
+    icon = "owner.png"
+    model = Owner
+    field_id = 'owner'
+    caption = _("Search owner")
 
 
 @ActionsManage.affect_grid(TITLE_CREATE, "images/new.png")
