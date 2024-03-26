@@ -23,7 +23,7 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from __future__ import unicode_literals
-from django.utils.translation import gettext_lazy as _, ugettext
+from django.utils.translation import gettext_lazy as _, gettext
 from os.path import join, dirname
 
 import diacamma.syndic
@@ -36,7 +36,7 @@ def get_subtitle():
         our_detail = legalentity.objects.get(id=1)
         return our_detail.name
     except LookupError:
-        return ugettext("Condominium application")
+        return gettext("Condominium application")
 
 
 def get_support():

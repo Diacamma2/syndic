@@ -9,7 +9,7 @@ from django.db.models.functions import Concat
 from django.db.models import Q, Value
 
 from lucterios.framework.xferadvance import TITLE_MODIFY, TITLE_ADD, TITLE_EDIT, TITLE_DELETE, TITLE_PRINT, TITLE_CANCEL, TITLE_OK, \
-    TITLE_CREATE
+    TITLE_CREATE, TITLE_CLOSE, TITLE_SEARCH
 from lucterios.framework.xferadvance import XferListEditor, XferShowEditor, XferAddEditor, XferDelete
 from lucterios.framework.xfercomponents import XferCompLabelForm, XferCompDate, XferCompButton, XferCompImage, XferCompSelect, XferCompEdit, \
     XferCompGrid
@@ -128,7 +128,7 @@ class OwnerAndPropertyLotPrint(XferPrintAction):
     with_text_export = True
 
 
-@ActionsManage.affect_list(_("Search"), "diacamma.condominium/images/owner.png")
+@ActionsManage.affect_list(TITLE_SEARCH, "diacamma.condominium/images/owner.png")
 @MenuManage.describ('condominium.change_owner')
 class OwnerSearch(XferSavedCriteriaSearchEditor):
     icon = "owner.png"
@@ -305,7 +305,7 @@ class OwnerLoadCount(XferContainerCustom):
         grid.set_location(1, 2, 2)
         self.add_component(grid)
 
-        self.add_action(WrapAction(_('Close'), 'images/close.png'))
+        self.add_action(WrapAction(TITLE_CLOSE, 'images/close.png'))
 
 
 @ActionsManage.affect_grid(TITLE_PRINT, "images/print.png", unique=SELECT_MULTI)

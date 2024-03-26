@@ -42,14 +42,13 @@ setup(
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Environment :: Web Environment',
-        'Framework :: Django :: 3.2',
+        'Framework :: Django :: 4.2',
         'Intended Audience :: Developers',
         'Intended Audience :: End Users/Desktop',
         'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
         'Natural Language :: English',
         'Natural Language :: French',
         'Operating System :: OS Independent',
-        'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',
@@ -64,5 +63,5 @@ setup(
         "diacamma.condominium.migrations": ['*'],
         "diacamma.condominium": ['build', 'images/*', 'locale/*/*/*', 'help/*'],
     },
-    install_requires=["lucterios ~=2.6", "lucterios-contacts ~=2.6", "diacamma-financial ~=2.6"],
+    install_requires=["lucterios ~=2.7", "lucterios-contacts ~=2.7", "diacamma-financial ~=2.7"],
 )

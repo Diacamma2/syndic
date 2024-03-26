@@ -5,7 +5,7 @@ from django.utils.translation import gettext_lazy as _
 from django.db.models import Q
 
 from lucterios.framework.xferadvance import XferListEditor, TITLE_EDIT, TITLE_ADD, TITLE_MODIFY, TITLE_DELETE,\
-    XferTransition, TITLE_CREATE
+    XferTransition, TITLE_CREATE, TITLE_SEARCH
 from lucterios.framework.xferadvance import XferAddEditor
 from lucterios.framework.xferadvance import XferShowEditor
 from lucterios.framework.xferadvance import XferDelete
@@ -63,7 +63,7 @@ class ExpenseList(XferListEditor):
             self.filter &= Q(date__gte=current_year.begin) & Q(date__lte=current_year.end)
 
 
-@ActionsManage.affect_list(_("Search"), "diacamma.condominium/images/expense.png")
+@ActionsManage.affect_list(TITLE_SEARCH, "diacamma.condominium/images/expense.png")
 @MenuManage.describ('condominium.change_expense')
 class ExpenseSearch(XferSavedCriteriaSearchEditor):
     icon = "expense.png"
