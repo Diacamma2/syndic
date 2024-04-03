@@ -412,6 +412,8 @@ class PaymentRefund(XferContainerAcknowledge):
             return str(self.third)
 
         def get_total_rest_topay(self, ignore_payoff=-1):
+            if self.owner.pk is None:
+                self.owner.pk = self.owner.id
             return max(0, self.owner.get_total_payoff_waiting())
 
         def get_max_payoff(self, ignore_payoff=-1):
