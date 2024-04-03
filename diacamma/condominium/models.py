@@ -202,6 +202,8 @@ class Set(LucteriosModel):
                 setcost.cost_accounting.save()
 
     def rename_all_cost_accounting(self):
+        if self.id is None:
+            return None
         for setcost in self.setcost_set.all():
             setcost._check_year()
             try:
@@ -261,6 +263,8 @@ class Set(LucteriosModel):
                 getLogger("diacamma.condominium").error("[%s] %s", cost, exp)
 
     def convert_cost(self):
+        if self.id is None:
+            return None
         if (len(self.setcost_set.all()) == 0) and (self.cost_accounting_id is not None):
             if self.type_load == self.TYPELOAD_EXCEPTIONAL:
                 SetCost.objects.create(set=self, year=None, cost_accounting_id=self.cost_accounting_id)
@@ -360,6 +364,8 @@ class Set(LucteriosModel):
         return self.expense_sum
 
     def refresh_ratio_link_lots(self):
+        if self.id is None:
+            return
         if self.is_link_to_lots:
             for part in self.partition_set.all():
                 value = 0
@@ -369,6 +375,8 @@ class Set(LucteriosModel):
                 part.save()
 
     def check_close(self):
+        if self.id is None:
+            return None
         for set_cost in self.setcost_set.all():
             set_cost.cost_accounting.check_before_close()
         ret = None
@@ -387,6 +395,8 @@ class Set(LucteriosModel):
         self.close(1, Params.getvalue("condominium-current-revenue-account"), with_ventil and (self.type_load == self.TYPELOAD_CURRENT))
 
     def close(self, type_owner, initial_code, with_ventil):
+        if self.id is None:
+            return None
         if with_ventil:
             own_set = self.setcost_set.all().order_by('year__begin')[0]
             year = FiscalYear.get_current()
@@ -1125,6 +1135,8 @@ class CallFunds(LucteriosModel):
         return self.supporting.__call__(*args, **kwargs)
 
     def get_total(self):
+        if self.id is None:
+            return 0
         self.check_supporting()
         val = 0
         for calldetail in self.calldetail_set.all():
@@ -1231,6 +1243,8 @@ class CallFunds(LucteriosModel):
             current_system_condo().generate_account_callfunds(self, fiscal_year)
 
     def check_supporting(self):
+        if self.id is None:
+            return None
         is_modify = False
         if self.owner is not None:
             try:
@@ -1404,6 +1418,8 @@ class Expense(Supporting):
         return search_fields
 
     def get_total(self):
+        if self.id is None:
+            return 0
         val = 0
         for expensedetail in self.expensedetail_set.all():
             val += currency_round(expensedetail.price)
@@ -1422,6 +1438,8 @@ class Expense(Supporting):
         return self.expensetype == self.EXPENSETYPE_ASSET
 
     def entry_links(self):
+        if self.id is None:
+            return []
         ret = []
         if self.id is not None:
             ret.extend(list(self.entries.all()))
@@ -1436,6 +1454,8 @@ class Expense(Supporting):
         return ''
 
     def generate_revenue_entry(self, is_asset, fiscal_year):
+        if self.id is None:
+            return None
         for detail in self.expensedetail_set.all():
             detail.generate_ratio(is_asset)
         current_system_condo().generate_revenue_for_expense(self, is_asset, fiscal_year)
@@ -1444,6 +1464,8 @@ class Expense(Supporting):
         current_system_condo().generate_expense_for_expense(self, is_asset, fiscal_year)
 
     def check_if_can_reedit(self):
+        if self.id is None:
+            return False
         is_close = False
         for detail in self.expensedetail_set.all():
             is_close = is_close or ((detail.entry is not None) and detail.entry.close)
@@ -1518,6 +1540,8 @@ class Expense(Supporting):
 
     @transition(field=status, source=STATUS_VALID, target=STATUS_ENDED)
     def close(self):
+        if self.id is None:
+            return None
         if self.entries is not None:
             for entry in self.entries.all():
                 entry.closed()
@@ -1529,6 +1553,8 @@ class Expense(Supporting):
                 payoff.entry.closed()
 
     def execute_cancel(self):
+        if self.id is None:
+            return None
         for payoff in self.payoff_set.all():
             payoff.delete()
         self.deleteEntries()
@@ -1654,6 +1680,8 @@ class ExpenseDetail(LucteriosModel):
         return ["set", "designation", "expense_account", 'price']
 
     def get_ratio(self):
+        if self.id is None:
+            return []
         ratio = []
         if self.expense.status == Expense.STATUS_BUILDING:
             for part in self.set.partition_set.exclude(value=0.0):
@@ -2250,6 +2278,8 @@ class Owner(Supporting):
         return third_total
 
     def get_total_payoff_waiting(self):
+        if self.id is None:
+            return 0
         amount = 0
         for payoff in self.payoff_set.all():
             amount += float(payoff.amount) * (1 if payoff.supporting.is_revenu else -1)
