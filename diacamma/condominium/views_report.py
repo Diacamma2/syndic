@@ -43,13 +43,14 @@ from diacamma.condominium.models import Set
 
 
 MenuManage.add_sub("condominium.print", "condominium", "diacamma.condominium/images/report.png",
-                   _("Report"), _("Report of condominium"), 20)
+                   _("Report"), _("Report of condominium"), 20, "mdi:mdi-home-analytics")
 
 
 class CondominiumReport(XferContainerCustom):
     model = FiscalYear
     field_id = 'year'
     icon = "report.png"
+    short_icon = "mdi:mdi-home-analytics"
     saving_pdfreport = True
     readonly = True
     methods_allowed = ('GET', )
@@ -61,13 +62,7 @@ class CondominiumReport(XferContainerCustom):
         hfield = format_with_devise(5).split(';')
         self.format_str = ";".join(hfield[1:])
         self.hfield = hfield[0]
-
-    def current_image(self, icon_path=None):
-        img_path = get_user_path("contacts", "Image_1.jpg")
-        if exists(img_path):
-            return readimage_to_base64(img_path)
-        else:
-            return self.icon_path(icon_path)
+        self.img_path = get_user_path("contacts", "Image_1.jpg")
 
     def fillresponse(self):
         self.fill_header()
@@ -83,9 +78,12 @@ class CondominiumReport(XferContainerCustom):
             self.item.begin = new_begin
             self.item.end = new_end
         img = XferCompImage('img')
-        img.set_value(self.current_image())
-        if not img.value.startswith('/static/'):
+        if exists(self.img_path):
+            img.set_value(readimage_to_base64(self.img_path))
             img.type = 'jpg'
+        else:
+            img.set_value(self.icon_path())
+            img.set_short_icon(self.short_icon)
         img.set_location(0, 0, 1, 5)
         self.add_component(img)
 
@@ -113,9 +111,9 @@ class CondominiumReport(XferContainerCustom):
         pass
 
     def fill_buttons(self):
-        self.add_action(FiscalYearReportPrint.get_action(TITLE_PRINT, "images/print.png"),
+        self.add_action(FiscalYearReportPrint.get_action(TITLE_PRINT, "images/print.png", short_icon='mdi:mdi-printer-outline'),
                         close=CLOSE_NO, params={"modulename": __name__, 'classname': self.__class__.__name__})
-        self.add_action(WrapAction(TITLE_CLOSE, 'images/close.png'))
+        self.add_action(WrapAction(TITLE_CLOSE, 'images/close.png', 'mdi:mdi-close'))
 
 
 @MenuManage.describ('condominium.change_owner', FORMTYPE_NOMODAL, 'condominium.print', _('Show financial status report'))

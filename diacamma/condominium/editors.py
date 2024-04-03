@@ -147,7 +147,7 @@ class OwnerEditor(SupportingEditor):
         link_grid_lines.actions = []
         link_grid_lines.colspan = 2
         link_grid_lines.add_action(xfer.request, ActionsManage.get_action_url('accounting.EntryAccount', 'OpenFromLine', xfer), modal=FORMTYPE_MODAL, unique=SELECT_SINGLE, close=CLOSE_NO)
-        link_grid_lines.add_action(xfer.request, EntryAccountDel.get_action(TITLE_DELETE, "images/delete.png"), modal=FORMTYPE_MODAL, unique=SELECT_MULTI, close=CLOSE_NO)
+        link_grid_lines.add_action(xfer.request, EntryAccountDel.get_action(TITLE_DELETE, "images/delete.png", short_icon='mdi:mdi-delete-outline'), modal=FORMTYPE_MODAL, unique=SELECT_MULTI, close=CLOSE_NO)
         link_grid_lines.add_action(xfer.request, ActionsManage.get_action_url('accounting.EntryAccount', 'Close', xfer), modal=FORMTYPE_MODAL, unique=SELECT_MULTI, close=CLOSE_NO)
         link_grid_lines.add_action(xfer.request, ActionsManage.get_action_url('accounting.EntryAccount', 'Link', xfer), modal=FORMTYPE_MODAL, unique=SELECT_MULTI, close=CLOSE_NO)
 

@@ -24,6 +24,7 @@ from diacamma.accounting.models import FiscalYear
 @MenuManage.describ('condominium.change_callfunds', FORMTYPE_NOMODAL, 'condominium.manage', _('Manage of calls of funds'))
 class CallFundsList(XferListEditor):
     icon = "callfunds.png"
+    short_icon = "mdi:mdi-home-import-outline"
     model = CallFunds
     field_id = 'callfunds'
     caption = _("Calls of funds")
@@ -56,10 +57,11 @@ def CallFundsAddCurrent_cond(xfer):
         return False
 
 
-@ActionsManage.affect_list(_('Add current'), "images/new.png", condition=CallFundsAddCurrent_cond)
+@ActionsManage.affect_list(_('Add current'), "images/new.png", short_icon='mdi:mdi-pencil-plus', condition=CallFundsAddCurrent_cond)
 @MenuManage.describ('condominium.add_callfunds')
 class CallFundsAddCurrent(XferContainerAcknowledge):
     icon = "callfunds.png"
+    short_icon = "mdi:mdi-home-import-outline"
     model = CallFunds
     field_id = 'callfunds'
     caption = _("Add call of funds")
@@ -69,21 +71,23 @@ class CallFundsAddCurrent(XferContainerAcknowledge):
             current_system_condo().CurrentCallFundsAdding(True)
 
 
-@ActionsManage.affect_grid(TITLE_CREATE, "images/new.png", condition=lambda xfer, gridname='': xfer.getparam('status_filter', CallFunds.STATUS_VALID) == CallFunds.STATUS_BUILDING)
-@ActionsManage.affect_show(TITLE_MODIFY, "images/edit.png", close=CLOSE_YES, condition=lambda xfer: xfer.item.status == CallFunds.STATUS_BUILDING)
+@ActionsManage.affect_grid(TITLE_CREATE, "images/new.png", short_icon='mdi:mdi-pencil-plus', condition=lambda xfer, gridname='': xfer.getparam('status_filter', CallFunds.STATUS_VALID) == CallFunds.STATUS_BUILDING)
+@ActionsManage.affect_show(TITLE_MODIFY, "images/edit.png", short_icon='mdi:mdi-pencil-outline', close=CLOSE_YES, condition=lambda xfer: xfer.item.status == CallFunds.STATUS_BUILDING)
 @MenuManage.describ('condominium.add_callfunds')
 class CallFundsAddModify(XferAddEditor):
     icon = "callfunds.png"
+    short_icon = "mdi:mdi-home-import-outline"
     model = CallFunds
     field_id = 'callfunds'
     caption_add = _("Add call of funds")
     caption_modify = _("Modify call of funds")
 
 
-@ActionsManage.affect_grid(TITLE_EDIT, "images/show.png", unique=SELECT_SINGLE)
+@ActionsManage.affect_grid(TITLE_EDIT, "images/show.png", short_icon='mdi:mdi-text-box-outline', unique=SELECT_SINGLE)
 @MenuManage.describ('condominium.change_callfunds')
 class CallFundsShow(XferShowEditor):
     icon = "callfunds.png"
+    short_icon = "mdi:mdi-home-import-outline"
     model = CallFunds
     field_id = 'callfunds'
     caption = _("Show call of funds")
@@ -104,12 +108,13 @@ def can_printing(xfer, gridname=''):
         return xfer.getparam('status_filter', CallFunds.STATUS_BUILDING) in (CallFunds.STATUS_VALID, CallFunds.STATUS_ENDED)
 
 
-@ActionsManage.affect_grid(_("Send"), "lucterios.mailing/images/email.png", close=CLOSE_NO, unique=SELECT_MULTI, condition=lambda xfer, gridname='': can_printing(xfer) and can_send_email(xfer))
-@ActionsManage.affect_show(_("Send"), "lucterios.mailing/images/email.png", close=CLOSE_NO, condition=lambda xfer: xfer.item.status in (CallFunds.STATUS_VALID, CallFunds.STATUS_ENDED) and can_send_email(xfer))
+@ActionsManage.affect_grid(_("Send"), "lucterios.mailing/images/email.png", short_icon="mdi:mdi-email-outline", close=CLOSE_NO, unique=SELECT_MULTI, condition=lambda xfer, gridname='': can_printing(xfer) and can_send_email(xfer))
+@ActionsManage.affect_show(_("Send"), "lucterios.mailing/images/email.png", short_icon="mdi:mdi-email-outline", close=CLOSE_NO, condition=lambda xfer: xfer.item.status in (CallFunds.STATUS_VALID, CallFunds.STATUS_ENDED) and can_send_email(xfer))
 @MenuManage.describ('condominium.add_callfunds')
 class CallFundsPayableEmail(XferContainerAcknowledge):
     caption = _("Send by email")
     icon = "callfunds.png"
+    short_icon = "mdi:mdi-home-import-outline"
     model = CallFunds
     field_id = 'callfunds'
 
@@ -118,11 +123,12 @@ class CallFundsPayableEmail(XferContainerAcknowledge):
                              close=CLOSE_NO, params={'item_name': self.field_id, "modelname": self.model.get_long_name()})
 
 
-@ActionsManage.affect_grid(TITLE_PRINT, "images/print.png", unique=SELECT_MULTI, condition=can_printing)
-@ActionsManage.affect_show(TITLE_PRINT, "images/print.png", close=CLOSE_NO, condition=lambda xfer: xfer.item.status in (CallFunds.STATUS_VALID, CallFunds.STATUS_ENDED))
+@ActionsManage.affect_grid(TITLE_PRINT, "images/print.png", short_icon='mdi:mdi-printer-outline', unique=SELECT_MULTI, condition=can_printing)
+@ActionsManage.affect_show(TITLE_PRINT, "images/print.png", short_icon='mdi:mdi-printer-outline', close=CLOSE_NO, condition=lambda xfer: xfer.item.status in (CallFunds.STATUS_VALID, CallFunds.STATUS_ENDED))
 @MenuManage.describ('condominium.change_callfunds')
 class CallFundsPrint(SupportingPrint):
     icon = "callfunds.png"
+    short_icon = "mdi:mdi-home-import-outline"
     model = CallFunds
     field_id = 'callfunds'
     caption = _("Print call of funds")
@@ -146,10 +152,11 @@ class CallFundsPrint(SupportingPrint):
             raise LucteriosException(IMPORTANT, _("No call of funds to print!"))
 
 
-@ActionsManage.affect_grid(TITLE_DELETE, "images/delete.png", unique=SELECT_MULTI, condition=lambda xfer, gridname='': xfer.getparam('status_filter', -1) in (0, 1))
+@ActionsManage.affect_grid(TITLE_DELETE, "images/delete.png", short_icon='mdi:mdi-delete-outline', unique=SELECT_MULTI, condition=lambda xfer, gridname='': xfer.getparam('status_filter', -1) in (0, 1))
 @MenuManage.describ('condominium.delete_callfunds')
 class CallFundsDel(XferDelete):
     icon = "callfunds.png"
+    short_icon = "mdi:mdi-home-import-outline"
     model = CallFunds
     field_id = 'callfunds'
     caption = _("Delete call of funds")
@@ -174,25 +181,28 @@ class CallFundsDel(XferDelete):
 @MenuManage.describ('condominium.add_callfunds')
 class CallFundsTransition(XferTransition):
     icon = "callfunds.png"
+    short_icon = "mdi:mdi-home-import-outline"
     model = CallFunds
     field_id = 'callfunds'
 
 
-@ActionsManage.affect_grid(TITLE_ADD, "images/add.png", condition=lambda xfer, gridname='': xfer.item.status == CallFunds.STATUS_BUILDING)
-@ActionsManage.affect_grid(TITLE_MODIFY, "images/edit.png", unique=SELECT_SINGLE, condition=lambda xfer, gridname='': xfer.item.status == CallFunds.STATUS_BUILDING)
+@ActionsManage.affect_grid(TITLE_ADD, "images/add.png", short_icon='mdi:mdi-pencil-plus-outline', condition=lambda xfer, gridname='': xfer.item.status == CallFunds.STATUS_BUILDING)
+@ActionsManage.affect_grid(TITLE_MODIFY, "images/edit.png", short_icon='mdi:mdi-pencil-outline', unique=SELECT_SINGLE, condition=lambda xfer, gridname='': xfer.item.status == CallFunds.STATUS_BUILDING)
 @MenuManage.describ('condominium.add_callfunds')
 class CallDetailAddModify(XferAddEditor):
     icon = "callfunds.png"
+    short_icon = "mdi:mdi-home-import-outline"
     model = CallDetail
     field_id = 'calldetail'
     caption_add = _("Add detail of call")
     caption_modify = _("Modify detail of call")
 
 
-@ActionsManage.affect_grid(TITLE_DELETE, "images/delete.png", unique=SELECT_MULTI, condition=lambda xfer, gridname='': xfer.item.status == CallFunds.STATUS_BUILDING)
+@ActionsManage.affect_grid(TITLE_DELETE, "images/delete.png", short_icon='mdi:mdi-delete-outline', unique=SELECT_MULTI, condition=lambda xfer, gridname='': xfer.item.status == CallFunds.STATUS_BUILDING)
 @MenuManage.describ('condominium.add_callfunds')
 class CallDetailDel(XferDelete):
     icon = "callfunds.png"
+    short_icon = "mdi:mdi-home-import-outline"
     model = CallDetail
     field_id = 'calldetail'
     caption = _("Delete detail of call")

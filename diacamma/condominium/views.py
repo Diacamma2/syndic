@@ -43,6 +43,7 @@ from diacamma.condominium.system import current_system_condo
 @MenuManage.describ('condominium.change_set', FORMTYPE_NOMODAL, 'condominium.manage', _('Manage of owners and property lots'))
 class OwnerAndPropertyLotList(XferListEditor):
     icon = "owner.png"
+    short_icon = "mdi:mdi-domain"
     model = Owner
     field_id = 'owner'
     caption = _("Owners and property lots")
@@ -117,30 +118,33 @@ class OwnerAndPropertyLotList(XferListEditor):
         grid_custom.delete_header('kind_txt')
 
 
-@ActionsManage.affect_list(TITLE_PRINT, "images/print.png", close=CLOSE_NO)
+@ActionsManage.affect_list(TITLE_PRINT, "images/print.png", short_icon='mdi:mdi-printer-outline', close=CLOSE_NO)
 @MenuManage.describ('condominium.change_set')
 class OwnerAndPropertyLotPrint(XferPrintAction):
     caption = _("Print owners and property lots")
     icon = "owner.png"
+    short_icon = "mdi:mdi-domain"
     model = Owner
     field_id = 'owner'
     action_class = OwnerAndPropertyLotList
     with_text_export = True
 
 
-@ActionsManage.affect_list(TITLE_SEARCH, "diacamma.condominium/images/owner.png")
+@ActionsManage.affect_list(TITLE_SEARCH, "diacamma.condominium/images/owner.png", short_icon="mdi:mdi-domain")
 @MenuManage.describ('condominium.change_owner')
 class OwnerSearch(XferSavedCriteriaSearchEditor):
     icon = "owner.png"
+    short_icon = "mdi:mdi-domain"
     model = Owner
     field_id = 'owner'
     caption = _("Search owner")
 
 
-@ActionsManage.affect_grid(TITLE_CREATE, "images/new.png")
+@ActionsManage.affect_grid(TITLE_CREATE, "images/new.png", short_icon='mdi:mdi-pencil-plus')
 @MenuManage.describ('condominium.add_owner')
 class OwnerAdd(XferAddEditor):
     icon = "owner.png"
+    short_icon = "mdi:mdi-domain"
     model = Owner
     field_id = 'owner'
     caption_add = _("Add owner")
@@ -154,28 +158,31 @@ class OwnerAdd(XferAddEditor):
         XferAddEditor.fillresponse(self)
 
 
-@ActionsManage.affect_show(TITLE_MODIFY, "images/edit.png", close=CLOSE_YES)
+@ActionsManage.affect_show(TITLE_MODIFY, "images/edit.png", short_icon='mdi:mdi-pencil-outline', close=CLOSE_YES)
 @MenuManage.describ('condominium.add_owner')
 class OwnerModify(XferAddEditor):
     icon = "owner.png"
+    short_icon = "mdi:mdi-domain"
     model = Owner
     field_id = 'owner'
     caption_modify = _("Modify owner")
 
 
-@ActionsManage.affect_grid(TITLE_DELETE, "images/delete.png", unique=SELECT_MULTI)
+@ActionsManage.affect_grid(TITLE_DELETE, "images/delete.png", short_icon='mdi:mdi-delete-outline', unique=SELECT_MULTI)
 @MenuManage.describ('condominium.delete_owner')
 class OwnerDel(XferDelete):
     icon = "owner.png"
+    short_icon = "mdi:mdi-domain"
     model = Owner
     field_id = 'owner'
     caption = _("Delete owner")
 
 
-@ActionsManage.affect_grid(TITLE_EDIT, "images/show.png", unique=SELECT_SINGLE)
+@ActionsManage.affect_grid(TITLE_EDIT, "images/show.png", short_icon='mdi:mdi-text-box-outline', unique=SELECT_SINGLE)
 @MenuManage.describ('condominium.change_owner')
 class OwnerShow(XferShowEditor):
     icon = "set.png"
+    short_icon = "mdi:mdi-home-city-outline"
     model = Owner
     field_id = 'owner'
     caption = _("Show owner")
@@ -205,10 +212,11 @@ class OwnerShow(XferShowEditor):
         XferShowEditor.fillresponse(self)
 
 
-@ActionsManage.affect_other(TITLE_ADD, "images/add.png")
+@ActionsManage.affect_other(TITLE_ADD, "images/add.png", short_icon='mdi:mdi-pencil-plus-outline')
 @MenuManage.describ('condominium.add_owner')
 class OwnerContactSave(XferAddEditor):
     icon = "condominium.png"
+    short_icon = "mdi:mdi-office-building-outline"
     model = OwnerContact
     field_id = 'ownercontact'
     caption_add = _("Add owner contact")
@@ -222,10 +230,11 @@ class OwnerContactSave(XferAddEditor):
         XferAddEditor.fillresponse(self)
 
 
-@ActionsManage.affect_grid(TITLE_ADD, "images/add.png")
+@ActionsManage.affect_grid(TITLE_ADD, "images/add.png", short_icon='mdi:mdi-pencil-plus-outline')
 @MenuManage.describ('accounting.add_owner')
 class OwnerContactAdd(ContactSelection):
     icon = "condominium.png"
+    short_icon = "mdi:mdi-office-building-outline"
     caption = _("Add owner contact")
     select_class = OwnerContactSave
     model = OwnerContact
@@ -245,11 +254,12 @@ class OwnerContactAdd(ContactSelection):
                 grid.actions[action_idx] = (grid.actions[action_idx][0], grid.actions[action_idx][1], CLOSE_YES, grid.actions[action_idx][3], params)
 
 
-@ActionsManage.affect_grid(TITLE_EDIT, "images/show.png", unique=SELECT_SINGLE)
+@ActionsManage.affect_grid(TITLE_EDIT, "images/show.png", short_icon='mdi:mdi-text-box-outline', unique=SELECT_SINGLE)
 @MenuManage.describ('condominium.add_owner')
 class OwnerContactShow(XferContainerAcknowledge):
     caption = _("Show owner contact")
     icon = "condominium.png"
+    short_icon = "mdi:mdi-office-building-outline"
     model = OwnerContact
     field_id = 'ownercontact'
 
@@ -262,20 +272,22 @@ class OwnerContactShow(XferContainerAcknowledge):
                              params={field_id: str(self.item.contact.id)})
 
 
-@ActionsManage.affect_grid(TITLE_DELETE, "images/delete.png", unique=SELECT_MULTI)
+@ActionsManage.affect_grid(TITLE_DELETE, "images/delete.png", short_icon='mdi:mdi-delete-outline', unique=SELECT_MULTI)
 @MenuManage.describ('condominium.add_owner')
 class OwnerContactDel(XferDelete):
     caption = _("Delete owner contact")
     icon = "condominium.png"
+    short_icon = "mdi:mdi-office-building-outline"
     model = OwnerContact
     field_id = 'ownercontact'
 
 
-@ActionsManage.affect_other(_('load count'), 'images/show.png', close=CLOSE_NO)
+@ActionsManage.affect_other(_('load count'), 'images/show.png', short_icon='mdi:mdi-text-box-outline', close=CLOSE_NO)
 @MenuManage.describ('payoff.add_owner')
 class OwnerLoadCount(XferContainerCustom):
     caption = _("Load count of owner")
     icon = "condominium.png"
+    short_icon = "mdi:mdi-office-building-outline"
     model = Owner
     field_id = 'owner'
 
@@ -297,6 +309,7 @@ class OwnerLoadCount(XferContainerCustom):
         self.add_component(date_end)
         img = XferCompImage('img')
         img.set_value(self.icon_path())
+        img.set_short_icon(self.short_icon)
         img.set_location(0, 0, 1, 6)
         self.add_component(img)
         self.fill_from_model(1, 1, True, [((_('name'), 'third'),)])
@@ -305,15 +318,16 @@ class OwnerLoadCount(XferContainerCustom):
         grid.set_location(1, 2, 2)
         self.add_component(grid)
 
-        self.add_action(WrapAction(TITLE_CLOSE, 'images/close.png'))
+        self.add_action(WrapAction(TITLE_CLOSE, 'images/close.png', 'mdi:mdi-close'))
 
 
-@ActionsManage.affect_grid(TITLE_PRINT, "images/print.png", unique=SELECT_MULTI)
-@ActionsManage.affect_show(TITLE_PRINT, "images/print.png", close=CLOSE_NO)
+@ActionsManage.affect_grid(TITLE_PRINT, "images/print.png", short_icon='mdi:mdi-printer-outline', unique=SELECT_MULTI)
+@ActionsManage.affect_show(TITLE_PRINT, "images/print.png", short_icon='mdi:mdi-printer-outline', close=CLOSE_NO)
 @MenuManage.describ('condominium.change_owner')
 class OwnerReport(XferPrintReporting):
     with_text_export = True
     icon = "owner.png"
+    short_icon = "mdi:mdi-domain"
     model = Owner
     field_id = 'owner'
     caption = _("Print owner")
@@ -329,11 +343,12 @@ class OwnerReport(XferPrintReporting):
             return str(self.caption)
 
 
-@ActionsManage.affect_show(_("Payment"), "diacamma.payoff/images/payments.png", close=CLOSE_NO, condition=lambda xfer: xfer.item.payoff_have_payment() and (len(PaymentMethod.objects.all()) > 0))
+@ActionsManage.affect_show(_("Payment"), "diacamma.payoff/images/payments.png", short_icon="mdi:mdi-account-cash-outline", close=CLOSE_NO, condition=lambda xfer: xfer.item.payoff_have_payment() and (len(PaymentMethod.objects.all()) > 0))
 @MenuManage.describ('condominium.change_owner')
 class OwnerShowPayable(XferContainerAcknowledge):
     caption = _("Payment")
     icon = "owner.png"
+    short_icon = "mdi:mdi-domain"
     model = Owner
     field_id = 'owner'
     readonly = True
@@ -344,12 +359,13 @@ class OwnerShowPayable(XferContainerAcknowledge):
                              close=CLOSE_NO, params={'item_name': self.field_id})
 
 
-@ActionsManage.affect_grid(_("Send"), "lucterios.mailing/images/email.png", close=CLOSE_NO, unique=SELECT_MULTI, condition=lambda xfer, gridname='': can_send_email(xfer))
-@ActionsManage.affect_show(_("Send"), "lucterios.mailing/images/email.png", close=CLOSE_NO, condition=lambda xfer: can_send_email(xfer))
+@ActionsManage.affect_grid(_("Send"), "lucterios.mailing/images/email.png", short_icon="mdi:mdi-email-outline", close=CLOSE_NO, unique=SELECT_MULTI, condition=lambda xfer, gridname='': can_send_email(xfer))
+@ActionsManage.affect_show(_("Send"), "lucterios.mailing/images/email.png", short_icon="mdi:mdi-email-outline", close=CLOSE_NO, condition=lambda xfer: can_send_email(xfer))
 @MenuManage.describ('condominium.add_owner')
 class OwnerPayableEmail(XferContainerAcknowledge):
     caption = _("Send by email")
     icon = "owner.png"
+    short_icon = "mdi:mdi-domain"
     model = Owner
     field_id = 'owner'
 
@@ -358,11 +374,12 @@ class OwnerPayableEmail(XferContainerAcknowledge):
                              close=CLOSE_NO, params={'item_name': self.field_id})
 
 
-@ActionsManage.affect_grid(_('payoff'), 'images/add.png', close=CLOSE_NO)
+@ActionsManage.affect_grid(_('payoff'), 'images/add.png', short_icon='mdi:mdi-pencil-plus-outline', close=CLOSE_NO)
 @MenuManage.describ('payoff.add_payoff')
 class PaymentMultiPay(XferContainerAcknowledge):
     caption = _("Multi-pay owner")
     icon = "set.png"
+    short_icon = "mdi:mdi-home-city-outline"
     model = Payment
     field_id = 'payments'
 
@@ -376,11 +393,12 @@ class PaymentMultiPay(XferContainerAcknowledge):
         self.redirect_action(PayoffAddModify.get_action("", ""), params={"supportings": ";".join(supportings), 'NO_REPARTITION': 'yes', 'repartition': "1"})
 
 
-@ActionsManage.affect_grid(_('refund'), 'images/new.png', close=CLOSE_NO, condition=lambda xfer, gridname: xfer.item.get_total_payoff_waiting() > 0.001)
+@ActionsManage.affect_grid(_('refund'), 'images/new.png', short_icon='mdi:mdi-pencil-plus', close=CLOSE_NO, condition=lambda xfer, gridname: xfer.item.get_total_payoff_waiting() > 0.001)
 @MenuManage.describ('payoff.add_payoff')
 class PaymentRefund(XferContainerAcknowledge):
     caption = _("Refund owner")
     icon = "set.png"
+    short_icon = "mdi:mdi-home-city-outline"
     model = Payment
     field_id = 'payments'
 
@@ -412,22 +430,24 @@ class PaymentRefund(XferContainerAcknowledge):
             dlg.params['supportings'] = ''
             img = XferCompImage('img')
             img.set_value(self.icon_path())
+            img.set_short_icon(self.short_icon)
             img.set_location(0, 0, 1, 6)
             dlg.add_component(img)
             dlg.fill_from_model(1, 0, False)
-            dlg.add_action(self.return_action(TITLE_OK, 'images/ok.png'), params={"SAVE": "YES"})
-            dlg.add_action(WrapAction(TITLE_CANCEL, 'images/cancel.png'))
+            dlg.add_action(self.return_action(TITLE_OK, 'images/ok.png', 'mdi:mdi-check'), params={"SAVE": "YES"})
+            dlg.add_action(WrapAction(TITLE_CANCEL, 'images/cancel.png', 'mdi:mdi-cancel'))
         else:
             Payoff.multi_save([currentowner.id], -1 * self.getparam('amount', 0.0), self.getparam('mode', Payoff.MODE_CASH), '',
                               self.getparam('reference', ''), self.getparam('bank_account', None), self.getparam('date', currentowner.default_date()),
                               self.getparam('fee_bank', 0.0), Payoff.REPARTITION_BYDATE)
 
 
-@ActionsManage.affect_grid(_('ventilate'), 'images/edit.png', close=CLOSE_NO)
+@ActionsManage.affect_grid(_('ventilate'), 'images/edit.png', short_icon='mdi:mdi-text-box-outline', close=CLOSE_NO)
 @MenuManage.describ('payoff.add_payoff')
 class PaymentVentilatePay(XferContainerAcknowledge):
     caption = _("Multi-pay owner")
     icon = "set.png"
+    short_icon = "mdi:mdi-home-city-outline"
     model = Payment
     field_id = 'payments'
 
@@ -437,10 +457,11 @@ class PaymentVentilatePay(XferContainerAcknowledge):
             currentowner.ventilatePay(begin_date, end_date)
 
 
-@ActionsManage.affect_grid(TITLE_DELETE, "images/delete.png", unique=SELECT_MULTI)
+@ActionsManage.affect_grid(TITLE_DELETE, "images/delete.png", short_icon='mdi:mdi-delete-outline', unique=SELECT_MULTI)
 @MenuManage.describ('condominium.delete_owner')
 class PaymentDel(XferDelete):
     icon = "owner.png"
+    short_icon = "mdi:mdi-domain"
     model = Payment
     field_id = 'payments'
     caption = _("Delete payment")
@@ -460,11 +481,12 @@ class PaymentDel(XferDelete):
             currentowner.ventilatePay(begin_date, end_date)
 
 
-@ActionsManage.affect_grid(TITLE_MODIFY, "images/edit.png", unique=SELECT_SINGLE)
-@ActionsManage.affect_grid(TITLE_ADD, "images/add.png")
+@ActionsManage.affect_grid(TITLE_MODIFY, "images/edit.png", short_icon='mdi:mdi-pencil-outline', unique=SELECT_SINGLE)
+@ActionsManage.affect_grid(TITLE_ADD, "images/add.png", short_icon='mdi:mdi-pencil-plus-outline')
 @MenuManage.describ('condominium.add_owner')
 class PropertyLotAddModify(XferAddEditor):
     icon = "owner.png"
+    short_icon = "mdi:mdi-domain"
     model = PropertyLot
     field_id = 'propertylot'
     caption_add = _("Add property lot")
@@ -476,19 +498,21 @@ class PropertyLotAddModify(XferAddEditor):
         XferAddEditor.fillresponse(self)
 
 
-@ActionsManage.affect_grid(TITLE_DELETE, "images/delete.png", unique=SELECT_MULTI)
+@ActionsManage.affect_grid(TITLE_DELETE, "images/delete.png", short_icon='mdi:mdi-delete-outline', unique=SELECT_MULTI)
 @MenuManage.describ('condominium.delete_owner')
 class PropertyLotDel(XferDelete):
     icon = "owner.png"
+    short_icon = "mdi:mdi-domain"
     model = PropertyLot
     field_id = 'propertylot'
     caption = _("Delete property lot")
 
 
-@ActionsManage.affect_other(_('Import'), "images/right.png")
+@ActionsManage.affect_other(_('Import'), "images/right.png", short_icon='mdi:mdi-upload')
 @MenuManage.describ('condominium.add_owner')
 class PropertyLotImport(ObjectImport):
     icon = "owner.png"
+    short_icon = "mdi:mdi-domain"
     model = PropertyLot
     caption = _("Property lot import")
 
@@ -524,7 +548,7 @@ class CurrentOwneShow(OwnerShow):
         self.item = owners[0]
         self.params['owner'] = self.item.id
         OwnerShow.fillresponse(self, begin_date, end_date)
-        self.add_action(CurrentOwnePrint.get_action(TITLE_PRINT, "images/print.png"), close=CLOSE_NO, pos_act=0)
+        self.add_action(CurrentOwnePrint.get_action(TITLE_PRINT, "images/print.png", short_icon='mdi:mdi-printer-outline'), close=CLOSE_NO, pos_act=0)
 
 
 @MenuManage.describ(current_owner)
@@ -568,6 +592,7 @@ class CondominiumConvert(XferContainerAcknowledge):
             dlg = self.create_custom()
             img = XferCompImage('img')
             img.set_value(self.icon_path())
+            img.set_short_icon(self.short_icon)
             img.set_location(0, 0)
             dlg.add_component(img)
             lbl = XferCompLabelForm('title')
@@ -585,8 +610,8 @@ class CondominiumConvert(XferContainerAcknowledge):
             self.fill_third_convert(dlg)
             dlg.new_tab(_("Parameters"))
             fill_params(dlg, True, True)
-            dlg.add_action(self.return_action(TITLE_OK, 'images/ok.png'), modal=FORMTYPE_MODAL, close=CLOSE_YES, params={'CONVERT': 'YES'})
-            dlg.add_action(WrapAction(TITLE_CANCEL, 'images/cancel.png'))
+            dlg.add_action(self.return_action(TITLE_OK, 'images/ok.png', 'mdi:mdi-check'), modal=FORMTYPE_MODAL, close=CLOSE_YES, params={'CONVERT': 'YES'})
+            dlg.add_action(WrapAction(TITLE_CANCEL, 'images/cancel.png', 'mdi:mdi-cancel'))
         else:
             Parameter.change_value('condominium-old-accounting', False)
             Params.clear()
@@ -725,7 +750,7 @@ def thirdaddon_condo(item, xfer):
             xfer.item = old_item
             btn = XferCompButton('condobtn')
             btn.set_location(0, 5, 2)
-            btn.set_action(xfer.request, OwnerShow.get_action(TITLE_EDIT, 'images/edit.png'),
+            btn.set_action(xfer.request, OwnerShow.get_action(TITLE_EDIT, 'images/edit.png', 'mdi:mdi-pencil-outline'),
                            close=CLOSE_NO, modal=FORMTYPE_MODAL, params={'owner': owner.id})
             xfer.add_component(btn)
         except ObjectDoesNotExist:

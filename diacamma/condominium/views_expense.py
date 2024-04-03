@@ -27,6 +27,7 @@ from lucterios.CORE.editors import XferSavedCriteriaSearchEditor
 @MenuManage.describ('condominium.change_expense', FORMTYPE_NOMODAL, 'condominium.manage', _('Manage of expenses'))
 class ExpenseList(XferListEditor):
     icon = "expense.png"
+    short_icon = "mdi:mdi-home-export-outline"
     model = Expense
     field_id = 'expense'
     caption = _("Condominium expenses")
@@ -63,30 +64,33 @@ class ExpenseList(XferListEditor):
             self.filter &= Q(date__gte=current_year.begin) & Q(date__lte=current_year.end)
 
 
-@ActionsManage.affect_list(TITLE_SEARCH, "diacamma.condominium/images/expense.png")
+@ActionsManage.affect_list(TITLE_SEARCH, "diacamma.condominium/images/expense.png", short_icon="mdi:mdi-home-export-outline")
 @MenuManage.describ('condominium.change_expense')
 class ExpenseSearch(XferSavedCriteriaSearchEditor):
     icon = "expense.png"
+    short_icon = "mdi:mdi-home-export-outline"
     model = Expense
     field_id = 'expense'
     caption = _("Search expense")
 
 
-@ActionsManage.affect_grid(TITLE_CREATE, "images/new.png", condition=lambda xfer, gridname='': xfer.getparam('status_filter', Expense.STATUS_BUILDING) in (Expense.STATUS_BUILDING, Expense.STATUS_WAITING, Expense.STATUS_BUILDING_WAITING))
-@ActionsManage.affect_show(TITLE_MODIFY, "images/edit.png", close=CLOSE_YES, condition=lambda xfer: xfer.item.status in (Expense.STATUS_BUILDING, Expense.STATUS_WAITING))
+@ActionsManage.affect_grid(TITLE_CREATE, "images/new.png", short_icon='mdi:mdi-pencil-plus', condition=lambda xfer, gridname='': xfer.getparam('status_filter', Expense.STATUS_BUILDING) in (Expense.STATUS_BUILDING, Expense.STATUS_WAITING, Expense.STATUS_BUILDING_WAITING))
+@ActionsManage.affect_show(TITLE_MODIFY, "images/edit.png", short_icon='mdi:mdi-pencil-outline', close=CLOSE_YES, condition=lambda xfer: xfer.item.status in (Expense.STATUS_BUILDING, Expense.STATUS_WAITING))
 @MenuManage.describ('condominium.add_expense')
 class ExpenseAddModify(XferAddEditor):
     icon = "expense.png"
+    short_icon = "mdi:mdi-home-export-outline"
     model = Expense
     field_id = 'expense'
     caption_add = _("Add expense")
     caption_modify = _("Modify expense")
 
 
-@ActionsManage.affect_grid(TITLE_EDIT, "images/show.png", unique=SELECT_SINGLE)
+@ActionsManage.affect_grid(TITLE_EDIT, "images/show.png", short_icon='mdi:mdi-text-box-outline', unique=SELECT_SINGLE)
 @MenuManage.describ('condominium.change_expense')
 class ExpenseShow(XferShowEditor):
     icon = "expense.png"
+    short_icon = "mdi:mdi-home-export-outline"
     model = Expense
     field_id = 'expense'
     caption = _("Show expense")
@@ -97,10 +101,11 @@ class ExpenseShow(XferShowEditor):
             self.remove_component('total_rest_topay')
 
 
-@ActionsManage.affect_grid(TITLE_DELETE, "images/delete.png", unique=SELECT_MULTI, condition=lambda xfer, gridname='': xfer.getparam('status_filter', Expense.STATUS_BUILDING) == Expense.STATUS_BUILDING)
+@ActionsManage.affect_grid(TITLE_DELETE, "images/delete.png", short_icon='mdi:mdi-delete-outline', unique=SELECT_MULTI, condition=lambda xfer, gridname='': xfer.getparam('status_filter', Expense.STATUS_BUILDING) == Expense.STATUS_BUILDING)
 @MenuManage.describ('condominium.delete_expense')
 class ExpenseDel(XferDelete):
     icon = "expense.png"
+    short_icon = "mdi:mdi-home-export-outline"
     model = Expense
     field_id = 'expense'
     caption = _("Delete expense")
@@ -110,6 +115,7 @@ class ExpenseDel(XferDelete):
 @MenuManage.describ('condominium.add_expense')
 class ExpenseTransition(XferTransition):
     icon = "expense.png"
+    short_icon = "mdi:mdi-home-export-outline"
     model = Expense
     field_id = 'expense'
 
@@ -119,6 +125,7 @@ class ExpenseTransition(XferTransition):
 class ExpenseMultiPay(XferContainerAcknowledge):
     caption = _("Multi-pay expense")
     icon = "expense.png"
+    short_icon = "mdi:mdi-home-export-outline"
     model = Expense
     field_id = 'expense'
 
@@ -126,30 +133,33 @@ class ExpenseMultiPay(XferContainerAcknowledge):
         self.redirect_action(PayoffAddModify.get_action("", ""), params={"supportings": expense, 'repartition': "1"})
 
 
-@ActionsManage.affect_grid(TITLE_ADD, "images/add.png", condition=lambda xfer, gridname='': xfer.item.status in (Expense.STATUS_BUILDING, Expense.STATUS_WAITING))
-@ActionsManage.affect_grid(TITLE_MODIFY, "images/edit.png", unique=SELECT_SINGLE, condition=lambda xfer, gridname='': xfer.item.status in (Expense.STATUS_BUILDING, Expense.STATUS_WAITING))
+@ActionsManage.affect_grid(TITLE_ADD, "images/add.png", short_icon='mdi:mdi-pencil-plus-outline', condition=lambda xfer, gridname='': xfer.item.status in (Expense.STATUS_BUILDING, Expense.STATUS_WAITING))
+@ActionsManage.affect_grid(TITLE_MODIFY, "images/edit.png", short_icon='mdi:mdi-pencil-outline', unique=SELECT_SINGLE, condition=lambda xfer, gridname='': xfer.item.status in (Expense.STATUS_BUILDING, Expense.STATUS_WAITING))
 @MenuManage.describ('condominium.add_expense')
 class ExpenseDetailAddModify(XferAddEditor):
     icon = "expense.png"
+    short_icon = "mdi:mdi-home-export-outline"
     model = ExpenseDetail
     field_id = 'expensedetail'
     caption_add = _("Add detail of expense")
     caption_modify = _("Modify detail of call")
 
 
-@ActionsManage.affect_grid(TITLE_DELETE, "images/delete.png", unique=SELECT_MULTI, condition=lambda xfer, gridname='': xfer.item.status in (Expense.STATUS_BUILDING, Expense.STATUS_WAITING))
+@ActionsManage.affect_grid(TITLE_DELETE, "images/delete.png", short_icon='mdi:mdi-delete-outline', unique=SELECT_MULTI, condition=lambda xfer, gridname='': xfer.item.status in (Expense.STATUS_BUILDING, Expense.STATUS_WAITING))
 @MenuManage.describ('condominium.add_expense')
 class ExpenseDetailDel(XferDelete):
     icon = "expense.png"
+    short_icon = "mdi:mdi-home-export-outline"
     model = ExpenseDetail
     field_id = 'expensedetail'
     caption = _("Delete detail of expense")
 
 
-@ActionsManage.affect_grid(_("Show set"), "diacamma.condominium/images/set.png", unique=SELECT_SINGLE, condition=lambda xfer, gridname='': xfer.item.status in (Expense.STATUS_BUILDING, Expense.STATUS_WAITING))
+@ActionsManage.affect_grid(_("Show set"), "diacamma.condominium/images/set.png", short_icon="mdi:mdi-home-city-outline", unique=SELECT_SINGLE, condition=lambda xfer, gridname='': xfer.item.status in (Expense.STATUS_BUILDING, Expense.STATUS_WAITING))
 @MenuManage.describ('condominium.change_set')
 class ExpenseDetailShowSet(XferContainerAcknowledge):
     icon = "expense.png"
+    short_icon = "mdi:mdi-home-export-outline"
     model = ExpenseDetail
     field_id = 'expensedetail'
     caption = _("Show class load")
