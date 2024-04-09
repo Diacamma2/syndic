@@ -36,7 +36,7 @@ class Migration(migrations.Migration):
                 ('date', models.DateField(verbose_name='date')),
                 ('assignment', models.CharField(default='', max_length=500, null=True, verbose_name='assignment')),
                 ('amount', lucterios.framework.model_fields.LucteriosDecimalField(decimal_places=3, default=0.0, max_digits=10, validators=[django.core.validators.MinValueValidator(0.0), django.core.validators.MaxValueValidator(9999999.999)], verbose_name='amount')),
-                ('mode', models.IntegerField(choices=[(0, 'cash'), (1, 'cheque'), (2, 'transfer'), (3, 'crédit card'), (4, 'other'), (5, 'levy'), (6, 'internal')], db_index=True, default=0, verbose_name='mode')),
+                ('mode', models.IntegerField(choices=[(0, 'cash'), (1, 'cheque'), (2, 'transfer'), (3, 'credit card'), (4, 'other'), (5, 'levy'), (6, 'internal')], db_index=True, default=0, verbose_name='mode')),
                 ('bank_account', models.CharField(default='', max_length=200, null=True, verbose_name='bank account')),
                 ('reference', models.CharField(default='', max_length=200, null=True, verbose_name='reference')),
             ],
