@@ -1272,7 +1272,7 @@ class CallFunds(LucteriosModel):
     class Meta(object):
         verbose_name = _('call of funds')
         verbose_name_plural = _('calls of funds')
-        ordering = ['date', 'num']
+        ordering = ['-date', '-num']
 
 
 class CallDetail(LucteriosModel):
