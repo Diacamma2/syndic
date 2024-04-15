@@ -918,7 +918,7 @@ class PropertyLot(LucteriosModel, CustomizeObject):
 
     def get_value_ratio(self):
         if self.value is not None:
-            return "%d (%.1f %%)" % (self.value, self.get_ratio())
+            return "%d (%.1f %%)" % (float(self.value), self.get_ratio())
         else:
             return "0"
 
@@ -2118,7 +2118,7 @@ class Owner(Supporting):
 
         # move payoff from general to call of funds
         supportings = [str(self.id)]
-        for call_fund in self.callfunds_set.filter(date__gte=self.date_begin, date__lte=self.date_end):
+        for call_fund in self.callfunds_set.filter(date__gte=self.date_begin, date__lte=self.date_end).order_by('date', 'num'):
             if call_fund.supporting.get_total_rest_topay() > 0.0001:
                 supportings.append(str(call_fund.supporting_id))
         payoffs_filter = Q(date__gte=self.date_begin) & Q(date__lte=self.date_end) & (Q(entry__close=False) | (Q(entry__entrylineaccount__third=self.third) & Q(entry__date_value=FiscalYear.get_current().begin) & Q(entry__journal__id=Journal.DEFAULT_LASTYEAR)))
@@ -2135,7 +2135,7 @@ class Owner(Supporting):
                         payoff.save(do_generate=False)
                     payoff.delete()
             else:
-                for call_fund in self.callfunds_set.filter(supporting__in=supportings):
+                for call_fund in self.callfunds_set.filter(supporting__in=supportings).order_by('date', 'num'):
                     if (call_fund.supporting.get_total_rest_topay() - float(payoff.amount)) > 0.0001:
                         payoff.supporting = call_fund.supporting
                         payoff.save()
