@@ -122,6 +122,8 @@ class Set(LucteriosModel):
 
     @property
     def partitionfill_set(self):
+        if self.id is None:
+            return Partition.objects.filter(set=None)
         return self.partition_set.filter(Q(value__gt=0.001))
 
     def get_identify(self):
