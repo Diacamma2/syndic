@@ -74,11 +74,7 @@ class FrenchSystemCondo(DefaultSystemCondo):
 
     def CurrentCallFundsAdding(self, to_create):
         if to_create:
-            nb_seq = 0
-            if Params.getvalue("condominium-mode-current-callfunds") == 0:
-                nb_seq = 4
-            if Params.getvalue("condominium-mode-current-callfunds") == 1:
-                nb_seq = 12
+            nb_seq = CallFunds.getNbSequence()
             year = FiscalYear.get_current()
             for num in range(nb_seq):
                 date = same_day_months_after(year.begin, int(num * 12 / nb_seq))

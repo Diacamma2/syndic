@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-03-07 15:53+0000\n"
+"POT-Creation-Date: 2024-06-21 07:46+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -65,8 +65,8 @@ msgstr "rolling reserved account"
 msgid "reserved account"
 msgstr "reserved account"
 
-#: system/belgium.py:88 system/belgium.py:104 system/french.py:70
-#: system/french.py:87
+#: system/belgium.py:88 system/belgium.py:100 system/french.py:70
+#: system/french.py:83
 msgid "current"
 msgstr "current"
 
@@ -82,28 +82,28 @@ msgstr "rolling"
 msgid "reserved"
 msgstr "reserved"
 
-#: system/belgium.py:102 system/french.py:85
+#: system/belgium.py:98 system/french.py:81
 #, python-format
 msgid "Call of funds #%(num)d of year from %(begin)s to %(end)s"
 msgstr "Call of funds #%(num)d of year from %(begin)s to %(end)s"
 
-#: system/belgium.py:104 system/french.py:87
+#: system/belgium.py:100 system/french.py:83
 #, python-format
 msgid "%(type)s - #%(num)d"
 msgstr "%(type)s - #%(num)d"
 
-#: system/belgium.py:120 system/french.py:105
+#: system/belgium.py:116 system/french.py:101
 msgid "incorrect account for call of found"
 msgstr "incorrect account for call of found"
 
-#: system/belgium.py:140 system/french.py:120 system/french.py:144
-#: system/french.py:148 system/french.py:173
+#: system/belgium.py:136 system/french.py:116 system/french.py:140
+#: system/french.py:144 system/french.py:169
 #, python-format
 msgid "code account %s unknown!"
 msgstr "code account %s unknown!"
 
-#: system/belgium.py:147 system/french.py:129 system/french.py:162
-#: system/french.py:180
+#: system/belgium.py:143 system/french.py:125 system/french.py:158
+#: system/french.py:176
 msgid "Error in accounting generator!"
 msgstr "Error in accounting generator!"
 

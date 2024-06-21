@@ -295,11 +295,7 @@ class Set(LucteriosModel):
         return revenue
 
     def get_new_current_callfunds(self):
-        nb_seq = 0
-        if Params.getvalue("condominium-mode-current-callfunds") == CallFunds.MODE_CURRENT_QUARTERLY:
-            nb_seq = 4
-        if Params.getvalue("condominium-mode-current-callfunds") == CallFunds.MODE_CURRENT_MONTLY:
-            nb_seq = 12
+        nb_seq = CallFunds.getNbSequence()
         year = FiscalYear.get_current()
         nb_current = len(CallDetail.objects.filter(set=self, callfunds__date__gte=year.begin, callfunds__date__lte=year.end, type_call=CallDetail.TYPECALL_CURRENT))
         amount_current = CallDetail.objects.filter(set=self, callfunds__date__gte=year.begin, callfunds__date__lte=year.end, type_call=CallDetail.TYPECALL_CURRENT).aggregate(Sum('price'))
@@ -1051,6 +1047,7 @@ class CallFundsSupporting(Supporting):
 class CallFunds(LucteriosModel):
     MODE_CURRENT_QUARTERLY = 0
     MODE_CURRENT_MONTLY = 1
+    MODE_CURRENT_ANNUALY = 2
 
     STATUS_BUILDING = 0
     STATUS_VALID = 1
@@ -1066,6 +1063,17 @@ class CallFunds(LucteriosModel):
     status = FSMIntegerField(verbose_name=_('status'), choices=LIST_STATUS, null=False, default=STATUS_BUILDING, db_index=True)
 
     total = LucteriosVirtualField(verbose_name=_('total'), compute_from='get_total', format_string=lambda: format_with_devise(5))
+
+    @classmethod
+    def getNbSequence(cls):
+        nb_seq = 0
+        if Params.getvalue("condominium-mode-current-callfunds") == CallFunds.MODE_CURRENT_QUARTERLY:
+            nb_seq = 4
+        if Params.getvalue("condominium-mode-current-callfunds") == CallFunds.MODE_CURRENT_MONTLY:
+            nb_seq = 12
+        if Params.getvalue("condominium-mode-current-callfunds") == CallFunds.MODE_CURRENT_ANNUALY:
+            nb_seq = 1
+        return nb_seq
 
     def __str__(self):
         if self.num is not None:
@@ -2583,7 +2591,7 @@ def condominium_checkparam():
                                args="{'Multi':False}", value=correct_accounting_code('105'),
                                meta='("accounting","ChartsAccount", Q(type_of_account=2) & Q(year__is_actif=True), "code", True)')
     Parameter.check_and_create(name='condominium-mode-current-callfunds', typeparam=Parameter.TYPE_SELECT, title=_("condominium-mode-current-callfunds"),
-                               args="{'Enum':2}", value=0, param_titles=(_("condominium-mode-current-callfunds.0"), _("condominium-mode-current-callfunds.1")))
+                               args="{'Enum':3}", value=0, param_titles=(_("condominium-mode-current-callfunds.0"), _("condominium-mode-current-callfunds.1"), _("condominium-mode-current-callfunds.2")))
     Parameter.check_and_create(name='condominium-payoff-calloffunds', typeparam=Parameter.TYPE_BOOL, title=_("condominium-payoff-calloffunds"), args="{}", value='False')
     if Parameter.check_and_create(name='condominium-old-accounting', typeparam=Parameter.TYPE_BOOL, title=_("condominium-old-accounting"), args="{}", value='False'):
         Parameter.change_value('condominium-old-accounting', len(Owner.objects.all()) != 0)

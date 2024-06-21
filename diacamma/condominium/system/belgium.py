@@ -88,11 +88,7 @@ class BelgiumSystemCondo(DefaultSystemCondo):
         return [(0, _('current')), (1, _('working')), (2, _('rolling')), (4, _('reserved'))]
 
     def CurrentCallFundsAdding(self, to_create):
-        nb_seq = 0
-        if Params.getvalue("condominium-mode-current-callfunds") == 0:
-            nb_seq = 4
-        if Params.getvalue("condominium-mode-current-callfunds") == 1:
-            nb_seq = 12
+        nb_seq = CallFunds.getNbSequence()
         year = FiscalYear.get_current()
         calls = CallFunds.objects.filter(date__gte=year.begin, date__lte=year.end, calldetail__type_call=0, calldetail__set__isnull=False).distinct()
         nb_curent = len(calls)

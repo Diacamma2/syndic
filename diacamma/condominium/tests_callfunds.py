@@ -1345,6 +1345,28 @@ class CallFundsBelgiumTest(LucteriosTest):
         self.assert_json_equal('', 'callfunds/@3/total', 330.00)
         self.assertEqual(len(self.json_actions), 1)
 
+    def test_add_default_current_annualy(self):
+        Parameter.change_value('condominium-mode-current-callfunds', 2)
+        Params.clear()
+
+        self.factory.xfer = CallFundsList()
+        self.calljson('/diacamma.condominium/callFundsList', {'status_filter': 0}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'callFundsList')
+        self.assert_count_equal('callfunds', 0)
+        self.assertEqual(len(self.json_actions), 2)
+
+        self.factory.xfer = CallFundsAddCurrent()
+        self.calljson('/diacamma.condominium/callFundsAddCurrent', {'CONFIRME': 'YES'}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'callFundsAddCurrent')
+
+        self.factory.xfer = CallFundsList()
+        self.calljson('/diacamma.condominium/callFundsList', {'status_filter': 0}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'callFundsList')
+        self.assert_count_equal('callfunds', 1)
+        self.assert_json_equal('', 'callfunds/@0/date', "2015-01-01")
+        self.assert_json_equal('', 'callfunds/@0/total', 1320.00)
+        self.assertEqual(len(self.json_actions), 1)
+
     def test_valid_current(self):
         self.factory.xfer = EntryAccountList()
         self.calljson('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '0', 'filter': '0'}, False)

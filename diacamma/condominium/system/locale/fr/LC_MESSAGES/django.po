@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-03-07 15:53+0000\n"
+"POT-Creation-Date: 2024-06-21 07:46+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -66,8 +66,8 @@ msgstr "compte de réserve des roulements"
 msgid "reserved account"
 msgstr "compte de réserve"
 
-#: system/belgium.py:88 system/belgium.py:104 system/french.py:70
-#: system/french.py:87
+#: system/belgium.py:88 system/belgium.py:100 system/french.py:70
+#: system/french.py:83
 msgid "current"
 msgstr "charge courante"
 
@@ -83,28 +83,28 @@ msgstr "roulement"
 msgid "reserved"
 msgstr "réserve"
 
-#: system/belgium.py:102 system/french.py:85
+#: system/belgium.py:98 system/french.py:81
 #, python-format
 msgid "Call of funds #%(num)d of year from %(begin)s to %(end)s"
 msgstr "Appel de fonds N°%(num)d de l'exercice du %(begin)s au %(end)s"
 
-#: system/belgium.py:104 system/french.py:87
+#: system/belgium.py:100 system/french.py:83
 #, python-format
 msgid "%(type)s - #%(num)d"
 msgstr "%(type)s - N°%(num)d"
 
-#: system/belgium.py:120 system/french.py:105
+#: system/belgium.py:116 system/french.py:101
 msgid "incorrect account for call of found"
 msgstr "compte incorrect pour l'appel de fonds !"
 
-#: system/belgium.py:140 system/french.py:120 system/french.py:144
-#: system/french.py:148 system/french.py:173
+#: system/belgium.py:136 system/french.py:116 system/french.py:140
+#: system/french.py:144 system/french.py:169
 #, python-format
 msgid "code account %s unknown!"
 msgstr "code comptable %s non trouvé !"
 
-#: system/belgium.py:147 system/french.py:129 system/french.py:162
-#: system/french.py:180
+#: system/belgium.py:143 system/french.py:125 system/french.py:158
+#: system/french.py:176
 msgid "Error in accounting generator!"
 msgstr "Erreur dans la génération comptable !"
 
