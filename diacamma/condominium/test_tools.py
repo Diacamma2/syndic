@@ -23,9 +23,12 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import unicode_literals
 
+from django.core.cache import cache
+
 from lucterios.framework.tools import convert_date
 from lucterios.CORE.models import Parameter
 from lucterios.CORE.parameters import Params
+from lucterios.contacts.models import CustomField
 
 from diacamma.accounting.models import FiscalYear, Budget, Third, AccountThird
 from diacamma.accounting.test_tools import create_account, add_entry,\
@@ -33,7 +36,6 @@ from diacamma.accounting.test_tools import create_account, add_entry,\
 from diacamma.payoff.models import Payoff
 from diacamma.condominium.models import Set, Owner, Partition, CallFunds, CallDetail, Expense, ExpenseDetail, PropertyLot, RecoverableLoadRatio,\
     PropertyLotCustomField
-from lucterios.contacts.models import CustomField
 
 
 def _set_budget(setitem, code, amount):
@@ -93,6 +95,10 @@ def param_owner_with_sub_accounts():
     Params.setvalue("condominium-default-owner-account3", "4503")
     Params.setvalue("condominium-default-owner-account4", "4504")
     Params.setvalue("condominium-default-owner-account5", "4505")
+
+
+def clear_cache():
+    cache.clear()
 
 
 def default_setowner_fr(with_lots=True):

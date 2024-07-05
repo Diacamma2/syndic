@@ -50,6 +50,7 @@ class OwnerAndPropertyLotList(XferListEditor):
 
     def get_items_from_filter(self):
         items = self.model.objects.annotate(completename=Concat('third__contact__individual__lastname', Value(' '), 'third__contact__individual__firstname')).filter(self.filter)
+        items = items.select_related('third', 'third__contact', 'third__contact__individual', 'third__contact__legalentity')
         sort_owner = self.getparam('GRID_ORDER%owner', '')
         sort_ownerbis = self.getparam('GRID_ORDER%owner+', '')
         self.params['GRID_ORDER%owner'] = ""
@@ -95,7 +96,7 @@ class OwnerAndPropertyLotList(XferListEditor):
                 lbl.set_location(grid.col, self.get_max_row() + 1)
                 self.add_component(lbl)
         self.new_tab(_("Property lots"))
-        self.fill_grid(0, PropertyLot, 'propertylot', PropertyLot.objects.all())
+        self.fill_grid(0, PropertyLot, 'propertylot', PropertyLot.objects.select_related('owner__third', 'owner__third__contact', 'owner__third__contact__individual', 'owner__third__contact__legalentity').all())
         grid = self.get_components('propertylot')
         lbl = XferCompLabelForm("total_lot")
         lbl.set_location(0, 5)

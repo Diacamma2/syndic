@@ -64,7 +64,8 @@ from diacamma.condominium.views_classload import SetList, SetAddModify, SetDel, 
 from diacamma.condominium.views_callfunds import CallFundsList, CallFundsAddCurrent, CallFundsTransition, CallFundsShow
 from diacamma.condominium.views_report import FinancialStatus, GeneralManageAccounting, CurrentManageAccounting, ExceptionalManageAccounting
 from diacamma.condominium.test_tools import default_setowner_fr, add_test_callfunds, old_accounting, add_test_expenses_fr, init_compta, add_years, default_setowner_be, add_test_expenses_be,\
-    create_owner_fr, _set_partition, _set_budget, param_owner_with_sub_accounts
+    create_owner_fr, _set_partition, _set_budget, param_owner_with_sub_accounts,\
+    clear_cache
 from diacamma.condominium.views_expense import ExpenseList
 
 
@@ -76,6 +77,7 @@ class SetOwnerTest(LucteriosTest):
         default_compta_fr(with12=False)
         default_bankaccount_fr()
         param_owner_with_sub_accounts()
+        clear_cache()
         rmtree(get_user_dir(), True)
 
     def test_config(self):
@@ -895,6 +897,7 @@ class ReportTest(PaymentTest):
         init_compta()
         add_test_callfunds(False, True)
         add_test_expenses_fr(False, True)
+        clear_cache()
 
     def test_financial(self):
         self.factory.xfer = FinancialStatus()
@@ -1056,6 +1059,7 @@ class OwnerTest(PaymentTest):
         default_costaccounting()
         default_bankaccount_fr()
         default_setowner_fr()
+        clear_cache()
         rmtree(get_user_dir(), True)
 
     def tearDown(self):
@@ -2331,6 +2335,7 @@ class OwnerBelgiumTest(PaymentTest):
         default_costaccounting()
         default_bankaccount_be()
         default_setowner_be()
+        clear_cache()
         rmtree(get_user_dir(), True)
 
     def tearDown(self):
@@ -2816,6 +2821,7 @@ class OwnerTestOldAccounting(PaymentTest):
         default_costaccounting()
         default_bankaccount_fr()
         default_setowner_fr()
+        clear_cache()
         rmtree(get_user_dir(), True)
 
     def test_payment_paypal_owner(self):
@@ -2959,6 +2965,7 @@ class ExempleArcTest(PaymentTest):
 
     def setUp(self):
         LucteriosTest.setUp(self)
+        clear_cache()
         self._setup_exemple()
 
     def _setup_exemple(self):

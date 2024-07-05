@@ -39,7 +39,7 @@ from diacamma.payoff.views import SupportingThirdValid, PayoffAddModify,\
     PayoffDel
 
 from diacamma.condominium.test_tools import default_setowner_fr, old_accounting,\
-    default_setowner_be
+    default_setowner_be, clear_cache
 from diacamma.condominium.views_expense import ExpenseList,\
     ExpenseAddModify, ExpenseDel, ExpenseShow, ExpenseDetailAddModify,\
     ExpenseTransition, ExpenseMultiPay
@@ -55,6 +55,7 @@ class ExpenseTest(PaymentTest):
         default_costaccounting()
         default_bankaccount_fr()
         default_setowner_fr()
+        clear_cache()
         rmtree(get_user_dir(), True)
 
     def test_create(self):
@@ -1227,6 +1228,7 @@ class ExpenseBelgiumTest(PaymentTest):
         default_costaccounting()
         default_bankaccount_be()
         default_setowner_be()
+        clear_cache()
         rmtree(get_user_dir(), True)
 
     def test_create(self):
@@ -1558,6 +1560,7 @@ class ExpenseTestOldAccounting(LucteriosTest):
         default_costaccounting()
         default_bankaccount_fr()
         default_setowner_fr()
+        clear_cache()
         rmtree(get_user_dir(), True)
 
     def test_valid_current(self):

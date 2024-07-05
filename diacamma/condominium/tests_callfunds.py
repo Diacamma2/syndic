@@ -40,7 +40,8 @@ from diacamma.payoff.views import PayoffAddModify, PayableEmail
 from diacamma.payoff.test_tools import default_bankaccount_fr, default_bankaccount_be, check_pdfreport
 from diacamma.condominium.views_callfunds import CallFundsList, CallFundsAddModify, CallFundsDel, \
     CallFundsShow, CallDetailAddModify, CallFundsTransition, CallFundsPrint, CallFundsAddCurrent, CallFundsPayableEmail
-from diacamma.condominium.test_tools import default_setowner_fr, old_accounting, default_setowner_be, add_test_callfunds
+from diacamma.condominium.test_tools import default_setowner_fr, old_accounting, default_setowner_be, add_test_callfunds,\
+    clear_cache
 from diacamma.condominium.models import Set, CallFunds
 from diacamma.condominium.views import PaymentVentilatePay, OwnerShow
 
@@ -54,6 +55,7 @@ class CallFundsTest(LucteriosTest):
         default_costaccounting()
         default_bankaccount_fr()
         default_setowner_fr()
+        clear_cache()
         rmtree(get_user_dir(), True)
 
     def test_create(self):
@@ -1136,6 +1138,7 @@ class CallFundsBelgiumTest(LucteriosTest):
         initial_thirds_be()
         default_bankaccount_be()
         default_setowner_be()
+        clear_cache()
         rmtree(get_user_dir(), True)
 
     def test_create(self):
@@ -1697,6 +1700,7 @@ class CallFundsTestOldAccounting(LucteriosTest):
         default_costaccounting()
         default_bankaccount_fr()
         default_setowner_fr()
+        clear_cache()
         rmtree(get_user_dir(), True)
 
     def test_valid_current(self):
