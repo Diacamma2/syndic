@@ -27,7 +27,7 @@ from __future__ import unicode_literals
 from django.utils.translation import gettext_lazy as _
 from django.db.models import Q
 
-from lucterios.framework.xferadvance import XferListEditor, TITLE_MODIFY, TITLE_PRINT, TITLE_ADD, TITLE_DELETE, TITLE_EDIT,\
+from lucterios.framework.xferadvance import XferListEditor, TITLE_MODIFY, TITLE_PRINT, TITLE_ADD, TITLE_DELETE, TITLE_EDIT, \
     TITLE_OK, TITLE_CANCEL, TITLE_CLOSE, TITLE_CREATE
 from lucterios.framework.xferadvance import XferAddEditor
 from lucterios.framework.xferadvance import XferShowEditor
@@ -44,13 +44,13 @@ from lucterios.CORE.views import ParamEdit, ObjectImport
 from lucterios.CORE.xferprint import XferPrintAction
 from lucterios.contacts.models import CustomField
 
-from diacamma.accounting.tools import correct_accounting_code,\
+from diacamma.accounting.tools import correct_accounting_code, \
     get_amount_from_format_devise
 from diacamma.accounting.models import CostAccounting, FiscalYear, EntryAccount
 from diacamma.accounting.views_budget import BudgetList
 from diacamma.accounting.views_reports import CostAccountingIncomeStatement
 
-from diacamma.condominium.models import Set, Partition, ExpenseDetail, Owner, PropertyLot, SetCost, OwnerLink,\
+from diacamma.condominium.models import Set, Partition, ExpenseDetail, Owner, PropertyLot, SetCost, OwnerLink, \
     RecoverableLoadRatio, PropertyLotCustomField
 from diacamma.condominium.system import clear_system_condo, current_system_condo
 
@@ -62,14 +62,13 @@ def fill_params(self, is_mini=False, new_params=False):
     btn = XferCompButton('editparam')
     btn.set_location(1, self.get_max_row() + 1, 2, 1)
     btn.set_is_mini(is_mini)
-    btn.set_action(self.request, ParamEdit.get_action(TITLE_MODIFY, 'images/edit.png', 'mdi:mdi-pencil-outline'), close=CLOSE_NO,
+    btn.set_action(self.request, ParamEdit.get_action(TITLE_MODIFY, short_icon='mdi:mdi-pencil-outline'), close=CLOSE_NO,
                    params={'params': param_lists})
     self.add_component(btn)
 
 
 @MenuManage.describ('CORE.add_parameter')
 class CondominiumCheckOwner(XferContainerAcknowledge):
-    icon = "owner.png"
     short_icon = "mdi:mdi-domain"
     caption = _("Condominium check owner")
 
@@ -80,7 +79,6 @@ class CondominiumCheckOwner(XferContainerAcknowledge):
 
 @MenuManage.describ('CORE.change_parameter', FORMTYPE_MODAL, 'core.extensions', _('Management of parameters of condominium'))
 class CondominiumConf(XferListEditor):
-    icon = "condominium.png"
     short_icon = "mdi:mdi-office-building-cog-outline"
     caption = _("Condominium configuration")
     model = OwnerLink
@@ -91,7 +89,7 @@ class CondominiumConf(XferListEditor):
         fill_params(self)
         btn = XferCompButton('checkowner')
         btn.set_location(3, self.get_max_row(), 2, 1)
-        btn.set_action(self.request, CondominiumCheckOwner.get_action(_('check owner'), 'diacamma.condominium/images/owner.png', "mdi:mdi-domain"), close=CLOSE_NO)
+        btn.set_action(self.request, CondominiumCheckOwner.get_action(_('check owner'), short_icon="mdi:mdi-domain"), close=CLOSE_NO)
         self.add_component(btn)
         self.new_tab(_('Links'))
 
@@ -101,10 +99,9 @@ class CondominiumConf(XferListEditor):
         self.fill_grid(self.get_max_row() + 1, RecoverableLoadRatio, 'recoverableloadratio', RecoverableLoadRatio.objects.all())
 
 
-@ActionsManage.affect_grid(TITLE_ADD, "images/add.png", short_icon='mdi:mdi-pencil-plus-outline')
+@ActionsManage.affect_grid(TITLE_ADD, short_icon='mdi:mdi-pencil-plus-outline')
 @MenuManage.describ('CORE.add_parameter')
 class OwnerLinkAddModify(XferAddEditor):
-    icon = "condominium.png"
     short_icon = "mdi:mdi-office-building-cog-outline"
     model = OwnerLink
     field_id = 'ownerlink'
@@ -112,11 +109,10 @@ class OwnerLinkAddModify(XferAddEditor):
     caption_modify = _("Modify owner link")
 
 
-@ActionsManage.affect_grid(TITLE_DELETE, "images/delete.png", short_icon='mdi:mdi-delete-outline', unique=SELECT_MULTI)
+@ActionsManage.affect_grid(TITLE_DELETE, short_icon='mdi:mdi-delete-outline', unique=SELECT_MULTI)
 @MenuManage.describ('CORE.add_parameter')
 class OwnerLinkDel(XferDelete):
     caption = _("Delete owner link")
-    icon = "condominium.png"
     short_icon = "mdi:mdi-office-building-cog-outline"
     model = OwnerLink
     field_id = 'ownerlink'
@@ -128,10 +124,9 @@ class OwnerLinkDel(XferDelete):
         XferDelete.fillresponse(self)
 
 
-@ActionsManage.affect_grid(TITLE_ADD, "images/add.png", short_icon='mdi:mdi-pencil-plus-outline')
+@ActionsManage.affect_grid(TITLE_ADD, short_icon='mdi:mdi-pencil-plus-outline')
 @MenuManage.describ('CORE.add_parameter')
 class RecoverableLoadRatioAddModify(XferAddEditor):
-    icon = "condominium.png"
     short_icon = "mdi:mdi-office-building-cog-outline"
     model = RecoverableLoadRatio
     field_id = 'recoverableloadratio'
@@ -139,27 +134,23 @@ class RecoverableLoadRatioAddModify(XferAddEditor):
     caption_modify = _("Modify recoverable load ratio")
 
 
-@ActionsManage.affect_grid(TITLE_DELETE, "images/delete.png", short_icon='mdi:mdi-delete-outline', unique=SELECT_MULTI)
+@ActionsManage.affect_grid(TITLE_DELETE, short_icon='mdi:mdi-delete-outline', unique=SELECT_MULTI)
 @MenuManage.describ('CORE.add_parameter')
 class RecoverableLoadRatioDel(XferDelete):
     caption = _("Delete recoverable load ratio")
-    icon = "condominium.png"
     short_icon = "mdi:mdi-office-building-cog-outline"
     model = RecoverableLoadRatio
     field_id = 'recoverableloadratio'
 
 
-MenuManage.add_sub("condominium", None, "diacamma.condominium/images/condominium.png",
-                   _("Condominium"), _("Condominium tools"), 20, "mdi:mdi-office-building")
+MenuManage.add_sub("condominium", None, short_icon='mdi:mdi-office-building', caption=_("Condominium"), desc=_("Condominium tools"), pos=20)
 
 
-MenuManage.add_sub("condominium.manage", "condominium", "diacamma.condominium/images/condominium.png",
-                   _("Manage"), _("Manage of condominium"), 10, "mdi:mdi-office-building-outline")
+MenuManage.add_sub("condominium.manage", "condominium", short_icon='mdi:mdi-office-building-outline', caption=_("Manage"), desc=_("Manage of condominium"), pos=10)
 
 
 @MenuManage.describ('condominium.change_set', FORMTYPE_NOMODAL, 'condominium.manage', _('Manage of class loads'))
 class SetList(XferListEditor):
-    icon = "set.png"
     short_icon = "mdi:mdi-home-city-outline"
     model = Set
     field_id = 'set'
@@ -179,11 +170,10 @@ class SetList(XferListEditor):
         self.add_component(chk)
 
 
-@ActionsManage.affect_list(TITLE_PRINT, "images/print.png", short_icon='mdi:mdi-printer-outline', close=CLOSE_NO)
+@ActionsManage.affect_list(TITLE_PRINT, short_icon='mdi:mdi-printer-outline', close=CLOSE_NO)
 @MenuManage.describ('condominium.change_set')
 class SetPrint(XferPrintAction):
     caption = _("Print class loads")
-    icon = "set.png"
     short_icon = "mdi:mdi-home-city-outline"
     model = Set
     field_id = 'set'
@@ -191,11 +181,10 @@ class SetPrint(XferPrintAction):
     with_text_export = True
 
 
-@ActionsManage.affect_grid(TITLE_CREATE, "images/new.png", short_icon='mdi:mdi-pencil-plus')
-@ActionsManage.affect_show(TITLE_MODIFY, "images/edit.png", short_icon='mdi:mdi-pencil-outline', close=CLOSE_NO, condition=lambda xfer: xfer.item.is_active)
+@ActionsManage.affect_grid(TITLE_CREATE, short_icon='mdi:mdi-pencil-plus')
+@ActionsManage.affect_show(TITLE_MODIFY, short_icon='mdi:mdi-pencil-outline', close=CLOSE_NO, condition=lambda xfer: xfer.item.is_active)
 @MenuManage.describ('condominium.add_set')
 class SetAddModify(XferAddEditor):
-    icon = "set.png"
     short_icon = "mdi:mdi-home-city-outline"
     model = Set
     field_id = 'set'
@@ -213,10 +202,9 @@ class SetAddModify(XferAddEditor):
         XferAddEditor.fillresponse(self)
 
 
-@ActionsManage.affect_grid(TITLE_EDIT, "images/show.png", short_icon='mdi:mdi-text-box-outline', unique=SELECT_SINGLE)
+@ActionsManage.affect_grid(TITLE_EDIT, short_icon='mdi:mdi-text-box-outline', unique=SELECT_SINGLE)
 @MenuManage.describ('condominium.change_set')
 class SetShow(XferShowEditor):
-    icon = "set.png"
     short_icon = "mdi:mdi-home-city-outline"
     model = Set
     field_id = 'set'
@@ -233,20 +221,18 @@ class SetShow(XferShowEditor):
         self.add_action(ClassCategoryBudget.get_action(), pos_act=0, close=CLOSE_NO)
 
 
-@ActionsManage.affect_grid(TITLE_DELETE, "images/delete.png", short_icon='mdi:mdi-delete-outline', unique=SELECT_MULTI)
+@ActionsManage.affect_grid(TITLE_DELETE, short_icon='mdi:mdi-delete-outline', unique=SELECT_MULTI)
 @MenuManage.describ('condominium.delete_set')
 class SetDel(XferDelete):
-    icon = "set.png"
     short_icon = "mdi:mdi-home-city-outline"
     model = Set
     field_id = 'set'
     caption = _("Delete class load")
 
 
-@ActionsManage.affect_list(_('Check from keys'), "images/refresh.png", short_icon='mdi:mdi-refresh', close=CLOSE_NO, condition=lambda xfer: Set.objects.all().count() == 0)
+@ActionsManage.affect_list(_('Check from keys'), short_icon='mdi:mdi-refresh', close=CLOSE_NO, condition=lambda xfer: Set.objects.all().count() == 0)
 @MenuManage.describ('condominium.add_set')
 class SetCheckFromKeys(XferContainerAcknowledge):
-    icon = "set.png"
     short_icon = "mdi:mdi-home-city-outline"
     model = Set
     field_id = 'set'
@@ -256,10 +242,9 @@ class SetCheckFromKeys(XferContainerAcknowledge):
         Set.checkFromKeys()
 
 
-@ActionsManage.affect_show(_('Finished'), "images/down.png", short_icon='mdi:mdi-check', condition=lambda xfer: xfer.item.is_active)
+@ActionsManage.affect_show(_('Finished'), short_icon='mdi:mdi-check', condition=lambda xfer: xfer.item.is_active)
 @MenuManage.describ('condominium.delete_set')
 class SetClose(XferContainerAcknowledge):
-    icon = "set.png"
     short_icon = "mdi:mdi-home-city-outline"
     model = Set
     field_id = 'set'
@@ -272,8 +257,7 @@ class SetClose(XferContainerAcknowledge):
             if self.getparam('CLOSE') is None:
                 dlg = self.create_custom(self.model)
                 img = XferCompImage('img')
-                img.set_value(self.icon_path())
-                img.set_short_icon(self.short_icon)
+                img.set_value(self.short_icon, '#')
                 img.set_location(0, 0)
                 dlg.add_component(img)
                 lbl = XferCompLabelForm('title')
@@ -289,8 +273,8 @@ class SetClose(XferContainerAcknowledge):
                 lbl.set_location(1, 2)
                 lbl.description = _('Do you want to ventilate this amount for each owner?')
                 dlg.add_component(lbl)
-                dlg.add_action(self.return_action(TITLE_OK, 'images/ok.png', "mdi:mdi-check"), modal=FORMTYPE_MODAL, close=CLOSE_YES, params={'CLOSE': 'YES'})
-                dlg.add_action(WrapAction(TITLE_CANCEL, 'images/cancel.png', 'mdi:mdi-cancel'))
+                dlg.add_action(self.return_action(TITLE_OK, short_icon="mdi:mdi-check"), modal=FORMTYPE_MODAL, close=CLOSE_YES, params={'CLOSE': 'YES'})
+                dlg.add_action(WrapAction(TITLE_CANCEL, short_icon='mdi:mdi-cancel'))
             else:
                 if self.item.type_load == Set.TYPELOAD_CURRENT:
                     self.item.close_current(ventilate)
@@ -303,20 +287,18 @@ class SetClose(XferContainerAcknowledge):
                 self.item.close_exceptional()
 
 
-@ActionsManage.affect_grid(TITLE_MODIFY, "images/edit.png", short_icon='mdi:mdi-pencil-outline', unique=SELECT_SINGLE, condition=lambda xfer, gridname='': isinstance(xfer.item, Set) and not xfer.item.is_link_to_lots and xfer.item.is_active)
+@ActionsManage.affect_grid(TITLE_MODIFY, short_icon='mdi:mdi-pencil-outline', unique=SELECT_SINGLE, condition=lambda xfer, gridname='': isinstance(xfer.item, Set) and not xfer.item.is_link_to_lots and xfer.item.is_active)
 @MenuManage.describ('condominium.add_set')
 class PartitionAddModify(XferAddEditor):
-    icon = "set.png"
     short_icon = "mdi:mdi-home-city-outline"
     model = Partition
     field_id = 'partition'
     caption_modify = _("Modify partition")
 
 
-@ActionsManage.affect_grid(_('Import'), "images/up.png", short_icon='mdi:mdi-upload', condition=lambda xfer, gridname='': isinstance(xfer.item, Set) and not xfer.item.is_link_to_lots and xfer.item.is_active)
+@ActionsManage.affect_grid(_('Import'), short_icon='mdi:mdi-upload', condition=lambda xfer, gridname='': isinstance(xfer.item, Set) and not xfer.item.is_link_to_lots and xfer.item.is_active)
 @MenuManage.describ('condominium.add_set')
 class PartitionImport(ObjectImport):
-    icon = "set.png"
     short_icon = "mdi:mdi-home-city-outline"
     model = Partition
     caption = _("Import partition")
@@ -349,10 +331,9 @@ class PartitionImport(ObjectImport):
             self.remove_component('modelname')
 
 
-@ActionsManage.affect_show(_('Costs'), "images/right.png", short_icon="mdi:mdi-home-city-outline")
+@ActionsManage.affect_show(_('Costs'), short_icon="mdi:mdi-home-city-outline")
 @MenuManage.describ('condominium.change_set')
 class SetListCost(XferListEditor):
-    icon = "set.png"
     short_icon = "mdi:mdi-home-city-outline"
     model = Set
     field_id = 'set'
@@ -367,8 +348,7 @@ class SetListCost(XferListEditor):
                     self.item.create_new_cost(year=year_item.id)
 
         img = XferCompImage('img')
-        img.set_value(self.icon_path())
-        img.set_short_icon(self.short_icon)
+        img.set_value(self.short_icon, '#')
         img.set_location(0, 0)
         self.add_component(img)
         lbl = XferCompLabelForm('title')
@@ -381,17 +361,16 @@ class SetListCost(XferListEditor):
         new_actions = []
         grid = self.get_components('costaccounting')
         for grid_action in grid.actions:
-            if grid_action[0].icon_path.endswith('images/print.png'):
+            if grid_action[0].icon_path.endswith('mdi:mdi-printer-outline'):
                 new_actions.append(grid_action)
         grid.actions = new_actions
         grid.add_action(self.request, ClassCategoryBudget.get_action(), close=CLOSE_NO, unique=SELECT_SINGLE)
-        self.add_action(WrapAction(TITLE_CLOSE, 'images/close.png', 'mdi:mdi-close'))
+        self.add_action(WrapAction(TITLE_CLOSE, short_icon='mdi:mdi-close'))
 
 
-@ActionsManage.affect_grid(_("Report"), 'images/print.png', short_icon='mdi:mdi-finance', unique=SELECT_SINGLE)
+@ActionsManage.affect_grid(_("Report"), short_icon='mdi:mdi-finance', unique=SELECT_SINGLE)
 @MenuManage.describ('condominium.change_set')
 class ClassCategoryCosts(XferContainerAcknowledge):
-    icon = "set.png"
     short_icon = "mdi:mdi-home-city-outline"
     model = Set
     field_id = 'set'
@@ -411,7 +390,6 @@ class ClassCategoryCosts(XferContainerAcknowledge):
 
 @MenuManage.describ('accounting.change_budget')
 class ClassCategoryBudget(XferContainerAcknowledge):
-    icon = "diacamma.accounting/images/account.png"
     short_icon = "mdi:mdi-bank-transfer"
     model = CostAccounting
     field_id = 'costaccounting'

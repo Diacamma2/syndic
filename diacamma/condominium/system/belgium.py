@@ -31,7 +31,7 @@ from lucterios.CORE.parameters import Params
 from lucterios.contacts.models import CustomField
 
 from diacamma.accounting.tools import correct_accounting_code, currency_round, current_system_account
-from diacamma.accounting.models import ChartsAccount, EntryAccount, EntryLineAccount, Journal,\
+from diacamma.accounting.models import ChartsAccount, EntryAccount, EntryLineAccount, Journal, \
     FiscalYear
 from diacamma.condominium.system.default import DefaultSystemCondo
 from diacamma.condominium.models import CallFunds, Set, CallDetail

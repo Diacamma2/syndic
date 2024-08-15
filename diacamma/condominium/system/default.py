@@ -32,7 +32,7 @@ from lucterios.framework.tools import get_date_formating
 from diacamma.accounting.tools import currency_round
 from diacamma.accounting.models import FiscalYear, EntryAccount, EntryLineAccount, ChartsAccount
 
-from diacamma.condominium.models import CallDetail, Owner, PropertyLot,\
+from diacamma.condominium.models import CallDetail, Owner, PropertyLot, \
     DEFAULT_ACCOUNT_EXCEPTIONNEL
 from re import match
 

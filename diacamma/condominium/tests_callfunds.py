@@ -40,7 +40,7 @@ from diacamma.payoff.views import PayoffAddModify, PayableEmail
 from diacamma.payoff.test_tools import default_bankaccount_fr, default_bankaccount_be, check_pdfreport
 from diacamma.condominium.views_callfunds import CallFundsList, CallFundsAddModify, CallFundsDel, \
     CallFundsShow, CallDetailAddModify, CallFundsTransition, CallFundsPrint, CallFundsAddCurrent, CallFundsPayableEmail
-from diacamma.condominium.test_tools import default_setowner_fr, old_accounting, default_setowner_be, add_test_callfunds,\
+from diacamma.condominium.test_tools import default_setowner_fr, old_accounting, default_setowner_be, add_test_callfunds, \
     clear_cache
 from diacamma.condominium.models import Set, CallFunds
 from diacamma.condominium.views import PaymentVentilatePay, OwnerShow
@@ -909,7 +909,7 @@ class CallFundsTest(LucteriosTest):
         self.assert_json_equal('LABELFORM', 'num', 1)
         self.assert_json_equal('LABELFORM', 'owner', "Minimum")
         self.assertEqual(len(self.json_actions), 4)
-        self.assert_action_equal('POST', self.json_actions[2], ('Envoyer', 'lucterios.mailing/images/email.png', 'diacamma.condominium', 'callFundsPayableEmail', 0, 1, 0))
+        self.assert_action_equal('POST', self.json_actions[2], ('Envoyer', 'mdi:mdi-email-outline', 'diacamma.condominium', 'callFundsPayableEmail', 0, 1, 0))
 
         self.factory.xfer = CallFundsPayableEmail()
         self.calljson('/diacamma.condominium/callFundsPayableEmail', {'callfunds': 2}, False)
@@ -958,7 +958,7 @@ class CallFundsTest(LucteriosTest):
         self.assert_json_equal('', 'callfunds/@1/id', 3)
         self.assert_json_equal('', 'callfunds/@2/id', 4)
         self.assert_count_equal("#callfunds/actions", 4)
-        self.assert_action_equal("#callfunds/actions/@2", ('Envoyer', 'lucterios.mailing/images/email.png', 'diacamma.condominium', 'callFundsPayableEmail', 0, 1, 2))
+        self.assert_action_equal("#callfunds/actions/@2", ('Envoyer', 'mdi:mdi-email-outline', 'diacamma.condominium', 'callFundsPayableEmail', 0, 1, 2))
 
         self.factory.xfer = CallFundsPayableEmail()
         self.calljson('/diacamma.condominium/callFundsPayableEmail', {'callfunds': '2;3;4'}, False)

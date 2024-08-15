@@ -44,9 +44,9 @@ from diacamma.accounting.views import ThirdShow, ThirdList, AccountThirdAddModif
 from diacamma.accounting.views_entries import EntryAccountList
 from diacamma.accounting.views_accounts import FiscalYearClose, FiscalYearBegin, FiscalYearReportLastYear
 from diacamma.accounting.views_other import CostAccountingList
-from diacamma.accounting.views_reports import FiscalYearTrialBalance,\
+from diacamma.accounting.views_reports import FiscalYearTrialBalance, \
     FiscalYearReportPrint
-from diacamma.accounting.test_tools import initial_thirds_fr, default_compta_fr, default_costaccounting, default_compta_be, initial_thirds_be,\
+from diacamma.accounting.test_tools import initial_thirds_fr, default_compta_fr, default_costaccounting, default_compta_be, initial_thirds_be, \
     check_pdfreport, create_account, set_accounting_system, add_entry, change_legal
 
 from diacamma.payoff.models import Payoff, BankAccount
@@ -55,16 +55,16 @@ from diacamma.payoff.views_conf import paramchange_payoff
 from diacamma.payoff.test_tools import default_bankaccount_fr, default_paymentmethod, PaymentTest, default_bankaccount_be
 
 from diacamma.condominium.models import PropertyLot, Set, Owner, CallFunds, PropertyLotCustomField
-from diacamma.condominium.views import OwnerAndPropertyLotList, OwnerAdd, OwnerDel, OwnerShow, PropertyLotAddModify, CondominiumConvert, PaymentVentilatePay,\
-    OwnerLoadCount, PaymentMultiPay, OwnerPayableEmail, OwnerModify, PaymentRefund,\
+from diacamma.condominium.views import OwnerAndPropertyLotList, OwnerAdd, OwnerDel, OwnerShow, PropertyLotAddModify, CondominiumConvert, PaymentVentilatePay, \
+    OwnerLoadCount, PaymentMultiPay, OwnerPayableEmail, OwnerModify, PaymentRefund, \
     OwnerReport, OwnerAndPropertyLotPrint, PropertyLotImport
-from diacamma.condominium.views_classload import SetList, SetAddModify, SetDel, SetShow, PartitionAddModify, CondominiumConf, SetClose,\
-    OwnerLinkAddModify, OwnerLinkDel, RecoverableLoadRatioAddModify, RecoverableLoadRatioDel,\
+from diacamma.condominium.views_classload import SetList, SetAddModify, SetDel, SetShow, PartitionAddModify, CondominiumConf, SetClose, \
+    OwnerLinkAddModify, OwnerLinkDel, RecoverableLoadRatioAddModify, RecoverableLoadRatioDel, \
     PartitionImport
 from diacamma.condominium.views_callfunds import CallFundsList, CallFundsAddCurrent, CallFundsTransition, CallFundsShow
 from diacamma.condominium.views_report import FinancialStatus, GeneralManageAccounting, CurrentManageAccounting, ExceptionalManageAccounting
-from diacamma.condominium.test_tools import default_setowner_fr, add_test_callfunds, old_accounting, add_test_expenses_fr, init_compta, add_years, default_setowner_be, add_test_expenses_be,\
-    create_owner_fr, _set_partition, _set_budget, param_owner_with_sub_accounts,\
+from diacamma.condominium.test_tools import default_setowner_fr, add_test_callfunds, old_accounting, add_test_expenses_fr, init_compta, add_years, default_setowner_be, add_test_expenses_be, \
+    create_owner_fr, _set_partition, _set_budget, param_owner_with_sub_accounts, \
     clear_cache
 from diacamma.condominium.views_expense import ExpenseList
 
@@ -1107,7 +1107,7 @@ class OwnerTest(PaymentTest):
         self.assert_json_equal('LABELFORM', 'total_current_payoff', 0.00)
         self.assert_json_equal('LABELFORM', 'total_current_owner', -131.25)
         self.assertEqual(len(self.json_actions), 4)
-        self.assert_action_equal('GET', self.json_actions[2], ('Règlements', 'diacamma.payoff/images/payments.png', 'diacamma.condominium', 'ownerShowPayable', 0, 1, 0))
+        self.assert_action_equal('GET', self.json_actions[2], ('Règlements', 'mdi:mdi-account-cash-outline', 'diacamma.condominium', 'ownerShowPayable', 0, 1, 0))
 
         self.factory.xfer = PayableShow()
         self.calljson('/diacamma.payoff/payableShow',
@@ -1157,7 +1157,7 @@ class OwnerTest(PaymentTest):
         self.assert_observer('core.custom', 'diacamma.condominium', 'ownerShow')
         self.assert_json_equal('LABELFORM', 'total_current_owner', -131.25)
         self.assertEqual(len(self.json_actions), 4)
-        self.assert_action_equal('POST', self.json_actions[2], ('Envoyer', 'lucterios.mailing/images/email.png', 'diacamma.condominium', 'ownerPayableEmail', 0, 1, 0))
+        self.assert_action_equal('POST', self.json_actions[2], ('Envoyer', 'mdi:mdi-email-outline', 'diacamma.condominium', 'ownerPayableEmail', 0, 1, 0))
 
         self.factory.xfer = OwnerPayableEmail()
         self.calljson('/diacamma.condominium/ownerPayableEmail', {'owner': 1}, False)
@@ -1793,10 +1793,10 @@ class OwnerTest(PaymentTest):
         self.assert_json_equal('', 'entryline/@3/entry.date_value', "2015-07-21")
         self.assert_json_equal('', 'entryline/@3/credit', 30.00)
         self.assert_count_equal('#entryline/actions', 4)
-        self.assert_action_equal('POST', '#entryline/actions/@0', ('Editer', 'images/edit.png', 'diacamma.accounting', 'entryAccountOpenFromLine', 0, 1, 0))
-        self.assert_action_equal('DELETE', '#entryline/actions/@1', ('Supprimer', 'images/delete.png', 'diacamma.accounting', 'entryAccountDel', 0, 1, 2))
-        self.assert_action_equal('POST', '#entryline/actions/@2', ('Clôturer', 'images/ok.png', 'diacamma.accounting', 'entryAccountClose', 0, 1, 2))
-        self.assert_action_equal('POST', '#entryline/actions/@3', ('(dé)lettrage', 'images/left.png', 'diacamma.accounting', 'entryAccountLink', 0, 1, 2))
+        self.assert_action_equal('POST', '#entryline/actions/@0', ('Editer', 'mdi:mdi-pencil-outline', 'diacamma.accounting', 'entryAccountOpenFromLine', 0, 1, 0))
+        self.assert_action_equal('DELETE', '#entryline/actions/@1', ('Supprimer', 'mdi:mdi-delete-outline', 'diacamma.accounting', 'entryAccountDel', 0, 1, 2))
+        self.assert_action_equal('POST', '#entryline/actions/@2', ('Clôturer', 'mdi:mdi-check', 'diacamma.accounting', 'entryAccountClose', 0, 1, 2))
+        self.assert_action_equal('POST', '#entryline/actions/@3', ('(dé)lettrage', 'mdi:mdi-link-variant', 'diacamma.accounting', 'entryAccountLink', 0, 1, 2))
         self.assert_json_equal('LABELFORM', 'thirdtotal', -17.07)
         self.assert_json_equal('LABELFORM', 'sumtopay', 17.07)
         self.assert_count_equal('callfunds', 2)
@@ -2445,10 +2445,10 @@ class OwnerBelgiumTest(PaymentTest):
         self.assert_json_equal('', 'entryline/@3/entry.date_value', "2015-07-21")
         self.assert_json_equal('', 'entryline/@3/credit', 30.00)
         self.assert_count_equal('#entryline/actions', 4)
-        self.assert_action_equal('POST', '#entryline/actions/@0', ('Editer', 'images/edit.png', 'diacamma.accounting', 'entryAccountOpenFromLine', 0, 1, 0))
-        self.assert_action_equal('DELETE', '#entryline/actions/@1', ('Supprimer', 'images/delete.png', 'diacamma.accounting', 'entryAccountDel', 0, 1, 2))
-        self.assert_action_equal('POST', '#entryline/actions/@2', ('Clôturer', 'images/ok.png', 'diacamma.accounting', 'entryAccountClose', 0, 1, 2))
-        self.assert_action_equal('POST', '#entryline/actions/@3', ('(dé)lettrage', 'images/left.png', 'diacamma.accounting', 'entryAccountLink', 0, 1, 2))
+        self.assert_action_equal('POST', '#entryline/actions/@0', ('Editer', 'mdi:mdi-pencil-outline', 'diacamma.accounting', 'entryAccountOpenFromLine', 0, 1, 0))
+        self.assert_action_equal('DELETE', '#entryline/actions/@1', ('Supprimer', 'mdi:mdi-delete-outline', 'diacamma.accounting', 'entryAccountDel', 0, 1, 2))
+        self.assert_action_equal('POST', '#entryline/actions/@2', ('Clôturer', 'mdi:mdi-check', 'diacamma.accounting', 'entryAccountClose', 0, 1, 2))
+        self.assert_action_equal('POST', '#entryline/actions/@3', ('(dé)lettrage', 'mdi:mdi-link-variant', 'diacamma.accounting', 'entryAccountLink', 0, 1, 2))
         self.assert_json_equal('LABELFORM', 'thirdtotal', -17.07)
         self.assert_json_equal('LABELFORM', 'sumtopay', 17.07)
         self.assert_count_equal('callfunds', 2)

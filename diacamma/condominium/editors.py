@@ -37,7 +37,7 @@ from lucterios.contacts.models import CustomField
 from diacamma.accounting.tools import current_system_account
 from diacamma.accounting.models import Third, FiscalYear
 from diacamma.payoff.editors import SupportingEditor
-from diacamma.condominium.models import Set, CallDetail, CallFunds, CallFundsSupporting, Expense, Owner, RecoverableLoadRatio, LIST_DEFAULT_ACCOUNTS,\
+from diacamma.condominium.models import Set, CallDetail, CallFunds, CallFundsSupporting, Expense, Owner, RecoverableLoadRatio, LIST_DEFAULT_ACCOUNTS, \
     PropertyLot
 from diacamma.condominium.system import current_system_condo
 
@@ -147,7 +147,7 @@ class OwnerEditor(SupportingEditor):
         link_grid_lines.actions = []
         link_grid_lines.colspan = 2
         link_grid_lines.add_action(xfer.request, ActionsManage.get_action_url('accounting.EntryAccount', 'OpenFromLine', xfer), modal=FORMTYPE_MODAL, unique=SELECT_SINGLE, close=CLOSE_NO)
-        link_grid_lines.add_action(xfer.request, EntryAccountDel.get_action(TITLE_DELETE, "images/delete.png", short_icon='mdi:mdi-delete-outline'), modal=FORMTYPE_MODAL, unique=SELECT_MULTI, close=CLOSE_NO)
+        link_grid_lines.add_action(xfer.request, EntryAccountDel.get_action(TITLE_DELETE, short_icon='mdi:mdi-delete-outline'), modal=FORMTYPE_MODAL, unique=SELECT_MULTI, close=CLOSE_NO)
         link_grid_lines.add_action(xfer.request, ActionsManage.get_action_url('accounting.EntryAccount', 'Close', xfer), modal=FORMTYPE_MODAL, unique=SELECT_MULTI, close=CLOSE_NO)
         link_grid_lines.add_action(xfer.request, ActionsManage.get_action_url('accounting.EntryAccount', 'Link', xfer), modal=FORMTYPE_MODAL, unique=SELECT_MULTI, close=CLOSE_NO)
 

@@ -42,14 +42,12 @@ from diacamma.accounting.tools_reports import get_spaces, convert_query_to_accou
 from diacamma.condominium.models import Set
 
 
-MenuManage.add_sub("condominium.print", "condominium", "diacamma.condominium/images/report.png",
-                   _("Report"), _("Report of condominium"), 20, "mdi:mdi-home-analytics")
+MenuManage.add_sub("condominium.print", "condominium", short_icon='mdi:mdi-home-analytics', caption=_("Report"), desc=_("Report of condominium"), pos=20)
 
 
 class CondominiumReport(XferContainerCustom):
     model = FiscalYear
     field_id = 'year'
-    icon = "report.png"
     short_icon = "mdi:mdi-home-analytics"
     saving_pdfreport = True
     readonly = True
@@ -82,8 +80,7 @@ class CondominiumReport(XferContainerCustom):
             img.set_value(readimage_to_base64(self.img_path))
             img.type = 'jpg'
         else:
-            img.set_value(self.icon_path())
-            img.set_short_icon(self.short_icon)
+            img.set_value(self.short_icon, '#')
         img.set_location(0, 0, 1, 5)
         self.add_component(img)
 
@@ -111,9 +108,9 @@ class CondominiumReport(XferContainerCustom):
         pass
 
     def fill_buttons(self):
-        self.add_action(FiscalYearReportPrint.get_action(TITLE_PRINT, "images/print.png", short_icon='mdi:mdi-printer-outline'),
+        self.add_action(FiscalYearReportPrint.get_action(TITLE_PRINT, short_icon='mdi:mdi-printer-outline'),
                         close=CLOSE_NO, params={"modulename": __name__, 'classname': self.__class__.__name__})
-        self.add_action(WrapAction(TITLE_CLOSE, 'images/close.png', 'mdi:mdi-close'))
+        self.add_action(WrapAction(TITLE_CLOSE, short_icon='mdi:mdi-close'))
 
 
 @MenuManage.describ('condominium.change_owner', FORMTYPE_NOMODAL, 'condominium.print', _('Show financial status report'))

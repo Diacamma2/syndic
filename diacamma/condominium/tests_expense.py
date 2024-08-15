@@ -28,20 +28,20 @@ from shutil import rmtree
 from lucterios.framework.test import LucteriosTest
 from lucterios.framework.filetools import get_user_dir
 
-from diacamma.accounting.test_tools import initial_thirds_fr, default_compta_fr, default_costaccounting,\
+from diacamma.accounting.test_tools import initial_thirds_fr, default_compta_fr, default_costaccounting, \
     default_compta_be, initial_thirds_be
 from diacamma.accounting.views_entries import EntryAccountList, EntryAccountClose
 from diacamma.accounting.views import ThirdShow
 
-from diacamma.payoff.test_tools import default_bankaccount_fr, PaymentTest,\
+from diacamma.payoff.test_tools import default_bankaccount_fr, PaymentTest, \
     default_bankaccount_be
-from diacamma.payoff.views import SupportingThirdValid, PayoffAddModify,\
+from diacamma.payoff.views import SupportingThirdValid, PayoffAddModify, \
     PayoffDel
 
-from diacamma.condominium.test_tools import default_setowner_fr, old_accounting,\
+from diacamma.condominium.test_tools import default_setowner_fr, old_accounting, \
     default_setowner_be, clear_cache
-from diacamma.condominium.views_expense import ExpenseList,\
-    ExpenseAddModify, ExpenseDel, ExpenseShow, ExpenseDetailAddModify,\
+from diacamma.condominium.views_expense import ExpenseList, \
+    ExpenseAddModify, ExpenseDel, ExpenseShow, ExpenseDetailAddModify, \
     ExpenseTransition, ExpenseMultiPay
 from diacamma.condominium.views import OwnerShow
 

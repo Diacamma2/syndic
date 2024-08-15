@@ -31,10 +31,10 @@ from lucterios.CORE.parameters import Params
 from lucterios.contacts.models import CustomField
 
 from diacamma.accounting.models import FiscalYear, Budget, Third, AccountThird
-from diacamma.accounting.test_tools import create_account, add_entry,\
+from diacamma.accounting.test_tools import create_account, add_entry, \
     change_legal, get_accounting_system
 from diacamma.payoff.models import Payoff
-from diacamma.condominium.models import Set, Owner, Partition, CallFunds, CallDetail, Expense, ExpenseDetail, PropertyLot, RecoverableLoadRatio,\
+from diacamma.condominium.models import Set, Owner, Partition, CallFunds, CallDetail, Expense, ExpenseDetail, PropertyLot, RecoverableLoadRatio, \
     PropertyLotCustomField
 
 
