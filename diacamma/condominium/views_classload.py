@@ -361,7 +361,7 @@ class SetListCost(XferListEditor):
         new_actions = []
         grid = self.get_components('costaccounting')
         for grid_action in grid.actions:
-            if grid_action[0].icon_path.endswith('mdi:mdi-printer-outline'):
+            if grid_action[0].short_icon.endswith('mdi:mdi-printer-outline'):
                 new_actions.append(grid_action)
         grid.actions = new_actions
         grid.add_action(self.request, ClassCategoryBudget.get_action(), close=CLOSE_NO, unique=SELECT_SINGLE)

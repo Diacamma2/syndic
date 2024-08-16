@@ -237,7 +237,7 @@ class OwnerContactAdd(ContactSelection):
         ContactSelection.fillresponse(self)
         grid = self.get_components(self.field_id)
         for action_idx in range(0, len(grid.actions)):
-            if grid.actions[action_idx][0].icon_path.endswith('mdi:mdi-pencil-plus'):
+            if grid.actions[action_idx][0].short_icon.endswith('mdi:mdi-pencil-plus'):
                 params = grid.actions[action_idx][4]
                 if params is None:
                     params = {}

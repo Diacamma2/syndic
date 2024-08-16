@@ -114,7 +114,7 @@ class ExpenseTransition(XferTransition):
     field_id = 'expense'
 
 
-@ActionsManage.affect_grid(_('payoff'), '', close=CLOSE_NO, unique=SELECT_MULTI, condition=lambda xfer, gridname='': xfer.getparam('status_filter', Expense.STATUS_BUILDING_WAITING) == Expense.STATUS_VALID)
+@ActionsManage.affect_grid(_('payoff'), short_icon="mdi:mdi-home-export-outline", close=CLOSE_NO, unique=SELECT_MULTI, condition=lambda xfer, gridname='': xfer.getparam('status_filter', Expense.STATUS_BUILDING_WAITING) == Expense.STATUS_VALID)
 @MenuManage.describ('payoff.add_payoff')
 class ExpenseMultiPay(XferContainerAcknowledge):
     caption = _("Multi-pay expense")
