@@ -306,11 +306,11 @@ class PartitionImport(ObjectImport):
     def get_select_models(self):
         return Partition.get_select_contact_type(True)
 
-    def _fillcontent_step3(self):
+    def _fillcontent_import_result(self):
         for part in self.current_set.partition_set.all():
             part.delete()
         self.import_driver.default_values = {'set': self.current_set}
-        ObjectImport._fillcontent_step3(self)
+        ObjectImport._fillcontent_import_result(self)
         for owner in Owner.objects.all():
             Partition.objects.get_or_create(set=self.current_set, owner=owner)
 
