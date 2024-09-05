@@ -124,7 +124,10 @@ class Set(LucteriosModel):
     def partitionfill_set(self):
         if self.id is None:
             return Partition.objects.filter(set=None)
-        return self.partition_set.filter(Q(value__gt=0.001))
+        if self.is_link_to_lots:
+            return self.partition_set.filter(Q(value__gt=0.001))
+        else:
+            return self.partition_set.filter(Q(owner__third__status=Third.STATUS_ENABLE))
 
     def get_identify(self):
         if self.id is None:
@@ -146,16 +149,16 @@ class Set(LucteriosModel):
     def get_show_fields(cls):
         if Params.getvalue("condominium-old-accounting"):
             return [("name", ), ("revenue_account", 'current_cost_accounting'), ("type_load", 'is_active'),
-                    ('is_link_to_lots', 'secondarykey'), 'partition_set', 'partitionfill_set', 'total_part', ("budget_txt", 'sumexpense',)]
+                    ('is_link_to_lots', 'secondarykey'), 'partitionfill_set', 'total_part', ("budget_txt", 'sumexpense',)]
         else:
             return [("name", 'current_cost_accounting'), ("type_load", 'is_active'), ('is_link_to_lots', 'secondarykey'),
-                    'partition_set', 'partitionfill_set', 'total_part', ("budget_txt", 'sumexpense',)]
+                    'partitionfill_set', 'total_part', ("budget_txt", 'sumexpense',)]
 
     def _do_insert(self, manager, using, fields, update_pk, raw):
         new_ids = LucteriosModel._do_insert(self, manager, using, fields, update_pk, raw)
         if isinstance(new_ids, int):
             new_ids = [new_ids]
-        for owner in Owner.objects.all():
+        for owner in Owner.objects.filter(third__status=Third.STATUS_ENABLE):
             for new_id in new_ids:
                 Partition.objects.create(set_id=new_id[0] if isinstance(new_id, tuple) else new_id, owner=owner)
         return new_ids
@@ -907,6 +910,10 @@ class PropertyLot(LucteriosModel, CustomizeObject):
             getLogger('diacamma.condominium').exception("import_data")
             return None
 
+    @property
+    def owner_query(self):
+        return Owner.objects.filter(third__status=Third.STATUS_ENABLE)
+
     def get_ratio(self):
         total = self.get_total_part()
         if abs(total) < 0.01:
@@ -1164,7 +1171,7 @@ class CallFunds(LucteriosModel):
 
     transitionname__valid = _("Valid")
 
-    @transition(field=status, source=STATUS_BUILDING, target=STATUS_VALID, conditions=[lambda item:(len(Owner.objects.all()) > 0) and (len(item.calldetail_set.all()) > 0)])
+    @transition(field=status, source=STATUS_BUILDING, target=STATUS_VALID, conditions=[lambda item:(Owner.objects.filter(third__status=Third.STATUS_ENABLE).count() > 0) and (item.calldetail_set.count() > 0)])
     def valid(self):
         Owner.throw_not_allowed()
         val = CallFunds.objects.exclude(status=self.STATUS_BUILDING).aggregate(Max('num'))
@@ -1175,7 +1182,7 @@ class CallFunds(LucteriosModel):
         last_call = None
         last_user = getattr(self, 'last_user', None)
         calls_by_owner = {}
-        for owner in Owner.objects.all():
+        for owner in Owner.objects.filter(third__status=Third.STATUS_ENABLE):
             calls_by_owner[owner.id] = CallFunds.objects.create(num=new_num, date=self.date, owner=owner, comment=self.comment,
                                                                 status=self.STATUS_VALID, supporting=CallFundsSupporting.objects.create(third=owner.third))
             setattr(calls_by_owner[owner.id].supporting, 'last_user', last_user)
@@ -1205,7 +1212,7 @@ class CallFunds(LucteriosModel):
         self.delete()
         if last_call is not None:
             self.__dict__ = last_call.__dict__
-        for owner in Owner.objects.all():
+        for owner in Owner.objects.filter(third__status=Third.STATUS_ENABLE):
             owner.ventilatePay()
 
     transitionname__close = _("Closed")
@@ -1216,7 +1223,7 @@ class CallFunds(LucteriosModel):
 
     @classmethod
     def devalid(cls, min_num):
-        for owner in Owner.objects.all():
+        for owner in Owner.objects.filter(third__status=Third.STATUS_ENABLE):
             owner.deventilate_calloffunds(min_num)
         for num_item in cls.objects.filter(num__gte=min_num).values_list('num', flat=True).distinct():
             call_details = {}
@@ -1243,7 +1250,7 @@ class CallFunds(LucteriosModel):
             new_call = CallFunds.objects.create(date=date, comment=comment)
             for ident, price in call_details.items():
                 CallDetail.objects.create(callfunds=new_call, type_call=ident[0], set_id=ident[1], designation=ident[2], price=price)
-        for owner in Owner.objects.all():
+        for owner in Owner.objects.filter(third__status=Third.STATUS_ENABLE):
             owner.ventilatePay()
 
     def generate_accounting(self, fiscal_year=None):
@@ -1601,7 +1608,7 @@ class Expense(Supporting):
             if expense_item.get_total_rest_topay() > 0.001:
                 linked_supportings.append(expense_item)
         if self.expensetype == self.EXPENSETYPE_EXPENSE:
-            for owner in Owner.objects.all():
+            for owner in Owner.objects.filter(third__status=Third.STATUS_ENABLE):
                 linked_supportings.append(owner)
         return linked_supportings
 
@@ -2424,7 +2431,7 @@ class Owner(Supporting):
 
     @classmethod
     def check_all_account(cls):
-        for owner in cls.objects.all():
+        for owner in cls.objects.filter(third__status=Third.STATUS_ENABLE):
             owner.check_account()
 
 
@@ -2594,7 +2601,7 @@ def condominium_checkparam():
                                args="{'Enum':3}", value=0, param_titles=(_("condominium-mode-current-callfunds.0"), _("condominium-mode-current-callfunds.1"), _("condominium-mode-current-callfunds.2")))
     Parameter.check_and_create(name='condominium-payoff-calloffunds', typeparam=Parameter.TYPE_BOOL, title=_("condominium-payoff-calloffunds"), args="{}", value='False')
     if Parameter.check_and_create(name='condominium-old-accounting', typeparam=Parameter.TYPE_BOOL, title=_("condominium-old-accounting"), args="{}", value='False'):
-        Parameter.change_value('condominium-old-accounting', len(Owner.objects.all()) != 0)
+        Parameter.change_value('condominium-old-accounting', Owner.objects.filter(third__status=Third.STATUS_ENABLE).count() != 0)
         for current_set in Set.objects.all():
             current_set.convert_cost()
 

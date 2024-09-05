@@ -59,13 +59,7 @@ parent.get('set_of_lots').setVisible(is_link);
 """
 
     def show(self, xfer):
-        if xfer.item.is_link_to_lots:
-            part_name = 'partitionfill'
-            xfer.remove_component('partition')
-        else:
-            part_name = 'partition'
-            xfer.remove_component('partitionfill')
-        partition = xfer.get_components(part_name)
+        partition = xfer.get_components('partitionfill')
         partition.delete_header('set')
         partition.delete_header('set.budget_txt')
         partition.delete_header('set.sumexpense')

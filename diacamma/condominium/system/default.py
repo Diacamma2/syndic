@@ -22,6 +22,8 @@ You should have received a copy of the GNU General Public License
 along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 """
 
+from re import match
+
 from django.utils.translation import gettext_lazy as _
 from django.db.models.aggregates import Sum
 
@@ -30,11 +32,9 @@ from lucterios.CORE.parameters import Params
 from lucterios.framework.tools import get_date_formating
 
 from diacamma.accounting.tools import currency_round
-from diacamma.accounting.models import FiscalYear, EntryAccount, EntryLineAccount, ChartsAccount
+from diacamma.accounting.models import FiscalYear, EntryAccount, EntryLineAccount, ChartsAccount, Third
 
-from diacamma.condominium.models import CallDetail, Owner, PropertyLot, \
-    DEFAULT_ACCOUNT_EXCEPTIONNEL
-from re import match
+from diacamma.condominium.models import CallDetail, Owner, PropertyLot, DEFAULT_ACCOUNT_EXCEPTIONNEL
 
 
 class DefaultSystemCondo(object):
@@ -148,7 +148,7 @@ class DefaultSystemCondo(object):
                     amount = 0
                     biggerowner_val = 0
                     biggerowner_line = None
-                    for owner in Owner.objects.all():
+                    for owner in Owner.objects.filter(third__status=Third.STATUS_ENABLE):
                         total = owner.propertylot_set.aggregate(sum=Sum('value'))
                         if ('sum' in total.keys()) and (total['sum'] is not None):
                             value = currency_round(result * total['sum'] / total_part)

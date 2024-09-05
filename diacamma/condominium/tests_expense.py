@@ -86,7 +86,7 @@ class ExpenseTest(PaymentTest):
             self.assert_count_equal('expense', 1 if status in (-2, -1, 0) else 0)
 
         self.factory.xfer = ExpenseShow()
-        self.calljson('/diacamma.condominium/expenseShow', {'expense': 4}, False)
+        self.calljson('/diacamma.condominium/expenseShow', {'expense': 5}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
         self.assert_count_equal('', 12)
         self.assert_json_equal('LABELFORM', 'third', None)
@@ -99,11 +99,11 @@ class ExpenseTest(PaymentTest):
         self.assertFalse("action" in self.json_actions[1].keys())
 
         self.factory.xfer = SupportingThirdValid()
-        self.calljson('/diacamma.payoff/supportingThirdValid', {'supporting': 4, 'third': 4}, False)
+        self.calljson('/diacamma.payoff/supportingThirdValid', {'supporting': 5, 'third': 4}, False)
         self.assert_observer('core.acknowledge', 'diacamma.payoff', 'supportingThirdValid')
 
         self.factory.xfer = ExpenseShow()
-        self.calljson('/diacamma.condominium/expenseShow', {'expense': 4}, False)
+        self.calljson('/diacamma.condominium/expenseShow', {'expense': 5}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
         self.assert_count_equal('', 13)
         self.assert_count_equal('expensedetail', 0)
@@ -117,7 +117,7 @@ class ExpenseTest(PaymentTest):
         self.assertFalse("action" in self.json_actions[2].keys())
 
         self.factory.xfer = ExpenseDel()
-        self.calljson('/diacamma.condominium/expenseDel', {'CONFIRME': 'YES', "expense": 4}, False)
+        self.calljson('/diacamma.condominium/expenseDel', {'CONFIRME': 'YES', "expense": 5}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseDel')
 
         self.factory.xfer = ExpenseList()
@@ -136,11 +136,11 @@ class ExpenseTest(PaymentTest):
         self.calljson('/diacamma.condominium/expenseAddModify', {'SAVE': 'YES', 'expensetype': 0, "date": '2015-06-10', "comment": 'abc 123'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseAddModify')
         self.factory.xfer = SupportingThirdValid()
-        self.calljson('/diacamma.payoff/supportingThirdValid', {'supporting': 4, 'third': 4}, False)
+        self.calljson('/diacamma.payoff/supportingThirdValid', {'supporting': 5, 'third': 4}, False)
         self.assert_observer('core.acknowledge', 'diacamma.payoff', 'supportingThirdValid')
 
         self.factory.xfer = ExpenseDetailAddModify()
-        self.calljson('/diacamma.condominium/expenseDetailAddModify', {'expense': 4}, False)
+        self.calljson('/diacamma.condominium/expenseDetailAddModify', {'expense': 5}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'expenseDetailAddModify')
         self.assert_count_equal('', 6)
         self.assert_json_equal('SELECT', 'set', '1')
@@ -150,16 +150,16 @@ class ExpenseTest(PaymentTest):
 
         self.factory.xfer = ExpenseDetailAddModify()
         self.calljson('/diacamma.condominium/expenseDetailAddModify',
-                      {'SAVE': 'YES', 'expense': 4, 'set': 1, 'price': '150.00', 'comment': 'set 1', 'expense_account': '604'}, False)
+                      {'SAVE': 'YES', 'expense': 5, 'set': 1, 'price': '150.00', 'comment': 'set 1', 'expense_account': '604'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseDetailAddModify')
 
         self.factory.xfer = ExpenseDetailAddModify()
         self.calljson('/diacamma.condominium/expenseDetailAddModify',
-                      {'SAVE': 'YES', 'expense': 4, 'set': 2, 'price': '30.00', 'comment': 'set 2', 'expense_account': '627'}, False)
+                      {'SAVE': 'YES', 'expense': 5, 'set': 2, 'price': '30.00', 'comment': 'set 2', 'expense_account': '627'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseDetailAddModify')
 
         self.factory.xfer = ExpenseShow()
-        self.calljson('/diacamma.condominium/expenseShow', {'expense': 4}, False)
+        self.calljson('/diacamma.condominium/expenseShow', {'expense': 5}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
         self.assert_count_equal('expensedetail', 2)
         self.assert_json_equal('', 'expensedetail/@0/set', '[1] AAA')
@@ -184,15 +184,15 @@ class ExpenseTest(PaymentTest):
         self.calljson('/diacamma.condominium/expenseAddModify', {'SAVE': 'YES', 'expensetype': 0, "date": '2015-06-10', "comment": 'abc 123'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseAddModify')
         self.factory.xfer = SupportingThirdValid()
-        self.calljson('/diacamma.payoff/supportingThirdValid', {'supporting': 4, 'third': 4}, False)
+        self.calljson('/diacamma.payoff/supportingThirdValid', {'supporting': 5, 'third': 4}, False)
         self.assert_observer('core.acknowledge', 'diacamma.payoff', 'supportingThirdValid')
         self.factory.xfer = ExpenseDetailAddModify()
         self.calljson('/diacamma.condominium/expenseDetailAddModify',
-                      {'SAVE': 'YES', 'expense': 4, 'set': 1, 'price': '150.00', 'comment': 'set 1', 'expense_account': '604'}, False)
+                      {'SAVE': 'YES', 'expense': 5, 'set': 1, 'price': '150.00', 'comment': 'set 1', 'expense_account': '604'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseDetailAddModify')
         self.factory.xfer = ExpenseDetailAddModify()
         self.calljson('/diacamma.condominium/expenseDetailAddModify',
-                      {'SAVE': 'YES', 'expense': 4, 'set': 2, 'price': '30.00', 'comment': 'set 2', 'expense_account': '627'}, False)
+                      {'SAVE': 'YES', 'expense': 5, 'set': 2, 'price': '30.00', 'comment': 'set 2', 'expense_account': '627'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseDetailAddModify')
 
         self.factory.xfer = ExpenseList()
@@ -215,7 +215,7 @@ class ExpenseTest(PaymentTest):
         self.assert_json_equal('LABELFORM', 'result', [0.00, 0.00, 0.00, 0.00, 0.00])
 
         self.factory.xfer = ExpenseTransition()
-        self.calljson('/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 4, 'TRANSITION': 'valid'}, False)
+        self.calljson('/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 5, 'TRANSITION': 'valid'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseTransition')
 
         self.factory.xfer = EntryAccountList()
@@ -231,7 +231,7 @@ class ExpenseTest(PaymentTest):
         self.assert_json_equal('LABELFORM', 'result', [0.00, 180.00, -180.00, 0.00, 0.00])
 
         self.factory.xfer = ExpenseShow()
-        self.calljson('/diacamma.condominium/expenseShow', {'expense': 4}, False)
+        self.calljson('/diacamma.condominium/expenseShow', {'expense': 5}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
         self.assert_count_equal('expensedetail', 2)
         self.assert_json_equal('', 'expensedetail/@0/set', '[1] AAA')
@@ -253,7 +253,7 @@ class ExpenseTest(PaymentTest):
         self.assertFalse("action" in self.json_actions[3].keys())
 
         self.factory.xfer = ExpenseDel()
-        self.calljson('/diacamma.condominium/expenseDel', {'CONFIRME': 'YES', "expense": 4}, False)
+        self.calljson('/diacamma.condominium/expenseDel', {'CONFIRME': 'YES', "expense": 5}, False)
         self.assert_observer('core.exception', 'diacamma.condominium', 'expenseDel')
 
         self.factory.xfer = ExpenseList()
@@ -272,11 +272,11 @@ class ExpenseTest(PaymentTest):
         self.assert_json_equal('', 'expense/@0/total', 180.00)
 
         self.factory.xfer = ExpenseTransition()
-        self.calljson('/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 4, "TRANSITION": 'close'}, False)
+        self.calljson('/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 5, "TRANSITION": 'close'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseTransition')
 
         self.factory.xfer = ExpenseDel()
-        self.calljson('/diacamma.condominium/expenseDel', {'CONFIRME': 'YES', "expense": 4}, False)
+        self.calljson('/diacamma.condominium/expenseDel', {'CONFIRME': 'YES', "expense": 5}, False)
         self.assert_observer('core.exception', 'diacamma.condominium', 'expenseDel')
 
         self.factory.xfer = ExpenseList()
@@ -293,7 +293,7 @@ class ExpenseTest(PaymentTest):
         self.assert_count_equal('expense', 0)
 
         self.factory.xfer = ExpenseShow()
-        self.calljson('/diacamma.condominium/expenseShow', {'expense': 4}, False)
+        self.calljson('/diacamma.condominium/expenseShow', {'expense': 5}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
         self.assert_count_equal('expensedetail', 2)
         self.assert_json_equal('LABELFORM', 'total', 180.00)
@@ -322,15 +322,15 @@ class ExpenseTest(PaymentTest):
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseAddModify')
         self.factory.xfer = SupportingThirdValid()
         self.calljson('/diacamma.payoff/supportingThirdValid',
-                      {'supporting': 4, 'third': 4}, False)
+                      {'supporting': 5, 'third': 4}, False)
         self.assert_observer('core.acknowledge', 'diacamma.payoff', 'supportingThirdValid')
         self.factory.xfer = ExpenseDetailAddModify()
         self.calljson('/diacamma.condominium/expenseDetailAddModify',
-                      {'SAVE': 'YES', 'expense': 4, 'set': 3, 'price': '200.00', 'comment': 'set 3', 'expense_account': '602'}, False)
+                      {'SAVE': 'YES', 'expense': 5, 'set': 3, 'price': '200.00', 'comment': 'set 3', 'expense_account': '602'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseDetailAddModify')
 
         self.factory.xfer = ExpenseTransition()
-        self.calljson('/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 4, 'TRANSITION': 'valid'}, False)
+        self.calljson('/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 5, 'TRANSITION': 'valid'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseTransition')
 
         self.factory.xfer = EntryAccountList()
@@ -348,7 +348,7 @@ class ExpenseTest(PaymentTest):
         self.assert_json_equal('LABELFORM', 'result', [200.00, 200.00, 0.00, 0.00, 0.00])
 
         self.factory.xfer = ExpenseShow()
-        self.calljson('/diacamma.condominium/expenseShow', {'expense': 4}, False)
+        self.calljson('/diacamma.condominium/expenseShow', {'expense': 5}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
         self.assert_count_equal('expensedetail', 1)
         self.assert_json_equal('', 'expensedetail/@0/set', '[3] CCC')
@@ -359,7 +359,7 @@ class ExpenseTest(PaymentTest):
         self.assert_json_equal('LABELFORM', 'status', 1)
 
         self.factory.xfer = ExpenseTransition()
-        self.calljson('/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 4, "TRANSITION": 'close'}, False)
+        self.calljson('/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 5, "TRANSITION": 'close'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseTransition')
 
         self.factory.xfer = EntryAccountList()
@@ -391,18 +391,18 @@ class ExpenseTest(PaymentTest):
         self.calljson('/diacamma.condominium/expenseAddModify', {'SAVE': 'YES', 'expensetype': 0, "date": '2015-06-10', "comment": 'abc 123'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseAddModify')
         self.factory.xfer = SupportingThirdValid()
-        self.calljson('/diacamma.payoff/supportingThirdValid', {'supporting': 4, 'third': 3}, False)
+        self.calljson('/diacamma.payoff/supportingThirdValid', {'supporting': 5, 'third': 3}, False)
         self.assert_observer('core.acknowledge', 'diacamma.payoff', 'supportingThirdValid')
         self.factory.xfer = ExpenseDetailAddModify()
         self.calljson('/diacamma.condominium/expenseDetailAddModify',
-                      {'SAVE': 'YES', 'expense': 4, 'set': 1, 'price': '150.00', 'comment': 'set 1', 'expense_account': '604'}, False)
+                      {'SAVE': 'YES', 'expense': 5, 'set': 1, 'price': '150.00', 'comment': 'set 1', 'expense_account': '604'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseDetailAddModify')
         self.factory.xfer = ExpenseDetailAddModify()
         self.calljson('/diacamma.condominium/expenseDetailAddModify',
-                      {'SAVE': 'YES', 'expense': 4, 'set': 2, 'price': '30.00', 'comment': 'set 2', 'expense_account': '627'}, False)
+                      {'SAVE': 'YES', 'expense': 5, 'set': 2, 'price': '30.00', 'comment': 'set 2', 'expense_account': '627'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseDetailAddModify')
         self.factory.xfer = ExpenseShow()
-        self.calljson('/diacamma.condominium/expenseShow', {'expense': 4}, False)
+        self.calljson('/diacamma.condominium/expenseShow', {'expense': 5}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
         self.assert_count_equal('expensedetail', 2)
         self.assert_json_equal('LABELFORM', 'total', 180.00)
@@ -422,7 +422,7 @@ class ExpenseTest(PaymentTest):
         self.assert_json_equal('LABELFORM', 'total', 0.0)
 
         self.factory.xfer = ExpenseTransition()
-        self.calljson('/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 4, 'TRANSITION': 'valid'}, False)
+        self.calljson('/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 5, 'TRANSITION': 'valid'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseTransition')
 
         self.check_account(year_id=1, code='401', value=180.0)
@@ -436,7 +436,7 @@ class ExpenseTest(PaymentTest):
         self.assert_json_equal('LABELFORM', 'total', 180.00)
 
         self.factory.xfer = PayoffAddModify()
-        self.calljson('/diacamma.payoff/payoffAddModify', {'SAVE': 'YES', 'supporting': 4, 'amount': '180.0',
+        self.calljson('/diacamma.payoff/payoffAddModify', {'SAVE': 'YES', 'supporting': 5, 'amount': '180.0',
                                                            'payer': "Nous", 'date': '2015-04-03', 'mode': 0, 'reference': 'abc', 'bank_account': 0}, False)
         self.assert_observer('core.acknowledge', 'diacamma.payoff', 'payoffAddModify')
 
@@ -451,7 +451,7 @@ class ExpenseTest(PaymentTest):
         self.assert_json_equal('LABELFORM', 'total', 0.00)
 
         self.factory.xfer = ExpenseShow()
-        self.calljson('/diacamma.condominium/expenseShow', {'expense': 4}, False)
+        self.calljson('/diacamma.condominium/expenseShow', {'expense': 5}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
         self.assert_count_equal('payoff', 1)
         self.assert_count_equal('#payoff/actions', 2)
@@ -483,7 +483,7 @@ class ExpenseTest(PaymentTest):
         self.assert_json_equal('LABELFORM', 'result', [0.00, 180.00, -180.00, -180.00, -180.00])
 
         self.factory.xfer = ExpenseShow()
-        self.calljson('/diacamma.condominium/expenseShow', {'expense': 4}, False)
+        self.calljson('/diacamma.condominium/expenseShow', {'expense': 5}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
         self.assert_json_equal('LABELFORM', 'status', 1)
         self.assertEqual(len(self.json_actions), 2)
@@ -500,16 +500,16 @@ class ExpenseTest(PaymentTest):
         self.calljson('/diacamma.condominium/expenseAddModify', {'SAVE': 'YES', 'expensetype': 1, "date": '2015-06-10', "comment": 'abc 123'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseAddModify')
         self.factory.xfer = SupportingThirdValid()
-        self.calljson('/diacamma.payoff/supportingThirdValid', {'supporting': 4, 'third': 3}, False)
+        self.calljson('/diacamma.payoff/supportingThirdValid', {'supporting': 5, 'third': 3}, False)
         self.assert_observer('core.acknowledge', 'diacamma.payoff', 'supportingThirdValid')
         self.factory.xfer = ExpenseDetailAddModify()
-        self.calljson('/diacamma.condominium/expenseDetailAddModify', {'SAVE': 'YES', 'expense': 4, 'set': 1, 'price': '150.00', 'comment': 'set 1', 'expense_account': '604'}, False)
+        self.calljson('/diacamma.condominium/expenseDetailAddModify', {'SAVE': 'YES', 'expense': 5, 'set': 1, 'price': '150.00', 'comment': 'set 1', 'expense_account': '604'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseDetailAddModify')
         self.factory.xfer = ExpenseDetailAddModify()
-        self.calljson('/diacamma.condominium/expenseDetailAddModify', {'SAVE': 'YES', 'expense': 4, 'set': 2, 'price': '30.00', 'comment': 'set 2', 'expense_account': '627'}, False)
+        self.calljson('/diacamma.condominium/expenseDetailAddModify', {'SAVE': 'YES', 'expense': 5, 'set': 2, 'price': '30.00', 'comment': 'set 2', 'expense_account': '627'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseDetailAddModify')
         self.factory.xfer = ExpenseShow()
-        self.calljson('/diacamma.condominium/expenseShow', {'expense': 4}, False)
+        self.calljson('/diacamma.condominium/expenseShow', {'expense': 5}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
         self.assert_count_equal('expensedetail', 2)
         self.assert_json_equal('LABELFORM', 'total', 180.00)
@@ -535,7 +535,7 @@ class ExpenseTest(PaymentTest):
         self.assert_json_equal('LABELFORM', 'total', 0.00)
 
         self.factory.xfer = ExpenseTransition()
-        self.calljson('/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 4, 'TRANSITION': 'valid'}, False)
+        self.calljson('/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 5, 'TRANSITION': 'valid'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseTransition')
 
         self.check_account(year_id=1, code='401', value=-180.0)
@@ -549,7 +549,7 @@ class ExpenseTest(PaymentTest):
         self.assert_json_equal('LABELFORM', 'total', -180.00)
 
         self.factory.xfer = PayoffAddModify()
-        self.calljson('/diacamma.payoff/payoffAddModify', {'SAVE': 'YES', 'supporting': 4, 'amount': '180.0',
+        self.calljson('/diacamma.payoff/payoffAddModify', {'SAVE': 'YES', 'supporting': 5, 'amount': '180.0',
                                                            'payer': "Nous", 'date': '2015-04-03', 'mode': 0, 'reference': 'abc', 'bank_account': 0}, False)
         self.assert_observer('core.acknowledge', 'diacamma.payoff', 'payoffAddModify')
 
@@ -564,7 +564,7 @@ class ExpenseTest(PaymentTest):
         self.assert_json_equal('LABELFORM', 'total', 0.00)
 
         self.factory.xfer = ExpenseShow()
-        self.calljson('/diacamma.condominium/expenseShow', {'expense': 4}, False)
+        self.calljson('/diacamma.condominium/expenseShow', {'expense': 5}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
         self.assert_json_equal('LABELFORM', 'status', 1)
         self.assertEqual(len(self.json_actions), 4)
@@ -594,7 +594,7 @@ class ExpenseTest(PaymentTest):
         self.assert_json_equal('LABELFORM', 'result', [0.00, -180.00, 180.00, 180.00, 180.00])
 
         self.factory.xfer = ExpenseShow()
-        self.calljson('/diacamma.condominium/expenseShow', {'expense': 4}, False)
+        self.calljson('/diacamma.condominium/expenseShow', {'expense': 5}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
         self.assert_json_equal('LABELFORM', 'status', 1)
         self.assertEqual(len(self.json_actions), 2)
@@ -611,28 +611,28 @@ class ExpenseTest(PaymentTest):
         self.calljson('/diacamma.condominium/expenseAddModify', {'SAVE': 'YES', 'expensetype': 0, "date": '2015-06-10', "comment": 'abc 123'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseAddModify')
         self.factory.xfer = SupportingThirdValid()
-        self.calljson('/diacamma.payoff/supportingThirdValid', {'supporting': 4, 'third': 3}, False)
+        self.calljson('/diacamma.payoff/supportingThirdValid', {'supporting': 5, 'third': 3}, False)
         self.assert_observer('core.acknowledge', 'diacamma.payoff', 'supportingThirdValid')
         self.factory.xfer = ExpenseDetailAddModify()
         self.calljson('/diacamma.condominium/expenseDetailAddModify',
-                      {'SAVE': 'YES', 'expense': 4, 'set': 1, 'price': '150.00', 'comment': 'set 1', 'expense_account': '604'}, False)
+                      {'SAVE': 'YES', 'expense': 5, 'set': 1, 'price': '150.00', 'comment': 'set 1', 'expense_account': '604'}, False)
 
         self.factory.xfer = ExpenseAddModify()
         self.calljson('/diacamma.condominium/expenseAddModify', {'SAVE': 'YES', 'expensetype': 0, "date": '2015-06-15', "comment": 'def 456'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseAddModify')
         self.factory.xfer = SupportingThirdValid()
-        self.calljson('/diacamma.payoff/supportingThirdValid', {'supporting': 5, 'third': 3}, False)
+        self.calljson('/diacamma.payoff/supportingThirdValid', {'supporting': 6, 'third': 3}, False)
         self.assert_observer('core.acknowledge', 'diacamma.payoff', 'supportingThirdValid')
         self.factory.xfer = ExpenseDetailAddModify()
         self.calljson('/diacamma.condominium/expenseDetailAddModify',
-                      {'SAVE': 'YES', 'expense': 5, 'set': 2, 'price': '30.00', 'comment': 'set 2', 'expense_account': '627'}, False)
+                      {'SAVE': 'YES', 'expense': 6, 'set': 2, 'price': '30.00', 'comment': 'set 2', 'expense_account': '627'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseDetailAddModify')
 
         self.factory.xfer = ExpenseTransition()
-        self.calljson('/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 4, 'TRANSITION': 'valid'}, False)
+        self.calljson('/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 5, 'TRANSITION': 'valid'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseTransition')
         self.factory.xfer = ExpenseTransition()
-        self.calljson('/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 5, 'TRANSITION': 'valid'}, False)
+        self.calljson('/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 6, 'TRANSITION': 'valid'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseTransition')
 
         self.check_account(year_id=1, code='401', value=180.0)
@@ -640,15 +640,15 @@ class ExpenseTest(PaymentTest):
         self.check_account(year_id=1, code='531', value=0.0)
 
         self.factory.xfer = ExpenseMultiPay()
-        self.calljson('/diacamma.condominium/expenseMultiPay', {'expense': '4;5'}, False)
+        self.calljson('/diacamma.condominium/expenseMultiPay', {'expense': '5;6'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseMultiPay')
         self.assertEqual(self.response_json['action']['id'], "diacamma.payoff/payoffAddModify")
         self.assertEqual(len(self.response_json['action']['params']), 2)
-        self.assertEqual(self.response_json['action']['params']['supportings'], '4;5')
+        self.assertEqual(self.response_json['action']['params']['supportings'], '5;6')
         self.assertEqual(self.response_json['action']['params']['repartition'], '1')
 
         self.factory.xfer = PayoffAddModify()
-        self.calljson('/diacamma.payoff/payoffAddModify', {'supportings': '4;5', "repartition": "1"}, False)
+        self.calljson('/diacamma.payoff/payoffAddModify', {'supportings': '5;6', "repartition": "1"}, False)
         self.assert_observer('core.custom', 'diacamma.payoff', 'payoffAddModify')
         self.assert_json_equal('FLOAT', 'amount', "180.00")
         self.assert_attrib_equal('amount', 'max', "180.0")
@@ -656,7 +656,7 @@ class ExpenseTest(PaymentTest):
         self.assert_json_equal('SELECT', 'repartition', "1")
 
         self.factory.xfer = PayoffAddModify()
-        self.calljson('/diacamma.payoff/payoffAddModify', {'SAVE': 'YES', 'supportings': '4;5', 'amount': '120.0', 'date': '2015-06-23', 'mode': 0, 'reference': '', 'bank_account': 0, "repartition": 0}, False)
+        self.calljson('/diacamma.payoff/payoffAddModify', {'SAVE': 'YES', 'supportings': '5;6', 'amount': '120.0', 'date': '2015-06-23', 'mode': 0, 'reference': '', 'bank_account': 0, "repartition": 0}, False)
         self.assert_observer('core.acknowledge', 'diacamma.payoff', 'payoffAddModify')
 
         self.check_account(year_id=1, code='401', value=60.0)
@@ -664,13 +664,13 @@ class ExpenseTest(PaymentTest):
         self.check_account(year_id=1, code='531', value=-120.0)
 
         self.factory.xfer = ExpenseShow()
-        self.calljson('/diacamma.condominium/expenseShow', {'expense': 4}, False)
+        self.calljson('/diacamma.condominium/expenseShow', {'expense': 5}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
         self.assert_json_equal('LABELFORM', 'total', 150.00)
         self.assert_json_equal('LABELFORM', 'total_rest_topay', 50.00)
 
         self.factory.xfer = ExpenseShow()
-        self.calljson('/diacamma.condominium/expenseShow', {'expense': 5}, False)
+        self.calljson('/diacamma.condominium/expenseShow', {'expense': 6}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
         self.assert_json_equal('LABELFORM', 'total', 30.00)
         self.assert_json_equal('LABELFORM', 'total_rest_topay', 10.00)
@@ -684,28 +684,28 @@ class ExpenseTest(PaymentTest):
         self.calljson('/diacamma.condominium/expenseAddModify', {'SAVE': 'YES', 'expensetype': 0, "date": '2015-06-15', "comment": 'abc 123'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseAddModify')
         self.factory.xfer = SupportingThirdValid()
-        self.calljson('/diacamma.payoff/supportingThirdValid', {'supporting': 4, 'third': 3}, False)
+        self.calljson('/diacamma.payoff/supportingThirdValid', {'supporting': 5, 'third': 3}, False)
         self.assert_observer('core.acknowledge', 'diacamma.payoff', 'supportingThirdValid')
         self.factory.xfer = ExpenseDetailAddModify()
         self.calljson('/diacamma.condominium/expenseDetailAddModify',
-                      {'SAVE': 'YES', 'expense': 4, 'set': 1, 'price': '150.00', 'comment': 'set 1', 'expense_account': '604'}, False)
+                      {'SAVE': 'YES', 'expense': 5, 'set': 1, 'price': '150.00', 'comment': 'set 1', 'expense_account': '604'}, False)
 
         self.factory.xfer = ExpenseAddModify()
         self.calljson('/diacamma.condominium/expenseAddModify', {'SAVE': 'YES', 'expensetype': 0, "date": '2015-06-10', "comment": 'def 456'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseAddModify')
         self.factory.xfer = SupportingThirdValid()
-        self.calljson('/diacamma.payoff/supportingThirdValid', {'supporting': 5, 'third': 3}, False)
+        self.calljson('/diacamma.payoff/supportingThirdValid', {'supporting': 6, 'third': 3}, False)
         self.assert_observer('core.acknowledge', 'diacamma.payoff', 'supportingThirdValid')
         self.factory.xfer = ExpenseDetailAddModify()
         self.calljson('/diacamma.condominium/expenseDetailAddModify',
-                      {'SAVE': 'YES', 'expense': 5, 'set': 2, 'price': '30.00', 'comment': 'set 2', 'expense_account': '627'}, False)
+                      {'SAVE': 'YES', 'expense': 6, 'set': 2, 'price': '30.00', 'comment': 'set 2', 'expense_account': '627'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseDetailAddModify')
 
         self.factory.xfer = ExpenseTransition()
-        self.calljson('/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 4, 'TRANSITION': 'valid'}, False)
+        self.calljson('/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 5, 'TRANSITION': 'valid'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseTransition')
         self.factory.xfer = ExpenseTransition()
-        self.calljson('/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 5, 'TRANSITION': 'valid'}, False)
+        self.calljson('/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 6, 'TRANSITION': 'valid'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseTransition')
 
         self.check_account(year_id=1, code='401', value=180.0)
@@ -713,15 +713,15 @@ class ExpenseTest(PaymentTest):
         self.check_account(year_id=1, code='531', value=0.0)
 
         self.factory.xfer = ExpenseMultiPay()
-        self.calljson('/diacamma.condominium/expenseMultiPay', {'expense': '4;5'}, False)
+        self.calljson('/diacamma.condominium/expenseMultiPay', {'expense': '5;6'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseMultiPay')
         self.assertEqual(self.response_json['action']['id'], "diacamma.payoff/payoffAddModify")
         self.assertEqual(len(self.response_json['action']['params']), 2)
-        self.assertEqual(self.response_json['action']['params']['supportings'], '4;5')
+        self.assertEqual(self.response_json['action']['params']['supportings'], '5;6')
         self.assertEqual(self.response_json['action']['params']['repartition'], '1')
 
         self.factory.xfer = PayoffAddModify()
-        self.calljson('/diacamma.payoff/payoffAddModify', {'supportings': '4;5', "repartition": "1"}, False)
+        self.calljson('/diacamma.payoff/payoffAddModify', {'supportings': '5;6', "repartition": "1"}, False)
         self.assert_observer('core.custom', 'diacamma.payoff', 'payoffAddModify')
         self.assert_json_equal('FLOAT', 'amount', "180.00")
         self.assert_attrib_equal('amount', 'max', "180.0")
@@ -729,7 +729,7 @@ class ExpenseTest(PaymentTest):
         self.assert_json_equal('SELECT', 'repartition', "1")
 
         self.factory.xfer = PayoffAddModify()
-        self.calljson('/diacamma.payoff/payoffAddModify', {'SAVE': 'YES', 'supportings': '4;5', 'amount': '120.0', 'date': '2015-06-23', 'mode': 0, 'reference': '', 'bank_account': 0, "repartition": 1}, False)
+        self.calljson('/diacamma.payoff/payoffAddModify', {'SAVE': 'YES', 'supportings': '5;6', 'amount': '120.0', 'date': '2015-06-23', 'mode': 0, 'reference': '', 'bank_account': 0, "repartition": 1}, False)
         self.assert_observer('core.acknowledge', 'diacamma.payoff', 'payoffAddModify')
 
         self.check_account(year_id=1, code='401', value=60.0)
@@ -737,13 +737,13 @@ class ExpenseTest(PaymentTest):
         self.check_account(year_id=1, code='531', value=-120.0)
 
         self.factory.xfer = ExpenseShow()
-        self.calljson('/diacamma.condominium/expenseShow', {'expense': 4}, False)
+        self.calljson('/diacamma.condominium/expenseShow', {'expense': 5}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
         self.assert_json_equal('LABELFORM', 'total', 150.00)
         self.assert_json_equal('LABELFORM', 'total_rest_topay', 60.00)
 
         self.factory.xfer = ExpenseShow()
-        self.calljson('/diacamma.condominium/expenseShow', {'expense': 5}, False)
+        self.calljson('/diacamma.condominium/expenseShow', {'expense': 6}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
         self.assert_json_equal('LABELFORM', 'total', 30.00)
         self.assert_json_equal('LABELFORM', 'total_rest_topay', 0.00)
@@ -758,14 +758,14 @@ class ExpenseTest(PaymentTest):
         self.calljson('/diacamma.condominium/expenseAddModify', {'SAVE': 'YES', 'expensetype': 0, "date": '2015-06-10', "comment": 'abc 123'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseAddModify')
         self.factory.xfer = SupportingThirdValid()
-        self.calljson('/diacamma.payoff/supportingThirdValid', {'supporting': 4, 'third': 3}, False)
+        self.calljson('/diacamma.payoff/supportingThirdValid', {'supporting': 5, 'third': 3}, False)
         self.assert_observer('core.acknowledge', 'diacamma.payoff', 'supportingThirdValid')
         self.factory.xfer = ExpenseDetailAddModify()
-        self.calljson('/diacamma.condominium/expenseDetailAddModify', {'SAVE': 'YES', 'expense': 4, 'set': 1, 'price': '100.00', 'comment': 'set 1', 'expense_account': '604'}, False)
+        self.calljson('/diacamma.condominium/expenseDetailAddModify', {'SAVE': 'YES', 'expense': 5, 'set': 1, 'price': '100.00', 'comment': 'set 1', 'expense_account': '604'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseDetailAddModify')
 
         self.factory.xfer = ExpenseTransition()
-        self.calljson('/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 4, 'TRANSITION': 'valid'}, False)
+        self.calljson('/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 5, 'TRANSITION': 'valid'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseTransition')
 
         self.check_account(year_id=1, code='401', value=100.0)
@@ -774,13 +774,13 @@ class ExpenseTest(PaymentTest):
         self.check_account(year_id=1, code='531', value=0.0)
 
         self.factory.xfer = PayoffAddModify()
-        self.calljson('/diacamma.payoff/payoffAddModify', {'supporting': 4}, False)
+        self.calljson('/diacamma.payoff/payoffAddModify', {'supporting': 5}, False)
         self.assert_observer('core.custom', 'diacamma.payoff', 'payoffAddModify')
         self.assert_count_equal('', 6)
         self.assert_select_equal('mode', {0: 'espèces', 1: 'chèque', 2: 'virement', 3: 'carte de crédit', 4: 'autre', 5: 'prélèvement', 6: 'interne'})
 
         self.factory.xfer = PayoffAddModify()
-        self.calljson('/diacamma.payoff/payoffAddModify', {'supporting': 4, 'mode': 6}, False)
+        self.calljson('/diacamma.payoff/payoffAddModify', {'supporting': 5, 'mode': 6}, False)
         self.assert_observer('core.custom', 'diacamma.payoff', 'payoffAddModify')
         self.assert_count_equal('', 6)
         self.assert_select_equal('linked_supporting', {1: "Minimum", 2: "Dalton William", 3: "Dalton Joe"})
@@ -790,14 +790,14 @@ class ExpenseTest(PaymentTest):
         self.calljson('/diacamma.condominium/expenseAddModify', {'SAVE': 'YES', 'expensetype': 1, "date": '2015-06-12', "comment": 'abc 123'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseAddModify')
         self.factory.xfer = SupportingThirdValid()
-        self.calljson('/diacamma.payoff/supportingThirdValid', {'supporting': 5, 'third': 3}, False)
+        self.calljson('/diacamma.payoff/supportingThirdValid', {'supporting': 6, 'third': 3}, False)
         self.assert_observer('core.acknowledge', 'diacamma.payoff', 'supportingThirdValid')
         self.factory.xfer = ExpenseDetailAddModify()
-        self.calljson('/diacamma.condominium/expenseDetailAddModify', {'SAVE': 'YES', 'expense': 5, 'set': 1, 'price': '50.00', 'comment': 'set 1', 'expense_account': '604'}, False)
+        self.calljson('/diacamma.condominium/expenseDetailAddModify', {'SAVE': 'YES', 'expense': 6, 'set': 1, 'price': '50.00', 'comment': 'set 1', 'expense_account': '604'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseDetailAddModify')
 
         self.factory.xfer = ExpenseTransition()
-        self.calljson('/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 5, 'TRANSITION': 'valid'}, False)
+        self.calljson('/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 6, 'TRANSITION': 'valid'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseTransition')
 
         self.check_account(year_id=1, code='401', value=50.0)
@@ -806,22 +806,22 @@ class ExpenseTest(PaymentTest):
         self.check_account(year_id=1, code='531', value=0.0)
 
         self.factory.xfer = PayoffAddModify()
-        self.calljson('/diacamma.payoff/payoffAddModify', {'supporting': 4, 'mode': 6}, False)
-        self.assert_observer('core.custom', 'diacamma.payoff', 'payoffAddModify')
-        self.assert_count_equal('', 6)
-        self.assert_select_equal('linked_supporting', {5: 'avoir de dépense 2 - abc 123', 1: "Minimum", 2: "Dalton William", 3: "Dalton Joe"})
-        self.assert_json_equal('LABELFORM', 'amount', 50.0)
-
-        self.factory.xfer = PayoffAddModify()
         self.calljson('/diacamma.payoff/payoffAddModify', {'supporting': 5, 'mode': 6}, False)
         self.assert_observer('core.custom', 'diacamma.payoff', 'payoffAddModify')
         self.assert_count_equal('', 6)
-        self.assert_select_equal('linked_supporting', {4: 'dépense 1 - abc 123'})
+        self.assert_select_equal('linked_supporting', {6: 'avoir de dépense 2 - abc 123', 1: "Minimum", 2: "Dalton William", 3: "Dalton Joe"})
         self.assert_json_equal('LABELFORM', 'amount', 50.0)
 
         self.factory.xfer = PayoffAddModify()
-        self.calljson('/diacamma.payoff/payoffAddModify', {'SAVE': 'YES', 'supporting': 5, 'amount': '50.0',
-                                                           'date': '2015-06-12', 'mode': 6, 'linked_supporting': 4}, False)
+        self.calljson('/diacamma.payoff/payoffAddModify', {'supporting': 6, 'mode': 6}, False)
+        self.assert_observer('core.custom', 'diacamma.payoff', 'payoffAddModify')
+        self.assert_count_equal('', 6)
+        self.assert_select_equal('linked_supporting', {5: 'dépense 1 - abc 123'})
+        self.assert_json_equal('LABELFORM', 'amount', 50.0)
+
+        self.factory.xfer = PayoffAddModify()
+        self.calljson('/diacamma.payoff/payoffAddModify', {'SAVE': 'YES', 'supporting': 6, 'amount': '50.0',
+                                                           'date': '2015-06-12', 'mode': 6, 'linked_supporting': 5}, False)
         self.assert_observer('core.acknowledge', 'diacamma.payoff', 'payoffAddModify')
 
         self.check_account(year_id=1, code='401', value=50.0)
@@ -830,7 +830,7 @@ class ExpenseTest(PaymentTest):
         self.check_account(year_id=1, code='531', value=0.0)
 
         self.factory.xfer = PayoffAddModify()
-        self.calljson('/diacamma.payoff/payoffAddModify', {'SAVE': 'YES', 'supporting': 4, 'amount': '50.0',
+        self.calljson('/diacamma.payoff/payoffAddModify', {'SAVE': 'YES', 'supporting': 5, 'amount': '50.0',
                                                            'date': '2015-06-15', 'mode': 6, 'linked_supporting': 1}, False)
         self.assert_observer('core.acknowledge', 'diacamma.payoff', 'payoffAddModify')
 
@@ -869,7 +869,7 @@ class ExpenseTest(PaymentTest):
         self.check_account(year_id=1, code='531', value=0.0)
 
         self.factory.xfer = ExpenseShow()
-        self.calljson('/diacamma.condominium/expenseShow', {'expense': 4}, False)
+        self.calljson('/diacamma.condominium/expenseShow', {'expense': 5}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
         self.assert_json_equal('LABELFORM', 'total', 100.00)
         self.assert_json_equal('LABELFORM', 'total_rest_topay', 0.00)
@@ -887,7 +887,7 @@ class ExpenseTest(PaymentTest):
         self.assert_json_equal('', 'payoff/@1/bank_account_ex', None)
 
         self.factory.xfer = ExpenseShow()
-        self.calljson('/diacamma.condominium/expenseShow', {'expense': 5}, False)
+        self.calljson('/diacamma.condominium/expenseShow', {'expense': 6}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
         self.assert_json_equal('LABELFORM', 'total', 50.00)
         self.assert_json_equal('LABELFORM', 'total_rest_topay', 0.00)
@@ -918,14 +918,14 @@ class ExpenseTest(PaymentTest):
         self.assert_observer('core.acknowledge', 'diacamma.payoff', 'payoffDel')
 
         self.factory.xfer = ExpenseShow()
-        self.calljson('/diacamma.condominium/expenseShow', {'expense': 4}, False)
+        self.calljson('/diacamma.condominium/expenseShow', {'expense': 5}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
         self.assert_json_equal('LABELFORM', 'total', 100.00)
         self.assert_count_equal('payoff', 0)
         self.assert_json_equal('LABELFORM', 'total_rest_topay', 100.00)
 
         self.factory.xfer = ExpenseShow()
-        self.calljson('/diacamma.condominium/expenseShow', {'expense': 5}, False)
+        self.calljson('/diacamma.condominium/expenseShow', {'expense': 6}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
         self.assert_json_equal('LABELFORM', 'total', 50.00)
         self.assert_count_equal('payoff', 0)
@@ -963,21 +963,21 @@ class ExpenseTest(PaymentTest):
         self.calljson('/diacamma.condominium/expenseAddModify', {'SAVE': 'YES', 'expensetype': 0, "date": '2015-06-10', "comment": 'abc 123'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseAddModify')
         self.factory.xfer = SupportingThirdValid()
-        self.calljson('/diacamma.payoff/supportingThirdValid', {'supporting': 4, 'third': 3}, False)
+        self.calljson('/diacamma.payoff/supportingThirdValid', {'supporting': 5, 'third': 3}, False)
         self.assert_observer('core.acknowledge', 'diacamma.payoff', 'supportingThirdValid')
         self.factory.xfer = ExpenseDetailAddModify()
         self.calljson('/diacamma.condominium/expenseDetailAddModify',
-                      {'SAVE': 'YES', 'expense': 4, 'set': 1, 'price': '150.00', 'comment': 'set 1', 'expense_account': '604'}, False)
+                      {'SAVE': 'YES', 'expense': 5, 'set': 1, 'price': '150.00', 'comment': 'set 1', 'expense_account': '604'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseDetailAddModify')
         self.factory.xfer = ExpenseDetailAddModify()
         self.calljson('/diacamma.condominium/expenseDetailAddModify',
-                      {'SAVE': 'YES', 'expense': 4, 'set': 2, 'price': '30.00', 'comment': 'set 2', 'expense_account': '627'}, False)
+                      {'SAVE': 'YES', 'expense': 5, 'set': 2, 'price': '30.00', 'comment': 'set 2', 'expense_account': '627'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseDetailAddModify')
         self.factory.xfer = ExpenseTransition()
-        self.calljson('/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 4, 'TRANSITION': 'valid'}, False)
+        self.calljson('/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 5, 'TRANSITION': 'valid'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseTransition')
         self.factory.xfer = ExpenseShow()
-        self.calljson('/diacamma.condominium/expenseShow', {'expense': 4}, False)
+        self.calljson('/diacamma.condominium/expenseShow', {'expense': 5}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
         self.assertEqual(len(self.json_actions), 4)
         self.assertEqual(self.json_actions[0]["action"], 'expenseTransition')
@@ -993,7 +993,7 @@ class ExpenseTest(PaymentTest):
                       {'CONFIRME': 'YES', 'year': '1', "entryline": "1"}, False)
         self.assert_observer('core.acknowledge', 'diacamma.accounting', 'entryAccountClose')
         self.factory.xfer = ExpenseShow()
-        self.calljson('/diacamma.condominium/expenseShow', {'expense': 4}, False)
+        self.calljson('/diacamma.condominium/expenseShow', {'expense': 5}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
         self.assertEqual(len(self.json_actions), 2)
         self.assertEqual(self.json_actions[0]["action"], 'expenseTransition')
@@ -1005,21 +1005,21 @@ class ExpenseTest(PaymentTest):
         self.calljson('/diacamma.condominium/expenseAddModify', {'SAVE': 'YES', 'expensetype': 0, "date": '2015-06-10', "comment": 'abc 123'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseAddModify')
         self.factory.xfer = SupportingThirdValid()
-        self.calljson('/diacamma.payoff/supportingThirdValid', {'supporting': 4, 'third': 3}, False)
+        self.calljson('/diacamma.payoff/supportingThirdValid', {'supporting': 5, 'third': 3}, False)
         self.assert_observer('core.acknowledge', 'diacamma.payoff', 'supportingThirdValid')
         self.factory.xfer = ExpenseDetailAddModify()
         self.calljson('/diacamma.condominium/expenseDetailAddModify',
-                      {'SAVE': 'YES', 'expense': 4, 'set': 1, 'price': '150.00', 'comment': 'set 1', 'expense_account': '604'}, False)
+                      {'SAVE': 'YES', 'expense': 5, 'set': 1, 'price': '150.00', 'comment': 'set 1', 'expense_account': '604'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseDetailAddModify')
         self.factory.xfer = ExpenseDetailAddModify()
         self.calljson('/diacamma.condominium/expenseDetailAddModify',
-                      {'SAVE': 'YES', 'expense': 4, 'set': 2, 'price': '30.00', 'comment': 'set 2', 'expense_account': '627'}, False)
+                      {'SAVE': 'YES', 'expense': 5, 'set': 2, 'price': '30.00', 'comment': 'set 2', 'expense_account': '627'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseDetailAddModify')
         self.factory.xfer = ExpenseTransition()
-        self.calljson('/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 4, 'TRANSITION': 'valid'}, False)
+        self.calljson('/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 5, 'TRANSITION': 'valid'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseTransition')
         self.factory.xfer = ExpenseShow()
-        self.calljson('/diacamma.condominium/expenseShow', {'expense': 4}, False)
+        self.calljson('/diacamma.condominium/expenseShow', {'expense': 5}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
         self.assertEqual(len(self.json_actions), 4)
         self.assertEqual(self.json_actions[0]["action"], 'expenseTransition')
@@ -1035,7 +1035,7 @@ class ExpenseTest(PaymentTest):
                       {'CONFIRME': 'YES', 'year': '1', "entryline": "3"}, False)
         self.assert_observer('core.acknowledge', 'diacamma.accounting', 'entryAccountClose')
         self.factory.xfer = ExpenseShow()
-        self.calljson('/diacamma.condominium/expenseShow', {'expense': 4}, False)
+        self.calljson('/diacamma.condominium/expenseShow', {'expense': 5}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
         self.assertEqual(len(self.json_actions), 2)
         self.assertEqual(self.json_actions[0]["action"], 'expenseTransition')
@@ -1047,15 +1047,15 @@ class ExpenseTest(PaymentTest):
         self.calljson('/diacamma.condominium/expenseAddModify', {'SAVE': 'YES', 'expensetype': 0, "date": '2015-06-10', "comment": 'abc 123'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseAddModify')
         self.factory.xfer = SupportingThirdValid()
-        self.calljson('/diacamma.payoff/supportingThirdValid', {'supporting': 4, 'third': 3}, False)
+        self.calljson('/diacamma.payoff/supportingThirdValid', {'supporting': 5, 'third': 3}, False)
         self.assert_observer('core.acknowledge', 'diacamma.payoff', 'supportingThirdValid')
         self.factory.xfer = ExpenseDetailAddModify()
         self.calljson('/diacamma.condominium/expenseDetailAddModify',
-                      {'SAVE': 'YES', 'expense': 4, 'set': 1, 'price': '150.00', 'comment': 'set 1', 'expense_account': '604'}, False)
+                      {'SAVE': 'YES', 'expense': 5, 'set': 1, 'price': '150.00', 'comment': 'set 1', 'expense_account': '604'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseDetailAddModify')
         self.factory.xfer = ExpenseDetailAddModify()
         self.calljson('/diacamma.condominium/expenseDetailAddModify',
-                      {'SAVE': 'YES', 'expense': 4, 'set': 2, 'price': '30.00', 'comment': 'set 2', 'expense_account': '627'}, False)
+                      {'SAVE': 'YES', 'expense': 5, 'set': 2, 'price': '30.00', 'comment': 'set 2', 'expense_account': '627'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseDetailAddModify')
         self.factory.xfer = EntryAccountList()
         self.calljson('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '0', 'filter': '0'}, False)
@@ -1064,10 +1064,10 @@ class ExpenseTest(PaymentTest):
         self.assert_json_equal('LABELFORM', 'result', [0.00, 0.00, 0.00, 0.00, 0.00])
 
         self.factory.xfer = ExpenseTransition()
-        self.calljson('/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 4, 'TRANSITION': 'valid'}, False)
+        self.calljson('/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 5, 'TRANSITION': 'valid'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseTransition')
         self.factory.xfer = PayoffAddModify()
-        self.calljson('/diacamma.payoff/payoffAddModify', {'SAVE': 'YES', 'supporting': 4, 'amount': '180.0',
+        self.calljson('/diacamma.payoff/payoffAddModify', {'SAVE': 'YES', 'supporting': 5, 'amount': '180.0',
                                                            'payer': "Nous", 'date': '2015-04-03', 'mode': 0, 'reference': 'abc', 'bank_account': 0}, False)
         self.assert_observer('core.acknowledge', 'diacamma.payoff', 'payoffAddModify')
         self.factory.xfer = EntryAccountList()
@@ -1077,7 +1077,7 @@ class ExpenseTest(PaymentTest):
         self.assert_json_equal('LABELFORM', 'result', [0.00, 180.00, -180.00, -180.00, 0.00])
 
         self.factory.xfer = ExpenseShow()
-        self.calljson('/diacamma.condominium/expenseShow', {'expense': 4}, False)
+        self.calljson('/diacamma.condominium/expenseShow', {'expense': 5}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
         self.assert_json_equal('LABELFORM', 'status', 1)
         self.assertEqual(len(self.json_actions), 4)
@@ -1090,7 +1090,7 @@ class ExpenseTest(PaymentTest):
         self.assertFalse("action" in self.json_actions[3].keys())
 
         self.factory.xfer = ExpenseTransition()
-        self.calljson('/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 4, 'TRANSITION': 'reedit'}, False)
+        self.calljson('/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 5, 'TRANSITION': 'reedit'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseTransition')
         self.factory.xfer = EntryAccountList()
         self.calljson('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '0', 'filter': '0'}, False)
@@ -1099,7 +1099,7 @@ class ExpenseTest(PaymentTest):
         self.assert_json_equal('LABELFORM', 'result', [0.00, 0.00, 0.00, -180.00, 0.00])
 
         self.factory.xfer = ExpenseShow()
-        self.calljson('/diacamma.condominium/expenseShow', {'expense': 4}, False)
+        self.calljson('/diacamma.condominium/expenseShow', {'expense': 5}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
         self.assert_json_equal('LABELFORM', 'status', 3)
         self.assertEqual(len(self.json_actions), 4)
@@ -1115,11 +1115,11 @@ class ExpenseTest(PaymentTest):
         self.calljson('/diacamma.condominium/expenseAddModify', {'SAVE': 'YES', 'expensetype': 0, "date": '2015-06-10', "comment": 'abc 123'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseAddModify')
         self.factory.xfer = SupportingThirdValid()
-        self.calljson('/diacamma.payoff/supportingThirdValid', {'supporting': 4, 'third': 3}, False)
+        self.calljson('/diacamma.payoff/supportingThirdValid', {'supporting': 5, 'third': 3}, False)
         self.assert_observer('core.acknowledge', 'diacamma.payoff', 'supportingThirdValid')
 
         self.factory.xfer = ExpenseShow()
-        self.calljson('/diacamma.condominium/expenseShow', {'expense': 4}, False)
+        self.calljson('/diacamma.condominium/expenseShow', {'expense': 5}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
         self.assert_count_equal('expensedetail', 0)
         self.assert_count_equal('#expensedetail/actions', 4)
@@ -1132,7 +1132,7 @@ class ExpenseTest(PaymentTest):
         self.assertFalse("action" in self.json_actions[2].keys())
 
         self.factory.xfer = ExpenseTransition()
-        self.calljson('/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 4, 'TRANSITION': 'waited'}, False)
+        self.calljson('/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 5, 'TRANSITION': 'waited'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseTransition')
 
         for status in (-2, -1, 0, 1, 2, 3, 4):
@@ -1142,7 +1142,7 @@ class ExpenseTest(PaymentTest):
             self.assert_count_equal('expense', 1 if status in (-2, -1, 3) else 0)
 
         self.factory.xfer = ExpenseShow()
-        self.calljson('/diacamma.condominium/expenseShow', {'expense': 4}, False)
+        self.calljson('/diacamma.condominium/expenseShow', {'expense': 5}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
         self.assert_count_equal('expensedetail', 0)
         self.assert_count_equal('#expensedetail/actions', 4)
@@ -1158,19 +1158,19 @@ class ExpenseTest(PaymentTest):
 
         self.factory.xfer = ExpenseDetailAddModify()
         self.calljson('/diacamma.condominium/expenseDetailAddModify',
-                      {'SAVE': 'YES', 'expense': 4, 'set': 1, 'price': '150.00', 'comment': 'set 1', 'expense_account': '604'}, False)
+                      {'SAVE': 'YES', 'expense': 5, 'set': 1, 'price': '150.00', 'comment': 'set 1', 'expense_account': '604'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseDetailAddModify')
         self.factory.xfer = ExpenseDetailAddModify()
         self.calljson('/diacamma.condominium/expenseDetailAddModify',
-                      {'SAVE': 'YES', 'expense': 4, 'set': 2, 'price': '30.00', 'comment': 'set 2', 'expense_account': '627'}, False)
+                      {'SAVE': 'YES', 'expense': 5, 'set': 2, 'price': '30.00', 'comment': 'set 2', 'expense_account': '627'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseDetailAddModify')
         self.factory.xfer = PayoffAddModify()
-        self.calljson('/diacamma.payoff/payoffAddModify', {'SAVE': 'YES', 'supporting': 4, 'amount': '90.0',
+        self.calljson('/diacamma.payoff/payoffAddModify', {'SAVE': 'YES', 'supporting': 5, 'amount': '90.0',
                                                            'payer': "Nous", 'date': '2015-04-03', 'mode': 0, 'reference': 'abc', 'bank_account': 0}, False)
         self.assert_observer('core.acknowledge', 'diacamma.payoff', 'payoffAddModify')
 
         self.factory.xfer = ExpenseShow()
-        self.calljson('/diacamma.condominium/expenseShow', {'expense': 4}, False)
+        self.calljson('/diacamma.condominium/expenseShow', {'expense': 5}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
         self.assert_count_equal('', 11)
         self.assert_count_equal('expensedetail', 2)
@@ -1194,11 +1194,11 @@ class ExpenseTest(PaymentTest):
         self.assert_json_equal('LABELFORM', 'result', [0.00, 0.00, 0.00, -90.00, 0.00])
 
         self.factory.xfer = ExpenseTransition()
-        self.calljson('/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 4, 'TRANSITION': 'cancelw'}, False)
+        self.calljson('/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 5, 'TRANSITION': 'cancelw'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseTransition')
 
         self.factory.xfer = ExpenseShow()
-        self.calljson('/diacamma.condominium/expenseShow', {'expense': 4}, False)
+        self.calljson('/diacamma.condominium/expenseShow', {'expense': 5}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
         self.assert_count_equal('', 9)
         self.assert_count_equal('expensedetail', 2)
@@ -1252,7 +1252,7 @@ class ExpenseBelgiumTest(PaymentTest):
         self.assert_count_equal('expense', 1)
 
         self.factory.xfer = ExpenseShow()
-        self.calljson('/diacamma.condominium/expenseShow', {'expense': 4}, False)
+        self.calljson('/diacamma.condominium/expenseShow', {'expense': 5}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
         self.assert_count_equal('', 12)
         self.assertEqual(len(self.json_actions), 2)
@@ -1266,11 +1266,11 @@ class ExpenseBelgiumTest(PaymentTest):
         self.assertFalse("action" in self.json_actions[1].keys())
 
         self.factory.xfer = SupportingThirdValid()
-        self.calljson('/diacamma.payoff/supportingThirdValid', {'supporting': 4, 'third': 4}, False)
+        self.calljson('/diacamma.payoff/supportingThirdValid', {'supporting': 5, 'third': 4}, False)
         self.assert_observer('core.acknowledge', 'diacamma.payoff', 'supportingThirdValid')
 
         self.factory.xfer = ExpenseShow()
-        self.calljson('/diacamma.condominium/expenseShow', {'expense': 4}, False)
+        self.calljson('/diacamma.condominium/expenseShow', {'expense': 5}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
         self.assert_count_equal('', 13)
         self.assert_json_equal('LINK', 'third', "Minimum")
@@ -1279,7 +1279,7 @@ class ExpenseBelgiumTest(PaymentTest):
         self.assertEqual(len(self.json_actions), 3)
 
         self.factory.xfer = ExpenseDel()
-        self.calljson('/diacamma.condominium/expenseDel', {'CONFIRME': 'YES', "expense": 4}, False)
+        self.calljson('/diacamma.condominium/expenseDel', {'CONFIRME': 'YES', "expense": 5}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseDel')
 
         self.factory.xfer = ExpenseList()
@@ -1292,11 +1292,11 @@ class ExpenseBelgiumTest(PaymentTest):
         self.calljson('/diacamma.condominium/expenseAddModify', {'SAVE': 'YES', 'expensetype': 0, "date": '2015-06-10', "comment": 'abc 123'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseAddModify')
         self.factory.xfer = SupportingThirdValid()
-        self.calljson('/diacamma.payoff/supportingThirdValid', {'supporting': 4, 'third': 4}, False)
+        self.calljson('/diacamma.payoff/supportingThirdValid', {'supporting': 5, 'third': 4}, False)
         self.assert_observer('core.acknowledge', 'diacamma.payoff', 'supportingThirdValid')
 
         self.factory.xfer = ExpenseDetailAddModify()
-        self.calljson('/diacamma.condominium/expenseDetailAddModify', {'expense': 4}, False)
+        self.calljson('/diacamma.condominium/expenseDetailAddModify', {'expense': 5}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'expenseDetailAddModify')
         self.assert_count_equal('', 6)
         self.assert_json_equal('SELECT', 'set', '1')
@@ -1307,16 +1307,16 @@ class ExpenseBelgiumTest(PaymentTest):
 
         self.factory.xfer = ExpenseDetailAddModify()
         self.calljson('/diacamma.condominium/expenseDetailAddModify',
-                      {'SAVE': 'YES', 'expense': 4, 'set': 1, 'price': '150.00', 'comment': 'set 1', 'expense_account': '602000'}, False)
+                      {'SAVE': 'YES', 'expense': 5, 'set': 1, 'price': '150.00', 'comment': 'set 1', 'expense_account': '602000'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseDetailAddModify')
 
         self.factory.xfer = ExpenseDetailAddModify()
         self.calljson('/diacamma.condominium/expenseDetailAddModify',
-                      {'SAVE': 'YES', 'expense': 4, 'set': 2, 'price': '30.00', 'comment': 'set 2', 'expense_account': '604000'}, False)
+                      {'SAVE': 'YES', 'expense': 5, 'set': 2, 'price': '30.00', 'comment': 'set 2', 'expense_account': '604000'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseDetailAddModify')
 
         self.factory.xfer = ExpenseShow()
-        self.calljson('/diacamma.condominium/expenseShow', {'expense': 4}, False)
+        self.calljson('/diacamma.condominium/expenseShow', {'expense': 5}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
         self.assert_count_equal('expensedetail', 2)
         self.assert_json_equal('LABELFORM', 'status', 0)
@@ -1344,15 +1344,15 @@ class ExpenseBelgiumTest(PaymentTest):
         self.calljson('/diacamma.condominium/expenseAddModify', {'SAVE': 'YES', 'expensetype': 0, "date": '2015-06-10', "comment": 'abc 123'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseAddModify')
         self.factory.xfer = SupportingThirdValid()
-        self.calljson('/diacamma.payoff/supportingThirdValid', {'supporting': 4, 'third': 4}, False)
+        self.calljson('/diacamma.payoff/supportingThirdValid', {'supporting': 5, 'third': 4}, False)
         self.assert_observer('core.acknowledge', 'diacamma.payoff', 'supportingThirdValid')
         self.factory.xfer = ExpenseDetailAddModify()
         self.calljson('/diacamma.condominium/expenseDetailAddModify',
-                      {'SAVE': 'YES', 'expense': 4, 'set': 1, 'price': '150.00', 'comment': 'set 1', 'expense_account': '602000'}, False)
+                      {'SAVE': 'YES', 'expense': 5, 'set': 1, 'price': '150.00', 'comment': 'set 1', 'expense_account': '602000'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseDetailAddModify')
         self.factory.xfer = ExpenseDetailAddModify()
         self.calljson('/diacamma.condominium/expenseDetailAddModify',
-                      {'SAVE': 'YES', 'expense': 4, 'set': 2, 'price': '30.00', 'comment': 'set 2', 'expense_account': '604000'}, False)
+                      {'SAVE': 'YES', 'expense': 5, 'set': 2, 'price': '30.00', 'comment': 'set 2', 'expense_account': '604000'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseDetailAddModify')
 
         self.factory.xfer = ExpenseList()
@@ -1375,13 +1375,13 @@ class ExpenseBelgiumTest(PaymentTest):
         self.assert_json_equal('LABELFORM', 'result', [0.00, 0.00, 0.00, 0.00, 0.00])
 
         self.factory.xfer = ExpenseShow()
-        self.calljson('/diacamma.condominium/expenseShow', {'expense': 4}, False)
+        self.calljson('/diacamma.condominium/expenseShow', {'expense': 5}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
         self.assert_json_equal('LABELFORM', 'status', 0)
         self.assert_json_equal('LABELFORM', 'info', [])
 
         self.factory.xfer = ExpenseTransition()
-        self.calljson('/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 4, 'TRANSITION': 'valid'}, False)
+        self.calljson('/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 5, 'TRANSITION': 'valid'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseTransition')
 
         self.factory.xfer = EntryAccountList()
@@ -1397,7 +1397,7 @@ class ExpenseBelgiumTest(PaymentTest):
         self.assert_json_equal('LABELFORM', 'result', [0.00, 180.00, -180.00, 0.00, 0.00])
 
         self.factory.xfer = ExpenseShow()
-        self.calljson('/diacamma.condominium/expenseShow', {'expense': 4}, False)
+        self.calljson('/diacamma.condominium/expenseShow', {'expense': 5}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
         self.assert_json_equal('LABELFORM', 'status', 1)
         self.assert_count_equal('expensedetail', 2)
@@ -1420,7 +1420,7 @@ class ExpenseBelgiumTest(PaymentTest):
         self.assertFalse("action" in self.json_actions[3].keys())
 
         self.factory.xfer = ExpenseDel()
-        self.calljson('/diacamma.condominium/expenseDel', {'CONFIRME': 'YES', "expense": 4}, False)
+        self.calljson('/diacamma.condominium/expenseDel', {'CONFIRME': 'YES', "expense": 5}, False)
         self.assert_observer('core.exception', 'diacamma.condominium', 'expenseDel')
 
         self.factory.xfer = ExpenseList()
@@ -1439,11 +1439,11 @@ class ExpenseBelgiumTest(PaymentTest):
         self.assert_json_equal('', 'expense/@0/total', 180.00)
 
         self.factory.xfer = ExpenseTransition()
-        self.calljson('/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 4, "TRANSITION": 'close'}, False)
+        self.calljson('/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 5, "TRANSITION": 'close'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseTransition')
 
         self.factory.xfer = ExpenseDel()
-        self.calljson('/diacamma.condominium/expenseDel', {'CONFIRME': 'YES', "expense": 4}, False)
+        self.calljson('/diacamma.condominium/expenseDel', {'CONFIRME': 'YES', "expense": 5}, False)
         self.assert_observer('core.exception', 'diacamma.condominium', 'expenseDel')
 
         self.factory.xfer = ExpenseList()
@@ -1460,7 +1460,7 @@ class ExpenseBelgiumTest(PaymentTest):
         self.assert_count_equal('expense', 0)
 
         self.factory.xfer = ExpenseShow()
-        self.calljson('/diacamma.condominium/expenseShow', {'expense': 4}, False)
+        self.calljson('/diacamma.condominium/expenseShow', {'expense': 5}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
         self.assert_count_equal('expensedetail', 2)
         self.assert_json_equal('LABELFORM', 'total', 180.00)
@@ -1488,20 +1488,20 @@ class ExpenseBelgiumTest(PaymentTest):
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseAddModify')
         self.factory.xfer = SupportingThirdValid()
         self.calljson('/diacamma.payoff/supportingThirdValid',
-                      {'supporting': 4, 'third': 4}, False)
+                      {'supporting': 5, 'third': 4}, False)
         self.assert_observer('core.acknowledge', 'diacamma.payoff', 'supportingThirdValid')
         self.factory.xfer = ExpenseDetailAddModify()
         self.calljson('/diacamma.condominium/expenseDetailAddModify',
-                      {'SAVE': 'YES', 'expense': 4, 'set': 3, 'price': '200.00', 'comment': 'set 3', 'expense_account': '601000'}, False)
+                      {'SAVE': 'YES', 'expense': 5, 'set': 3, 'price': '200.00', 'comment': 'set 3', 'expense_account': '601000'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseDetailAddModify')
 
         self.factory.xfer = ExpenseShow()
-        self.calljson('/diacamma.condominium/expenseShow', {'expense': 4}, False)
+        self.calljson('/diacamma.condominium/expenseShow', {'expense': 5}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
         self.assert_json_equal('LABELFORM', 'info', [])
 
         self.factory.xfer = ExpenseTransition()
-        self.calljson('/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 4, 'TRANSITION': 'valid'}, False)
+        self.calljson('/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 5, 'TRANSITION': 'valid'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseTransition')
 
         self.factory.xfer = EntryAccountList()
@@ -1515,7 +1515,7 @@ class ExpenseBelgiumTest(PaymentTest):
         self.assert_json_equal('LABELFORM', 'result', [0.00, 200.00, -200.00, 0.00, 0.00])
 
         self.factory.xfer = ExpenseShow()
-        self.calljson('/diacamma.condominium/expenseShow', {'expense': 4}, False)
+        self.calljson('/diacamma.condominium/expenseShow', {'expense': 5}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
         self.assert_count_equal('expensedetail', 1)
         self.assert_json_equal('', 'expensedetail/@0/set', '[3] CCC')
@@ -1526,7 +1526,7 @@ class ExpenseBelgiumTest(PaymentTest):
         self.assert_json_equal('LABELFORM', 'status', 1)
 
         self.factory.xfer = ExpenseTransition()
-        self.calljson('/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 4, "TRANSITION": 'close'}, False)
+        self.calljson('/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 5, "TRANSITION": 'close'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseTransition')
 
         self.factory.xfer = EntryAccountList()
@@ -1569,15 +1569,15 @@ class ExpenseTestOldAccounting(LucteriosTest):
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseAddModify')
         self.factory.xfer = SupportingThirdValid()
         self.calljson('/diacamma.payoff/supportingThirdValid',
-                      {'supporting': 4, 'third': 4}, False)
+                      {'supporting': 5, 'third': 4}, False)
         self.assert_observer('core.acknowledge', 'diacamma.payoff', 'supportingThirdValid')
         self.factory.xfer = ExpenseDetailAddModify()
         self.calljson('/diacamma.condominium/expenseDetailAddModify',
-                      {'SAVE': 'YES', 'expense': 4, 'set': 1, 'price': '150.00', 'comment': 'set 1', 'expense_account': '604'}, False)
+                      {'SAVE': 'YES', 'expense': 5, 'set': 1, 'price': '150.00', 'comment': 'set 1', 'expense_account': '604'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseDetailAddModify')
         self.factory.xfer = ExpenseDetailAddModify()
         self.calljson('/diacamma.condominium/expenseDetailAddModify',
-                      {'SAVE': 'YES', 'expense': 4, 'set': 2, 'price': '30.00', 'comment': 'set 2', 'expense_account': '627'}, False)
+                      {'SAVE': 'YES', 'expense': 5, 'set': 2, 'price': '30.00', 'comment': 'set 2', 'expense_account': '627'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseDetailAddModify')
 
         self.factory.xfer = ExpenseList()
@@ -1600,7 +1600,7 @@ class ExpenseTestOldAccounting(LucteriosTest):
         self.assert_json_equal('LABELFORM', 'result', [0.00, 0.00, 0.00, 0.00, 0.00])
 
         self.factory.xfer = ExpenseTransition()
-        self.calljson('/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 4, 'TRANSITION': 'valid'}, False)
+        self.calljson('/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 5, 'TRANSITION': 'valid'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseTransition')
 
         self.factory.xfer = EntryAccountList()
@@ -1633,7 +1633,7 @@ class ExpenseTestOldAccounting(LucteriosTest):
         self.assert_json_equal('LABELFORM', 'result', [180.00, 180.00, 0.00, 0.00, 0.00])
 
         self.factory.xfer = ExpenseShow()
-        self.calljson('/diacamma.condominium/expenseShow', {'expense': 4}, False)
+        self.calljson('/diacamma.condominium/expenseShow', {'expense': 5}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
         self.assert_count_equal('expensedetail', 2)
         self.assert_json_equal('', 'expensedetail/@0/set', '[1] AAA')
@@ -1655,7 +1655,7 @@ class ExpenseTestOldAccounting(LucteriosTest):
         self.assertFalse("action" in self.json_actions[3].keys())
 
         self.factory.xfer = ExpenseDel()
-        self.calljson('/diacamma.condominium/expenseDel', {'CONFIRME': 'YES', "expense": 4}, False)
+        self.calljson('/diacamma.condominium/expenseDel', {'CONFIRME': 'YES', "expense": 5}, False)
         self.assert_observer('core.exception', 'diacamma.condominium', 'expenseDel')
 
         self.factory.xfer = ExpenseList()
@@ -1674,11 +1674,11 @@ class ExpenseTestOldAccounting(LucteriosTest):
         self.assert_json_equal('', 'expense/@0/total', 180.00)
 
         self.factory.xfer = ExpenseTransition()
-        self.calljson('/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 4, "TRANSITION": 'close'}, False)
+        self.calljson('/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 5, "TRANSITION": 'close'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseTransition')
 
         self.factory.xfer = ExpenseDel()
-        self.calljson('/diacamma.condominium/expenseDel', {'CONFIRME': 'YES', "expense": 4}, False)
+        self.calljson('/diacamma.condominium/expenseDel', {'CONFIRME': 'YES', "expense": 5}, False)
         self.assert_observer('core.exception', 'diacamma.condominium', 'expenseDel')
 
         self.factory.xfer = ExpenseList()
@@ -1695,7 +1695,7 @@ class ExpenseTestOldAccounting(LucteriosTest):
         self.assert_count_equal('expense', 0)
 
         self.factory.xfer = ExpenseShow()
-        self.calljson('/diacamma.condominium/expenseShow', {'expense': 4}, False)
+        self.calljson('/diacamma.condominium/expenseShow', {'expense': 5}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
         self.assert_count_equal('expensedetail', 2)
         self.assert_json_equal('LABELFORM', 'total', 180.00)
@@ -1728,15 +1728,15 @@ class ExpenseTestOldAccounting(LucteriosTest):
         self.calljson('/diacamma.condominium/expenseAddModify', {'SAVE': 'YES', 'expensetype': 0, "date": '2015-06-10', "comment": 'abc 123'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseAddModify')
         self.factory.xfer = SupportingThirdValid()
-        self.calljson('/diacamma.payoff/supportingThirdValid', {'supporting': 4, 'third': 4}, False)
+        self.calljson('/diacamma.payoff/supportingThirdValid', {'supporting': 5, 'third': 4}, False)
         self.assert_observer('core.acknowledge', 'diacamma.payoff', 'supportingThirdValid')
         self.factory.xfer = ExpenseDetailAddModify()
         self.calljson('/diacamma.condominium/expenseDetailAddModify',
-                      {'SAVE': 'YES', 'expense': 4, 'set': 3, 'price': '200.00', 'comment': 'set 3', 'expense_account': '602'}, False)
+                      {'SAVE': 'YES', 'expense': 5, 'set': 3, 'price': '200.00', 'comment': 'set 3', 'expense_account': '602'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseDetailAddModify')
 
         self.factory.xfer = ExpenseTransition()
-        self.calljson('/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 4, 'TRANSITION': 'valid'}, False)
+        self.calljson('/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 5, 'TRANSITION': 'valid'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseTransition')
 
         self.factory.xfer = EntryAccountList()
@@ -1759,7 +1759,7 @@ class ExpenseTestOldAccounting(LucteriosTest):
         self.assert_json_equal('LABELFORM', 'result', [200.00, 200.00, 0.00, 0.00, 0.00])
 
         self.factory.xfer = ExpenseShow()
-        self.calljson('/diacamma.condominium/expenseShow', {'expense': 4}, False)
+        self.calljson('/diacamma.condominium/expenseShow', {'expense': 5}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
         self.assert_count_equal('expensedetail', 1)
         self.assert_json_equal('', 'expensedetail/@0/set', '[3] CCC')
@@ -1770,7 +1770,7 @@ class ExpenseTestOldAccounting(LucteriosTest):
         self.assert_json_equal('LABELFORM', 'status', 1)
 
         self.factory.xfer = ExpenseTransition()
-        self.calljson('/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 4, 'TRANSITION': 'close'}, False)
+        self.calljson('/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 5, 'TRANSITION': 'close'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseTransition')
 
         self.factory.xfer = EntryAccountList()
@@ -1798,18 +1798,18 @@ class ExpenseTestOldAccounting(LucteriosTest):
         self.calljson('/diacamma.condominium/expenseAddModify', {'SAVE': 'YES', 'expensetype': 0, "date": '2015-06-10', "comment": 'abc 123'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseAddModify')
         self.factory.xfer = SupportingThirdValid()
-        self.calljson('/diacamma.payoff/supportingThirdValid', {'supporting': 4, 'third': 3}, False)
+        self.calljson('/diacamma.payoff/supportingThirdValid', {'supporting': 5, 'third': 3}, False)
         self.assert_observer('core.acknowledge', 'diacamma.payoff', 'supportingThirdValid')
         self.factory.xfer = ExpenseDetailAddModify()
         self.calljson('/diacamma.condominium/expenseDetailAddModify',
-                      {'SAVE': 'YES', 'expense': 4, 'set': 1, 'price': '150.00', 'comment': 'set 1', 'expense_account': '604'}, False)
+                      {'SAVE': 'YES', 'expense': 5, 'set': 1, 'price': '150.00', 'comment': 'set 1', 'expense_account': '604'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseDetailAddModify')
         self.factory.xfer = ExpenseDetailAddModify()
         self.calljson('/diacamma.condominium/expenseDetailAddModify',
-                      {'SAVE': 'YES', 'expense': 4, 'set': 2, 'price': '30.00', 'comment': 'set 2', 'expense_account': '627'}, False)
+                      {'SAVE': 'YES', 'expense': 5, 'set': 2, 'price': '30.00', 'comment': 'set 2', 'expense_account': '627'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseDetailAddModify')
         self.factory.xfer = ExpenseShow()
-        self.calljson('/diacamma.condominium/expenseShow', {'expense': 4}, False)
+        self.calljson('/diacamma.condominium/expenseShow', {'expense': 5}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
         self.assert_count_equal('expensedetail', 2)
         self.assert_json_equal('LABELFORM', 'status', 0)
@@ -1828,7 +1828,7 @@ class ExpenseTestOldAccounting(LucteriosTest):
         self.assert_json_equal('LABELFORM', 'total', 0.00)
 
         self.factory.xfer = ExpenseTransition()
-        self.calljson('/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 4, 'TRANSITION': 'valid'}, False)
+        self.calljson('/diacamma.condominium/expenseTransition', {'CONFIRME': 'YES', 'expense': 5, 'TRANSITION': 'valid'}, False)
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'expenseTransition')
 
         self.factory.xfer = ThirdShow()
@@ -1838,7 +1838,7 @@ class ExpenseTestOldAccounting(LucteriosTest):
         self.assert_json_equal('LABELFORM', 'total', 180.00)
 
         self.factory.xfer = PayoffAddModify()
-        self.calljson('/diacamma.payoff/payoffAddModify', {'SAVE': 'YES', 'supporting': 4, 'amount': '180.0',
+        self.calljson('/diacamma.payoff/payoffAddModify', {'SAVE': 'YES', 'supporting': 5, 'amount': '180.0',
                                                            'payer': "Nous", 'date': '2015-04-03', 'mode': 0, 'reference': 'abc', 'bank_account': 0}, False)
         self.assert_observer('core.acknowledge', 'diacamma.payoff', 'payoffAddModify')
 
@@ -1849,7 +1849,7 @@ class ExpenseTestOldAccounting(LucteriosTest):
         self.assert_json_equal('LABELFORM', 'total', 0.00)
 
         self.factory.xfer = ExpenseShow()
-        self.calljson('/diacamma.condominium/expenseShow', {'expense': 4}, False)
+        self.calljson('/diacamma.condominium/expenseShow', {'expense': 5}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
         self.assert_json_equal('LABELFORM', 'status', 1)
         self.assertEqual(len(self.json_actions), 4)
@@ -1872,7 +1872,7 @@ class ExpenseTestOldAccounting(LucteriosTest):
         self.assert_json_equal('LABELFORM', 'result', [180.00, 180.00, 0.00, -180.00, -180.00])
 
         self.factory.xfer = ExpenseShow()
-        self.calljson('/diacamma.condominium/expenseShow', {'expense': 4}, False)
+        self.calljson('/diacamma.condominium/expenseShow', {'expense': 5}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'expenseShow')
         self.assert_json_equal('LABELFORM', 'status', 1)
         self.assertEqual(len(self.json_actions), 2)

@@ -52,15 +52,21 @@ def _set_partition(setpart, owner, value):
 
 
 def _create_owners(set1, set2, set3, set4, with_lots=True):
-    owner1 = Owner.objects.create(third_id=4)
+    owner1 = Owner.objects.create(third_id=4)  # Minimum
     owner1.editor.before_save(None)
     owner1.save()
-    owner2 = Owner.objects.create(third_id=5)
+    owner2 = Owner.objects.create(third_id=5)  # William Dalton
     owner2.editor.before_save(None)
     owner2.save()
-    owner3 = Owner.objects.create(third_id=7)
+    owner3 = Owner.objects.create(third_id=7)  # Joe Dalton
     owner3.editor.before_save(None)
     owner3.save()
+    third6 = Third.objects.get(id=6)  # Jack Dalton
+    third6.status = Third.STATUS_DISABLE
+    third6.save()
+    owner4 = Owner.objects.create(third_id=6)
+    owner4.editor.before_save(None)
+    owner4.save()
     if with_lots:
         subkey = CustomField.objects.create(modelname="condominium.PropertyLot", name="sub", kind=1)
         lot1 = PropertyLot.objects.create(num=1, value=45.0, description="Appart A", owner=owner1)
@@ -151,12 +157,12 @@ def add_test_callfunds(simple=True, with_payoff=False):
     if not simple:
         call2 = CallFunds.objects.create(date='2015-07-14', comment='working...')
         CallDetail.objects.create(callfunds=call2, type_call=1, set_id=3, price='100.00', designation='set 3')  # 45€ / 35€ / 20€
-        call2.valid()  # => 9 10 11
+        call2.valid()  # => 8 9 10 : 45€ 35€ 20€
     if with_payoff:
-        pay1 = Payoff(supporting_id=4, date='2015-06-15', mode=0, amount=100.0)
+        pay1 = Payoff(supporting_id=5, date='2015-06-15', mode=0, amount=100.0)
         pay1.editor.before_save(None)
         pay1.save()
-        pay2 = Payoff(supporting_id=7, date='2015-07-21', mode=0, amount=30.0)
+        pay2 = Payoff(supporting_id=8, date='2015-07-21', mode=0, amount=30.0)
         pay2.editor.before_save(None)
         pay2.save()
 

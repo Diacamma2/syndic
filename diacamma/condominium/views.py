@@ -149,7 +149,7 @@ class OwnerAdd(XferAddEditor):
 
     def fillresponse(self):
         if (self.item.id is None) and hasattr(settings, "DIACAMMA_MAXOWNER"):
-            nb_owner = len(Owner.objects.all())
+            nb_owner = Owner.objects.count()
             if getattr(settings, "DIACAMMA_MAXOWNER") <= nb_owner:
                 raise LucteriosException(IMPORTANT, _("You can't have more than %s owners!") % settings.DIACAMMA_MAXOWNER)
         XferAddEditor.fillresponse(self)
@@ -600,7 +600,7 @@ class CondominiumConvert(XferContainerAcknowledge):
                     set_cost.cost_accounting.save()
                     if (set_cost.year.status == FiscalYear.STATUS_FINISHED) and (set_cost.cost_accounting.status == CostAccounting.STATUS_OPENED):
                         set_cost.cost_accounting.close()
-                for owner in Owner.objects.all():
+                for owner in Owner.objects.filter(third__status=Third.STATUS_ENABLE):
                     owner.check_account()
                 for year in FiscalYear.objects.filter(status__in=(FiscalYear.STATUS_BUILDING, FiscalYear.STATUS_RUNNING)):
                     convert_accounting(year, thirds_convert)
@@ -664,7 +664,7 @@ def summary_condo(xfer):
             lab.set_location(0, row, 4)
             xfer.add_component(lab)
             nb_set = len(Set.objects.filter(is_active=True))
-            nb_owner = len(Owner.objects.all())
+            nb_owner = Owner.objects.filter(third__status=Third.STATUS_ENABLE).count()
             lab = XferCompLabelForm('condoinfo')
             lab.set_value_as_header(_("There are %(set)d classes of loads for %(owner)d owners") % {'set': nb_set, 'owner': nb_owner})
             lab.set_location(0, row + 1, 4)

@@ -44,9 +44,8 @@ from lucterios.CORE.views import ParamEdit, ObjectImport
 from lucterios.CORE.xferprint import XferPrintAction
 from lucterios.contacts.models import CustomField
 
-from diacamma.accounting.tools import correct_accounting_code, \
-    get_amount_from_format_devise
-from diacamma.accounting.models import CostAccounting, FiscalYear, EntryAccount
+from diacamma.accounting.tools import correct_accounting_code, get_amount_from_format_devise
+from diacamma.accounting.models import CostAccounting, FiscalYear, EntryAccount, Third
 from diacamma.accounting.views_budget import BudgetList
 from diacamma.accounting.views_reports import CostAccountingIncomeStatement
 
@@ -292,7 +291,7 @@ class SetClose(XferContainerAcknowledge):
 class PartitionAddModify(XferAddEditor):
     short_icon = "mdi:mdi-home-city-outline"
     model = Partition
-    field_id = 'partition'
+    field_id = 'partitionfill'
     caption_modify = _("Modify partition")
 
 
@@ -311,7 +310,7 @@ class PartitionImport(ObjectImport):
             part.delete()
         self.import_driver.default_values = {'set': self.current_set}
         ObjectImport._fillcontent_import_result(self)
-        for owner in Owner.objects.all():
+        for owner in Owner.objects.filter(third__status=Third.STATUS_ENABLE):
             Partition.objects.get_or_create(set=self.current_set, owner=owner)
 
     def fillresponse(self, drivername="CSV", step=0):
@@ -542,7 +541,7 @@ def conf_wizard_condominium(wizard_ident, xfer):
         grid_custom.delete_header('kind_txt')
     elif (xfer is not None) and (wizard_ident == "condominium_owner"):
         xfer.add_title(_("Diacamma condominium"), _("Owners"), _('Add owners of your condominium.'))
-        xfer.fill_grid(xfer.get_max_row(), Owner, 'owner', Owner.objects.all())
+        xfer.fill_grid(xfer.get_max_row(), Owner, 'owner', Owner.objects.filter(third__status=Third.STATUS_ENABLE))
     elif (xfer is not None) and (wizard_ident == "condominium_lot"):
         from diacamma.condominium.views import PropertyLotImport
         xfer.add_title(_("Diacamma condominium"), _("Property lots"), _('Define the lots for each owners.'))

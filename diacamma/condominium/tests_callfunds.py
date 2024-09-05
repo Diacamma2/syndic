@@ -366,7 +366,7 @@ class CallFundsTest(LucteriosTest):
         self.calljson('/diacamma.condominium/callFundsPrint', {'callfunds': 3, 'PRINT_PERSITENT_MODE': 0, 'PRINT_MODE': 0, 'MODEL': 8}, False)
         self.assert_observer('core.print', 'diacamma.condominium', 'callFundsPrint')
         self.save_pdf()
-        check_pdfreport(self, 'CallFundsSupporting', 5, True)  # CallFunds #3 => CallFundsSupporting #5
+        check_pdfreport(self, 'CallFundsSupporting', 6, True)  # CallFunds #3 => CallFundsSupporting #5
 
         self.factory.xfer = CallFundsTransition()
         self.calljson('/diacamma.condominium/callFundsTransition', {'CONFIRME': 'YES', 'callfunds': 3, 'TRANSITION': 'close'}, False)
@@ -419,7 +419,7 @@ class CallFundsTest(LucteriosTest):
         self.assert_count_equal('entryline', 8)
 
         self.factory.xfer = PayoffAddModify()
-        self.calljson('/diacamma.payoff/payoffAddModify', {'SAVE': 'YES', 'supporting': 4, 'amount': '100.0', 'payer': "Minimum", 'date': '2015-06-12', 'mode': 0, 'reference': 'abc', 'bank_account': 0}, False)
+        self.calljson('/diacamma.payoff/payoffAddModify', {'SAVE': 'YES', 'supporting': 5, 'amount': '100.0', 'payer': "Minimum", 'date': '2015-06-12', 'mode': 0, 'reference': 'abc', 'bank_account': 0}, False)
         self.assert_observer('core.acknowledge', 'diacamma.payoff', 'payoffAddModify')
 
         self.factory.xfer = EntryAccountList()
@@ -497,7 +497,7 @@ class CallFundsTest(LucteriosTest):
         self.assert_count_equal('entryline', 6)
 
         self.factory.xfer = PayoffAddModify()
-        self.calljson('/diacamma.payoff/payoffAddModify', {'SAVE': 'YES', 'supporting': 4, 'amount': '100.0', 'payer': "Minimum", 'date': '2015-06-12', 'mode': 0, 'reference': 'abc', 'bank_account': 0}, False)
+        self.calljson('/diacamma.payoff/payoffAddModify', {'SAVE': 'YES', 'supporting': 5, 'amount': '100.0', 'payer': "Minimum", 'date': '2015-06-12', 'mode': 0, 'reference': 'abc', 'bank_account': 0}, False)
         self.assert_observer('core.acknowledge', 'diacamma.payoff', 'payoffAddModify')
 
         self.factory.xfer = EntryAccountList()
@@ -575,7 +575,7 @@ class CallFundsTest(LucteriosTest):
         self.assert_count_equal('entryline', 6)
 
         self.factory.xfer = PayoffAddModify()
-        self.calljson('/diacamma.payoff/payoffAddModify', {'SAVE': 'YES', 'supporting': 4, 'amount': '100.0', 'payer': "Minimum", 'date': '2015-06-12', 'mode': 0, 'reference': 'abc', 'bank_account': 0}, False)
+        self.calljson('/diacamma.payoff/payoffAddModify', {'SAVE': 'YES', 'supporting': 5, 'amount': '100.0', 'payer': "Minimum", 'date': '2015-06-12', 'mode': 0, 'reference': 'abc', 'bank_account': 0}, False)
         self.assert_observer('core.acknowledge', 'diacamma.payoff', 'payoffAddModify')
 
         self.factory.xfer = EntryAccountList()
@@ -653,7 +653,7 @@ class CallFundsTest(LucteriosTest):
         self.assert_count_equal('entryline', 6)
 
         self.factory.xfer = PayoffAddModify()
-        self.calljson('/diacamma.payoff/payoffAddModify', {'SAVE': 'YES', 'supporting': 4, 'amount': '100.0', 'payer': "Minimum", 'date': '2015-06-12', 'mode': 0, 'reference': 'abc', 'bank_account': 0}, False)
+        self.calljson('/diacamma.payoff/payoffAddModify', {'SAVE': 'YES', 'supporting': 5, 'amount': '100.0', 'payer': "Minimum", 'date': '2015-06-12', 'mode': 0, 'reference': 'abc', 'bank_account': 0}, False)
         self.assert_observer('core.acknowledge', 'diacamma.payoff', 'payoffAddModify')
 
         self.factory.xfer = EntryAccountList()
@@ -790,7 +790,7 @@ class CallFundsTest(LucteriosTest):
         self.assert_count_equal('entryline', 18)
 
         self.factory.xfer = PayoffAddModify()
-        self.calljson('/diacamma.payoff/payoffAddModify', {'SAVE': 'YES', 'supporting': 4, 'amount': '100.0', 'payer': "Minimum", 'date': '2015-06-12', 'mode': 0, 'reference': 'abc', 'bank_account': 0}, False)
+        self.calljson('/diacamma.payoff/payoffAddModify', {'SAVE': 'YES', 'supporting': 5, 'amount': '100.0', 'payer': "Minimum", 'date': '2015-06-12', 'mode': 0, 'reference': 'abc', 'bank_account': 0}, False)
         self.assert_observer('core.acknowledge', 'diacamma.payoff', 'payoffAddModify')
 
         self.factory.xfer = EntryAccountList()
@@ -839,7 +839,7 @@ class CallFundsTest(LucteriosTest):
         self.assertEqual(0.00, ChartsAccount.get_current_total_from_code('531'), '531')
 
         self.factory.xfer = PayoffAddModify()
-        self.calljson('/diacamma.payoff/payoffAddModify', {'SAVE': 'YES', 'supporting': 4, 'amount': '100.0',
+        self.calljson('/diacamma.payoff/payoffAddModify', {'SAVE': 'YES', 'supporting': 5, 'amount': '100.0',
                                                            'payer': "Nous", 'date': '2015-04-03', 'mode': 0, 'reference': 'abc', 'bank_account': 0}, False)
         self.assert_observer('core.acknowledge', 'diacamma.payoff', 'payoffAddModify')
 
@@ -1028,7 +1028,7 @@ class CallFundsTest(LucteriosTest):
         # add calls of funds and payoff
         add_test_callfunds(False, True)
         self.factory.xfer = PayoffAddModify()
-        self.calljson('/diacamma.payoff/payoffAddModify', {'SAVE': 'YES', 'supportings': "3;6;9", 'repartition': 1, 'NO_REPARTITION': 'yes', 'amount': '70.0',
+        self.calljson('/diacamma.payoff/payoffAddModify', {'SAVE': 'YES', 'supportings': "3;7;10", 'repartition': 1, 'NO_REPARTITION': 'yes', 'amount': '70.0',
                                                            'payer': "Nous", 'date': '2015-04-03', 'mode': 0, 'reference': 'abc', 'bank_account': 0}, False)
         self.assert_observer('core.acknowledge', 'diacamma.payoff', 'payoffAddModify')
 
@@ -1449,7 +1449,7 @@ class CallFundsBelgiumTest(LucteriosTest):
         self.assert_count_equal('entryline', 8)
 
         self.factory.xfer = PayoffAddModify()
-        self.calljson('/diacamma.payoff/payoffAddModify', {'SAVE': 'YES', 'supporting': 4, 'amount': '100.0', 'payer': "Minimum", 'date': '2015-06-12', 'mode': 2, 'reference': 'abc', 'bank_account': 1}, False)
+        self.calljson('/diacamma.payoff/payoffAddModify', {'SAVE': 'YES', 'supporting': 5, 'amount': '100.0', 'payer': "Minimum", 'date': '2015-06-12', 'mode': 2, 'reference': 'abc', 'bank_account': 1}, False)
         self.assert_observer('core.acknowledge', 'diacamma.payoff', 'payoffAddModify')
 
         self.factory.xfer = EntryAccountList()
@@ -1526,7 +1526,7 @@ class CallFundsBelgiumTest(LucteriosTest):
         self.assert_count_equal('entryline', 6)
 
         self.factory.xfer = PayoffAddModify()
-        self.calljson('/diacamma.payoff/payoffAddModify', {'SAVE': 'YES', 'supporting': 4, 'amount': '100.0', 'payer': "Minimum", 'date': '2015-06-12', 'mode': 2, 'reference': 'abc', 'bank_account': 1}, False)
+        self.calljson('/diacamma.payoff/payoffAddModify', {'SAVE': 'YES', 'supporting': 5, 'amount': '100.0', 'payer': "Minimum", 'date': '2015-06-12', 'mode': 2, 'reference': 'abc', 'bank_account': 1}, False)
         self.assert_observer('core.acknowledge', 'diacamma.payoff', 'payoffAddModify')
 
         self.factory.xfer = EntryAccountList()
@@ -1602,7 +1602,7 @@ class CallFundsBelgiumTest(LucteriosTest):
         self.assert_count_equal('entryline', 6)
 
         self.factory.xfer = PayoffAddModify()
-        self.calljson('/diacamma.payoff/payoffAddModify', {'SAVE': 'YES', 'supporting': 4, 'amount': '100.0', 'payer': "Minimum", 'date': '2015-06-12', 'mode': 2, 'reference': 'abc', 'bank_account': 1}, False)
+        self.calljson('/diacamma.payoff/payoffAddModify', {'SAVE': 'YES', 'supporting': 5, 'amount': '100.0', 'payer': "Minimum", 'date': '2015-06-12', 'mode': 2, 'reference': 'abc', 'bank_account': 1}, False)
         self.assert_observer('core.acknowledge', 'diacamma.payoff', 'payoffAddModify')
 
         self.factory.xfer = EntryAccountList()
@@ -1678,7 +1678,7 @@ class CallFundsBelgiumTest(LucteriosTest):
         self.assert_count_equal('entryline', 6)
 
         self.factory.xfer = PayoffAddModify()
-        self.calljson('/diacamma.payoff/payoffAddModify', {'SAVE': 'YES', 'supporting': 4, 'amount': '100.0', 'payer': "Minimum", 'date': '2015-06-12', 'mode': 2, 'reference': 'abc', 'bank_account': 1}, False)
+        self.calljson('/diacamma.payoff/payoffAddModify', {'SAVE': 'YES', 'supporting': 5, 'amount': '100.0', 'payer': "Minimum", 'date': '2015-06-12', 'mode': 2, 'reference': 'abc', 'bank_account': 1}, False)
         self.assert_observer('core.acknowledge', 'diacamma.payoff', 'payoffAddModify')
 
         self.factory.xfer = EntryAccountList()
@@ -1732,7 +1732,7 @@ class CallFundsTestOldAccounting(LucteriosTest):
         self.assert_json_equal('LABELFORM', 'result', [0.00, 0.00, 0.00, 0.00, 0.00])
 
         self.factory.xfer = PayoffAddModify()
-        self.calljson('/diacamma.payoff/payoffAddModify', {'SAVE': 'YES', 'supporting': 4, 'amount': '100.0', 'payer': "Minimum", 'date': '2015-06-12', 'mode': 0, 'reference': 'abc', 'bank_account': 0}, False)
+        self.calljson('/diacamma.payoff/payoffAddModify', {'SAVE': 'YES', 'supporting': 5, 'amount': '100.0', 'payer': "Minimum", 'date': '2015-06-12', 'mode': 0, 'reference': 'abc', 'bank_account': 0}, False)
         self.assert_observer('core.acknowledge', 'diacamma.payoff', 'payoffAddModify')
 
         self.factory.xfer = EntryAccountList()
@@ -1772,7 +1772,7 @@ class CallFundsTestOldAccounting(LucteriosTest):
         self.assert_json_equal('LABELFORM', 'result', [0.00, 0.00, 0.00, 0.00, 0.00])
 
         self.factory.xfer = PayoffAddModify()
-        self.calljson('/diacamma.payoff/payoffAddModify', {'SAVE': 'YES', 'supporting': 4, 'amount': '100.0', 'payer': "Minimum", 'date': '2015-06-12', 'mode': 0, 'reference': 'abc', 'bank_account': 0}, False)
+        self.calljson('/diacamma.payoff/payoffAddModify', {'SAVE': 'YES', 'supporting': 5, 'amount': '100.0', 'payer': "Minimum", 'date': '2015-06-12', 'mode': 0, 'reference': 'abc', 'bank_account': 0}, False)
         self.assert_observer('core.acknowledge', 'diacamma.payoff', 'payoffAddModify')
 
         self.factory.xfer = EntryAccountList()
@@ -1812,7 +1812,7 @@ class CallFundsTestOldAccounting(LucteriosTest):
         self.assert_json_equal('LABELFORM', 'result', [0.00, 0.00, 0.00, 0.00, 0.00])
 
         self.factory.xfer = PayoffAddModify()
-        self.calljson('/diacamma.payoff/payoffAddModify', {'SAVE': 'YES', 'supporting': 4, 'amount': '100.0', 'payer': "Minimum", 'date': '2015-06-12', 'mode': 0, 'reference': 'abc', 'bank_account': 0}, False)
+        self.calljson('/diacamma.payoff/payoffAddModify', {'SAVE': 'YES', 'supporting': 5, 'amount': '100.0', 'payer': "Minimum", 'date': '2015-06-12', 'mode': 0, 'reference': 'abc', 'bank_account': 0}, False)
         self.assert_observer('core.acknowledge', 'diacamma.payoff', 'payoffAddModify')
 
         self.factory.xfer = EntryAccountList()
