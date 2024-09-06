@@ -121,6 +121,12 @@ class Set(LucteriosModel):
         return self.identify
 
     @property
+    def partitionNoEmpty_set(self):
+        if self.id is None:
+            return Partition.objects.filter(set=None)
+        return self.partition_set.filter(Q(value__gt=0.001))
+
+    @property
     def partitionfill_set(self):
         if self.id is None:
             return Partition.objects.filter(set=None)
@@ -136,7 +142,7 @@ class Set(LucteriosModel):
 
     @classmethod
     def get_default_fields(cls):
-        return ["identify", 'type_load', (_('divisions'), 'partitionfill_set'), "budget_txt", 'sumexpense']
+        return ["identify", 'type_load', (_('divisions'), 'partitionNoEmpty_set'), "budget_txt", 'sumexpense']
 
     @classmethod
     def get_edit_fields(cls):

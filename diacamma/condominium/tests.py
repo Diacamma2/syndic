@@ -239,12 +239,12 @@ class SetOwnerTest(LucteriosTest):
         self.assert_json_equal('', 'set/@0/identify', '[1] abc123')
         self.assert_json_equal('', 'set/@0/budget_txt', 0.00)
         self.assert_json_equal('', 'set/@0/type_load', 1)
-        self.assert_json_equal('', 'set/@0/partitionfill_set', [])
+        self.assert_json_equal('', 'set/@0/partitionNoEmpty_set', [])
         self.assert_json_equal('', 'set/@0/sumexpense', 0.00)
         self.assert_json_equal('', 'set/@1/identify', '[2] xyz987')
         self.assert_json_equal('', 'set/@1/budget_txt', 0.00)
         self.assert_json_equal('', 'set/@1/type_load', 0)
-        self.assert_json_equal('', 'set/@1/partitionfill_set', [])
+        self.assert_json_equal('', 'set/@1/partitionNoEmpty_set', [])
         self.assert_json_equal('', 'set/@1/sumexpense', 0.00)
 
         self.factory.xfer = CostAccountingList()
@@ -674,12 +674,12 @@ class SetOwnerTest(LucteriosTest):
         self.assert_json_equal('', 'set/@0/identify', '[1] AAA')
         self.assert_json_equal('', 'set/@0/budget_txt', 0.00)
         self.assert_json_equal('', 'set/@0/type_load', 0)
-        self.assert_json_equal('', 'set/@0/partitionfill_set', ['Minimum : 0,0 %', 'Dalton William : 0,0 %', 'Dalton Joe : 0,0 %'])
+        self.assert_json_equal('', 'set/@0/partitionNoEmpty_set', [])
         self.assert_json_equal('', 'set/@0/sumexpense', 0.00)
         self.assert_json_equal('', 'set/@1/identify', '[2] BBB')
         self.assert_json_equal('', 'set/@1/budget_txt', 0.00)
         self.assert_json_equal('', 'set/@1/type_load', 0)
-        self.assert_json_equal('', 'set/@1/partitionfill_set', ['Minimum : 0,0 %', 'Dalton William : 0,0 %', 'Dalton Joe : 0,0 %'])
+        self.assert_json_equal('', 'set/@1/partitionNoEmpty_set', [])
         self.assert_json_equal('', 'set/@1/sumexpense', 0.00)
 
         self.factory.xfer = OwnerDel()
@@ -776,7 +776,7 @@ class SetOwnerTest(LucteriosTest):
         self.calljson('/diacamma.condominium/setList', {}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'setList')
         self.assert_count_equal('set', 1)
-        self.assert_json_equal('', 'set/@0/partitionfill_set', ["Minimum : 16,7 %", "Dalton William : 33,3 %", "Dalton Joe : 50,0 %"])
+        self.assert_json_equal('', 'set/@0/partitionNoEmpty_set', ["Minimum : 16,7 %", "Dalton William : 33,3 %", "Dalton Joe : 50,0 %"])
 
     def test_import_partition(self):
         csv_content = """propriétaire;tantième
@@ -3234,43 +3234,43 @@ class ExempleArcTest(PaymentTest):
         self.assert_json_equal('', 'set/@0/identify', '[1] Généraux')
         self.assert_json_equal('', 'set/@0/budget_txt', 3800.00)
         self.assert_json_equal('', 'set/@0/type_load', 0)
-        self.assert_json_equal('', 'set/@0/partitionfill_set', ['M. Dupont : 26,5 %',
-                                                                'M. Durant : 15,0 %',
-                                                                'M. Mme Dernier : 20,5 %',
-                                                                'M. Mme Dubois : 19,0 %',
-                                                                'M. Paul Mme Pierre : 19,0 %'])
+        self.assert_json_equal('', 'set/@0/partitionNoEmpty_set', ['M. Dupont : 26,5 %',
+                                                                   'M. Durant : 15,0 %',
+                                                                   'M. Mme Dernier : 20,5 %',
+                                                                   'M. Mme Dubois : 19,0 %',
+                                                                   'M. Paul Mme Pierre : 19,0 %'])
         self.assert_json_equal('', 'set/@0/sumexpense', 0.00)
         self.assert_json_equal('', 'set/@1/identify', '[2] Escalier')
         self.assert_json_equal('', 'set/@1/budget_txt', 120.00)
         self.assert_json_equal('', 'set/@1/type_load', 0)
-        self.assert_json_equal('', 'set/@1/partitionfill_set', ['M. Dupont : 28,9 %',
-                                                                'M. Durant : 14,4 %',
-                                                                'M. Mme Dernier : 19,9 %',
-                                                                'M. Mme Dubois : 18,4 %',
-                                                                'M. Paul Mme Pierre : 18,4 %'])
+        self.assert_json_equal('', 'set/@1/partitionNoEmpty_set', ['M. Dupont : 28,9 %',
+                                                                   'M. Durant : 14,4 %',
+                                                                   'M. Mme Dernier : 19,9 %',
+                                                                   'M. Mme Dubois : 18,4 %',
+                                                                   'M. Paul Mme Pierre : 18,4 %'])
         self.assert_json_equal('', 'set/@1/sumexpense', 0.00)
         self.assert_json_equal('', 'set/@2/identify', '[3] Chauffage')
         self.assert_json_equal('', 'set/@2/budget_txt', 2030.00)
         self.assert_json_equal('', 'set/@2/type_load', 0)
-        self.assert_json_equal('', 'set/@2/partitionfill_set', ['M. Dupont : 31,0 %',
-                                                                'M. Durant : 11,0 %',
-                                                                'M. Mme Dernier : 26,0 %',
-                                                                'M. Mme Dubois : 16,0 %',
-                                                                'M. Paul Mme Pierre : 16,0 %'])
+        self.assert_json_equal('', 'set/@2/partitionNoEmpty_set', ['M. Dupont : 31,0 %',
+                                                                   'M. Durant : 11,0 %',
+                                                                   'M. Mme Dernier : 26,0 %',
+                                                                   'M. Mme Dubois : 16,0 %',
+                                                                   'M. Paul Mme Pierre : 16,0 %'])
         self.assert_json_equal('', 'set/@3/sumexpense', 0.00)
         self.assert_json_equal('', 'set/@3/identify', '[4] Sous-sol')
         self.assert_json_equal('', 'set/@3/budget_txt', 50.00)
         self.assert_json_equal('', 'set/@3/type_load', 0)
-        self.assert_json_equal('', 'set/@3/partitionfill_set', ['M. Dupont : 100,0 %'])
+        self.assert_json_equal('', 'set/@3/partitionNoEmpty_set', ['M. Dupont : 100,0 %'])
         self.assert_json_equal('', 'set/@3/sumexpense', 0.00)
         self.assert_json_equal('', 'set/@4/identify', '[5] Eau privative')
         self.assert_json_equal('', 'set/@4/budget_txt', 0.00)
         self.assert_json_equal('', 'set/@4/type_load', 0)
-        self.assert_json_equal('', 'set/@4/partitionfill_set', ['M. Dupont : 20,0 %',
-                                                                'M. Durant : 20,0 %',
-                                                                'M. Mme Dernier : 20,0 %',
-                                                                'M. Mme Dubois : 20,0 %',
-                                                                'M. Paul Mme Pierre : 20,0 %'])
+        self.assert_json_equal('', 'set/@4/partitionNoEmpty_set', ['M. Dupont : 20,0 %',
+                                                                   'M. Durant : 20,0 %',
+                                                                   'M. Mme Dernier : 20,0 %',
+                                                                   'M. Mme Dubois : 20,0 %',
+                                                                   'M. Paul Mme Pierre : 20,0 %'])
         self.assert_json_equal('', 'set/@4/sumexpense', 0.00)
 
     def test_account(self):
