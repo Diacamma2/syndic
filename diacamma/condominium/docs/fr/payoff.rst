@@ -5,7 +5,9 @@ Suite aux appels de fonds, les copropriétaires règlent ce qu'ils doivent au sy
 Pour saisir un règlement depuis la liste des copropriétaires, allez dans le menu *Copropriété/Gestion/Les proprietaires et les lots*   
 Ouvrez la fiche du propriétaire, onglet "Appels et règlemennts" 
             
-    .. image:: payoff.png
+.. image:: payoff.png
+   :height: 400px
+   :align: center
 
 Cliquez sur le bouton "Règlement".
 Ajoutez alors un paiement en précisant la date, le montant et la référence de la pièce comptable (comme le numéro de chèque).

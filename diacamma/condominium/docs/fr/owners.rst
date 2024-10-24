@@ -37,7 +37,9 @@ Déclarez les lots de votre copropriété.
 Précisez en plus de la description du lot, les tantièmes (général et secondaires) et le propriétaire de chacun.
 Vous devez veillez à la cohérence des différents tantièmes attribués aux lots sans quoi la répartition des charges et la détermination des appels de fonds seront incorrects.
 
-    .. image:: set_owner.png
+.. image:: set_owner.png
+   :height: 400px
+   :align: center
 
 Il est possible également d'importer la liste de vos lots via un fichier CSV, ODS ou XLS et le bouton "Importer des lots".
 Notez que dans le fichier, les propriétaires qui n'ont être créer avant que comme contact (moral ou physique), deviendraient alors propriétaire.

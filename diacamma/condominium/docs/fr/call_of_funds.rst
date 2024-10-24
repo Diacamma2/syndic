@@ -9,7 +9,9 @@ Depuis cette liste des appels de fonds, vous pouvez en créer un nouveau via le 
 
 Une fois précisés la date et le descriptif de cet appel, une nouvelle fiche d'appel est créée dans laquelle les différents détails de l'appel sont saisis à l'aide du bouton "+ Ajouter". Pour chacun, sélectionnez la catégorie de charges concernée et le montant appelé.
 
-    .. image:: call_of_funds.png
+.. image:: call_of_funds.png
+   :height: 400px
+   :align: center
 
 Enfin, pour finaliser l'appel de fonds, cliquez sur "Valider".
 L'ensemble des copropriétaires se voient alors associés à une nouvelle fiche d'appel de fonds.

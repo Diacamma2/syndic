@@ -9,12 +9,16 @@ Une fois précisés la date et le descriptif de cette dépense, cliquez sur "Ok"
 Dans la nouvelle fenêtre, indiquez le fournisseur concerné par la nouvelle dépense. Celui-ci doit être un tiers référencé pour ce qui est des dépenses. S'il ne figure pas dans la liste des contacts, ajoutez-le avec le bouton "+ Créer".
 Ajoutez dans cette fiche les détails de dépense en spécifiant pour chacun : la catégorie de dépenses concernée, la désignation du détail, le compte de charges à mouvementer et le montant du détail.
 
-    .. image:: expense.png
-
+.. image:: expense.png
+   :height: 400px
+   :align: center
+   
 Une fiche de dépense peut prendre, pour votre gestion, un ensemble de status.
 Avec ce schéma, vous pouvez comprendre comment les statuts peuvent s'enchainner :
 
-    .. image:: expenseworkflow.png
+.. image:: expenseworkflow.png
+   :height: 400px
+   :align: center 
     
 Voici, ici, une description plus précise de ces status.
 
