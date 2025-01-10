@@ -1043,6 +1043,8 @@ class CallFundsSupporting(Supporting):
     def generate_pdfreport(self):
         if self.callfunds.status != CallFunds.STATUS_BUILDING:
             year = FiscalYear.get_current(convert_date(self.callfunds.date))
+            if year is None:
+                raise LucteriosException(IMPORTANT, _("No fiscal year including '%s' !") % get_date_formating(self.callfunds.date))
             self.callfunds.owner.set_dates(begin_date=year.begin, end_date=self.callfunds.date)
             return Supporting.generate_pdfreport(self)
         return None
@@ -1180,6 +1182,8 @@ class CallFunds(LucteriosModel):
     @transition(field=status, source=STATUS_BUILDING, target=STATUS_VALID, conditions=[lambda item:(Owner.objects.filter(third__status=Third.STATUS_ENABLE).count() > 0) and (item.calldetail_set.count() > 0)])
     def valid(self):
         Owner.throw_not_allowed()
+        if PropertyLot.objects.filter(owner__third__status=Third.STATUS_DISABLE).count() > 0:
+            raise LucteriosException(IMPORTANT, _('At least one lot is assigned to a disabled owner.'))
         val = CallFunds.objects.exclude(status=self.STATUS_BUILDING).aggregate(Max('num'))
         if val['num__max'] is None:
             new_num = 1
