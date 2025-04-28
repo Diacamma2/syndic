@@ -2275,8 +2275,9 @@ class Owner(Supporting):
                 val += currency_round(total_payed)
             else:
                 total = callfunds.get_total()
-                for calldetail in callfunds.calldetail_set.filter(type_call=type_call):
-                    val += currency_round(float(calldetail.price) * total_payed / total)
+                if abs(total) > 0.0001:
+                    for calldetail in callfunds.calldetail_set.filter(type_call=type_call):
+                        val += currency_round(float(calldetail.price) * total_payed / total)
         return val
 
     def get_total_initial(self, owner_type=DEFAULT_ACCOUNT_CURRENT):
