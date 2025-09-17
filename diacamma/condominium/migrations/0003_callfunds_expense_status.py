@@ -3,7 +3,7 @@
 from __future__ import unicode_literals
 
 from django.db import migrations
-import django_fsm
+import lucterios.framework.model_fields
 
 
 class Migration(migrations.Migration):
@@ -16,12 +16,12 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='callfunds',
             name='status',
-            field=django_fsm.FSMIntegerField(choices=[(0, 'building'), (1, 'valid'), (2, 'ended')], db_index=True, default=0, verbose_name='status'),
+            field=lucterios.framework.model_fields.FSMIntegerField(choices=[(0, 'building'), (1, 'valid'), (2, 'ended')], db_index=True, default=0, verbose_name='status'),
         ),
         migrations.AlterField(
             model_name='expense',
             name='status',
-            field=django_fsm.FSMIntegerField(choices=[(0, 'building'), (1, 'valid'), (2, 'ended')], db_index=True, default=0, verbose_name='status'),
+            field=lucterios.framework.model_fields.FSMIntegerField(choices=[(0, 'building'), (1, 'valid'), (2, 'ended')], db_index=True, default=0, verbose_name='status'),
         ),
         migrations.AlterModelOptions(
             name='partition',

@@ -37,9 +37,9 @@ from django.utils.translation import gettext_lazy as _
 from django.utils import formats
 from django.core.exceptions import ObjectDoesNotExist, FieldDoesNotExist
 from django.conf import settings
-from django_fsm import FSMIntegerField, transition
 
 from lucterios.framework.models import LucteriosModel, correct_db_field
+from lucterios.framework.model_fields import FSMIntegerField, transition
 from lucterios.framework.model_fields import get_subfield_show, LucteriosVirtualField, LucteriosDecimalField
 from lucterios.framework.error import LucteriosException, IMPORTANT, GRAVE
 from lucterios.framework.tools import convert_date, get_date_formating, format_to_string

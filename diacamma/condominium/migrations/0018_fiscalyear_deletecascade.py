@@ -2,7 +2,7 @@
 
 from django.db import migrations, models
 import django.db.models.deletion
-import django_fsm
+import lucterios.framework.model_fields
 
 
 class Migration(migrations.Migration):
@@ -21,7 +21,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='expense',
             name='status',
-            field=django_fsm.FSMIntegerField(choices=[(0, 'building expense'), (3, 'waiting expense'), (1, 'valid expense'), (2, 'ended expense'), (4, 'cancel expense')], db_index=True, default=0, verbose_name='status'),
+            field=lucterios.framework.model_fields.FSMIntegerField(choices=[(0, 'building expense'), (3, 'waiting expense'), (1, 'valid expense'), (2, 'ended expense'), (4, 'cancel expense')], db_index=True, default=0, verbose_name='status'),
         ),
         migrations.AlterField(
             model_name='setcost',
