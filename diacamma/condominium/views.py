@@ -4,7 +4,6 @@ from __future__ import unicode_literals
 from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
-from django.db.models.query import QuerySet
 from django.db.models.functions import Concat
 from django.db.models import Q, Value
 
@@ -108,7 +107,7 @@ class OwnerAndPropertyLotList(XferListEditor):
             self.add_component(lbl)
         btn = XferCompButton("btnimport")
         btn.set_location(1, 5, 1, 2)
-        btn.set_action(self.request, PropertyLotImport.get_action(), close=CLOSE_NO, params={'step': 0})
+        btn.set_action(self.request, PropertyLotImport.get_action(), close=CLOSE_NO, params={'step': 1})
         self.add_component(btn)
 
         self.new_tab(_("Secondary keys"))
