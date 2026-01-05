@@ -2211,7 +2211,10 @@ class Owner(Supporting):
 
     @property
     def exceptionnal_set(self):
-        return PartitionExceptional.objects.filter(Q(owner=self) & Q(set__is_active=True) & Q(set__type_load=Set.TYPELOAD_EXCEPTIONAL)).distinct()
+        except_filter = Q(set__is_active=True) & Q(set__type_load=Set.TYPELOAD_EXCEPTIONAL)
+        if self.third is not None:
+            except_filter = Q(owner=self) & except_filter
+        return PartitionExceptional.objects.filter(except_filter).distinct()
 
     @property
     def partition_query(self):

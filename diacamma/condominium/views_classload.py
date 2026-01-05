@@ -313,7 +313,7 @@ class PartitionImport(ObjectImport):
         for owner in Owner.objects.filter(third__status=Third.STATUS_ENABLE):
             Partition.objects.get_or_create(set=self.current_set, owner=owner)
 
-    def fillresponse(self, drivername="CSV", step=0):
+    def fillresponse(self, drivername="CSV", step=1):
         self.current_set = None
         set_id = self.getparam('set', 0)
         if set_id != 0:
