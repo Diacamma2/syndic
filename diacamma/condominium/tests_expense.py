@@ -1223,7 +1223,7 @@ class ExpenseBelgiumTest(PaymentTest):
 
     def setUp(self):
         PaymentTest.setUp(self)
-        default_compta_be(with12=False)
+        default_compta_be(with14=False)
         initial_thirds_be()
         default_costaccounting()
         default_bankaccount_be()

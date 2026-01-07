@@ -24,18 +24,16 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 
 from django.utils.translation import gettext_lazy as _
 
-from lucterios.framework.error import LucteriosException, IMPORTANT, GRAVE
-from lucterios.framework.tools import get_date_formating
+from lucterios.framework.error import LucteriosException, IMPORTANT
+from lucterios.framework.tools import get_date_formating, same_day_months_after
 from lucterios.CORE.models import Parameter
 from lucterios.CORE.parameters import Params
 from lucterios.contacts.models import CustomField
 
-from diacamma.accounting.tools import correct_accounting_code, currency_round, current_system_account
-from diacamma.accounting.models import ChartsAccount, EntryAccount, EntryLineAccount, Journal, \
-    FiscalYear
+from diacamma.accounting.tools import correct_accounting_code
+from diacamma.accounting.models import ChartsAccount, EntryLineAccount, FiscalYear
 from diacamma.condominium.system.default import DefaultSystemCondo
 from diacamma.condominium.models import CallFunds, Set, CallDetail
-from lucterios.framework.tools import same_day_months_after
 
 
 class BelgiumSystemCondo(DefaultSystemCondo):
@@ -125,22 +123,3 @@ class BelgiumSystemCondo(DefaultSystemCondo):
 
     def generate_revenue_for_expense(self, expense, is_asset, fiscal_year):
         pass
-
-    def generate_expense_for_expense(self, expense, is_asset, fiscal_year):
-        third_account = expense.get_third_account(current_system_account().get_provider_mask(), fiscal_year)
-        new_entry = EntryAccount.objects.create(year=fiscal_year, date_value=expense.date, designation=expense.__str__(), journal=Journal.objects.get(id=2))
-        total = 0
-        for detail in expense.expensedetail_set.all():
-            detail_account = ChartsAccount.get_account(detail.expense_account, fiscal_year)
-            if detail_account is None:
-                raise LucteriosException(IMPORTANT, _("code account %s unknown!") % detail.expense_account)
-            price = currency_round(detail.price)
-            EntryLineAccount.objects.create(account=detail_account, amount=is_asset * price, entry=new_entry, costaccounting_id=detail.set.current_cost_accounting.id)
-            total += price
-        EntryLineAccount.objects.create(account=third_account, amount=is_asset * total, third=expense.third, entry=new_entry)
-        no_change, debit_rest, credit_rest = new_entry.serial_control(new_entry.get_serial())
-        if not no_change or (abs(debit_rest) > 0.001) or (abs(credit_rest) > 0.001):
-            message = _("Error in accounting generator!")
-            message += "{[br/]} no_change=%s debit_rest=%.3f credit_rest=%.3f" % (no_change, debit_rest, credit_rest)
-            raise LucteriosException(GRAVE, message)
-        expense.entries.set(EntryAccount.objects.filter(id=new_entry.id))

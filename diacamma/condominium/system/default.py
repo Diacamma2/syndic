@@ -27,13 +27,12 @@ from re import match
 from django.utils.translation import gettext_lazy as _
 from django.db.models.aggregates import Sum
 
-from lucterios.framework.error import LucteriosException, IMPORTANT
-from lucterios.CORE.parameters import Params
+from lucterios.framework.error import LucteriosException, IMPORTANT, GRAVE
 from lucterios.framework.tools import get_date_formating
+from lucterios.CORE.parameters import Params
 
-from diacamma.accounting.tools import currency_round
-from diacamma.accounting.models import FiscalYear, EntryAccount, EntryLineAccount, ChartsAccount, Third
-
+from diacamma.accounting.tools import currency_round, current_system_account
+from diacamma.accounting.models import FiscalYear, EntryAccount, EntryLineAccount, ChartsAccount, Third, Journal
 from diacamma.condominium.models import CallDetail, Owner, PropertyLot, DEFAULT_ACCOUNT_EXCEPTIONNEL
 
 
@@ -57,7 +56,6 @@ class DefaultSystemCondo(object):
         return titles
 
     def check_account_config(self):
-        from diacamma.accounting.tools import current_system_account
         try:
             lettering_check = Params.getvalue("accounting-lettering-check")
             changed = False
@@ -101,10 +99,26 @@ class DefaultSystemCondo(object):
                 EntryLineAccount.objects.create(account=owner_account, amount=total, entry=new_entry, third=call_funds.owner.third)
 
     def generate_revenue_for_expense(self, expense, is_asset, fiscal_year):
-        raise LucteriosException(IMPORTANT, _('This system condomium is not implemented'))
+        pass
 
     def generate_expense_for_expense(self, expense, is_asset, fiscal_year):
-        raise LucteriosException(IMPORTANT, _('This system condomium is not implemented'))
+        third_account = expense.get_third_account(current_system_account().get_provider_mask(), fiscal_year)
+        new_entry = EntryAccount.objects.create(year=fiscal_year, date_value=expense.date, designation=expense.__str__(), journal=Journal.objects.get(id=Journal.DEFAULT_BUYING))
+        total = 0
+        for detail in expense.expensedetail_set.all():
+            detail_account = ChartsAccount.get_account(detail.expense_account, fiscal_year)
+            if detail_account is None:
+                raise LucteriosException(IMPORTANT, _("code account %s unknown!") % detail.expense_account)
+            price = currency_round(detail.price)
+            EntryLineAccount.objects.create(account=detail_account, amount=is_asset * price, entry=new_entry, costaccounting_id=detail.set.current_cost_accounting.id)
+            total += price
+        EntryLineAccount.objects.create(account=third_account, amount=is_asset * total, third=expense.third, entry=new_entry)
+        no_change, debit_rest, credit_rest = new_entry.serial_control(new_entry.get_serial())
+        if not no_change or (abs(debit_rest) > 0.001) or (abs(credit_rest) > 0.001):
+            message = _("Error in accounting generator!")
+            message += "{[br/]} no_change=%s debit_rest=%.3f credit_rest=%.3f" % (no_change, debit_rest, credit_rest)
+            raise LucteriosException(GRAVE, message)
+        expense.entries.set(EntryAccount.objects.filter(id=new_entry.id))
 
     def ventilate_costaccounting(self, fiscal_year, own_set, cost_accounting, type_owner, initial_code):
         if type_owner == DEFAULT_ACCOUNT_EXCEPTIONNEL:

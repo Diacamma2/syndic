@@ -113,7 +113,7 @@ def default_setowner_fr(with_lots=True):
     param_owner_with_sub_accounts()
 
     if Params.getvalue("condominium-old-accounting"):
-        create_account(['450'], 0, FiscalYear.get_current())
+        create_account(['450'], 0, FiscalYear.get_current())  # 17
     else:
         create_account(['4501', '4502', '4503', '4504', '4505'], 0, FiscalYear.get_current())  # 17 18 19 20 21
     create_account(['120', '103', '105'], 2, FiscalYear.get_current())  # 22 23 24

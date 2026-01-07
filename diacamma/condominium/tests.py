@@ -2359,7 +2359,7 @@ class OwnerBelgiumTest(PaymentTest):
     def setUp(self):
         # print('>> %s' % self._testMethodName)
         LucteriosTest.setUp(self)
-        default_compta_be(with12=False)
+        default_compta_be(with14=False)
         initial_thirds_be()
         default_costaccounting()
         default_bankaccount_be()

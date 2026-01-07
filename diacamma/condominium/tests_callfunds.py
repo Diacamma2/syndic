@@ -1134,7 +1134,7 @@ class CallFundsBelgiumTest(LucteriosTest):
 
     def setUp(self):
         LucteriosTest.setUp(self)
-        default_compta_be(with12=False)
+        default_compta_be(with14=False)
         initial_thirds_be()
         default_bankaccount_be()
         default_setowner_be()
