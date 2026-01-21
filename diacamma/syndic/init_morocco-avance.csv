@@ -1,0 +1,91 @@
+code;name
+1111;Réserves pour dépense imprévues
+1112;Réserves pour dépense prévues à long terme
+1191;Résultat (Excédent)
+1199;Résultat (Déficit)
+1311;Subventions reçues
+1511;Provisions pour travaux décidés
+1512;Provisions pour litiges
+1513;Provisions pour risque
+1514;Provision pour charge
+3411;Fournisseurs débiteurs
+3412;Fournisseurs, avances sur travaux
+3413;Autres avances
+342;Collectivité des copropriétaires
+3421;Copropriétaire individualisé
+3422;Copropriétaire - budget prévisionnel
+3423;Copropriétaire - travaux et opérations non courantes
+3424;Copropriétaire - créances douteuses
+3451;Etat et autres organismes-subventions à recevoir
+3452;Etat et autres organismes débiteurs
+3481;Débiteurs divers
+3491;Charges constatées d'avance
+3497;Comptes transitoires ou d'attente débiteurs
+3942;Provision pour Dépréciation des comptes des copropriétaires
+3943;Provision pour Dépréciation autres que les copropriétaires
+4411;Fournisseurs
+4412;Fournisseurs - Factures non parvenues
+4413;Autres fournisseurs
+4421;Copropriétaires-avances
+4431;Rémunérations dues
+4441;Sécurité sociale
+4442;Autres organismes sociaux
+4452;Etat - impôts et versements assimilés
+4453;Etat et autres organismes créditeurs
+4481;Créditeurs divers
+4491;Compte en attente d'imputation divers créditeur
+4492;Compte de produits encaissés d'avance
+4497;Compte transitoires ou d'attente créditeurs
+5111;Compte à terme
+5112;Autres compte
+5121;Banques
+5122;Chèques
+5161;Caisse
+5541;Banque
+6111;Eau
+6112;Electricité
+6113;Chauffage, énergie et combustibles
+6114;Achats produits d'entretien et petits équipements
+6115;Petit matériel
+6116;Fournitures
+6121;Remboursement d'emprunts
+6131;Nettoyage des locaux
+6132;Locations immobilières
+6133;Locations mobilières
+6134;Contrats de maintenance
+6135;Entretien et petites réparations
+6136;Primes d'assurance
+6137;Rémunérations du syndic sur gestion copropriété
+6138;Autres rémunération
+6140;Frais postaux
+6141;Frais bancaires
+6142;Honoraires
+6143;Autres charges
+6144;Charges d'interêts
+6161;Impôts et taxes
+6171;Salaires
+6172;Charges sociales et organismes sociaux
+6173;Autres (médecine du travail, mutuelles, etc.)
+6174;Assurance accident de travail
+6511;Travaux décidés par l'assemblée générale
+6512;Travaux urgents
+6513;Etudes techniques, diagnostic, consultation
+6514;Pertes sur créances irrécouvrables
+6515;Charges non courante
+691;Dotations aux dépréciations sur créances douteuses.
+7111;Provisions sur opérations courantes
+7112;Provisions sur travaux
+7113;Avances
+7121;Emprunts
+7122;Subvention
+7123;Indemnités d'assurances
+7124;Produits divers
+7125;Produits financiers
+7511;Autres produits décidés par l'assemblée générale
+7512;Produits de cession reçus
+7513;Dons reçus
+7514;Rentrées sur créance soldées
+7515;Autres produits non courants
+791;Reprises de dépréciations sur créances douteuses
+
+

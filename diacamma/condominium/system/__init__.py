@@ -32,6 +32,7 @@ def condo_system_list():
     res = {}
     res['diacamma.accounting.system.french.FrenchSystemAcounting'] = 'diacamma.condominium.system.french.FrenchSystemCondo'
     res['diacamma.accounting.system.belgium.BelgiumSystemAcounting'] = 'diacamma.condominium.system.belgium.BelgiumSystemCondo'
+    res['diacamma.accounting.system.morocco.MoroccoSystemAcounting'] = 'diacamma.condominium.system.morocco.MoroccoSystemCondo'
     return res
 
 

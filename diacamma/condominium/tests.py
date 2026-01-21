@@ -29,15 +29,16 @@ from shutil import rmtree
 from lucterios.framework.test import LucteriosTest
 from lucterios.framework.filetools import get_user_dir
 from lucterios.framework.model_fields import LucteriosScheduler
-from lucterios.contacts.test_tools import change_ourdetail
 from lucterios.CORE.models import Parameter
 from lucterios.CORE.views import ObjectMerge
+from lucterios.CORE.parameters import Params
 
 from lucterios.mailing.models import Message
 from lucterios.mailing.test_tools import decode_b64
 from lucterios.contacts.views_contacts import IndividualList
 from lucterios.contacts.models import CustomField
 from lucterios.contacts.views import CustomFieldAddModify, CustomFieldDel
+from lucterios.contacts.test_tools import change_ourdetail
 
 from diacamma.accounting.models import EntryAccount, FiscalYear, Third, AccountThird
 from diacamma.accounting.views import ThirdShow, ThirdList, AccountThirdAddModify
@@ -47,12 +48,14 @@ from diacamma.accounting.views_other import CostAccountingList
 from diacamma.accounting.views_reports import FiscalYearTrialBalance, \
     FiscalYearReportPrint
 from diacamma.accounting.test_tools import initial_thirds_fr, default_compta_fr, default_costaccounting, default_compta_be, initial_thirds_be, \
-    check_pdfreport, create_account, set_accounting_system, add_entry, change_legal
+    check_pdfreport, create_account, set_accounting_system, add_entry, change_legal,\
+    default_compta_ma, initial_thirds_ma
 
 from diacamma.payoff.models import Payoff, BankAccount
 from diacamma.payoff.views import PayableShow, PayableEmail, PayoffAddModify
 from diacamma.payoff.views_conf import paramchange_payoff
-from diacamma.payoff.test_tools import default_bankaccount_fr, default_paymentmethod, PaymentTest, default_bankaccount_be
+from diacamma.payoff.test_tools import default_bankaccount_fr, default_paymentmethod, PaymentTest, default_bankaccount_be,\
+    default_bankaccount_ma
 
 from diacamma.condominium.models import PropertyLot, Set, Owner, CallFunds, PropertyLotCustomField
 from diacamma.condominium.views import OwnerAndPropertyLotList, OwnerAdd, OwnerDel, OwnerShow, PropertyLotAddModify, CondominiumConvert, PaymentVentilatePay, \
@@ -65,7 +68,7 @@ from diacamma.condominium.views_callfunds import CallFundsList, CallFundsAddCurr
 from diacamma.condominium.views_report import FinancialStatus, GeneralManageAccounting, CurrentManageAccounting, ExceptionalManageAccounting
 from diacamma.condominium.test_tools import default_setowner_fr, add_test_callfunds, old_accounting, add_test_expenses_fr, init_compta, add_years, default_setowner_be, add_test_expenses_be, \
     create_owner_fr, _set_partition, _set_budget, param_owner_with_sub_accounts, \
-    clear_cache
+    clear_cache, default_setowner_ma, add_test_expenses_ma
 from diacamma.condominium.views_expense import ExpenseList
 
 
@@ -1049,7 +1052,157 @@ class ReportTest(PaymentTest):
         self.save_ods()
 
 
-class OwnerTest(PaymentTest):
+class Owner00OldAccountingTest(PaymentTest):
+
+    def setUp(self):
+        initial_thirds_fr()
+        old_accounting()
+        LucteriosTest.setUp(self)
+        default_compta_fr(with12=False)
+        default_costaccounting()
+        default_bankaccount_fr()
+        default_setowner_fr()
+        clear_cache()
+        rmtree(get_user_dir(), True)
+
+    def test_payment_paypal_owner(self):
+        default_paymentmethod()
+        add_test_callfunds()
+        self.check_payment_paypal(1, "copropriete de Minimum")
+
+        self.factory.xfer = OwnerShow()
+        self.calljson('/diacamma.condominium/ownerShow', {'owner': 1}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'ownerShow')
+        self.assert_json_equal('LABELFORM', 'thirdinitial', 0.0)
+        self.assert_json_equal('LABELFORM', 'total_current_initial', 0.00)
+        self.assert_json_equal('LABELFORM', 'total_current_call', 131.25)
+        self.assert_json_equal('LABELFORM', 'total_current_payoff', 100.00)
+        self.assert_json_equal('LABELFORM', 'total_current_owner', 100.00)
+        self.assert_json_equal('LABELFORM', 'total_all_call', 131.25)
+        self.assert_json_equal('LABELFORM', 'total_payoff', 100.0)
+        self.assert_json_equal('LABELFORM', 'thirdtotal', -31.25)
+        self.assert_json_equal('LABELFORM', 'sumtopay', 31.25)
+        self.assertFalse("total_current_regularization" in self.json_data.keys())
+        self.assertEqual(len(self.json_actions), 4)
+
+    def test_owner_situation(self):
+        add_test_callfunds(False, True)
+        add_test_expenses_fr(False, True)
+        init_compta()
+
+        self.factory.xfer = OwnerShow()
+        self.calljson('/diacamma.condominium/ownerShow', {'owner': 1}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'ownerShow')
+        self.assert_json_equal('LABELFORM', 'total_current_initial', 23.45)
+        self.assert_json_equal('LABELFORM', 'total_current_call', 131.25)
+        self.assert_json_equal('LABELFORM', 'total_current_payoff', 100.00)
+        self.assert_json_equal('LABELFORM', 'total_current_owner', 44.70)
+        self.assert_json_equal('LABELFORM', 'total_current_ventilated', 75.00)
+        self.assertFalse("total_current_regularization" in self.json_data.keys())
+        self.assertFalse("total_extra" in self.json_data.keys())
+
+        self.assert_count_equal('exceptionnal', 1)
+        self.assert_json_equal('', 'exceptionnal/@0/set', "[3] CCC")
+        self.assert_json_equal('', 'exceptionnal/@0/ratio', 45.0)
+        self.assert_json_equal('', 'exceptionnal/@0/total_callfunds', 45.00)
+        self.assert_json_equal('', 'exceptionnal/@0/ventilated', 33.75)
+        self.assert_json_equal('', 'exceptionnal/@0/total_current_regularization', 11.25)
+        self.assertFalse("total_exceptional_initial" in self.json_data.keys())
+        self.assertFalse("total_exceptional_call" in self.json_data.keys())
+        self.assertFalse("total_exceptional_payoff" in self.json_data.keys())
+        self.assertFalse("total_exceptional_owner" in self.json_data.keys())
+
+    def test_conversion(self):
+        add_test_callfunds(False, True)
+        add_test_expenses_fr(False, True)
+        init_compta()
+
+        self.factory.xfer = CondominiumConvert()
+        self.calljson('/diacamma.condominium/condominiumConvert', {}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'condominiumConvert')
+        self.assert_count_equal('', 21)
+        self.assert_attrib_equal('code_450', 'description', '450')
+        self.assert_select_equal('code_450', 6)  # nb=6
+
+        self.factory.xfer = CondominiumConvert()
+        self.calljson('/diacamma.condominium/condominiumConvert', {'CONVERT': 'YES', 'code_450': '4501'}, False)
+        self.assert_observer('core.dialogbox', 'diacamma.condominium', 'condominiumConvert')
+
+        self.factory.xfer = OwnerShow()
+        self.calljson('/diacamma.condominium/ownerShow', {'owner': 1}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'ownerShow')
+        self.assert_json_equal('LABELFORM', 'total_current_initial', 23.45)
+        self.assert_json_equal('LABELFORM', 'total_current_call', 131.25)
+        self.assert_json_equal('LABELFORM', 'total_current_payoff', 100.00)
+        self.assert_json_equal('LABELFORM', 'total_current_owner', -7.80)
+        self.assert_json_equal('LABELFORM', 'total_current_ventilated', 75.00)
+        self.assert_json_equal('LABELFORM', 'total_current_regularization', 56.25)
+        self.assert_json_equal('LABELFORM', 'total_extra', -5.55)
+
+        self.assert_count_equal('exceptionnal', 1)
+        self.assert_json_equal('', 'exceptionnal/@0/set', "[3] CCC")
+        self.assert_json_equal('', 'exceptionnal/@0/ratio', 45.0)
+        self.assert_json_equal('', 'exceptionnal/@0/total_callfunds', 45.00)
+        self.assert_json_equal('', 'exceptionnal/@0/ventilated', 33.75)
+        self.assert_json_equal('', 'exceptionnal/@0/total_current_regularization', 11.25)
+        self.assert_json_equal('LABELFORM', 'total_exceptional_initial', 0.00)
+        self.assert_json_equal('LABELFORM', 'total_exceptional_call', 45.00)
+        self.assert_json_equal('LABELFORM', 'total_exceptional_payoff', 30.00)
+        self.assert_json_equal('LABELFORM', 'total_exceptional_owner', -15.00)
+
+        self.check_account(year_id=1, code='120', value=25.00)
+        self.check_account(year_id=1, code='401', value=65.00)
+        self.check_account(year_id=1, code='4501', value=151.55)
+        self.check_account(year_id=1, code='4502', value=70.00)
+        self.check_account(year_id=1, code='512', value=11.11)
+        self.check_account(year_id=1, code='531', value=20.00)
+        self.check_account(year_id=1, code='701', value=275.00)
+        self.check_account(year_id=1, code='702', value=75.00)
+
+    def test_close_classload(self):
+        add_test_callfunds(False, True)
+        add_test_expenses_fr(False, True)
+        init_compta()
+
+        self.factory.xfer = EntryAccountList()
+        self.calljson('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '5', 'filter': '0'}, False)
+        self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
+        self.assert_count_equal('entryline', 2)
+        self.assert_json_equal('LABELFORM', 'result', [175.00, 187.34, -12.34, 31.11, 11.11])
+
+        self.factory.xfer = SetShow()
+        self.calljson('/diacamma.condominium/setShow', {'set': 3}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'setShow')
+        self.assert_json_equal('LABELFORM', 'is_active', True)
+
+        self.factory.xfer = SetClose()
+        self.calljson('/diacamma.condominium/setClose', {'set': 3}, False)
+        self.assert_observer('core.exception', 'diacamma.condominium', 'setClose')
+
+        for entry in EntryAccount.objects.filter(year_id=1, close=False):
+            entry.closed()
+
+        self.factory.xfer = SetClose()
+        self.calljson('/diacamma.condominium/setClose', {'set': 3}, False)
+        self.assert_observer('core.dialogbox', 'diacamma.condominium', 'setClose')
+
+        self.factory.xfer = SetClose()
+        self.calljson('/diacamma.condominium/setClose', {'set': 3, 'CONFIRME': 'YES'}, False)
+        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'setClose')
+
+        self.factory.xfer = SetShow()
+        self.calljson('/diacamma.condominium/setShow', {'set': 3}, False)
+        self.assert_observer('core.custom', 'diacamma.condominium', 'setShow')
+        self.assert_json_equal('LABELFORM', 'is_active', False)
+
+        self.factory.xfer = EntryAccountList()
+        self.calljson('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '5', 'filter': '0'}, False)
+        self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
+        self.assert_count_equal('entryline', 2)
+        self.assert_json_equal('LABELFORM', 'result', [175.00, 187.34, -12.34, 31.11, 31.11])
+
+
+class Owner01FranceTest(PaymentTest):
 
     def setUp(self):
         # print('>> %s' % self._testMethodName)
@@ -2354,7 +2507,7 @@ class OwnerTest(PaymentTest):
         self.assert_json_equal('', 'entryline/@0/debit', -50.0)
 
 
-class OwnerBelgiumTest(PaymentTest):
+class Owner02BelgiumTest(PaymentTest):
 
     def setUp(self):
         # print('>> %s' % self._testMethodName)
@@ -2840,154 +2993,57 @@ class OwnerBelgiumTest(PaymentTest):
         self.assert_json_equal('', 'entryline/@0/debit', -70.0)
 
 
-class OwnerTestOldAccounting(PaymentTest):
+class Owner03MoroccoTest(PaymentTest):
 
     def setUp(self):
-        initial_thirds_fr()
-        old_accounting()
+        # print('>> %s' % self._testMethodName)
         LucteriosTest.setUp(self)
-        default_compta_fr(with12=False)
+        default_compta_ma(with14=False)
+        initial_thirds_ma()
         default_costaccounting()
-        default_bankaccount_fr()
-        default_setowner_fr()
+        default_bankaccount_ma()
+        default_setowner_ma()
         clear_cache()
         rmtree(get_user_dir(), True)
 
-    def test_payment_paypal_owner(self):
-        default_paymentmethod()
-        add_test_callfunds()
-        self.check_payment_paypal(1, "copropriete de Minimum")
-
-        self.factory.xfer = OwnerShow()
-        self.calljson('/diacamma.condominium/ownerShow', {'owner': 1}, False)
-        self.assert_observer('core.custom', 'diacamma.condominium', 'ownerShow')
-        self.assert_json_equal('LABELFORM', 'thirdinitial', 0.0)
-        self.assert_json_equal('LABELFORM', 'total_current_initial', 0.00)
-        self.assert_json_equal('LABELFORM', 'total_current_call', 131.25)
-        self.assert_json_equal('LABELFORM', 'total_current_payoff', 100.00)
-        self.assert_json_equal('LABELFORM', 'total_current_owner', 100.00)
-        self.assert_json_equal('LABELFORM', 'total_all_call', 131.25)
-        self.assert_json_equal('LABELFORM', 'total_payoff', 100.0)
-        self.assert_json_equal('LABELFORM', 'thirdtotal', -31.25)
-        self.assert_json_equal('LABELFORM', 'sumtopay', 31.25)
-        self.assertFalse("total_current_regularization" in self.json_data.keys())
-        self.assertEqual(len(self.json_actions), 4)
+    def tearDown(self):
+        Params.setvalue('accounting-sizecode', 3)
+        LucteriosTest.tearDown(self)
+        # print('<< %s' % self._testMethodName)
 
     def test_owner_situation(self):
         add_test_callfunds(False, True)
-        add_test_expenses_fr(False, True)
+        add_test_expenses_ma(False, True)
         init_compta()
 
         self.factory.xfer = OwnerShow()
         self.calljson('/diacamma.condominium/ownerShow', {'owner': 1}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'ownerShow')
-        self.assert_json_equal('LABELFORM', 'total_current_initial', 23.45)
+        self.assert_count_equal('', 54)
+        self.assert_grid_equal('partition', {"set": "catégorie de charges", 'set.budget_txt': 'budget', 'set.sumexpense': 'dépense',
+                                             'value': 'tantième', 'ratio': 'ratio', "ventilated": "ventilé", 'recovery_load': 'charges récupérables'}, 2)
+        self.assert_json_equal('', 'partition/@1/set', "[2] BBB")
+        self.assert_json_equal('', 'partition/@1/set.budget_txt', 120.00)
+        self.assert_json_equal('', 'partition/@1/set.sumexpense', 100.00)
+        self.assert_json_equal('', 'partition/@1/value', "75.00")
+        self.assert_json_equal('', 'partition/@1/ratio', 75.0)
+        self.assert_json_equal('', 'partition/@1/ventilated', 75.00)
+        self.assert_json_equal('', 'partition/@1/recovery_load', 45.00)
         self.assert_json_equal('LABELFORM', 'total_current_call', 131.25)
         self.assert_json_equal('LABELFORM', 'total_current_payoff', 100.00)
-        self.assert_json_equal('LABELFORM', 'total_current_owner', 44.70)
         self.assert_json_equal('LABELFORM', 'total_current_ventilated', 75.00)
-        self.assertFalse("total_current_regularization" in self.json_data.keys())
-        self.assertFalse("total_extra" in self.json_data.keys())
-
-        self.assert_count_equal('exceptionnal', 1)
-        self.assert_json_equal('', 'exceptionnal/@0/set', "[3] CCC")
-        self.assert_json_equal('', 'exceptionnal/@0/ratio', 45.0)
-        self.assert_json_equal('', 'exceptionnal/@0/total_callfunds', 45.00)
-        self.assert_json_equal('', 'exceptionnal/@0/ventilated', 33.75)
-        self.assert_json_equal('', 'exceptionnal/@0/total_current_regularization', 11.25)
-        self.assertFalse("total_exceptional_initial" in self.json_data.keys())
-        self.assertFalse("total_exceptional_call" in self.json_data.keys())
-        self.assertFalse("total_exceptional_payoff" in self.json_data.keys())
-        self.assertFalse("total_exceptional_owner" in self.json_data.keys())
-
-    def test_conversion(self):
-        add_test_callfunds(False, True)
-        add_test_expenses_fr(False, True)
-        init_compta()
-
-        self.factory.xfer = CondominiumConvert()
-        self.calljson('/diacamma.condominium/condominiumConvert', {}, False)
-        self.assert_observer('core.custom', 'diacamma.condominium', 'condominiumConvert')
-        self.assert_count_equal('', 21)
-        self.assert_attrib_equal('code_450', 'description', '450')
-        self.assert_select_equal('code_450', 6)  # nb=6
-
-        self.factory.xfer = CondominiumConvert()
-        self.calljson('/diacamma.condominium/condominiumConvert', {'CONVERT': 'YES', 'code_450': '4501'}, False)
-        self.assert_observer('core.dialogbox', 'diacamma.condominium', 'condominiumConvert')
-
-        self.factory.xfer = OwnerShow()
-        self.calljson('/diacamma.condominium/ownerShow', {'owner': 1}, False)
-        self.assert_observer('core.custom', 'diacamma.condominium', 'ownerShow')
-        self.assert_json_equal('LABELFORM', 'total_current_initial', 23.45)
-        self.assert_json_equal('LABELFORM', 'total_current_call', 131.25)
-        self.assert_json_equal('LABELFORM', 'total_current_payoff', 100.00)
-        self.assert_json_equal('LABELFORM', 'total_current_owner', -7.80)
-        self.assert_json_equal('LABELFORM', 'total_current_ventilated', 75.00)
+        self.assert_json_equal('LABELFORM', 'total_recoverable_load', 45.00)
         self.assert_json_equal('LABELFORM', 'total_current_regularization', 56.25)
-        self.assert_json_equal('LABELFORM', 'total_extra', -5.55)
+        self.assert_json_equal('LABELFORM', 'total_extra', 5.70)
 
-        self.assert_count_equal('exceptionnal', 1)
+        self.assert_grid_equal('exceptionnal', {"set": "catégorie de charges", "ratio": "ratio", "total_callfunds": "total des appels de fonds", "ventilated": "ventilé", "total_current_regularization": "régularisation estimée"}, 1)  # nb=5
         self.assert_json_equal('', 'exceptionnal/@0/set', "[3] CCC")
         self.assert_json_equal('', 'exceptionnal/@0/ratio', 45.0)
         self.assert_json_equal('', 'exceptionnal/@0/total_callfunds', 45.00)
         self.assert_json_equal('', 'exceptionnal/@0/ventilated', 33.75)
         self.assert_json_equal('', 'exceptionnal/@0/total_current_regularization', 11.25)
-        self.assert_json_equal('LABELFORM', 'total_exceptional_initial', 0.00)
         self.assert_json_equal('LABELFORM', 'total_exceptional_call', 45.00)
         self.assert_json_equal('LABELFORM', 'total_exceptional_payoff', 30.00)
-        self.assert_json_equal('LABELFORM', 'total_exceptional_owner', -15.00)
-
-        self.check_account(year_id=1, code='120', value=25.00)
-        self.check_account(year_id=1, code='401', value=65.00)
-        self.check_account(year_id=1, code='4501', value=151.55)
-        self.check_account(year_id=1, code='4502', value=70.00)
-        self.check_account(year_id=1, code='512', value=11.11)
-        self.check_account(year_id=1, code='531', value=20.00)
-        self.check_account(year_id=1, code='701', value=275.00)
-        self.check_account(year_id=1, code='702', value=75.00)
-
-    def test_close_classload(self):
-        add_test_callfunds(False, True)
-        add_test_expenses_fr(False, True)
-        init_compta()
-
-        self.factory.xfer = EntryAccountList()
-        self.calljson('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '5', 'filter': '0'}, False)
-        self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
-        self.assert_count_equal('entryline', 2)
-        self.assert_json_equal('LABELFORM', 'result', [175.00, 187.34, -12.34, 31.11, 11.11])
-
-        self.factory.xfer = SetShow()
-        self.calljson('/diacamma.condominium/setShow', {'set': 3}, False)
-        self.assert_observer('core.custom', 'diacamma.condominium', 'setShow')
-        self.assert_json_equal('LABELFORM', 'is_active', True)
-
-        self.factory.xfer = SetClose()
-        self.calljson('/diacamma.condominium/setClose', {'set': 3}, False)
-        self.assert_observer('core.exception', 'diacamma.condominium', 'setClose')
-
-        for entry in EntryAccount.objects.filter(year_id=1, close=False):
-            entry.closed()
-
-        self.factory.xfer = SetClose()
-        self.calljson('/diacamma.condominium/setClose', {'set': 3}, False)
-        self.assert_observer('core.dialogbox', 'diacamma.condominium', 'setClose')
-
-        self.factory.xfer = SetClose()
-        self.calljson('/diacamma.condominium/setClose', {'set': 3, 'CONFIRME': 'YES'}, False)
-        self.assert_observer('core.acknowledge', 'diacamma.condominium', 'setClose')
-
-        self.factory.xfer = SetShow()
-        self.calljson('/diacamma.condominium/setShow', {'set': 3}, False)
-        self.assert_observer('core.custom', 'diacamma.condominium', 'setShow')
-        self.assert_json_equal('LABELFORM', 'is_active', False)
-
-        self.factory.xfer = EntryAccountList()
-        self.calljson('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '5', 'filter': '0'}, False)
-        self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
-        self.assert_count_equal('entryline', 2)
-        self.assert_json_equal('LABELFORM', 'result', [175.00, 187.34, -12.34, 31.11, 31.11])
 
 
 class ExempleArcTest(PaymentTest):

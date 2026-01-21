@@ -108,6 +108,7 @@ def clear_cache():
 
 
 def default_setowner_fr(with_lots=True):
+    Params.setvalue('accounting-sizecode', 3)
     RecoverableLoadRatio.objects.create(code='602', ratio=60)
     RecoverableLoadRatio.objects.create(code='604', ratio=40)
     param_owner_with_sub_accounts()
@@ -131,6 +132,7 @@ def default_setowner_fr(with_lots=True):
 
 
 def default_setowner_be(with_lots=True):
+    Params.setvalue('accounting-sizecode', 6)
     RecoverableLoadRatio.objects.create(code='601000', ratio=60)
     RecoverableLoadRatio.objects.create(code='602000', ratio=40)
 
@@ -145,6 +147,26 @@ def default_setowner_be(with_lots=True):
     _set_budget(set3, '602000', 600)
     set4 = Set.objects.create(name="OLD", is_link_to_lots=False, type_load=1, is_active=False)
     _set_budget(set4, '601000', 120)
+    _create_owners(set1, set2, set3, set4, with_lots)
+    Owner.check_all_account()
+
+
+def default_setowner_ma(with_lots=True):
+    Params.setvalue('accounting-sizecode', 4)
+    RecoverableLoadRatio.objects.create(code='6111', ratio=60)
+    RecoverableLoadRatio.objects.create(code='6121', ratio=40)
+
+    create_account(['3421', '3422'], 0, FiscalYear.get_current())  # 17 18
+    create_account(['1111', '1511'], 2, FiscalYear.get_current())  # 19 20
+    create_account(['7112', '7113'], 3, FiscalYear.get_current())  # 21 22 23
+    set1 = Set.objects.create(name="AAA", is_link_to_lots=with_lots, type_load=0)
+    _set_budget(set1, '6121', 1200)
+    set2 = Set.objects.create(name="BBB", is_link_to_lots=False, type_load=0)
+    _set_budget(set2, '6121', 120)
+    set3 = Set.objects.create(name="CCC", is_link_to_lots=with_lots, type_load=1)
+    _set_budget(set3, '6121', 600)
+    set4 = Set.objects.create(name="OLD", is_link_to_lots=False, type_load=1, is_active=False)
+    _set_budget(set4, '6111', 120)
     _create_owners(set1, set2, set3, set4, with_lots)
     Owner.check_all_account()
 
@@ -194,6 +216,10 @@ def add_test_expenses_fr(simple=True, with_payoff=False):
 
 def add_test_expenses_be(simple=True, with_payoff=False):
     _add_test_expenses('602000', '601000', simple, with_payoff)
+
+
+def add_test_expenses_ma(simple=True, with_payoff=False):
+    _add_test_expenses('6111', '6121', simple, with_payoff)
 
 
 def old_accounting():
