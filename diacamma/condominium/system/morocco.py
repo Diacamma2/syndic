@@ -47,10 +47,10 @@ class MoroccoSystemCondo(DefaultSystemCondo):
         Parameter.change_value('condominium-current-revenue-account', correct_accounting_code('7111'))
         Parameter.change_value('condominium-exceptional-revenue-account', correct_accounting_code('7112'))
         Parameter.change_value('condominium-advance-revenue-account', correct_accounting_code('7113'))
-        Parameter.change_value('condominium-fundforworks-revenue-account', correct_accounting_code('7121'))
+        Parameter.change_value('condominium-fundforworks-revenue-account', correct_accounting_code('7511'))
         Parameter.change_value('condominium-exceptional-reserve-account', correct_accounting_code('1111'))
-        Parameter.change_value('condominium-advance-reserve-account', correct_accounting_code('1511'))
-        Parameter.change_value('condominium-fundforworks-reserve-account', correct_accounting_code('1112'))
+        Parameter.change_value('condominium-advance-reserve-account', correct_accounting_code('1112'))
+        Parameter.change_value('condominium-fundforworks-reserve-account', correct_accounting_code('1511'))
         Parameter.change_value('condominium-mode-current-callfunds', 0)
         Params.clear()
 

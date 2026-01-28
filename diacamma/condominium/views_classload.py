@@ -552,7 +552,7 @@ def conf_wizard_condominium(wizard_ident, xfer):
         xfer.add_component(lbl)
         btn = XferCompButton("btnimport")
         btn.set_location(1, xfer.get_max_row(), 1, 2)
-        btn.set_action(xfer.request, PropertyLotImport.get_action(), close=CLOSE_NO, params={'step': 0})
+        btn.set_action(xfer.request, PropertyLotImport.get_action(), close=CLOSE_NO, params={'step': 1})
         xfer.add_component(btn)
         for cf_name, cf_model in CustomField.get_fields(PropertyLot):
             lbl = XferCompLabelForm("total_%s" % cf_name)

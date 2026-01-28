@@ -6,123 +6,119 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
+"Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-06-21 07:46+0000\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
+"POT-Creation-Date: 2026-01-28 09:56+0100\n"
+"PO-Revision-Date: 2026-01-28 09:51+0100\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: Poedit 3.8\n"
 
-#: system/belgium.py:74
+#: system/belgium.py:72
 msgid "default current owner account"
 msgstr "compte courant de proprietaire par défaut"
 
-#: system/belgium.py:74
+#: system/belgium.py:72
 msgid "default working owner account"
 msgstr "compte de travaux de proprietaire par défaut"
 
-#: system/belgium.py:75
+#: system/belgium.py:73
 msgid "default rolling owner account"
 msgstr "compte de roulement de proprietaire par défaut"
 
-#: system/belgium.py:75
+#: system/belgium.py:73
 msgid "default reserved owner account"
 msgstr "compte de reserve de proprietaire par défaut"
 
-#: system/belgium.py:76
+#: system/belgium.py:74
 msgid "current revenue account"
 msgstr "compte de revenu des courants"
 
-#: system/belgium.py:76
+#: system/belgium.py:74
 msgid "working revenue account"
 msgstr "compte de revenu des travaux"
 
-#: system/belgium.py:77
-#, fuzzy
-#| msgid "working revenue account"
+#: system/belgium.py:75
 msgid "rolling revenue account"
-msgstr "compte de revenu des travaux"
+msgstr "compte de revenus mobiles"
 
-#: system/belgium.py:77
-#, fuzzy
-#| msgid "current revenue account"
+#: system/belgium.py:75
 msgid "reserved revenue account"
-msgstr "compte de revenu des courants"
+msgstr "compte de revenus réservés"
 
-#: system/belgium.py:78
+#: system/belgium.py:76
 msgid "working reserved account"
 msgstr "compte de réserve des travaux"
 
-#: system/belgium.py:78
+#: system/belgium.py:76
 msgid "rolling reserved account"
 msgstr "compte de réserve des roulements"
 
-#: system/belgium.py:79
+#: system/belgium.py:77
 msgid "reserved account"
 msgstr "compte de réserve"
 
-#: system/belgium.py:88 system/belgium.py:100 system/french.py:70
-#: system/french.py:83
+#: system/belgium.py:86 system/belgium.py:98 system/french.py:70
+#: system/french.py:83 system/morocco.py:68 system/morocco.py:78
 msgid "current"
 msgstr "charge courante"
 
-#: system/belgium.py:88
+#: system/belgium.py:86 system/morocco.py:68
 msgid "working"
 msgstr "charge de travaux"
 
-#: system/belgium.py:88
+#: system/belgium.py:86 system/morocco.py:68
 msgid "rolling"
 msgstr "roulement"
 
-#: system/belgium.py:88
+#: system/belgium.py:86 system/morocco.py:68
 msgid "reserved"
 msgstr "réserve"
 
-#: system/belgium.py:98 system/french.py:81
+#: system/belgium.py:96 system/french.py:81 system/morocco.py:76
 #, python-format
 msgid "Call of funds #%(num)d of year from %(begin)s to %(end)s"
 msgstr "Appel de fonds N°%(num)d de l'exercice du %(begin)s au %(end)s"
 
-#: system/belgium.py:100 system/french.py:83
+#: system/belgium.py:98 system/french.py:83 system/morocco.py:78
 #, python-format
 msgid "%(type)s - #%(num)d"
 msgstr "%(type)s - N°%(num)d"
 
-#: system/belgium.py:116 system/french.py:101
+#: system/belgium.py:114 system/french.py:101 system/morocco.py:96
 msgid "incorrect account for call of found"
 msgstr "compte incorrect pour l'appel de fonds !"
 
-#: system/belgium.py:136 system/french.py:116 system/french.py:140
-#: system/french.py:144 system/french.py:169
-#, python-format
-msgid "code account %s unknown!"
-msgstr "code comptable %s non trouvé !"
-
-#: system/belgium.py:143 system/french.py:125 system/french.py:158
-#: system/french.py:176
-msgid "Error in accounting generator!"
-msgstr "Erreur dans la génération comptable !"
-
-#: system/default.py:89 system/default.py:104 system/default.py:107
+#: system/default.py:87
 msgid "This system condomium is not implemented"
 msgstr "Ce système de copropriété n'est pas implémenté !"
 
-#: system/default.py:95
+#: system/default.py:93
 #, python-format
 msgid "call of funds \"%(type)s\" #%(num)d - %(date)s"
 msgstr "appel de fonds \"%(type)s\" N°%(num)d - %(date)s"
 
-#: system/default.py:116 system/default.py:144
+#: system/default.py:111 system/french.py:116 system/french.py:140
+#: system/french.py:144
+#, python-format
+msgid "code account %s unknown!"
+msgstr "code comptable %s non trouvé !"
+
+#: system/default.py:118 system/french.py:125 system/french.py:158
+msgid "Error in accounting generator!"
+msgstr "Erreur dans la génération comptable !"
+
+#: system/default.py:130 system/default.py:158
 #, python-format
 msgid "Ventilation for %s"
 msgstr "Ventilation pour %s"
 
-#: system/default.py:128
+#: system/default.py:142
 #, python-format
 msgid "The class load %s has no owner"
 msgstr "La catégorie de charges %s n'a pas de copropriétaire"
@@ -141,4 +137,43 @@ msgstr "fond travaux"
 
 #: system/french.py:72
 msgid "borrowing"
-msgstr ""
+msgstr "emprunt"
+
+#~ msgid "condominium-default-owner-account"
+#~ msgstr "compte par défaut du copropriétaire"
+
+#~ msgid "condominium-default-owner-account1"
+#~ msgstr "copropriétaire - créances sur opérations courantes"
+
+#~ msgid "condominium-default-owner-account2"
+#~ msgstr "copropriétaire - créances sur travaux votés en AG et ch. except."
+
+#~ msgid "condominium-default-owner-account3"
+#~ msgstr "copropriétaire - créances sur avances"
+
+#~ msgid "condominium-default-owner-account4"
+#~ msgstr "copropriétaires - créances sur emprunts"
+
+#~ msgid "condominium-default-owner-account5"
+#~ msgstr "copropriétaires - cotisations appelées sur fonds de travaux"
+
+#~ msgid "condominium-current-revenue-account"
+#~ msgstr "provision sur opérations courantes"
+
+#~ msgid "condominium-exceptional-revenue-account"
+#~ msgstr "provisions sur travaux et op. except."
+
+#~ msgid "condominium-fundforworks-revenue-account"
+#~ msgstr "affectation fonds travaux : compte de produits"
+
+#~ msgid "condominium-exceptional-reserve-account"
+#~ msgstr "réserve - travaux et op. excep."
+
+#~ msgid "condominium-advance-reserve-account"
+#~ msgstr "réserve - avances"
+
+#~ msgid "condominium-fundforworks-reserve-account"
+#~ msgstr "réserve - fonds de travaux"
+
+#~ msgid "condominium-mode-current-callfunds"
+#~ msgstr "fréquence des appels de fonds courants"
