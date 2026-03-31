@@ -187,7 +187,9 @@ class OwnerEditor(SupportingEditor):
         lots.actions = []
         lots.delete_header('owner')
 
-        if hasattr(xfer.item.third.contact.get_final_child(), 'structure_type'):
+        contact_final = xfer.item.third.contact.get_final_child()
+        if hasattr(contact_final, 'structure_type'):
+            xfer.params['legal_entity'] = contact_final.id
             contact = xfer.get_components('ownercontact')
             xfer.tab = contact.tab
             old_item = xfer.item
