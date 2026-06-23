@@ -879,6 +879,15 @@ class PropertyLot(LucteriosModel, CustomizeObject):
             return 0
 
     @classmethod
+    def get_total_part_secondary(cls, secondarykey):
+        if secondarykey is None:
+            return cls.get_total_part()
+        value = 0
+        for property_lot in cls.objects.all():
+            value += property_lot.get_value_by_key(secondarykey)
+        return value
+
+    @classmethod
     def _convert_field_foreignkey(cls, fieldvalue, dep_field, fieldname, **_args):
         def find_item(model, expectecvalue):
             for item in model.objects.all():
@@ -2242,6 +2251,20 @@ class Owner(Supporting):
                 value = total['sum']
             else:
                 value = 0
+            return (value, total_part, 100.0 * float(value) / float(total_part))
+        else:
+            return (None, None, None)
+
+    def get_property_part_secondary(self, secondarykey):
+        if self.id is None:
+            return None
+        if secondarykey is None:
+            return self.get_property_part()
+        total_part = PropertyLot.get_total_part_secondary(secondarykey)
+        if total_part > 0:
+            value = 0
+            for property_lot in self.propertylot_set.filter(owner=self):
+                value += property_lot.get_value_by_key(secondarykey)
             return (value, total_part, 100.0 * float(value) / float(total_part))
         else:
             return (None, None, None)

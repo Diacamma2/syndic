@@ -11,7 +11,7 @@ from lucterios.framework.xferadvance import TITLE_MODIFY, TITLE_ADD, TITLE_EDIT,
     TITLE_CREATE, TITLE_CLOSE, TITLE_SEARCH
 from lucterios.framework.xferadvance import XferListEditor, XferShowEditor, XferAddEditor, XferDelete
 from lucterios.framework.xfercomponents import XferCompLabelForm, XferCompDate, XferCompButton, XferCompImage, XferCompSelect, XferCompEdit, \
-    XferCompGrid
+    XferCompGrid, XferCompCheck
 from lucterios.framework.xfergraphic import XferContainerAcknowledge, \
     XferContainerCustom
 from lucterios.framework.tools import FORMTYPE_NOMODAL, ActionsManage, MenuManage, WrapAction
@@ -356,6 +356,256 @@ class OwnerPayableEmail(XferContainerAcknowledge):
     def fillresponse(self):
         self.redirect_action(ActionsManage.get_action_url('payoff.Supporting', 'Email', self),
                              close=CLOSE_NO, params={'item_name': self.field_id})
+
+
+@MenuManage.describ('condominium.change_owner', FORMTYPE_NOMODAL, 'condominium', _('Vote calculator for condominium decisions'))
+class OwnerVoteCalculator(XferContainerCustom):
+    caption = _("Vote calculator")
+    short_icon = "mdi:mdi-calculator"
+    model = Owner
+    field_id = 'owner'
+
+    class VoteStructure(list):
+
+        SIMPLE_MAJORITY = 0
+        ABSOLUTE_MAJORITY = 1
+        DOUBLE_MAJORITY = 2
+
+        INFO_METHOD = {
+            SIMPLE_MAJORITY: _('Simple Majority: majority of expressed votes'),
+            ABSOLUTE_MAJORITY: _('Absolute majority: more than half of all ownership shares'),
+            DOUBLE_MAJORITY: _('Double majority: majority of co-owners and ≥ 2/3 of ownership shares'),
+        }
+
+        class VoteItem(object):
+            YES = 0
+            NO = 1
+            BLANK = 2
+            ABSENT = 3
+
+            def __init__(self, owner, value, ratio, vote):
+                self.owner = owner
+                self.init = value
+                self.value = value
+                self.ratio = ratio
+                self.vote = vote
+
+            @property
+            def text(self):
+                if self.init != self.value:
+                    return _("%d (initial = %d - %.1f %%)") % (self.value, self.init, self.ratio)
+                else:
+                    return "%d (%.1f %%)" % (self.value, self.ratio)
+
+            def get_name_comp(self):
+                lbl_name = XferCompLabelForm('owner_%d' % self.owner.id)
+                lbl_name.set_value_as_name(str(self.owner))
+                return lbl_name
+
+            def get_value_comp(self):
+                lbl_value = XferCompLabelForm('value_%d' % self.owner.id)
+                lbl_value.set_value(self.text)
+                lbl_value._formatstr = '{[p align="right"]}{[i]}%s{[/i]}{[/p]}'
+                return lbl_value
+
+            def get_vote_comp(self):
+                if self.value != 0:
+                    vote = XferCompSelect('vote_%d' % self.owner.id)
+                    vote.set_select([(self.YES, _("Yes")), (self.NO, _("No")), (self.BLANK, _("Blank")), (self.ABSENT, _("Absent"))])
+                    vote.set_value(self.vote)
+                else:
+                    vote = XferCompLabelForm('vote_%d' % self.owner.id)
+                    vote.set_value(None)
+                return vote
+
+        def __init__(self, calculator):
+            distributionkey = calculator.getparam('distributionkey', 0)
+            votingmethod = calculator.getparam('votingmethod', 0)
+            self.cap = calculator.getparam('cap', False)
+            self.key_custom = CustomField.objects.get(id=distributionkey) if distributionkey != 0 else None
+            self.voting_method = votingmethod
+            for owner in Owner.objects.filter(Q(third__status=Third.STATUS_ENABLE)):
+                value, _total_part, ratio = owner.get_property_part_secondary(self.key_custom)
+                self.append(self.VoteItem(owner, value, ratio, calculator.getparam('vote_%d' % owner.id, 3)))
+            if self.cap:
+                total = self.get_total()
+                for item in self:
+                    if item.value > (total / 2):
+                        item.value = total - item.value
+                        break
+
+        def get_total(self):
+            total = 0
+            for item in self:
+                total += item.value
+            return total
+
+        def get_total_vote(self, vote):
+            total = 0
+            for item in self:
+                if item.vote == vote:
+                    total += item.value
+            return total
+
+        def get_total_expressed(self):
+            return self.get_total_vote(self.VoteItem.YES) + self.get_total_vote(self.VoteItem.NO)
+
+        def get_nb(self):
+            return len(self)
+
+        def get_nb_present(self):
+            total = 0
+            for item in self:
+                if item.vote != self.VoteItem.ABSENT:
+                    total += 1
+            return total
+
+        def get_nb_vote(self, vote):
+            total = 0
+            for item in self:
+                if item.vote == vote:
+                    total += 1
+            return total
+
+        def get_nb_expressed(self):
+            return self.get_nb_vote(self.VoteItem.YES) + self.get_nb_vote(self.VoteItem.NO)
+
+        def get_decision(self):
+            if self.get_nb_present() == 0:
+                return None
+            if self.voting_method == self.SIMPLE_MAJORITY:
+                return self.get_total_vote(self.VoteItem.YES) > self.get_total_vote(self.VoteItem.NO)
+            elif self.voting_method == self.ABSOLUTE_MAJORITY:
+                return self.get_total_vote(self.VoteItem.YES) > self.get_total()
+            elif self.voting_method == self.DOUBLE_MAJORITY:
+                return (self.get_nb_vote(self.VoteItem.YES) > self.get_nb() / 2) and self.get_total_vote(self.VoteItem.YES) > (2 * self.get_total() / 3)
+            else:
+                return None
+
+        def get_decision_label(self):
+            lbl_value = XferCompLabelForm('decision')
+            if self.get_decision() is None:
+                lbl_value.set_value(_("waiting ..."))
+                lbl_value.set_color('black')
+            elif self.get_decision() is True:
+                lbl_value.set_value(_("adopted"))
+                lbl_value.set_color('blue')
+            else:
+                lbl_value.set_value(_("rejected"))
+                lbl_value.set_color('red')
+            lbl_value.set_bold()
+            lbl_value.set_centered()
+            return lbl_value
+
+        def get_info_method(self):
+            text = self.INFO_METHOD[self.voting_method]
+            if self.cap:
+                text += "{[br]}" + _("Capping: votes reduced to the sum of all other co-owners' votes")
+            return text
+
+    def _add_title(self):
+        img = XferCompImage('img')
+        img.set_value(self.short_icon, '#')
+        img.set_location(0, 0, 1, 4)
+        self.add_component(img)
+        lbl = XferCompLabelForm('title')
+        lbl.set_value_as_title(self.caption)
+        lbl.set_location(1, 0)
+        self.add_component(lbl)
+
+    def _add_header(self, distributionkey, votingmethod, cap):
+        distributionkey_comp = XferCompSelect('distributionkey')
+        distributionkey_comp.set_needed(False)
+        distributionkey_comp.set_select_query(CustomField.objects.filter(modelname=PropertyLot.get_long_name()))
+        distributionkey_comp.select_list[0] = 0, _('general')
+        distributionkey_comp.set_value(distributionkey)
+        distributionkey_comp.set_location(1, 1, 2)
+        distributionkey_comp.description = _('distribution key')
+        distributionkey_comp.set_action(self.request, self.get_action(), modal=FORMTYPE_REFRESH, close=CLOSE_NO)
+        self.add_component(distributionkey_comp)
+        votingmethod_comp = XferCompSelect('votingmethod')
+        votingmethod_comp.set_needed(False)
+        votingmethod_comp.set_select([(self.VoteStructure.SIMPLE_MAJORITY, _('Simple majority')),
+                                      (self.VoteStructure.ABSOLUTE_MAJORITY, _('Absolute majority')),
+                                      (self.VoteStructure.DOUBLE_MAJORITY, _('Double majority'))])
+        votingmethod_comp.set_value(votingmethod)
+        votingmethod_comp.set_location(1, 2, 2)
+        votingmethod_comp.description = _('voting method')
+        votingmethod_comp.set_action(self.request, self.get_action(), modal=FORMTYPE_REFRESH, close=CLOSE_NO)
+        self.add_component(votingmethod_comp)
+
+        cap_comp = XferCompCheck('cap')
+        cap_comp.set_value(cap)
+        cap_comp.set_location(1, 3, 2)
+        cap_comp.description = _('capping')
+        cap_comp.set_action(self.request, self.get_action(), modal=FORMTYPE_REFRESH, close=CLOSE_NO)
+        self.add_component(cap_comp)
+
+        lbl = XferCompLabelForm('header_sep')
+        lbl.set_value(_('{[br/]}{[hr/]}{[br/]}'))
+        lbl.set_location(1, 4, 2)
+        self.add_component(lbl)
+
+    def fillresponse(self, distributionkey=0, votingmethod=0, cap=False):
+        def get_value_ratio(value, total):
+            ratio = 100 * value / total
+            return "%d (%.1f %%)" % (value, ratio)
+
+        self._add_title()
+        self._add_header(distributionkey, votingmethod, cap)
+        vote_structure = self.VoteStructure(self)
+        for index, vote_item in enumerate(vote_structure):
+            lbl_name = vote_item.get_name_comp()
+            lbl_name.set_location(0, 5 + index)
+            self.add_component(lbl_name)
+            vote = vote_item.get_vote_comp()
+            vote.set_location(1, 5 + index)
+            if hasattr(vote, 'set_action'):
+                vote.set_action(self.request, self.get_action(), modal=FORMTYPE_REFRESH, close=CLOSE_NO)
+            self.add_component(vote)
+            lbl_value = vote_item.get_value_comp()
+            lbl_value.set_location(2, 5 + index)
+            self.add_component(lbl_value)
+
+        lbl = XferCompLabelForm('result_sep')
+        lbl.set_value_as_title(_('{[hr/]}{[br/]}Result'))
+        lbl.set_location(0, 6 + index, 3)
+        self.add_component(lbl)
+
+        grid_result = XferCompGrid('result')
+        grid_result.no_pager = True
+        grid_result.add_header('desc', '')
+        grid_result.add_header('total', _('Total'))
+        grid_result.add_header('expressed', _('Expressed'))
+        grid_result.add_header('yes', _('Yes'))
+        grid_result.add_header('no', _('No'))
+        grid_result.add_header('blank', _('Blank'))
+        grid_result.add_header('absent', _('Absent'))
+        grid_result.set_location(0, 7 + index, 3)
+        grid_result.set_value(1, 'desc', _('By shares'))
+        grid_result.set_value(1, 'total', vote_structure.get_total())
+        grid_result.set_value(1, 'expressed', get_value_ratio(vote_structure.get_total_expressed(), vote_structure.get_total()))
+        grid_result.set_value(1, 'yes', get_value_ratio(vote_structure.get_total_vote(self.VoteStructure.VoteItem.YES), vote_structure.get_total()))
+        grid_result.set_value(1, 'no', get_value_ratio(vote_structure.get_total_vote(self.VoteStructure.VoteItem.NO), vote_structure.get_total()))
+        grid_result.set_value(1, 'blank', get_value_ratio(vote_structure.get_total_vote(self.VoteStructure.VoteItem.BLANK), vote_structure.get_total()))
+        grid_result.set_value(1, 'absent', get_value_ratio(vote_structure.get_total_vote(self.VoteStructure.VoteItem.ABSENT), vote_structure.get_total()))
+        grid_result.set_value(2, 'desc', _('By votes'))
+        grid_result.set_value(2, 'total', vote_structure.get_nb())
+        grid_result.set_value(2, 'expressed', get_value_ratio(vote_structure.get_nb_expressed(), vote_structure.get_nb()))
+        grid_result.set_value(2, 'yes', get_value_ratio(vote_structure.get_nb_vote(self.VoteStructure.VoteItem.YES), vote_structure.get_nb()))
+        grid_result.set_value(2, 'no', get_value_ratio(vote_structure.get_nb_vote(self.VoteStructure.VoteItem.NO), vote_structure.get_nb()))
+        grid_result.set_value(2, 'blank', get_value_ratio(vote_structure.get_nb_vote(self.VoteStructure.VoteItem.BLANK), vote_structure.get_nb()))
+        grid_result.set_value(2, 'absent', get_value_ratio(vote_structure.get_nb_vote(self.VoteStructure.VoteItem.ABSENT), vote_structure.get_nb()))
+        self.add_component(grid_result)
+
+        lbl = XferCompLabelForm('info')
+        lbl.set_value_as_header(vote_structure.get_info_method())
+        lbl.set_location(0, 8 + index, 3)
+        self.add_component(lbl)
+
+        lbl = vote_structure.get_decision_label()
+        lbl.set_location(0, 9 + index, 3)
+        self.add_component(lbl)
 
 
 @ActionsManage.affect_grid(_('payoff'), short_icon='mdi:mdi-pencil-plus-outline', close=CLOSE_NO)
