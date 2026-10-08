@@ -476,9 +476,9 @@ class OwnerVoteCalculator(XferContainerCustom):
             if self.voting_method == self.SIMPLE_MAJORITY:
                 return self.get_total_vote(self.VoteItem.YES) > self.get_total_vote(self.VoteItem.NO)
             elif self.voting_method == self.ABSOLUTE_MAJORITY:
-                return self.get_total_vote(self.VoteItem.YES) > self.get_total()
+                return self.get_total_vote(self.VoteItem.YES) > (self.get_total() / 2)
             elif self.voting_method == self.DOUBLE_MAJORITY:
-                return (self.get_nb_vote(self.VoteItem.YES) > self.get_nb() / 2) and self.get_total_vote(self.VoteItem.YES) > (2 * self.get_total() / 3)
+                return (self.get_nb_vote(self.VoteItem.YES) > (self.get_nb() / 2)) and self.get_total_vote(self.VoteItem.YES) > (2 * self.get_total() / 3)
             else:
                 return None
 

@@ -51,7 +51,7 @@ def _set_partition(setpart, owner, value):
     part.save()
 
 
-def _create_owners(set1, set2, set3, set4, with_lots=True):
+def _create_owners(set1, set2, set3, set4, with_lots=True, subkey_different=False):
     owner1 = Owner.objects.create(third_id=4)  # Minimum
     owner1.editor.before_save(None)
     owner1.save()
@@ -72,9 +72,14 @@ def _create_owners(set1, set2, set3, set4, with_lots=True):
         lot1 = PropertyLot.objects.create(num=1, value=45.0, description="Appart A", owner=owner1)
         lot2 = PropertyLot.objects.create(num=2, value=35.0, description="Appart B", owner=owner2)
         lot3 = PropertyLot.objects.create(num=3, value=20.0, description="Appart C", owner=owner3)
-        PropertyLotCustomField.objects.create(field=subkey, property=lot1, value=45)
-        PropertyLotCustomField.objects.create(field=subkey, property=lot2, value=35)
-        PropertyLotCustomField.objects.create(field=subkey, property=lot3, value=20)
+        if not subkey_different:
+            PropertyLotCustomField.objects.create(field=subkey, property=lot1, value=45)
+            PropertyLotCustomField.objects.create(field=subkey, property=lot2, value=35)
+            PropertyLotCustomField.objects.create(field=subkey, property=lot3, value=20)
+        else:
+            PropertyLotCustomField.objects.create(field=subkey, property=lot1, value=15)
+            PropertyLotCustomField.objects.create(field=subkey, property=lot2, value=55)
+            PropertyLotCustomField.objects.create(field=subkey, property=lot3, value=30)            
         set1.set_of_lots.set(PropertyLot.objects.all())
         set1.save()
         set3.secondarykey = subkey
@@ -107,7 +112,7 @@ def clear_cache():
     cache.clear()
 
 
-def default_setowner_fr(with_lots=True):
+def default_setowner_fr(with_lots=True, subkey_different=False):
     Params.setvalue('accounting-sizecode', 3)
     RecoverableLoadRatio.objects.create(code='602', ratio=60)
     RecoverableLoadRatio.objects.create(code='604', ratio=40)
@@ -127,7 +132,7 @@ def default_setowner_fr(with_lots=True):
     _set_budget(set3, '604', 500)
     set4 = Set.objects.create(name="OLD", budget=100, revenue_account='702', is_link_to_lots=False, type_load=1, is_active=False)
     _set_budget(set4, '602', 100)
-    _create_owners(set1, set2, set3, set4, with_lots)
+    _create_owners(set1, set2, set3, set4, with_lots, subkey_different)
     Owner.check_all_account()
 
 
