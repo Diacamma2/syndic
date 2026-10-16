@@ -726,6 +726,10 @@ msgstr "mensuelle"
 msgid "condominium-mode-current-callfunds.2"
 msgstr "annuelle"
 
+#: models.py:2638
+msgid "condominium-mode-current-callfunds.3"
+msgstr "semestrielle"
+
 #: models.py:2639
 msgid "condominium-payoff-calloffunds"
 msgstr "Possibilité de régler directement les appels de fonds"
