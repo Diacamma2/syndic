@@ -1072,6 +1072,7 @@ class CallFunds(LucteriosModel):
     MODE_CURRENT_QUARTERLY = 0
     MODE_CURRENT_MONTLY = 1
     MODE_CURRENT_ANNUALY = 2
+    MODE_CURRENT_SEMIANNUALY = 3
 
     STATUS_BUILDING = 0
     STATUS_VALID = 1
@@ -1097,6 +1098,8 @@ class CallFunds(LucteriosModel):
             nb_seq = 12
         if Params.getvalue("condominium-mode-current-callfunds") == CallFunds.MODE_CURRENT_ANNUALY:
             nb_seq = 1
+        if Params.getvalue("condominium-mode-current-callfunds") == CallFunds.MODE_CURRENT_SEMIANNUALY:
+            nb_seq = 2
         return nb_seq
 
     def __str__(self):
@@ -2635,7 +2638,7 @@ def condominium_checkparam():
                                args="{'Multi':False}", value=correct_accounting_code('105'),
                                meta='("accounting","ChartsAccount", Q(type_of_account=2) & Q(year__is_actif=True), "code", True)')
     Parameter.check_and_create(name='condominium-mode-current-callfunds', typeparam=Parameter.TYPE_SELECT, title=_("condominium-mode-current-callfunds"),
-                               args="{'Enum':3}", value=0, param_titles=(_("condominium-mode-current-callfunds.0"), _("condominium-mode-current-callfunds.1"), _("condominium-mode-current-callfunds.2")))
+                               args="{'Enum':4}", value=0, param_titles=(_("condominium-mode-current-callfunds.0"), _("condominium-mode-current-callfunds.1"), _("condominium-mode-current-callfunds.2"), _("condominium-mode-current-callfunds.3")))
     Parameter.check_and_create(name='condominium-payoff-calloffunds', typeparam=Parameter.TYPE_BOOL, title=_("condominium-payoff-calloffunds"), args="{}", value='False')
     if Parameter.check_and_create(name='condominium-old-accounting', typeparam=Parameter.TYPE_BOOL, title=_("condominium-old-accounting"), args="{}", value='False'):
         Parameter.change_value('condominium-old-accounting', Owner.objects.filter(third__status=Third.STATUS_ENABLE).count() != 0)
