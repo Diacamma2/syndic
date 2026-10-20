@@ -1573,7 +1573,7 @@ class Owner01FranceTest(PaymentTest):
         self.assert_json_equal('LABELFORM', 'is_active', False)
 
         self.factory.xfer = EntryAccountList()
-        self.calljson('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '5', 'filter': '0'}, False)
+        self.calljson('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '5', 'filter': '0', 'GRID_ORDER%entryline': 'entry__date_value,entry_id,account__code,third'}, False)
         self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
         self.assert_count_equal('entryline', 6)
         self.assert_json_equal('LABELFORM', 'result', [350.00, 187.34, 162.66, 24.34, 24.34])
@@ -1671,7 +1671,7 @@ class Owner01FranceTest(PaymentTest):
         self.check_account(year_id=2, code='702', value=None)
 
         self.factory.xfer = EntryAccountList()
-        self.calljson('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '5', 'filter': '2', 'GRID_SIZE%entryline': 100}, False)
+        self.calljson('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '5', 'filter': '2', 'GRID_SIZE%entryline': 100, 'GRID_ORDER%entryline': 'entry__date_value,entry_id,account__code,third'}, False)
         self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
         self.assert_count_equal('entryline', 30)
         self.assert_json_equal('', 'entryline/@2/entry.num', 16)
@@ -1961,7 +1961,7 @@ class Owner01FranceTest(PaymentTest):
         init_compta()
 
         self.factory.xfer = OwnerShow()
-        self.calljson('/diacamma.condominium/ownerShow', {'owner': 1}, False)
+        self.calljson('/diacamma.condominium/ownerShow', {'owner': 1, 'GRID_ORDER%entryline': 'entry__date_value,entry_id,account__code,third'}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'ownerShow')
         self.assert_json_equal('LABELFORM', 'third', 'Minimum')
         self.assert_json_equal('LABELFORM', 'thirdinitial', 29.18)
@@ -1997,7 +1997,7 @@ class Owner01FranceTest(PaymentTest):
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'paymentVentilatePay')
 
         self.factory.xfer = OwnerShow()
-        self.calljson('/diacamma.condominium/ownerShow', {'owner': 1}, False)
+        self.calljson('/diacamma.condominium/ownerShow', {'owner': 1, 'GRID_ORDER%entryline': 'entry__date_value,entry_id,account__code,third'}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'ownerShow')
         self.assert_json_equal('LABELFORM', 'thirdinitial', 29.18)
         self.assert_count_equal('entryline', 5)
@@ -2051,7 +2051,7 @@ class Owner01FranceTest(PaymentTest):
         pay1.save()
 
         self.factory.xfer = OwnerShow()
-        self.calljson('/diacamma.condominium/ownerShow', {'owner': 2}, False)
+        self.calljson('/diacamma.condominium/ownerShow', {'owner': 2, 'GRID_ORDER%entryline': 'entry__date_value,entry_id,account__code,third'}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'ownerShow')
         self.assert_json_equal('LABELFORM', 'third', 'Dalton William')
         self.assert_json_equal('LABELFORM', 'thirdinitial', -12.50)
@@ -2082,7 +2082,7 @@ class Owner01FranceTest(PaymentTest):
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'paymentVentilatePay')
 
         self.factory.xfer = OwnerShow()
-        self.calljson('/diacamma.condominium/ownerShow', {'owner': 2}, False)
+        self.calljson('/diacamma.condominium/ownerShow', {'owner': 2, 'GRID_ORDER%entryline': 'entry__date_value,entry_id,account__code,third'}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'ownerShow')
         self.assert_json_equal('LABELFORM', 'thirdinitial', -12.50)
         self.assert_count_equal('entryline', 10)
@@ -2613,7 +2613,7 @@ class Owner02BelgiumTest(PaymentTest):
         init_compta()
 
         self.factory.xfer = OwnerShow()
-        self.calljson('/diacamma.condominium/ownerShow', {'owner': 1}, False)
+        self.calljson('/diacamma.condominium/ownerShow', {'owner': 1, 'GRID_ORDER%entryline': 'entry__date_value,entry_id,account__code,third'}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'ownerShow')
         self.assert_json_equal('LABELFORM', 'third', 'Minimum')
         self.assert_json_equal('LABELFORM', 'thirdinitial', 29.18)
@@ -2654,7 +2654,7 @@ class Owner02BelgiumTest(PaymentTest):
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'paymentVentilatePay')
 
         self.factory.xfer = OwnerShow()
-        self.calljson('/diacamma.condominium/ownerShow', {'owner': 1}, False)
+        self.calljson('/diacamma.condominium/ownerShow', {'owner': 1, 'GRID_ORDER%entryline': 'entry__date_value,entry_id,account__code,third'}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'ownerShow')
         self.assert_json_equal('LABELFORM', 'thirdinitial', 29.18)
         self.assert_count_equal('entryline', 5)
@@ -2708,7 +2708,7 @@ class Owner02BelgiumTest(PaymentTest):
         pay1.save()
 
         self.factory.xfer = OwnerShow()
-        self.calljson('/diacamma.condominium/ownerShow', {'owner': 2}, False)
+        self.calljson('/diacamma.condominium/ownerShow', {'owner': 2, 'GRID_ORDER%entryline': 'entry__date_value,entry_id,account__code,third'}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'ownerShow')
         self.assert_json_equal('LABELFORM', 'third', 'Dalton William')
         self.assert_json_equal('LABELFORM', 'thirdinitial', -12.50)
@@ -2739,7 +2739,7 @@ class Owner02BelgiumTest(PaymentTest):
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'paymentVentilatePay')
 
         self.factory.xfer = OwnerShow()
-        self.calljson('/diacamma.condominium/ownerShow', {'owner': 2}, False)
+        self.calljson('/diacamma.condominium/ownerShow', {'owner': 2, 'GRID_ORDER%entryline': 'entry__date_value,entry_id,account__code,third'}, False)
         self.assert_observer('core.custom', 'diacamma.condominium', 'ownerShow')
         self.assert_json_equal('LABELFORM', 'thirdinitial', -12.50)
         self.assert_count_equal('entryline', 6)

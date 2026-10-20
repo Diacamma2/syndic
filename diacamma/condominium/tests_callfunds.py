@@ -414,7 +414,7 @@ class CallFundsTest(LucteriosTest):
         self.assert_count_equal('callfunds', 2)
 
         self.factory.xfer = EntryAccountList()
-        self.calljson('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '0', 'filter': '0'}, False)
+        self.calljson('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '0', 'filter': '0', 'GRID_ORDER%entryline': 'entry__date_value,entry_id,account__code,third'}, False)
         self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
         self.assert_count_equal('entryline', 8)
         self.assert_json_equal('', 'entryline/@0/costaccounting', None)
@@ -447,7 +447,7 @@ class CallFundsTest(LucteriosTest):
         self.assert_observer('core.acknowledge', 'diacamma.payoff', 'payoffAddModify')
 
         self.factory.xfer = EntryAccountList()
-        self.calljson('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '0', 'filter': '0'}, False)
+        self.calljson('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '0', 'filter': '0', 'GRID_ORDER%entryline': 'entry__date_value,entry_id,account__code,third'}, False)
         self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
         self.assert_count_equal('entryline', 10)
         self.assert_json_equal('', 'entryline/@8/entry_account', '[4501 Minimum]')
@@ -495,7 +495,7 @@ class CallFundsTest(LucteriosTest):
         self.assert_json_equal('', 'callfunds/@2/total', 50.00)
 
         self.factory.xfer = EntryAccountList()
-        self.calljson('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '0', 'filter': '0'}, False)
+        self.calljson('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '0', 'filter': '0', 'GRID_ORDER%entryline': 'entry__date_value,entry_id,account__code,third'}, False)
         self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
         self.assert_count_equal('entryline', 6)
         self.assert_json_equal('', 'entryline/@0/costaccounting', None)
@@ -525,7 +525,7 @@ class CallFundsTest(LucteriosTest):
         self.assert_observer('core.acknowledge', 'diacamma.payoff', 'payoffAddModify')
 
         self.factory.xfer = EntryAccountList()
-        self.calljson('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '0', 'filter': '0'}, False)
+        self.calljson('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '0', 'filter': '0', 'GRID_ORDER%entryline': 'entry__date_value,entry_id,account__code,third'}, False)
         self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
         self.assert_count_equal('entryline', 8)
         self.assert_json_equal('', 'entryline/@6/entry_account', '[4502 Minimum]')
@@ -573,7 +573,7 @@ class CallFundsTest(LucteriosTest):
         self.assert_json_equal('', 'callfunds/@2/total', 20.00)
 
         self.factory.xfer = EntryAccountList()
-        self.calljson('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '0', 'filter': '0'}, False)
+        self.calljson('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '0', 'filter': '0', 'GRID_ORDER%entryline': 'entry__date_value,entry_id,account__code,third'}, False)
         self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
         self.assert_count_equal('entryline', 6)
         self.assert_json_equal('', 'entryline/@0/costaccounting', None)
@@ -603,7 +603,7 @@ class CallFundsTest(LucteriosTest):
         self.assert_observer('core.acknowledge', 'diacamma.payoff', 'payoffAddModify')
 
         self.factory.xfer = EntryAccountList()
-        self.calljson('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '0', 'filter': '0'}, False)
+        self.calljson('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '0', 'filter': '0', 'GRID_ORDER%entryline': 'entry__date_value,entry_id,account__code,third'}, False)
         self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
         self.assert_count_equal('entryline', 8)
         self.assert_json_equal('', 'entryline/@6/entry_account', '[4503 Minimum]')
@@ -651,7 +651,7 @@ class CallFundsTest(LucteriosTest):
         self.assert_json_equal('', 'callfunds/@2/total', 20.00)
         self.factory.xfer = EntryAccountList()
 
-        self.calljson('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '0', 'filter': '0'}, False)
+        self.calljson('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '0', 'filter': '0', 'GRID_ORDER%entryline': 'entry__date_value,entry_id,account__code,third'}, False)
         self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
         self.assert_count_equal('entryline', 6)
         self.assert_json_equal('', 'entryline/@0/costaccounting', None)
@@ -681,7 +681,7 @@ class CallFundsTest(LucteriosTest):
         self.assert_observer('core.acknowledge', 'diacamma.payoff', 'payoffAddModify')
 
         self.factory.xfer = EntryAccountList()
-        self.calljson('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '0', 'filter': '0'}, False)
+        self.calljson('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '0', 'filter': '0', 'GRID_ORDER%entryline': 'entry__date_value,entry_id,account__code,third'}, False)
         self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
         self.assert_count_equal('entryline', 8)
         self.assert_json_equal('', 'entryline/@6/entry_account', '[4505 Minimum]')
@@ -761,7 +761,7 @@ class CallFundsTest(LucteriosTest):
         self.assert_json_equal('', 'callfunds/@2/total', 100.00)
 
         self.factory.xfer = EntryAccountList()
-        self.calljson('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '0', 'filter': '0'}, False)
+        self.calljson('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '0', 'filter': '0', 'GRID_ORDER%entryline': 'entry__date_value,entry_id,account__code,third'}, False)
         self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
         self.assert_count_equal('entryline', 18)
         self.assert_json_equal('', 'entryline/@0/costaccounting', None)
@@ -818,7 +818,7 @@ class CallFundsTest(LucteriosTest):
         self.assert_observer('core.acknowledge', 'diacamma.payoff', 'payoffAddModify')
 
         self.factory.xfer = EntryAccountList()
-        self.calljson('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '0', 'filter': '0'}, False)
+        self.calljson('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '0', 'filter': '0', 'GRID_ORDER%entryline': 'entry__date_value,entry_id,account__code,third'}, False)
         self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
         self.assert_count_equal('entryline', 22)
         self.assert_json_equal('', 'entryline/@18/entry_account', '[4501 Minimum]')  # 112.5 + 45 + 67.5 =  225 => 100 = 44.444444%
@@ -1444,7 +1444,7 @@ class CallFundsBelgiumTest(LucteriosTest):
         self.assert_observer('core.acknowledge', 'diacamma.condominium', 'callFundsTransition')
 
         self.factory.xfer = EntryAccountList()
-        self.calljson('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '0', 'filter': '0'}, False)
+        self.calljson('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '0', 'filter': '0', 'GRID_ORDER%entryline': 'entry__date_value,entry_id,account__code,third'}, False)
         self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
         self.assert_count_equal('entryline', 8)
         self.assert_json_equal('', 'entryline/@0/costaccounting', None)
@@ -1477,7 +1477,7 @@ class CallFundsBelgiumTest(LucteriosTest):
         self.assert_observer('core.acknowledge', 'diacamma.payoff', 'payoffAddModify')
 
         self.factory.xfer = EntryAccountList()
-        self.calljson('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '0', 'filter': '0'}, False)
+        self.calljson('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '0', 'filter': '0', 'GRID_ORDER%entryline': 'entry__date_value,entry_id,account__code,third'}, False)
         self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
         self.assert_count_equal('entryline', 10)
         self.assert_json_equal('', 'entryline/@8/entry_account', '[410100 Minimum]')
@@ -1525,7 +1525,7 @@ class CallFundsBelgiumTest(LucteriosTest):
         self.assert_json_equal('', 'callfunds/@2/total', 50.00)
 
         self.factory.xfer = EntryAccountList()
-        self.calljson('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '0', 'filter': '0'}, False)
+        self.calljson('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '0', 'filter': '0', 'GRID_ORDER%entryline': 'entry__date_value,entry_id,account__code,third'}, False)
         self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
         self.assert_count_equal('entryline', 6)
         self.assert_json_equal('', 'entryline/@0/costaccounting', None)
@@ -1554,7 +1554,7 @@ class CallFundsBelgiumTest(LucteriosTest):
         self.assert_observer('core.acknowledge', 'diacamma.payoff', 'payoffAddModify')
 
         self.factory.xfer = EntryAccountList()
-        self.calljson('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '0', 'filter': '0'}, False)
+        self.calljson('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '0', 'filter': '0', 'GRID_ORDER%entryline': 'entry__date_value,entry_id,account__code,third'}, False)
         self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
         self.assert_count_equal('entryline', 8)
         self.assert_json_equal('', 'entryline/@6/entry_account', '[410000 Minimum]')
@@ -1601,7 +1601,7 @@ class CallFundsBelgiumTest(LucteriosTest):
         self.assert_json_equal('', 'callfunds/@2/total', 20.00)
 
         self.factory.xfer = EntryAccountList()
-        self.calljson('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '0', 'filter': '0'}, False)
+        self.calljson('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '0', 'filter': '0', 'GRID_ORDER%entryline': 'entry__date_value,entry_id,account__code,third'}, False)
         self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
         self.assert_count_equal('entryline', 6)
         self.assert_json_equal('', 'entryline/@0/costaccounting', None)
@@ -1621,7 +1621,7 @@ class CallFundsBelgiumTest(LucteriosTest):
         self.assert_json_equal('LABELFORM', 'result', [100.00, 0.00, 100.00, 0.00, 0.00])
 
         self.factory.xfer = EntryAccountList()
-        self.calljson('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '3', 'filter': '0'}, False)
+        self.calljson('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '3', 'filter': '0', 'GRID_ORDER%entryline': 'entry__date_value,entry_id,account__code,third'}, False)
         self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
         self.assert_count_equal('entryline', 6)
 
@@ -1630,7 +1630,7 @@ class CallFundsBelgiumTest(LucteriosTest):
         self.assert_observer('core.acknowledge', 'diacamma.payoff', 'payoffAddModify')
 
         self.factory.xfer = EntryAccountList()
-        self.calljson('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '0', 'filter': '0'}, False)
+        self.calljson('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '0', 'filter': '0', 'GRID_ORDER%entryline': 'entry__date_value,entry_id,account__code,third'}, False)
         self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
         self.assert_count_equal('entryline', 8)
         self.assert_json_equal('', 'entryline/@6/entry_account', '[410100 Minimum]')
@@ -1677,7 +1677,7 @@ class CallFundsBelgiumTest(LucteriosTest):
         self.assert_json_equal('', 'callfunds/@2/total', 20.00)
         self.factory.xfer = EntryAccountList()
 
-        self.calljson('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '0', 'filter': '0'}, False)
+        self.calljson('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '0', 'filter': '0', 'GRID_ORDER%entryline': 'entry__date_value,entry_id,account__code,third'}, False)
         self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
         self.assert_count_equal('entryline', 6)
         self.assert_json_equal('', 'entryline/@0/costaccounting', None)
@@ -1706,7 +1706,7 @@ class CallFundsBelgiumTest(LucteriosTest):
         self.assert_observer('core.acknowledge', 'diacamma.payoff', 'payoffAddModify')
 
         self.factory.xfer = EntryAccountList()
-        self.calljson('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '0', 'filter': '0'}, False)
+        self.calljson('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '0', 'filter': '0', 'GRID_ORDER%entryline': 'entry__date_value,entry_id,account__code,third'}, False)
         self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
         self.assert_count_equal('entryline', 8)
         self.assert_json_equal('', 'entryline/@6/entry_account', '[410000 Minimum]')
@@ -1760,7 +1760,7 @@ class CallFundsTestOldAccounting(LucteriosTest):
         self.assert_observer('core.acknowledge', 'diacamma.payoff', 'payoffAddModify')
 
         self.factory.xfer = EntryAccountList()
-        self.calljson('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '0', 'filter': '0'}, False)
+        self.calljson('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '0', 'filter': '0', 'GRID_ORDER%entryline': 'entry__date_value,entry_id,account__code,third'}, False)
         self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
         self.assert_count_equal('entryline', 2)
         self.assert_json_equal('', 'entryline/@0/entry_account', '[450 Minimum]')
@@ -1800,7 +1800,7 @@ class CallFundsTestOldAccounting(LucteriosTest):
         self.assert_observer('core.acknowledge', 'diacamma.payoff', 'payoffAddModify')
 
         self.factory.xfer = EntryAccountList()
-        self.calljson('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '0', 'filter': '0'}, False)
+        self.calljson('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '0', 'filter': '0', 'GRID_ORDER%entryline': 'entry__date_value,entry_id,account__code,third'}, False)
         self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
         self.assert_count_equal('entryline', 2)
         self.assert_json_equal('', 'entryline/@0/entry_account', '[450 Minimum]')
@@ -1840,7 +1840,7 @@ class CallFundsTestOldAccounting(LucteriosTest):
         self.assert_observer('core.acknowledge', 'diacamma.payoff', 'payoffAddModify')
 
         self.factory.xfer = EntryAccountList()
-        self.calljson('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '0', 'filter': '0'}, False)
+        self.calljson('/diacamma.accounting/entryAccountList', {'year': '1', 'journal': '0', 'filter': '0', 'GRID_ORDER%entryline': 'entry__date_value,entry_id,account__code,third'}, False)
         self.assert_observer('core.custom', 'diacamma.accounting', 'entryAccountList')
         self.assert_count_equal('entryline', 2)
         self.assert_json_equal('', 'entryline/@0/entry_account', '[450 Minimum]')
